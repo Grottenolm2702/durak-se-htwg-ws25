@@ -1,5 +1,61 @@
 *.class
 *.log
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# === Scala / sbt ===
+target/
+project/target/
+project/project/
+
+# === Metals / Bloop / VSCode ===
+.metals/
+.bloop/
+.vscode/
+.idea/
+.history/
+.cache/
+.classpath
+.project
+.settings/
+
+# === Log- & Temp-Dateien ===
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+.DS_Store
+
+# === System- & OS-spezifisch ===
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# === Scala REPL / ammonite ===
+.amm_history
+ammonite-scripts/
+out/
+
+# === IntelliJ IDEA ===
+*.iml
+.idea_modules/
+.idea/
+
+# === sbt Script Files ===
+dist/
+lib_managed/
+src_managed/
+boot/
+project/metals.sbt
+
+# === Test / Coverage ===
+coverage/
+test-reports/
+target/test-classes/
+
+# === Build caches ===
+.coursier/
+.ivy2/
+.sbt/
+
