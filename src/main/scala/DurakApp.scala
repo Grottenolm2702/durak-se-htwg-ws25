@@ -27,10 +27,10 @@ object DurakApp:
 
     def renderCard(card: Card): List[String] =
       val symbol = card.suit match
-        case Suit.Hearts   => "♥"
-        case Suit.Diamonds => "♦"
-        case Suit.Clubs    => "♣"
-        case Suit.Spades   => "♠"
+        case Suit.Hearts   => "\u001b[31m♥\u001b[0m"
+        case Suit.Diamonds => "\u001b[31m♦\u001b[0m"
+        case Suit.Clubs    => "\u001b[32m♣\u001b[0m"
+        case Suit.Spades   => "\u001b[32m♠\u001b[0m"
       val rankStr = card.rank match
         case Rank.Six   => "6"
         case Rank.Seven => "7"
@@ -75,7 +75,7 @@ object DurakApp:
     val deck = (for {
       suit <- Suit.values
       rank <- Rank.values
-    } yield Card(suit, rank)).take(13).toList
+    } yield Card(suit, rank)).take(52).toList
 
     val shuffledDeck = scala.util.Random.shuffle(deck.toList)
     val trump = shuffledDeck.head.suit
