@@ -1,4 +1,4 @@
-package de.htwg.DuDurakDurak
+package de.htwg.DurakApp
 object DurakApp:
 
   def main(args: Array[String]): Unit =
@@ -100,4 +100,3 @@ object DurakApp:
 
     // --- Spiel anzeigen ---
     println(renderGame(game))
-
