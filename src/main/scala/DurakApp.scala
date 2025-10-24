@@ -1,3 +1,4 @@
+package de.htwg.DuDurakDurak
 object DurakApp:
 
   def main(args: Array[String]): Unit =
