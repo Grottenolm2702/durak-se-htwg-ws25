@@ -1,4 +1,4 @@
-package de.htwg.DurakApp
+package de.htwg.DurakApp //Created package
 object DurakApp:
 
   def main(args: Array[String]): Unit =
