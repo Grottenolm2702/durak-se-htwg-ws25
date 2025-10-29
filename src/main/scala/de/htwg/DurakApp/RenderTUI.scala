@@ -1,6 +1,6 @@
 package de.htwg.DurakApp
 
-object DurakApp:
+object RenderTUI:
 
   def renderCard(card: Card): List[String] =
     val symbol = card.suit match
