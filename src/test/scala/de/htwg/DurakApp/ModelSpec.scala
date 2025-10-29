@@ -45,14 +45,10 @@ class DurakAppSpec extends AnyWordSpec with Matchers{
         Card(Suit.Spades, Rank.Ace),
         Card(Suit.Diamonds, Rank.Ten)
       )
-      val table = List(
-        Card(Suit.Clubs, Rank.Seven)
-      )
       val trump = Suit.Hearts
-      val gameState = GameState(players, deck, table, trump)
+      val gameState = GameState(players, deck,  trump = trump)
       gameState.players shouldBe players
       gameState.deck shouldBe deck
-      gameState.table shouldBe table
       gameState.trump shouldBe trump
     }
   }
