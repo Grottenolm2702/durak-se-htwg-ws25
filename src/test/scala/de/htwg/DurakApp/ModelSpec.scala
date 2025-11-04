@@ -8,8 +8,8 @@ import org.scalatest.matchers.should.Matchers._
 class DurakAppSpec extends AnyWordSpec with Matchers{
 
   "A Card" should {
-    "store its suit and rank correctly" in {
-      val card = Card(Suit.Hearts, Rank.Ace)
+    "store its suit, rank and trumpBool correctly" in {
+      val card = Card(Suit.Hearts, Rank.Ace, isTrump = true)
       card.suit shouldBe Suit.Hearts
       card.rank shouldBe Rank.Ace
     }
@@ -27,9 +27,22 @@ class DurakAppSpec extends AnyWordSpec with Matchers{
       Rank.Ace.value shouldBe 14
     }
   }
+  "A trumps Rank" should {
+    "extend its value+9" in {
+      TrumpRank.TrumpSix.value shouldBe 15
+      TrumpRank.TrumpSeven.value shouldBe 16
+      TrumpRank.TrumpEight.value shouldBe 17
+      TrumpRank.TrumpNine.value shouldBe 18
+      TrumpRank.TrumpTen.value shouldBe 19
+      TrumpRank.TrumpJack.value shouldBe 20
+      TrumpRank.TrumpQueen.value shouldBe 21
+      TrumpRank.TrumpKing.value shouldBe 22
+      TrumpRank.TrumpAce.value shouldBe 23
+    }
+  }
   "A Player" should {
     "store its name and hand correctly" in {
-      val hand = List(Card(Suit.Hearts, Rank.Six), Card(Suit.Clubs, Rank.Jack))
+      val hand = List(Card(Suit.Hearts, Rank.Six, isTrump = false), Card(Suit.Clubs, Rank.Jack, isTrump = true))
       val player = Player("Lucifer", hand)
       player.name shouldBe "Lucifer"
       player.hand shouldBe hand
@@ -42,8 +55,8 @@ class DurakAppSpec extends AnyWordSpec with Matchers{
         Player("Michael")
       )
       val deck = List(
-        Card(Suit.Spades, Rank.Ace),
-        Card(Suit.Diamonds, Rank.Ten)
+        Card(Suit.Spades, Rank.Ace, isTrump = false),
+        Card(Suit.Diamonds, Rank.Ten, isTrump = true)
       )
       val trump = Suit.Hearts
       val gameState = GameState(players, deck,  trump = trump)

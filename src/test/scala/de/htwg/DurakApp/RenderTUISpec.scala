@@ -9,7 +9,7 @@ import org.scalatest.matchers.should.Matchers._
 class RenderTUISpec extends AnyWordSpec with Matchers{
     "def renderCard" should {
         "render a card correctly" in {
-            val card = Card(Suit.Hearts, Rank.Ace)
+            val card = Card(Suit.Hearts, Rank.Ace, isTrump = true)
             val rendered = RenderTUI.renderCard(card)
             val expected = List(
             "+-----+",
@@ -24,14 +24,14 @@ class RenderTUISpec extends AnyWordSpec with Matchers{
     "def renderHand" should {
         "render a hand of cards correctly" in {
             val hand = List(
-            Card(Suit.Hearts, Rank.Six),
-            Card(Suit.Hearts, Rank.Seven),
-            Card(Suit.Hearts, Rank.Eight),
-            Card(Suit.Clubs, Rank.Nine),
-            Card(Suit.Spades, Rank.Ten),
-            Card(Suit.Clubs, Rank.Jack),
-            Card(Suit.Hearts, Rank.Queen),
-            Card(Suit.Diamonds, Rank.King)
+            Card(Suit.Hearts, Rank.Six, isTrump = false),
+            Card(Suit.Hearts, Rank.Seven, isTrump = false),
+            Card(Suit.Hearts, Rank.Eight, isTrump = false),
+            Card(Suit.Clubs, Rank.Nine,isTrump = false),
+            Card(Suit.Spades, Rank.Ten,isTrump = false),
+            Card(Suit.Clubs, Rank.Jack, isTrump = true),
+            Card(Suit.Hearts, Rank.Queen, isTrump = true),
+            Card(Suit.Diamonds, Rank.King, isTrump = true)
             )
             val rendered = RenderTUI.renderHand(hand)
             val expected =
@@ -53,8 +53,8 @@ class RenderTUISpec extends AnyWordSpec with Matchers{
         "def renderTable" should {
             "render a table of cards correctly" in {
                 val table = List(
-                Card(Suit.Hearts, Rank.Six),
-                Card(Suit.Clubs, Rank.Jack)
+                Card(Suit.Hearts, Rank.Six, isTrump = false),
+                Card(Suit.Clubs, Rank.Jack, isTrump = true)
                 )
                 val rendered = RenderTUI.renderTable(table)
                 val expected =
@@ -69,11 +69,11 @@ class RenderTUISpec extends AnyWordSpec with Matchers{
         "def renderGame" should {
             "render the entire game state correctly" in {
                 val players = List(
-                Player("Lucifer", List(Card(Suit.Hearts, Rank.Six))),
-                Player("Michael", List(Card(Suit.Clubs, Rank.Jack)))
+                Player("Lucifer", List(Card(Suit.Hearts, Rank.Six, isTrump = true))),
+                Player("Michael", List(Card(Suit.Clubs, Rank.Jack, isTrump = false)))
                 )
                 val table = List(
-                Card(Suit.Spades, Rank.Ace)
+                Card(Suit.Spades, Rank.Ace, isTrump = false)
                 )
                 val trump = Suit.Diamonds
                 val gameState = GameState(players, List(), table, trump)
