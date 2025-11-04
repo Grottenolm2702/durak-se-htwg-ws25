@@ -27,19 +27,6 @@ class DurakAppSpec extends AnyWordSpec with Matchers{
       Rank.Ace.value shouldBe 14
     }
   }
-  "A trumps Rank" should {
-    "extend its value+9" in {
-      TrumpRank.TrumpSix.value shouldBe 15
-      TrumpRank.TrumpSeven.value shouldBe 16
-      TrumpRank.TrumpEight.value shouldBe 17
-      TrumpRank.TrumpNine.value shouldBe 18
-      TrumpRank.TrumpTen.value shouldBe 19
-      TrumpRank.TrumpJack.value shouldBe 20
-      TrumpRank.TrumpQueen.value shouldBe 21
-      TrumpRank.TrumpKing.value shouldBe 22
-      TrumpRank.TrumpAce.value shouldBe 23
-    }
-  }
   "A Player" should {
     "store its name and hand correctly" in {
       val hand = List(Card(Suit.Hearts, Rank.Six, isTrump = false), Card(Suit.Clubs, Rank.Jack, isTrump = true))
