@@ -19,6 +19,7 @@ case class Player(name: String, hand: List[Card] = List())
 case class GameState(
     playerList: List[Player],
     deck: List[Card],
-    table: List[Card] = List(),
-    trump: Suit
+    trump: Suit,
+    attackingCards: List[Card] = List(),
+    defendingCards: List[Card] = List(),
 )
