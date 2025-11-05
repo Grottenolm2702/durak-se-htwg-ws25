@@ -34,7 +34,7 @@ object RenderTUI:
       combined.mkString("\n")
 
   def renderTable(table: List[Card]): String =
-    if table.isEmpty then "Table is empty"
+    if table.isEmpty then "Empty"
     else
       val lines = table.map(renderCard)
       val combined = lines.transpose.map(_.mkString(" "))
@@ -44,9 +44,10 @@ object RenderTUI:
     val playersStr = game.playerList
       .map(p => s"${p.name}'s hand:\n${renderHand(p.hand)}")
       .mkString("\n\n")
-    val tableStr = s"Table:\n${renderTable(game.table)}"
+    val attacker = s"Attacker:\n${renderTable(game.attackingCards)}"
+    val defender = s"Defending:\n${renderTable(game.defendingCards)}"
     val trumpStr = s"Trump suit: ${game.trump}"
-    s"$trumpStr\n\n$tableStr\n\n$playersStr"
+    s"$trumpStr\n\n$attacker\n$defender\n\n$playersStr"
 
   // def main(args: Array[String]): Unit =
     // val deck = (for {
