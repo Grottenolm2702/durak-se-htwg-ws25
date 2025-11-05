@@ -28,6 +28,13 @@ def initDeck(): List[Card] =
     shuffledDeck.map(card => card.copy(isTrump = card.suit == trump))
   moveTrump(trumpShuffledDeck)
 
+def dealCardsToHand(player: Player, deck: List[Card], n: Int): (Player, List[Card]) = {
+  val (dealtCards, remainingDeck) = deck.splitAt(n)
+  val newHand = player.hand ::: dealtCards
+  val updatedPlayer = player.copy(hand = newHand)
+  (updatedPlayer, remainingDeck)
+}
+
 def initPlayerList(deck: List[Card]): (List[Player], List[Card]) =
   println("How many players?")
   val numPlayers = readLine().toInt
