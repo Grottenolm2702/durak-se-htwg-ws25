@@ -28,11 +28,32 @@ def initDeck(): List[Card] =
     shuffledDeck.map(card => card.copy(isTrump = card.suit == trump))
   moveTrump(trumpShuffledDeck)
 
-def dealCardsToHand(player: Player, deck: List[Card], n: Int): (Player, List[Card]) = {
+def dealCardsToHand(
+    player: Player,
+    deck: List[Card],
+    n: Int
+): (Player, List[Card]) = {
   val (dealtCards, remainingDeck) = deck.splitAt(n)
   val newHand = player.hand ::: dealtCards
   val updatedPlayer = player.copy(hand = newHand)
   (updatedPlayer, remainingDeck)
+}
+
+def getPlayerWithLowestTrump(playerList: List[Player]): Player = {
+  val playersWithTrumpCards = playerList
+    .map { player =>
+      val trumpCardsInHand = player.hand.filter(card => card.isTrump)
+      (player, trumpCardsInHand)
+    }
+    .filter(_._2.nonEmpty)
+
+  if (playersWithTrumpCards.isEmpty) {
+    playerList.head
+  } else {
+    playersWithTrumpCards.minBy { case (player, trumpCards) =>
+      trumpCards.minBy(_.rank.value).rank.value
+    }._1
+  }
 }
 
 def initPlayerList(deck: List[Card]): (List[Player], List[Card]) =
