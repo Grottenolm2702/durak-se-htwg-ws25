@@ -41,7 +41,7 @@ object RenderTUI:
       combined.mkString("\n")
 
   def renderGame(game: GameState): String =
-    val playersStr = game.players
+    val playersStr = game.playerList
       .map(p => s"${p.name}'s hand:\n${renderHand(p.hand)}")
       .mkString("\n\n")
     val tableStr = s"Table:\n${renderTable(game.table)}"
