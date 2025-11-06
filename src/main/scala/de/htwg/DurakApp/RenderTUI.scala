@@ -2,12 +2,20 @@ package de.htwg.DurakApp
 
 object RenderTUI:
 
+  private val cardWidth = 7 // "+-----+" == 7 chars
+  private val cardHeight = 5 // number of lines per card ASCII art
+
+  /** ANSI clear & cursor home */
+  def clearScreen(): Unit =
+    print("\u001b[2J\u001b[H")
+
+  /** Render a single card as list of lines (fixed width) */
   def renderCard(card: Card): List[String] =
     val symbol = card.suit match
-      case Suit.Hearts   => "\u001b[31m♥\u001b[0m"
-      case Suit.Diamonds => "\u001b[31m♦\u001b[0m"
-      case Suit.Clubs    => "\u001b[32m♣\u001b[0m"
-      case Suit.Spades   => "\u001b[32m♠\u001b[0m"
+      case Suit.Hearts   => "\u2665"   // ♥
+      case Suit.Diamonds => "\u2666"   // ♦
+      case Suit.Clubs    => "\u2663"   // ♣
+      case Suit.Spades   => "\u2660"   // ♠
     val rankStr = card.rank match
       case Rank.Six   => "6"
       case Rank.Seven => "7"
@@ -18,53 +26,88 @@ object RenderTUI:
       case Rank.Queen => "Q"
       case Rank.King  => "K"
       case Rank.Ace   => "A"
-    List(
-      "+-----+",
-      f"|$rankStr%-2s   |",
-      s"|  $symbol  |",
-      "|     |",
-      "+-----+"
-    )
+    val rankField =
+      // left-align rank in a 2-char area (supports "10")
+      f"|$rankStr%-2s   |"
+    val suitField = s"|  $symbol  |"
+    val mid = List("+-----+", rankField, suitField, "|     |", "+-----+")
+    // mark trump visually by lowercasing card symbol? We'll add an indicator (T) in a separate status row if needed.
+    mid
 
-  def renderHand(hand: List[Card]): String =
+  /** Render an empty card slot (keeps layout stable when hand shorter) */
+  def renderEmptySlot(): List[String] =
+    List("       ", "       ", "       ", "       ", "       ")
+
+  /** Combine several cards horizontally, returns full multi-line string */
+  private def combineCardLines(cards: List[List[String]]): String =
+    if cards.isEmpty then ""
+    else
+      val transposed = cards.transpose
+      val combinedLines = transposed.map(_.mkString(" "))
+      combinedLines.mkString("\n")
+
+  /** Render a hand with indices under the cards (stable width) */
+  def renderHandWithIndices(hand: List[Card]): String =
     if hand.isEmpty then "Empty hand"
     else
-      val lines = hand.map(renderCard)
-      val combined = lines.transpose.map(_.mkString(" "))
-      combined.mkString("\n")
+      val cardLines: List[List[String]] = hand.map(renderCard)
+      val cardsBlock = combineCardLines(cardLines)
+      // build index line with center-aligned indices under each card
+      val indexCells = hand.zipWithIndex.map { case (_, i) =>
+        val s = i.toString
+        val total = cardWidth
+        val left = (total - s.length) / 2
+        val right = total - s.length - left
+        " " * left + s + " " * right
+      }
+      val indexLine = indexCells.mkString(" ")
+      s"$cardsBlock\n$indexLine"
 
-  def renderTable(table: List[Card]): String =
-    if table.isEmpty then "Empty"
+  /** Render table (attacking or defending) - one row of cards */
+  def renderTableLine(label: String, table: List[Card]): String =
+    val header = s"$label (${table.length})"
+    if table.isEmpty then s"$header:\n  Empty"
     else
-      val lines = table.map(renderCard)
-      val combined = lines.transpose.map(_.mkString(" "))
-      combined.mkString("\n")
+      val cardLines = table.map(renderCard)
+      val combined = combineCardLines(cardLines)
+      s"$header:\n$combined"
 
-  def renderGame(game: GameState): String =
-    val playersStr = game.playerList
-      .map(p => s"${p.name}'s hand:\n${renderHand(p.hand)}")
-      .mkString("\n\n")
-    val attacker = s"Attacker:\n${renderTable(game.attackingCards)}"
-    val defender = s"Defending:\n${renderTable(game.defendingCards)}"
-    val trumpStr = s"Trump suit: ${game.trump}"
-    s"$trumpStr\n\n$attacker\n$defender\n\n$playersStr"
+  /** Render full screen: header (status), table, players */
+  def renderScreen(game: GameState, status: String): String =
+    val header =
+      val deckInfo = s"Deck: ${game.deck.length}"
+      val discardInfo = s"Discard: ${game.discardPile.length}"
+      val trumpInfo = s"Trump: ${game.trump}"
+      s"$trumpInfo    $deckInfo    $discardInfo"
 
-  // def main(args: Array[String]): Unit =
-    // val deck = (for {
-    //   suit <- Suit.values
-    //   rank <- Rank.values
-    //   isTrump = false
-    // } yield Card(suit, rank, isTrump)).toList
+    val attacking = renderTableLine("Attacking", game.attackingCards)
+    val defending = renderTableLine("Defending", game.defendingCards)
 
-    // val shuffledDeck = scala.util.Random.shuffle(deck)
-    // val trump = shuffledDeck.head.suit
+    // render each player's hand with name and indices; keep ordering stable
+    val playersStr = game.playerList.map { p =>
+      val nameLine = s"${p.name} (cards: ${p.hand.length})"
+      val handBlock = renderHandWithIndices(p.hand)
+      s"$nameLine\n$handBlock"
+    }.mkString("\n\n")
 
-    // val deckWithTrump = shuffledDeck.map(card => card.copy(isTrump = card.suit == trump))
+    // status line at bottom
+    val statusLine = if status == null || status.trim.isEmpty then "Status: ready" else s"Status: $status"
 
-    // val players = List(
-    //   Player("Alice", deckWithTrump.take(5)),
-    //   Player("Bob", deckWithTrump.slice(5, 10))
-    // )
+    s"""
+$header
 
-    // val game = GameState(players, deckWithTrump.drop(10), deckWithTrump.slice(10, 12), trump)
-    // println(renderGame(game))
+$attacking
+
+$defending
+
+$playersStr
+
+$statusLine
+""".trim
+
+  /** Clear screen and print the rendered UI */
+  def clearAndRender(game: GameState, status: String = ""): Unit =
+    clearScreen()
+    println(renderScreen(game, status))
+
+end RenderTUI
