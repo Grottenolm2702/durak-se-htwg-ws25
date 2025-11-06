@@ -192,7 +192,7 @@ object DurakApp:
           updatedGame,
           defenderIndex
         )
-      else findNextActive(updatedGame, defenderIndex)
+      else defenderIndex
 
     gameLoop(updatedGame, nextAttackerIndex)
 
