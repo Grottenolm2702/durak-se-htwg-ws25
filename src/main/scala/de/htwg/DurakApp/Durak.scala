@@ -3,13 +3,8 @@ package de.htwg.DurakApp
 import scala.io.StdIn.readLine
 import scala.util.{Random, Try}
 
-// ---------------------------
-// Durak.scala - Main & Game Logic (Custom deck size)
-// ---------------------------
-
 object DurakApp:
 
-  // --- Hilfsfunktionen ---
   private def safeToInt(s: String): Option[Int] =
     Try(s.trim.toInt).toOption
 
@@ -18,7 +13,6 @@ object DurakApp:
         if card.isTrump then " (T)" else ""
       }"
 
-  // --- Entry point ---
   def main(args: Array[String]): Unit =
     val game = init()
     val numPlayers = game.playerList.length
@@ -30,31 +24,21 @@ object DurakApp:
     )
     gameLoop(game, firstAttackerIndex)
 
-  // --- Deck / Init ---
   def moveTrump(list: List[Card]): List[Card] =
     list match
       case head :: tail => tail :+ head
       case Nil          => Nil
 
-  /** Create a deck of requested size by sampling from the full 36-card deck.
-    * Returns (deckWithTrumpMarked, trumpSuit).
-    *
-    * Note: deckSize is clamped to [12, 36].
-    */
   def createDeck(deckSizeRequested: Int): (List[Card], Suit) =
-    // build full canonical 36-card deck (6..A)
     val full = (for
       suit <- Suit.values
       rank <- Rank.values
     yield Card(suit, rank, isTrump = false)).toList
 
-    val deckSize = deckSizeRequested.max(12).min(full.length) // clamp
-    // shuffle full deck and take first deckSize
+    val deckSize = deckSizeRequested.max(12).min(full.length)
     val subset = Random.shuffle(full).take(deckSize)
-    // choose trump from first card of subset (as usual)
     val trump = subset.head.suit
     val marked = subset.map(c => c.copy(isTrump = c.suit == trump))
-    // move visible trump (first) to bottom for UX
     (moveTrump(marked), trump)
 
   def dealCardsToHand(
@@ -72,15 +56,10 @@ object DurakApp:
     else
       withTrump.minBy { case (_, tcs) => tcs.minBy(_.rank.value).rank.value }._1
 
-  /** initPlayerList fragt Anzahl Spieler & Namen ab und verteilt dann initiale
-    * Hände. Wenn das Deck zu klein ist für handSize=6, wird die Handgröße
-    * automatisch auf deck.size / numPlayers reduziert (mindestens 1).
-    */
   def initPlayerList(
       deck: List[Card],
       defaultHandSize: Int = 6
   ): (List[Player], List[Card]) =
-    // Anzeige vorab
     RenderTUI.clearAndRender(
       GameState(Nil, deck, Suit.Clubs),
       "Please answer how many players and names"
@@ -94,7 +73,6 @@ object DurakApp:
         if deck.length >= numPlayers * defaultHandSize then defaultHandSize
         else possible.max(1)
       if chosen != defaultHandSize then
-        // kurze Meldung an Nutzer
         RenderTUI.clearAndRender(
           GameState(Nil, deck, Suit.Clubs),
           s"Deck small -> using hand size $chosen (deck ${deck.length} / players $numPlayers)"
@@ -113,11 +91,6 @@ object DurakApp:
       }
     (players, remaining)
 
-    /** Wähle ersten Angreifer:
-      *   - falls Spieler Trumpfkarten auf der Hand haben: Spieler mit dem
-      *     höchsten Trumpf
-      *   - sonst: Spieler links vom Dealer
-      */
   def selectFirstAttacker(game: GameState, dealerIndex: Int): Int =
     val players = game.playerList
     val trumpsByPlayer: List[(Int, Int)] = players.zipWithIndex.map {
@@ -129,16 +102,13 @@ object DurakApp:
 
     val playersWithTrumps = trumpsByPlayer.filter(_._2 >= 0)
     if playersWithTrumps.isEmpty then
-      // kein Trumpf bei Spielern: links vom Dealer
       (dealerIndex + 1) % players.length
     else
-      // bestimme höchsten Trumpfwert, bei Gleichstand kleinster Index
       val bestRank = playersWithTrumps.map(_._2).max
       val candidates = playersWithTrumps.filter(_._2 == bestRank).map(_._1)
       candidates.min
 
   def init(): GameState =
-    // Prompt deck size
     RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")
     println("Anzahl Karten im Deck (12-36) [36]: ")
     val deckSizeInput = readLine().trim
@@ -149,7 +119,6 @@ object DurakApp:
 
     val (deckWithTrump, trump) = createDeck(deckSize)
 
-    // distribute hands; initPlayerList will adapt hand size if needed
     val (playerlist, remainingDeck) = initPlayerList(deckWithTrump, 6)
     GameState(
       playerList = playerlist,
@@ -160,7 +129,6 @@ object DurakApp:
       discardPile = Nil
     )
 
-  // --- End / Check ---
   def checkLooser(gameState: GameState): Boolean =
     gameState.playerList.count(_.hand.nonEmpty) <= 1
 
@@ -173,7 +141,6 @@ object DurakApp:
       case None =>
         RenderTUI.clearAndRender(game, "Unentschieden"); System.exit(0)
 
-  // --- Core Loop ---
   @annotation.tailrec
   def gameLoop(gameState: GameState, attackerIndex: Int): Unit =
     if checkLooser(gameState) then handleEnd(gameState)
@@ -196,7 +163,6 @@ object DurakApp:
 
     gameLoop(afterDraw, nextAttackerIndex)
 
-  // --- Rules: can beat? ---
   def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
     if attackCard.suit == defendCard.suit then
       defendCard.rank.value > attackCard.rank.value
@@ -206,7 +172,6 @@ object DurakApp:
     val all = gameState.attackingCards ++ gameState.defendingCards
     all.exists(_.rank == searchCard.rank)
 
-  // --- Attack: attacker may play multiple cards until 'pass' or limit reached ---
   def attack(gameState: GameState, attackerIndex: Int): GameState =
     var game = gameState
     var continue = true
@@ -215,7 +180,6 @@ object DurakApp:
     while continue do
       RenderTUI.clearAndRender(game, status)
       val attacker = game.playerList(attackerIndex)
-      // Prompt
       println(s"${attacker.name}, choose card index to attack or 'pass':")
       val input = readLine().trim
 
@@ -257,11 +221,9 @@ object DurakApp:
                   status =
                     s"${attacker.name} played ${cardShortString(candidate)}"
 
-    // final render after attack
     RenderTUI.clearAndRender(game, "Attack phase finished.")
     game
 
-  // --- moveCard helper: append to 'to' for intuitive order on table ---
   def moveCard(
       from: List[Card],
       to: List[Card],
@@ -274,7 +236,6 @@ object DurakApp:
       val newTo = to :+ c
       (newFrom, newTo)
 
-  // --- Defend: returns (newGameState, defenderTookFlag) ---
   def defend(gameState: GameState, defenderIndex: Int): (GameState, Boolean) =
     var game = gameState
     var defender = game.playerList(defenderIndex)
@@ -340,7 +301,6 @@ object DurakApp:
                 status =
                   "That card doesn't beat the attacking card. Try another."
 
-    // defender succeeded -> move table to discard
     val cleared = game.attackingCards ++ game.defendingCards
     val updatedDiscard = game.discardPile ++ cleared
     val resultGame = game.copy(
@@ -354,7 +314,6 @@ object DurakApp:
     )
     (resultGame, false)
 
-  // --- Draw: replenish hands to 6 starting with attacker, clockwise ---
   def draw(gameState: GameState, attackerIndex: Int): GameState =
     var status = "Drawing cards..."
     var game = gameState
