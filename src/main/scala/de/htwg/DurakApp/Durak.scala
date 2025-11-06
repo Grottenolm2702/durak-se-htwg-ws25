@@ -108,14 +108,14 @@ object DurakApp:
     val trumpsByPlayer: List[(Int, Int)] = players.zipWithIndex.map {
       case (p, idx) =>
         val trumpRanks = p.hand.filter(_.isTrump).map(_.rank.value)
-        val maxRank = if trumpRanks.nonEmpty then trumpRanks.max else -1
+        val maxRank = if trumpRanks.nonEmpty then trumpRanks.min else -1
         (idx, maxRank)
     }
 
     val playersWithTrumps = trumpsByPlayer.filter(_._2 >= 0)
     if playersWithTrumps.isEmpty then (dealerIndex + 1) % players.length
     else
-      val bestRank = playersWithTrumps.map(_._2).max
+      val bestRank = playersWithTrumps.map(_._2).min
       val candidates = playersWithTrumps.filter(_._2 == bestRank).map(_._1)
       candidates.min
 
@@ -190,7 +190,7 @@ object DurakApp:
       if defenderTook then
         findNextActive(
           updatedGame,
-          (nextActiveAttacker + 1) % updatedGame.playerList.length
+          defenderIndex
         )
       else findNextActive(updatedGame, defenderIndex)
 
