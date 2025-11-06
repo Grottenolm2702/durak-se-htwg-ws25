@@ -5,17 +5,27 @@ object RenderTUI:
   private val cardWidth = 7 // "+-----+" == 7 chars
   private val cardHeight = 5 // number of lines per card ASCII art
 
+  // ANSI color codes
+  private val RED = "\u001b[31m"
+  private val GREEN = "\u001b[32m"
+  private val RESET = "\u001b[0m"
+
   /** ANSI clear & cursor home */
   def clearScreen(): Unit =
     print("\u001b[2J\u001b[H")
 
-  /** Render a single card as list of lines (fixed width) */
+  /** Render a single card as list of lines (fixed width) with color */
   def renderCard(card: Card): List[String] =
+    val (colorStart, colorEnd) = card.suit match
+      case Suit.Hearts | Suit.Diamonds => (RED, RESET)
+      case Suit.Clubs | Suit.Spades    => (GREEN, RESET)
+
     val symbol = card.suit match
       case Suit.Hearts   => "\u2665"   // ♥
       case Suit.Diamonds => "\u2666"   // ♦
       case Suit.Clubs    => "\u2663"   // ♣
       case Suit.Spades   => "\u2660"   // ♠
+
     val rankStr = card.rank match
       case Rank.Six   => "6"
       case Rank.Seven => "7"
@@ -26,13 +36,12 @@ object RenderTUI:
       case Rank.Queen => "Q"
       case Rank.King  => "K"
       case Rank.Ace   => "A"
-    val rankField =
-      // left-align rank in a 2-char area (supports "10")
-      f"|$rankStr%-2s   |"
-    val suitField = s"|  $symbol  |"
-    val mid = List("+-----+", rankField, suitField, "|     |", "+-----+")
-    // mark trump visually by lowercasing card symbol? We'll add an indicator (T) in a separate status row if needed.
-    mid
+
+    // We insert color escape codes inside the content area (between '|', so visual width stays the same).
+    // The ANSI sequences don't take visible column space, so layout remains stable.
+    val rankField = f"|$colorStart$rankStr%-2s$colorEnd   |"
+    val suitField = s"|  $colorStart$symbol$colorEnd  |"
+    List("+-----+", rankField, suitField, "|     |", "+-----+")
 
   /** Render an empty card slot (keeps layout stable when hand shorter) */
   def renderEmptySlot(): List[String] =
