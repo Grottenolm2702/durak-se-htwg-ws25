@@ -4,7 +4,7 @@ import scala.io.StdIn.readLine
 import scala.util.{Random, Try}
 
 // ---------------------------
-// Durak.scala - Main & Game Logic (TUI integriert)
+// Durak.scala - Main & Game Logic (Custom deck size)
 // ---------------------------
 
 object DurakApp:
@@ -15,10 +15,6 @@ object DurakApp:
 
   private def cardShortString(card: Card): String =
     s"${card.rank.toString} ${card.suit.toString}${if card.isTrump then " (T)" else ""}"
-
-  private def printIndexedHandInPrompt(hand: List[Card]): Unit =
-    // Für Prompt-Zeilen verwenden wir die RenderTUI; diese Funktion ist nur Fallback
-    println(RenderTUI.renderHandWithIndices(hand))
 
   // --- Entry point ---
   def main(args: Array[String]): Unit =
@@ -33,36 +29,25 @@ object DurakApp:
       case head :: tail => tail :+ head
       case Nil          => Nil
 
-  /** returns (deckWithTrumpMarked, trumpSuit) */
-  def initDeck(): (List[Card], Suit) =
-    val deck = (for
+  /** Create a deck of requested size by sampling from the full 36-card deck.
+    * Returns (deckWithTrumpMarked, trumpSuit).
+    *
+    * Note: deckSize is clamped to [12, 36].
+    */
+  def createDeck(deckSizeRequested: Int): (List[Card], Suit) =
+    // build full canonical 36-card deck (6..A)
+    val full = (for
       suit <- Suit.values
       rank <- Rank.values
     yield Card(suit, rank, isTrump = false)).toList
 
-    val shuffled = Random.shuffle(deck)
-    val trump = shuffled.head.suit
-    val deckWithTrump = shuffled.map(c => c.copy(isTrump = c.suit == trump))
-    (moveTrump(deckWithTrump), trump)
-
-  /** creates a small deterministic deck for testing (useful for fast runs) */
-  def createSmallDeck(): (List[Card], Suit) =
-    val trump = Suit.Clubs
-    val small = List(
-      Card(Suit.Clubs, Rank.King, isTrump = false),
-      Card(Suit.Spades, Rank.Seven, isTrump = false),
-      Card(Suit.Spades, Rank.Ten, isTrump = false),
-      Card(Suit.Diamonds, Rank.Seven, isTrump = false),
-      Card(Suit.Diamonds, Rank.Ace, isTrump = false),
-      Card(Suit.Hearts, Rank.Jack, isTrump = false),
-      Card(Suit.Clubs, Rank.Nine, isTrump = false),
-      Card(Suit.Spades, Rank.Queen, isTrump = false),
-      Card(Suit.Hearts, Rank.Nine, isTrump = false),
-      Card(Suit.Diamonds, Rank.Nine, isTrump = false),
-      Card(Suit.Clubs, Rank.Ten, isTrump = false),
-      Card(Suit.Hearts, Rank.Eight, isTrump = false)
-    )
-    val marked = small.map(c => c.copy(isTrump = c.suit == trump))
+    val deckSize = deckSizeRequested.max(12).min(full.length) // clamp
+    // shuffle full deck and take first deckSize
+    val subset = Random.shuffle(full).take(deckSize)
+    // choose trump from first card of subset (as usual)
+    val trump = subset.head.suit
+    val marked = subset.map(c => c.copy(isTrump = c.suit == trump))
+    // move visible trump (first) to bottom for UX
     (moveTrump(marked), trump)
 
   def dealCardsToHand(player: Player, deck: List[Card], n: Int): (Player, List[Card]) =
@@ -74,34 +59,48 @@ object DurakApp:
     if withTrump.isEmpty then playerList.head
     else withTrump.minBy { case (_, tcs) => tcs.minBy(_.rank.value).rank.value }._1
 
-  def initPlayerList(deck: List[Card], handSize: Int = 6): (List[Player], List[Card]) =
-    // für stabilen Test: wir fragen weiterhin nach Spielern
+  /** initPlayerList fragt Anzahl Spieler & Namen ab und verteilt dann initiale Hände.
+    * Wenn das Deck zu klein ist für handSize=6, wird die Handgröße automatisch auf deck.size / numPlayers reduziert (mindestens 1).
+    */
+  def initPlayerList(deck: List[Card], defaultHandSize: Int = 6): (List[Player], List[Card]) =
+    // Anzeige vorab
     RenderTUI.clearAndRender(GameState(Nil, deck, Suit.Clubs), "Please answer how many players and names")
     println("How many players?")
     val numPlayers = safeToInt(readLine()).getOrElse(2).max(2)
+
+    val actualHandSize =
+      val possible = if numPlayers > 0 then deck.length / numPlayers else 0
+      val chosen = if deck.length >= numPlayers * defaultHandSize then defaultHandSize else possible.max(1)
+      if chosen != defaultHandSize then
+        // kurze Meldung an Nutzer
+        RenderTUI.clearAndRender(GameState(Nil, deck, Suit.Clubs), s"Deck small -> using hand size $chosen (deck ${deck.length} / players $numPlayers)")
+      chosen
+
     val (players, remaining) = (1 to numPlayers).foldLeft((List.empty[Player], deck)) {
       case ((acc, curDeck), i) =>
         println(s"Enter name of player $i: ")
         val name = readLine().trim match
           case "" => s"Player$i"
           case n  => n
-        val (hand, newDeck) = curDeck.splitAt(handSize)
+        val (hand, newDeck) = curDeck.splitAt(actualHandSize)
         (acc :+ Player(name, hand), newDeck)
     }
     (players, remaining)
 
   def init(): GameState =
-    // start UI prompt to choose small deck
+    // Prompt deck size
     RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")
-    println("Use small test deck? (y/n) [n]: ")
-    val smallChoice = readLine().trim.toLowerCase
-    val (deckWithTrump, trump) =
-      if smallChoice == "y" || smallChoice == "yes" then
-        (createSmallDeck())
-      else initDeck()
+    println("Anzahl Karten im Deck (12-36) [36]: ")
+    val deckSizeInput = readLine().trim
+    val deckSize =
+      safeToInt(deckSizeInput) match
+        case Some(n) => n.max(12).min(36)
+        case None    => 36
 
-    val handSize = 6
-    val (playerlist, remainingDeck) = initPlayerList(deckWithTrump, handSize)
+    val (deckWithTrump, trump) = createDeck(deckSize)
+
+    // distribute hands; initPlayerList will adapt hand size if needed
+    val (playerlist, remainingDeck) = initPlayerList(deckWithTrump, 6)
     GameState(
       playerList = playerlist,
       deck = remainingDeck,
