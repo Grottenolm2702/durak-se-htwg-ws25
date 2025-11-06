@@ -30,13 +30,16 @@ object DurakApp:
       case Nil          => Nil
 
   def createDeck(deckSizeRequested: Int): (List[Card], Suit) =
-    val full = (for
+    val baseDeck = (for
       suit <- Suit.values
       rank <- Rank.values
     yield Card(suit, rank, isTrump = false)).toList
-
-    val deckSize = deckSizeRequested.max(12).min(full.length)
-    val subset = Random.shuffle(full).take(deckSize)
+    val standardDeckSize = baseDeck.size
+    val numDecksNeeded =
+      Math.ceil(deckSizeRequested.toDouble / standardDeckSize).toInt
+    val combinedDeck = List.fill(numDecksNeeded)(baseDeck).flatten
+    val shuffled = Random.shuffle(combinedDeck)
+    val subset = shuffled.take(deckSizeRequested)
     val trump = subset.head.suit
     val marked = subset.map(c => c.copy(isTrump = c.suit == trump))
     (moveTrump(marked), trump)
@@ -101,8 +104,7 @@ object DurakApp:
     }
 
     val playersWithTrumps = trumpsByPlayer.filter(_._2 >= 0)
-    if playersWithTrumps.isEmpty then
-      (dealerIndex + 1) % players.length
+    if playersWithTrumps.isEmpty then (dealerIndex + 1) % players.length
     else
       val bestRank = playersWithTrumps.map(_._2).max
       val candidates = playersWithTrumps.filter(_._2 == bestRank).map(_._1)
