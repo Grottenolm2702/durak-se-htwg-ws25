@@ -18,7 +18,8 @@ case class Card(suit: Suit, rank: Rank, isTrump: Boolean)
 case class Player(
     name: String,
     hand: List[Card] = List(),
-    isDone: Boolean = false
+    isDone: Boolean = false,
+    lastDefenseSuccessful: Boolean = true
 )
 case class GameState(
     playerList: List[Player],
