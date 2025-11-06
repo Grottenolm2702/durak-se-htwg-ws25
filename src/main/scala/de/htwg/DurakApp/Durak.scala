@@ -112,11 +112,11 @@ object DurakApp:
 
   def init(): GameState =
     RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")
-    println("Anzahl Karten im Deck (12-36) [36]: ")
+    println("Anzahl Karten im Deck (min. 12) [36]: ")
     val deckSizeInput = readLine().trim
     val deckSize =
       safeToInt(deckSizeInput) match
-        case Some(n) => n.max(12).min(36)
+        case Some(n) => n.max(12)
         case None    => 36
 
     val (deckWithTrump, trump) = createDeck(deckSize)
