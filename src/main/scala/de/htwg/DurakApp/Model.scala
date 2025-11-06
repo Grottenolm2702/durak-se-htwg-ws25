@@ -15,7 +15,11 @@ enum Rank(val value: Int):
   case Ace extends Rank(14)
 
 case class Card(suit: Suit, rank: Rank, isTrump: Boolean)
-case class Player(name: String, hand: List[Card] = List())
+case class Player(
+    name: String,
+    hand: List[Card] = List(),
+    isDone: Boolean = false
+)
 case class GameState(
     playerList: List[Player],
     deck: List[Card],

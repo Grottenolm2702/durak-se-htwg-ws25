@@ -94,6 +94,15 @@ object DurakApp:
       }
     (players, remaining)
 
+  def updateFinishedPlayers(game: GameState): GameState =
+    val updated = game.playerList.map { p =>
+      if p.hand.isEmpty && !p.isDone then
+        println(s"${p.name} hat keine Karten mehr und ist fertig!")
+        p.copy(isDone = true)
+      else p
+    }
+    game.copy(playerList = updated)
+
   def selectFirstAttacker(game: GameState, dealerIndex: Int): Int =
     val players = game.playerList
     val trumpsByPlayer: List[(Int, Int)] = players.zipWithIndex.map {
@@ -132,38 +141,60 @@ object DurakApp:
     )
 
   def checkLooser(gameState: GameState): Boolean =
-    gameState.playerList.count(_.hand.nonEmpty) <= 1
+    val activePlayers = gameState.playerList.filterNot(_.isDone)
+    activePlayers.length <= 1
 
   def handleEnd(game: GameState): Unit =
-    val loser = game.playerList.find(_.hand.nonEmpty)
-    loser match
+    val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
+    loserOpt match
       case Some(p) =>
-        RenderTUI.clearAndRender(game, s"${p.name} ist der Durak!");
-        System.exit(0)
+        RenderTUI.clearAndRender(game, s"${p.name} ist der Durak!")
       case None =>
-        RenderTUI.clearAndRender(game, "Unentschieden"); System.exit(0)
+        RenderTUI.clearAndRender(game, "Alle fertig — Unentschieden!")
+    System.exit(0)
+
+  def findNextActive(game: GameState, startIndex: Int): Int =
+    val n = game.playerList.length
+    var idx = startIndex
+    var found = false
+    while
+      idx = (idx + 1) % n
+      found = !game.playerList(idx).isDone
+      !found
+    do ()
+    idx
 
   @annotation.tailrec
   def gameLoop(gameState: GameState, attackerIndex: Int): Unit =
-    if checkLooser(gameState) then handleEnd(gameState)
+    val gameWithDone = updateFinishedPlayers(gameState)
+    if checkLooser(gameWithDone) then handleEnd(gameWithDone)
 
-    val attacker = gameState.playerList(attackerIndex)
-    val defenderIndex = (attackerIndex + 1) % gameState.playerList.length
-    val defender = gameState.playerList(defenderIndex)
+    val nextActiveAttacker = findNextActive(gameWithDone, attackerIndex)
+    val attacker = gameWithDone.playerList(nextActiveAttacker)
+    val defenderIndex = findNextActive(
+      gameWithDone,
+      (nextActiveAttacker + 1) % gameWithDone.playerList.length
+    )
+    val defender = gameWithDone.playerList(defenderIndex)
 
     var status =
       s"Neue Runde — Angreifer: ${attacker.name}, Verteidiger: ${defender.name}"
-    RenderTUI.clearAndRender(gameState, status)
+    RenderTUI.clearAndRender(gameWithDone, status)
 
-    val afterAttack = attack(gameState, attackerIndex)
+    val afterAttack = attack(gameWithDone, nextActiveAttacker)
     val (afterDefense, defenderTook) = defend(afterAttack, defenderIndex)
-    val afterDraw = draw(afterDefense, attackerIndex)
+    val afterDraw = draw(afterDefense, nextActiveAttacker)
+    val updatedGame = updateFinishedPlayers(afterDraw)
 
     val nextAttackerIndex =
-      if defenderTook then (attackerIndex + 1) % afterDraw.playerList.length
-      else defenderIndex % afterDraw.playerList.length
+      if defenderTook then
+        findNextActive(
+          updatedGame,
+          (nextActiveAttacker + 1) % updatedGame.playerList.length
+        )
+      else findNextActive(updatedGame, defenderIndex)
 
-    gameLoop(afterDraw, nextAttackerIndex)
+    gameLoop(updatedGame, nextAttackerIndex)
 
   def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
     if attackCard.suit == defendCard.suit then
