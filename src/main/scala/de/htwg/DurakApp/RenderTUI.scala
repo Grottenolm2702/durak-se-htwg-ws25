@@ -5,9 +5,9 @@ object RenderTUI:
   private val cardWidth = 7 // "+-----+" == 7 chars
   private val cardHeight = 5 // number of lines per card ASCII art
 
-  private val RED = "\u001b[31m"
-  private val GREEN = "\u001b[32m"
-  private val RESET = "\u001b[0m"
+  val RED = "\u001b[31m"
+  val GREEN = "\u001b[32m"
+  val RESET = "\u001b[0m"
 
   def clearScreen(): Unit =
     print("\u001b[2J\u001b[H")
@@ -38,8 +38,7 @@ object RenderTUI:
     val suitField = s"|  $colorStart$symbol$colorEnd  |"
     List("+-----+", rankField, suitField, "|     |", "+-----+")
 
-  def renderEmptySlot(): List[String] =
-    List("       ", "       ", "       ", "       ", "       ")
+
 
   private def combineCardLines(cards: List[List[String]]): String =
     if cards.isEmpty then ""
