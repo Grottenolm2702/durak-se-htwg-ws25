@@ -20,6 +20,7 @@ case class GameState(
     playerList: List[Player],
     deck: List[Card],
     trump: Suit,
-    attackingCards: List[Card] = List(),
-    defendingCards: List[Card] = List(),
+    attackingCards: List[Card] = Nil,
+    defendingCards: List[Card] = Nil,
+    discardPile: List[Card] = Nil
 )
