@@ -38,8 +38,6 @@ object RenderTUI:
     val suitField = s"|  $colorStart$symbol$colorEnd  |"
     List("+-----+", rankField, suitField, "|     |", "+-----+")
 
-
-
   private def combineCardLines(cards: List[List[String]]): String =
     if cards.isEmpty then ""
     else
@@ -109,8 +107,11 @@ $statusLine
 """.trim
 
   /** Clear screen and print the rendered UI */
-  def clearAndRender(game: GameState, status: String = ""): Unit =
+  def clearAndRender(game: GameState, status: String = ""): String = {
     clearScreen()
-    println(renderScreen(game, status))
+    val render = renderScreen(game, status)
+    println(render)
+    render
+  }
 
 end RenderTUI
