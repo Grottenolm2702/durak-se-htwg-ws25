@@ -409,6 +409,25 @@ class DurakSpec extends AnyWordSpec with Matchers {
                 DurakApp.gameLoop(game, 0)(using DummyIO, FixedRandom) // Pass FixedRandom
               )
             }
+
+            "init: initializes game state with correct deck size, players, and trump" in {
+              DummyIO.reset()
+              given Random = FixedRandom // Use FixedRandom for deterministic deck creation
+              // Simulate input for deck size (36) and two players ("Alice", "Bob")
+              DummyIO.enqueue("36", "2", "Alice", "Bob")
+
+              val initialState = DurakApp.init()(using DummyIO, FixedRandom)
+
+              initialState.playerList.length shouldBe 2
+              initialState.playerList.map(_.name) should contain allElementsOf List("Alice", "Bob")
+              // Each player gets 6 cards, so 2 players * 6 cards = 12 cards dealt
+              // Deck size 36 - 12 dealt = 24 cards remaining in the deck
+              initialState.deck.length shouldBe 24
+              initialState.trump shouldBe a[Suit] // Check if trump is set
+              initialState.attackingCards shouldBe empty
+              initialState.defendingCards shouldBe empty
+              initialState.discardPile shouldBe empty
+            }
         
           } // end should
         }
