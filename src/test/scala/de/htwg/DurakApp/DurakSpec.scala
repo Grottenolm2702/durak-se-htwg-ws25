@@ -124,6 +124,13 @@ class DurakSpec extends AnyWordSpec with Matchers {
       val gTrumps = GameState(List(pA, pB, pC), Nil, Suit.Spades)
       val idx = DurakApp.selectFirstAttacker(gTrumps, 0)
       idx should (be >= 0 and be < 3)
+
+      // Test case for multiple players with same lowest trump rank
+      val pSameTrump1 = Player("P1", List(Card(Suit.Spades, Rank.Six, isTrump = true)))
+      val pSameTrump2 = Player("P2", List(Card(Suit.Clubs, Rank.Six, isTrump = true)))
+      val pHigherTrump = Player("P3", List(Card(Suit.Diamonds, Rank.Seven, isTrump = true)))
+      val gSameTrump = GameState(List(pSameTrump1, pSameTrump2, pHigherTrump), Nil, Suit.Spades)
+      DurakApp.selectFirstAttacker(gSameTrump, 0) shouldBe 0 // P1 has lowest index with lowest trump
     }
 
     "checkLooser: true when <= 1 active player" in {
@@ -326,6 +333,16 @@ class DurakSpec extends AnyWordSpec with Matchers {
       after.playerList(0).hand.size shouldBe 6
       after.playerList(1).hand.size shouldBe 2
       after.deck.size should be >= 0
+    }
+
+    "draw: handles empty deck, players don't draw if deck is empty" in {
+      DummyIO.reset()
+      val p1 = Player("P1", Nil) // Hand size 0, needs 6 cards
+      val emptyDeck = Nil
+      val g = GameState(List(p1), emptyDeck, Suit.Hearts)
+      val after = DurakApp.draw(g, 0)(using DummyIO)
+      after.playerList.head.hand shouldBe empty
+      after.deck shouldBe empty
     }
 
     "initPlayerList + init (safe path via initPlayerList) produce a GameState-like structure" in {
