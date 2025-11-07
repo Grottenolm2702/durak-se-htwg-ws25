@@ -9,8 +9,8 @@ object RenderTUI:
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
 
-  def clearScreen(): Unit =
-    print("\u001b[2J\u001b[H")
+  def clearScreen(): String =
+    "\u001b[2J\u001b[H"
 
   def renderCard(card: Card): List[String] =
     val (colorStart, colorEnd) = card.suit match
@@ -108,7 +108,8 @@ $statusLine
 
   /** Clear screen and print the rendered UI */
   def clearAndRender(game: GameState, status: String = "")(using io: ConsoleIO): String = {
-    io.println("\u001b[2J\u001b[H") // Inlined clearScreen() and used io.println
+    val clear = clearScreen()
+    io.println(clear) // Use the returned string from clearScreen()
     val render = renderScreen(game, status)
     io.println(render)
     render

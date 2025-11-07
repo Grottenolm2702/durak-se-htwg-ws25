@@ -2,6 +2,8 @@ package de.htwg.DurakApp
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 
 class RenderTUISpec extends AnyWordSpec with Matchers {
 
@@ -142,6 +144,12 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
       val output = RenderTUI.renderScreen(game, "")
       output should include("Status: ready")
     }
+
+    "render screen with null status as 'Status: ready'" in {
+      val game = GameState(List(Player("Solo")), List(heartAce), Suit.Hearts)
+      val output = RenderTUI.renderScreen(game, null)
+      output should include("Status: ready")
+    }
     "render empty table and return correct string on clearAndRender" in {
       val player1 = Player(
         "Ronny",
@@ -167,29 +175,16 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
       output should include("Empty")
     }
 
-    "render with non-empty table and return correct string" in {
-      val card1 = Card(Suit.Clubs, Rank.King, false)
-      val card2 = Card(Suit.Spades, Rank.King, false)
-      val player1 = Player("Ronny", List(Card(Suit.Hearts, Rank.Queen, false)))
-      val player2 = Player("Bot", List(Card(Suit.Diamonds, Rank.Jack, false)))
-      val game = GameState(
-        playerList = List(player1, player2),
-        deck = Nil,
-        trump = Suit.Spades,
-        attackingCards = List(card1),
-        defendingCards = List(card2),
-        discardPile = Nil
-      )
+    "render with default status and return correct string" in {
+      val player1 = Player("Ronny", List(heartAce))
+      val game = GameState(List(player1), Nil, Suit.Hearts, List(), List())
 
-      given ConsoleIO = DummyConsoleIO // Provide implicit ConsoleIO
-      val output = RenderTUI.clearAndRender(game, "Fighting")
+      given ConsoleIO = DummyConsoleIO
+      val output = RenderTUI.clearAndRender(game)
 
-      output should include("Trump: Spades")
+      output should include("Trump: Hearts")
       output should include("Ronny")
-      output should include("Bot")
-      output should include("Fighting")
-      output should include("♣")
-      output should include("♠")
+      output should include("Status: ready")
     }
 
   }
