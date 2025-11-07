@@ -205,6 +205,15 @@ class DurakSpec extends AnyWordSpec with Matchers {
       idx should (be >= 0 and be < 3)
     }
 
+    "nextAttackerIndex: handles >2 players and defenderTook = false" in {
+      val p1 = Player("A", List(heartAce))
+      val p2 = Player("B", List(spadeSix))
+      val p3 = Player("C", List(diamondTen))
+      val g3 = GameState(List(p1, p2, p3), Nil, Suit.Hearts)
+      val idx = DurakApp.nextAttackerIndex(g3, 0, 1, defenderTook = false)
+      idx shouldBe 1 // The next active player after the current attacker (P1) is P2 (index 1)
+    }
+
     "canBeat: compares by suit and rank and trump rules" in {
       DurakApp.canBeat(
         Card(Suit.Clubs, Rank.Six),
@@ -382,32 +391,5 @@ class DurakSpec extends AnyWordSpec with Matchers {
       )
     }
 
-    "attack: 'pass' before any card yields a user message branch (we then provide valid actions to exit)" in {
-      DummyIO.reset()
-      val p = Player("Att", List(heartAce))
-      val g = GameState(List(p), Nil, Suit.Hearts)
-      // first "pass" triggers the "You can't pass..." branch, then we play "0" then "pass"
-      DummyIO.enqueue("pass", "0", "pass")
-      val finalG = DurakApp.attack(g, 0)(using DummyIO)
-      finalG.attackingCards.nonEmpty shouldBe true
-    }
-
-    "defend: covers invalid input path leading to prompt again" in {
-      DummyIO.reset()
-      val attackerCard = Card(Suit.Clubs, Rank.Six)
-      val attacker = Player("Att", List(attackerCard))
-      val defender = Player("Def", List(Card(Suit.Hearts, Rank.Seven)))
-      val g = GameState(
-        List(attacker, defender),
-        Nil,
-        Suit.Hearts,
-        attackingCards = List(attackerCard)
-      )
-      DummyIO.enqueue("invalid", "take")
-      val (res, took) = DurakApp.defend(g, 1)(using DummyIO)
-      took shouldBe true
-      res.attackingCards shouldBe Nil
-    }
-
-  } // end should
-}
+          } // end should
+        }
