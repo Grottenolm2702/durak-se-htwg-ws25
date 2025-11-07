@@ -47,7 +47,7 @@ class DurakAppSpec extends AnyWordSpec with Matchers{
       )
       val trump = Suit.Hearts
       val gameState = GameState(players, deck,  trump = trump)
-      gameState.players shouldBe players
+      gameState.playerList shouldBe players
       gameState.deck shouldBe deck
       gameState.trump shouldBe trump
     }
