@@ -72,6 +72,7 @@ object DurakApp:
 
 
   def initPlayerList(deck: List[Card], defaultHandSize: Int = 6)(using io: ConsoleIO): (List[Player], List[Card]) =
+    val _ = io // Dummy statement to try and force coverage for the 'using' clause
     RenderTUI.clearAndRender(GameState(Nil, deck, Suit.Clubs), "Please answer how many players and names")(using io)
     io.println("How many players?")
     val numPlayers = safeToInt(io.readLine()).getOrElse(2).max(2)
