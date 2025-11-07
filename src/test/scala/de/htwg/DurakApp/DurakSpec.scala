@@ -9,11 +9,23 @@ class DurakSpec extends AnyWordSpec with Matchers {
 
   object DummyIO extends ConsoleIO {
     private val inputs = scala.collection.mutable.Queue[String]()
+    private val printedOutput = scala.collection.mutable.ArrayBuffer[String]()
+    var captureRenderTUI: Boolean = true // New flag
+
     def enqueue(inputsToAdd: String*): Unit = inputs ++= inputsToAdd.toList
-    def reset(): Unit = inputs.clear()
+    def reset(): Unit = {
+      inputs.clear()
+      printedOutput.clear()
+      captureRenderTUI = true // Reset to default
+    }
+    def resetOutput(): Unit = printedOutput.clear()
+    def getPrintedOutput(): Seq[String] = printedOutput.toSeq
     override def readLine(): String =
       if inputs.nonEmpty then inputs.dequeue() else "pass"
-    override def println(s: String): Unit = () // ignore output
+    override def println(s: String): Unit = 
+      if (captureRenderTUI || !s.contains("Trump:")) { // Only capture if flag is true, or if it's not a RenderTUI status line
+        printedOutput += s
+      }
   }
 
   val FixedRandom: Random = new Random(0) // Use a fixed seed for deterministic behavior
@@ -66,6 +78,14 @@ class DurakSpec extends AnyWordSpec with Matchers {
       val p3 = Player("C", isDone = true)
       val game = GameState(List(p1, p2, p3), Nil, Suit.Hearts)
       DurakApp.findNextDefender(game, 0) shouldBe 1
+    }
+
+    "findNextDefender: skips a done player to find the next active one" in {
+      val p1 = Player("A", isDone = false)
+      val p2 = Player("B", isDone = true)
+      val p3 = Player("C", isDone = false)
+      val game = GameState(List(p1, p2, p3), Nil, Suit.Hearts)
+      DurakApp.findNextDefender(game, 0) shouldBe 2 // Should skip P2 (done) and find P3
     }
 
     "createDeck: returns requested size and marks trump; works for small and large sizes" in {
@@ -284,56 +304,108 @@ class DurakSpec extends AnyWordSpec with Matchers {
       took shouldBe false
     }
 
-    "defend: valid defend and then take branch (including invalid then take)" in {
+          "defend: valid defend and then take branch (including invalid then take)" in {
+            DummyIO.reset()
+            val attackerCard = Card(Suit.Clubs, Rank.Six)
+            val attacker = Player("Att", List(attackerCard))
+            val defender = Player("Def", List(Card(Suit.Clubs, Rank.Ace)))
+            val g1 = GameState(
+              List(attacker, defender),
+              Nil,
+              Suit.Hearts,
+              attackingCards = List(attackerCard)
+            )
+            DummyIO.enqueue("0")
+            val (afterDef, took1) = DurakApp.defend(g1, 1)(using DummyIO)
+            took1 shouldBe false
+            afterDef.attackingCards shouldBe Nil
+            afterDef.defendingCards shouldBe Nil
+            afterDef.discardPile.nonEmpty shouldBe true
+    
+            DummyIO.reset()
+            val defender2 = Player("Def2", List(Card(Suit.Hearts, Rank.Six)))
+            val g2 = GameState(
+              List(attacker, defender2),
+              Nil,
+              Suit.Hearts,
+              attackingCards = List(attackerCard)
+            )
+            DummyIO.enqueue("0", "take")
+            val (afterTake, took2) = DurakApp.defend(g2, 1)(using DummyIO)
+            took2 shouldBe true
+            afterTake.playerList(1).hand should contain(attackerCard)
+          }
+    
+                "defend: handles invalid non-numeric input then valid defense" in {
+                  DummyIO.reset()
+                  val attackCard = Card(Suit.Clubs, Rank.Six)
+                  val defendCard = Card(Suit.Clubs, Rank.Ace)
+                  val attacker = Player("Att", List(attackCard))
+                  val defender = Player("Def", List(defendCard))
+                  val game = GameState(
+                    List(attacker, defender),
+                    Nil,
+                    Suit.Hearts,
+                    attackingCards = List(attackCard)
+                  )
+          
+                  // Simulate invalid input ("abc") followed by a valid defense (index 0)
+                  DummyIO.enqueue("abc", "0")
+          
+                  val (afterDefend, took) = DurakApp.defend(game, 1)(using DummyIO)
+          
+                  took shouldBe false // Defender should not have taken cards
+                  afterDefend.attackingCards shouldBe empty
+                  afterDefend.defendingCards shouldBe empty
+                  afterDefend.discardPile should contain(attackCard)
+                  afterDefend.discardPile should contain(defendCard)
+                  afterDefend.playerList(1).hand should not contain defendCard // Defender's hand should not contain the card used for defense
+          
+                  DummyIO.getPrintedOutput() should contain("Invalid input. Try again.")
+                }    
+              "attack: trying to pass without playing a card should print a message" in {
+                DummyIO.reset()
+                val p = Player("Attacker", List(heartAce))
+                val g = GameState(List(p), Nil, Suit.Hearts)
+                DummyIO.enqueue("pass", "0", "pass") // First pass (invalid), then play a card, then pass (valid)
+          
+                val finalG = DurakApp.attack(g, 0)(using DummyIO)
+          
+                DummyIO.getPrintedOutput().exists(_.contains("Status: You can't pass before playing at least one card.")) shouldBe true
+                finalG.playerList.head.hand.isEmpty shouldBe true
+              }
+          
+              "attack: invalid input, index out of range, allowed play then pass, and max 6 branch" in {
+                DummyIO.reset()
+                val p = Player("Att", List(heartAce))
+                val g = GameState(List(p), Nil, Suit.Hearts)
+                DummyIO.enqueue("x", "0", "pass")
+                val finalG = DurakApp.attack(g, 0)(using DummyIO)
+                finalG.playerList.head.hand.isEmpty shouldBe true    
+            val already6 = GameState(
+              List(p),
+              Nil,
+              Suit.Hearts,
+              attackingCards = List.fill(6)(spadeSix)
+            )
+            DummyIO.reset()
+            DummyIO.enqueue("0", "pass")
+            val after = DurakApp.attack(already6, 0)(using DummyIO)
+            after shouldBe a[GameState]
+          }
+    "attack: trying to play a card with a rank not on the table should print a message" in {
       DummyIO.reset()
-      val attackerCard = Card(Suit.Clubs, Rank.Six)
-      val attacker = Player("Att", List(attackerCard))
-      val defender = Player("Def", List(Card(Suit.Clubs, Rank.Ace)))
-      val g1 = GameState(
-        List(attacker, defender),
-        Nil,
-        Suit.Hearts,
-        attackingCards = List(attackerCard)
-      )
-      DummyIO.enqueue("0")
-      val (afterDef, took1) = DurakApp.defend(g1, 1)(using DummyIO)
-      took1 shouldBe false
-      afterDef.attackingCards shouldBe Nil
-      afterDef.defendingCards shouldBe Nil
-      afterDef.discardPile.nonEmpty shouldBe true
+      val p = Player("Attacker", List(heartAce, spadeSix)) // heartAce (rank Ace), spadeSix (rank Six)
+      val g = GameState(List(p), Nil, Suit.Hearts, attackingCards = List(diamondTen)) // diamondTen (rank Ten) is on table
+      DummyIO.enqueue("0", "1", "pass") // Try to play heartAce (rank Ace, not on table), then spadeSix (rank Six, not on table), then pass
 
-      DummyIO.reset()
-      val defender2 = Player("Def2", List(Card(Suit.Hearts, Rank.Six)))
-      val g2 = GameState(
-        List(attacker, defender2),
-        Nil,
-        Suit.Hearts,
-        attackingCards = List(attackerCard)
-      )
-      DummyIO.enqueue("0", "take")
-      val (afterTake, took2) = DurakApp.defend(g2, 1)(using DummyIO)
-      took2 shouldBe true
-      afterTake.playerList(1).hand should contain(attackerCard)
-    }
-
-    "attack: invalid input, index out of range, allowed play then pass, and max 6 branch" in {
-      DummyIO.reset()
-      val p = Player("Att", List(heartAce))
-      val g = GameState(List(p), Nil, Suit.Hearts)
-      DummyIO.enqueue("x", "0", "pass")
       val finalG = DurakApp.attack(g, 0)(using DummyIO)
-      finalG.playerList.head.hand.isEmpty shouldBe true
 
-      val already6 = GameState(
-        List(p),
-        Nil,
-        Suit.Hearts,
-        attackingCards = List.fill(6)(spadeSix)
-      )
-      DummyIO.reset()
-      DummyIO.enqueue("0", "pass")
-      val after = DurakApp.attack(already6, 0)(using DummyIO)
-      after shouldBe a[GameState]
+      DummyIO.getPrintedOutput().exists(_.contains("Status: You can only play cards whose rank is already on the table.")) shouldBe true
+      // The player should still have both cards if they couldn't play them
+      finalG.playerList.head.hand should contain(heartAce)
+      finalG.playerList.head.hand should contain(spadeSix)
+      finalG.attackingCards should contain(diamondTen)
     }
 
     "attack: negative index yields 'Index out of range' message" in {
@@ -396,40 +468,56 @@ class DurakSpec extends AnyWordSpec with Matchers {
       )
     }
 
-            "gameLoop: initial attacker is done, but other players are active" in {
-              DummyIO.reset()
-              given Random = FixedRandom // Add FixedRandom here
-              val pDone = Player("P1", Nil, isDone = true)
-              val pActive1 = Player("P2", List(heartAce), isDone = false)
-              val pActive2 = Player("P3", List(spadeSix), isDone = false)
-              val game = GameState(List(pDone, pActive1, pActive2), Nil, Suit.Hearts)
-              // We need to provide enough input for the attack and defend phases to complete one loop
-              DummyIO.enqueue("0", "0", "pass", "take") // P2 attacks with heartAce, P3 defends with spadeSix, P2 passes, P3 takes
-              noException shouldBe thrownBy(
-                DurakApp.gameLoop(game, 0)(using DummyIO, FixedRandom) // Pass FixedRandom
-              )
-            }
+    "gameLoop: initial attacker is done, but other players are active" in {
+      DummyIO.reset()
+      given Random = FixedRandom // Add FixedRandom here
+      val pDone = Player("P1", Nil, isDone = true)
+      val pActive1 = Player("P2", List(heartAce), isDone = false)
+      val pActive2 = Player("P3", List(spadeSix), isDone = false)
+      val game = GameState(List(pDone, pActive1, pActive2), Nil, Suit.Hearts)
+      // We need to provide enough input for the attack and defend phases to complete one loop
+      DummyIO.enqueue("0", "0", "pass", "take") // P2 attacks with heartAce, P3 defends with spadeSix, P2 passes, P3 takes
+      noException shouldBe thrownBy(
+        DurakApp.gameLoop(game, 0)(using DummyIO, FixedRandom) // Pass FixedRandom
+      )
+    }
 
-            "init: initializes game state with correct deck size, players, and trump" in {
-              DummyIO.reset()
-              given Random = FixedRandom // Use FixedRandom for deterministic deck creation
-              // Simulate input for deck size (36) and two players ("Alice", "Bob")
-              DummyIO.enqueue("36", "2", "Alice", "Bob")
+    "run: initializes and starts the game loop" in {
+      DummyIO.reset()
+      DummyIO.captureRenderTUI = false // Disable RenderTUI output capture for this test
+      given Random = FixedRandom
+      // Input for init(): deck size (small for quick game), num players, player names
+      // Input for attack(): play card (0), pass
+      // Input for defend(): take
+      // This sequence should lead to a quick game end.
+      DummyIO.enqueue("2", "2", "Player1", "Player2", "0", "pass", "take")
 
-              val initialState = DurakApp.init()(using DummyIO, FixedRandom)
+      val finalState = DurakApp.run(DummyIO, FixedRandom)
 
-              initialState.playerList.length shouldBe 2
-              initialState.playerList.map(_.name) should contain allElementsOf List("Alice", "Bob")
-              // Each player gets 6 cards, so 2 players * 6 cards = 12 cards dealt
-              // Deck size 36 - 12 dealt = 24 cards remaining in the deck
-              initialState.deck.length shouldBe 24
-              initialState.trump shouldBe a[Suit] // Check if trump is set
-              initialState.attackingCards shouldBe empty
-              initialState.defendingCards shouldBe empty
-              initialState.discardPile shouldBe empty
-            }
-        
-          } // end should
-        }
-        
-    
+      finalState.playerList.length shouldBe 2
+      finalState.playerList.map(_.name) should contain allElementsOf List("Player1", "Player2")
+      // We are mainly testing that `run` executes without throwing exceptions and sets up the game.
+      noException shouldBe thrownBy(finalState)
+    }
+
+    "init: initializes game state with correct deck size, players, and trump" in {
+      DummyIO.reset()
+      given Random = FixedRandom // Use FixedRandom for deterministic deck creation
+      // Simulate input for deck size (36) and two players ("Alice", "Bob")
+      DummyIO.enqueue("36", "2", "Alice", "Bob")
+
+      val initialState = DurakApp.init()(using DummyIO, FixedRandom)
+
+      initialState.playerList.length shouldBe 2
+      initialState.playerList.map(_.name) should contain allElementsOf List("Alice", "Bob")
+      // Each player gets 6 cards, so 2 players * 6 cards = 12 cards dealt
+      // Deck size 36 - 12 dealt = 24 cards remaining in the deck
+      initialState.deck.length shouldBe 24
+      initialState.trump shouldBe a[Suit] // Check if trump is set
+      initialState.attackingCards shouldBe empty
+      initialState.defendingCards shouldBe empty
+      initialState.discardPile shouldBe empty
+    }
+
+  } // end should
+}
