@@ -23,9 +23,16 @@ object DurakApp:
 
   def main(args: Array[String]): Unit =
     given ConsoleIO = DefaultConsoleIO
+    run(DefaultConsoleIO, new Random())
+    ()
+
+  def run(io: ConsoleIO, random: Random): GameState =
+    given ConsoleIO = io
+    given Random = random
+
     val game = init()
     val numPlayers = game.playerList.length
-    val dealerIndex = Random.nextInt(numPlayers)
+    val dealerIndex = random.nextInt(numPlayers)
     val firstAttackerIndex = selectFirstAttacker(game, dealerIndex)
     RenderTUI.clearAndRender(
       game,
@@ -47,7 +54,7 @@ object DurakApp:
       else loop(offset + 1)
     loop(0)
 
-  def createDeck(deckSizeRequested: Int): (List[Card], Suit) =
+  def createDeck(deckSizeRequested: Int)(using random: Random): (List[Card], Suit) =
     val baseDeck = (for
       suit <- Suit.values
       rank <- Rank.values
@@ -56,7 +63,7 @@ object DurakApp:
     val numDecksNeeded =
       Math.ceil(deckSizeRequested.toDouble / standardDeckSize).toInt
     val combinedDeck = List.fill(numDecksNeeded)(baseDeck).flatten
-    val shuffled = Random.shuffle(combinedDeck)
+    val shuffled = random.shuffle(combinedDeck)
     val subset = shuffled.take(deckSizeRequested)
     val trump = subset.head.suit
     val marked = subset.map(c => c.copy(isTrump = c.suit == trump))
@@ -65,11 +72,11 @@ object DurakApp:
 
 
   def initPlayerList(deck: List[Card], defaultHandSize: Int = 6)(using io: ConsoleIO): (List[Player], List[Card]) =
-    RenderTUI.clearAndRender(GameState(Nil, deck, Suit.Clubs), "Please answer how many players and names")
+    RenderTUI.clearAndRender(GameState(Nil, deck, Suit.Clubs), "Please answer how many players and names")(using io)
     io.println("How many players?")
     val numPlayers = safeToInt(io.readLine()).getOrElse(2).max(2)
 
-    val possibleHandSize = if (numPlayers > 0) deck.length / numPlayers else 0
+    val possibleHandSize = deck.length / numPlayers
     val actualHandSize =
       if (deck.length >= numPlayers * defaultHandSize) defaultHandSize
       else possibleHandSize.max(1)
@@ -78,7 +85,7 @@ object DurakApp:
       RenderTUI.clearAndRender(
         GameState(Nil, deck, Suit.Clubs),
         s"Deck small -> using hand size $actualHandSize (deck ${deck.length} / players $numPlayers)"
-      )
+      )(using io)
     }
 
     val (players, remaining) =
@@ -116,8 +123,8 @@ object DurakApp:
       val candidates = playersWithTrumps.filter(_._2 == bestRank).map(_._1)
       candidates.min
 
-  def init()(using io: ConsoleIO): GameState =
-    RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")
+  def init()(using io: ConsoleIO, random: Random): GameState =
+    RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")(using io)
     io.println("Anzahl Karten im Deck [36]: ")
     val deckSizeInput = io.readLine().trim
     val deckSize = safeToInt(deckSizeInput).getOrElse(36)
@@ -140,8 +147,8 @@ object DurakApp:
   def handleEnd(game: GameState)(using io: ConsoleIO): Unit =
     val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
     loserOpt match
-      case Some(p) => RenderTUI.clearAndRender(game, s"${p.name} ist der Durak!")
-      case None    => RenderTUI.clearAndRender(game, "Alle fertig — Unentschieden!")
+      case Some(p) => RenderTUI.clearAndRender(game, s"${p.name} ist der Durak!")(using io)
+      case None    => RenderTUI.clearAndRender(game, "Alle fertig — Unentschieden!")(using io)
 
   def findNextActive(game: GameState, startIndex: Int): Int =
     val n = game.playerList.length
@@ -152,10 +159,11 @@ object DurakApp:
 
 
   @annotation.tailrec
-  def gameLoop(gameState: GameState, attackerIndex: Int)(using io: ConsoleIO): Unit =
+  def gameLoop(gameState: GameState, attackerIndex: Int)(using io: ConsoleIO, random: Random): GameState =
     val gameWithDone = updateFinishedPlayers(gameState)
     if checkLooser(gameWithDone) then
       handleEnd(gameWithDone)
+      gameWithDone // Return the final state when game ends
     else
       val nextActiveAttacker =
         if gameWithDone.playerList(attackerIndex).isDone then
@@ -169,7 +177,7 @@ object DurakApp:
       RenderTUI.clearAndRender(
         gameWithDone,
         s"Neue Runde — Angreifer: ${attacker.name}, Verteidiger: ${defender.name}"
-      )
+      )(using io)
 
       val afterAttack = attack(gameWithDone, nextActiveAttacker)
       val (afterDefense, defenderTook) = defend(afterAttack, defenderIndex)
@@ -205,7 +213,7 @@ object DurakApp:
   def attack(gameState: GameState, attackerIndex: Int)(using io: ConsoleIO): GameState = {
     @annotation.tailrec
     def attackLoop(game: GameState, status: String): GameState = {
-      RenderTUI.clearAndRender(game, status)
+      RenderTUI.clearAndRender(game, status)(using io)
       val attacker = game.playerList(attackerIndex)
       io.println(s"${attacker.name}, choose card index to attack or 'pass':")
       val input = io.readLine().trim
@@ -244,7 +252,7 @@ object DurakApp:
     }
 
     val finalState = attackLoop(gameState, s"${gameState.playerList(attackerIndex).name} is attacking.")
-    RenderTUI.clearAndRender(finalState, "Attack phase finished.")
+    RenderTUI.clearAndRender(finalState, "Attack phase finished.")(using io)
     finalState
   }
 
@@ -309,7 +317,7 @@ object DurakApp:
           val updatedPlayer = player.copy(hand = player.hand ++ drawn)
           val newPlayers = currentPlayers.updated(playerIdx, updatedPlayer)
           val status = s"${newPlayers(playerIdx).name} drew ${drawn.length} card(s)"
-          RenderTUI.clearAndRender(gameState.copy(playerList = newPlayers, deck = rest), status)
+          RenderTUI.clearAndRender(gameState.copy(playerList = newPlayers, deck = rest), status)(using io)
           (newPlayers, rest)
         } else {
           (currentPlayers, currentDeck)
@@ -317,7 +325,7 @@ object DurakApp:
     }
 
     val newGame = gameState.copy(playerList = finalPlayers, deck = finalDeck)
-    RenderTUI.clearAndRender(newGame, "Draw phase finished.")
+    RenderTUI.clearAndRender(newGame, "Draw phase finished.")(using io)
     newGame
   }
 

@@ -5,6 +5,11 @@ import org.scalatest.matchers.should.Matchers
 
 class RenderTUISpec extends AnyWordSpec with Matchers {
 
+  object DummyConsoleIO extends ConsoleIO {
+    override def readLine(): String = ""
+    override def println(s: String): Unit = ()
+  }
+
   val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = true)
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
   val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
@@ -149,6 +154,7 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
       val game =
         GameState(List(player1, player2), Nil, Suit.Hearts, List(), List())
 
+      given ConsoleIO = DummyConsoleIO // Provide implicit ConsoleIO
       val output = RenderTUI.clearAndRender(game, "Ready")
 
       // Check that rendering includes key information
@@ -175,6 +181,7 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
         discardPile = Nil
       )
 
+      given ConsoleIO = DummyConsoleIO // Provide implicit ConsoleIO
       val output = RenderTUI.clearAndRender(game, "Fighting")
 
       output should include("Trump: Spades")
