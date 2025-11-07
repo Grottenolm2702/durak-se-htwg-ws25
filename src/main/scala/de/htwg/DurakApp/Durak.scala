@@ -190,17 +190,12 @@ object DurakApp:
 
   def nextAttackerIndex(game: GameState, currentAttacker: Int, defenderIndex: Int, defenderTook: Boolean): Int = 
     val activePlayers = game.playerList.filterNot(_.isDone)
-    if (activePlayers.length == 2) {
-      // 1vs1
-      findNextActive(game, currentAttacker)
+    if (defenderTook) {
+      findNextActive(game, defenderIndex)
     } else {
-      // more then 2 players
-      if (defenderTook) {
-        findNextActive(game, defenderIndex)
-      } else {
-        findNextActive(game, currentAttacker)
-      }
+      findNextActive(game, currentAttacker)
     }
+    
 
   def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
     if attackCard.suit == defendCard.suit then
