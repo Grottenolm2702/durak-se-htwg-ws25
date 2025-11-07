@@ -107,10 +107,10 @@ $statusLine
 """.trim
 
   /** Clear screen and print the rendered UI */
-  def clearAndRender(game: GameState, status: String = ""): String = {
-    clearScreen()
+  def clearAndRender(game: GameState, status: String = "")(using io: ConsoleIO): String = {
+    io.println("\u001b[2J\u001b[H") // Inlined clearScreen() and used io.println
     val render = renderScreen(game, status)
-    println(render)
+    io.println(render)
     render
   }
 

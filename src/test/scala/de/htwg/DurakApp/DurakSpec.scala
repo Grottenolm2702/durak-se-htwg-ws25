@@ -3,6 +3,7 @@ package de.htwg.DurakApp
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import java.io.{ByteArrayInputStream, InputStream}
+import scala.util.Random // Added import
 
 class DurakSpec extends AnyWordSpec with Matchers {
 
@@ -14,6 +15,8 @@ class DurakSpec extends AnyWordSpec with Matchers {
       if inputs.nonEmpty then inputs.dequeue() else "pass"
     override def println(s: String): Unit = () // ignore output
   }
+
+  val FixedRandom: Random = new Random(0) // Use a fixed seed for deterministic behavior
 
   val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = true)
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
@@ -66,6 +69,7 @@ class DurakSpec extends AnyWordSpec with Matchers {
     }
 
     "createDeck: returns requested size and marks trump; works for small and large sizes" in {
+      given Random = FixedRandom // Use FixedRandom
       val (deck36, trump36) = DurakApp.createDeck(36)
       deck36.length shouldBe 36
       deck36.count(_.isTrump) should be > 0
@@ -79,6 +83,7 @@ class DurakSpec extends AnyWordSpec with Matchers {
 
     "initPlayerList: handles input, default names and small deck hand-size message branch" in {
       DummyIO.reset()
+      given Random = FixedRandom // Add FixedRandom here
       // smaller deck to trigger actualHandSize != defaultHandSize branch
       val (smallDeck, _) = DurakApp.createDeck(4)
       // simulate: How many players? -> 3 (max(2) ensures >=2), then names (one empty to get default)
@@ -94,6 +99,7 @@ class DurakSpec extends AnyWordSpec with Matchers {
 
     "initPlayerList: uses defaultHandSize when deck is large enough" in {
       DummyIO.reset()
+      given Random = FixedRandom // Add FixedRandom here
       val (largeDeck, _) = DurakApp.createDeck(20) // 20 cards
       DummyIO.enqueue("2", "Alice", "Bob") // 2 players
       val (players, _) = DurakApp.initPlayerList(largeDeck, 6)(using DummyIO) // defaultHandSize = 6
@@ -108,6 +114,16 @@ class DurakSpec extends AnyWordSpec with Matchers {
       val updated = DurakApp.updateFinishedPlayers(game)(using DummyIO)
       updated.playerList.head.isDone shouldBe true
       updated.playerList(1).isDone shouldBe false
+    }
+
+    "updateFinishedPlayers: does not mark active players with cards as done" in {
+      DummyIO.reset()
+      val p1 = Player("A", List(heartAce), isDone = false)
+      val p2 = Player("B", Nil, isDone = true) // Already done
+      val game = GameState(List(p1, p2), Nil, Suit.Hearts)
+      val updated = DurakApp.updateFinishedPlayers(game)(using DummyIO)
+      updated.playerList.head.isDone shouldBe false
+      updated.playerList(1).isDone shouldBe true
     }
 
     "selectFirstAttacker: chooses (dealer+1) when no trumps, otherwise player with lowest trump rank" in {
@@ -356,6 +372,7 @@ class DurakSpec extends AnyWordSpec with Matchers {
 
     "initPlayerList + init (safe path via initPlayerList) produce a GameState-like structure" in {
       DummyIO.reset()
+      given Random = FixedRandom // Add FixedRandom here
       val (deckWithTrump, trump) = DurakApp.createDeck(12)
       DummyIO.enqueue("2", "Alice", "Bob")
       val (players, remaining) =
@@ -369,27 +386,31 @@ class DurakSpec extends AnyWordSpec with Matchers {
 
     "gameLoop: handleEnd branch when everyone is done (avoids infinite loop)" in {
       DummyIO.reset()
+      given Random = FixedRandom // Add FixedRandom here
       val pDone1 = Player("P1", Nil, isDone = true)
       val pDone2 = Player("P2", Nil, isDone = true)
       val finishedGame = GameState(List(pDone1, pDone2), Nil, Suit.Hearts)
       // Should call handleEnd and return without throwing
       noException shouldBe thrownBy(
-        DurakApp.gameLoop(finishedGame, 0)(using DummyIO)
+        DurakApp.gameLoop(finishedGame, 0)(using DummyIO, FixedRandom) // Pass FixedRandom
       )
     }
 
-    "gameLoop: initial attacker is done, but other players are active" in {
-      DummyIO.reset()
-      val pDone = Player("P1", Nil, isDone = true)
-      val pActive1 = Player("P2", List(heartAce), isDone = false)
-      val pActive2 = Player("P3", List(spadeSix), isDone = false)
-      val game = GameState(List(pDone, pActive1, pActive2), Nil, Suit.Hearts)
-      // We need to provide enough input for the attack and defend phases to complete one loop
-      DummyIO.enqueue("0", "0", "pass", "take") // P2 attacks with heartAce, P3 defends with spadeSix, P2 passes, P3 takes
-      noException shouldBe thrownBy(
-        DurakApp.gameLoop(game, 0)(using DummyIO)
-      )
-    }
-
+            "gameLoop: initial attacker is done, but other players are active" in {
+              DummyIO.reset()
+              given Random = FixedRandom // Add FixedRandom here
+              val pDone = Player("P1", Nil, isDone = true)
+              val pActive1 = Player("P2", List(heartAce), isDone = false)
+              val pActive2 = Player("P3", List(spadeSix), isDone = false)
+              val game = GameState(List(pDone, pActive1, pActive2), Nil, Suit.Hearts)
+              // We need to provide enough input for the attack and defend phases to complete one loop
+              DummyIO.enqueue("0", "0", "pass", "take") // P2 attacks with heartAce, P3 defends with spadeSix, P2 passes, P3 takes
+              noException shouldBe thrownBy(
+                DurakApp.gameLoop(game, 0)(using DummyIO, FixedRandom) // Pass FixedRandom
+              )
+            }
+        
           } // end should
         }
+        
+    
