@@ -36,6 +36,13 @@ class DurakSpec extends AnyWordSpec with Matchers {
       s should include("(T)")
     }
 
+    "cardShortString: return short string for card (excludes trump tag)" in {
+      val s = DurakApp.cardShortString(spadeSix)
+      s should include("Six")
+      s should include("Spades")
+      s should not include("(T)")
+    }
+
     "DefaultConsoleIO println is callable (covers println line)" in {
       // Nur println testen — readLine blockiert in sbt's terminal proxy, deshalb vermeiden wir es.
       DefaultConsoleIO.println("hello-default-console")
@@ -83,6 +90,14 @@ class DurakSpec extends AnyWordSpec with Matchers {
       players.head.name shouldBe "Player1"
       players.tail.map(_.name) should contain("Bob")
       remaining.length should be >= 0
+    }
+
+    "initPlayerList: uses defaultHandSize when deck is large enough" in {
+      DummyIO.reset()
+      val (largeDeck, _) = DurakApp.createDeck(20) // 20 cards
+      DummyIO.enqueue("2", "Alice", "Bob") // 2 players
+      val (players, _) = DurakApp.initPlayerList(largeDeck, 6)(using DummyIO) // defaultHandSize = 6
+      players.head.hand.length shouldBe 6
     }
 
     "updateFinishedPlayers: marks players with empty hands as done and prints message" in {
@@ -156,6 +171,13 @@ class DurakSpec extends AnyWordSpec with Matchers {
       val p1 = Player("B", Nil, isDone = false)
       val p2 = Player("C", Nil, isDone = true)
       val g = GameState(List(p0, p1, p2), Nil, Suit.Hearts)
+      DurakApp.findNextActive(g, 0) shouldBe 1
+    }
+
+    "findNextActive: returns next active when next player is not done" in {
+      val p0 = Player("A", Nil, isDone = false)
+      val p1 = Player("B", Nil, isDone = false)
+      val g = GameState(List(p0, p1), Nil, Suit.Hearts)
       DurakApp.findNextActive(g, 0) shouldBe 1
     }
 
@@ -282,6 +304,15 @@ class DurakSpec extends AnyWordSpec with Matchers {
       after shouldBe a[GameState]
     }
 
+    "attack: negative index yields 'Index out of range' message" in {
+      DummyIO.reset()
+      val p = Player("Att", List(heartAce))
+      val g = GameState(List(p), Nil, Suit.Hearts)
+      DummyIO.enqueue("-1", "0", "pass") // -1 is invalid, then valid 0, then pass
+      val finalG = DurakApp.attack(g, 0)(using DummyIO)
+      finalG.playerList.head.hand.isEmpty shouldBe true
+    }
+
     "draw: players draw up to 6 and deck is consumed; skip players with full hands" in {
       DummyIO.reset()
       val p1 = Player(
@@ -318,6 +349,19 @@ class DurakSpec extends AnyWordSpec with Matchers {
       // Should call handleEnd and return without throwing
       noException shouldBe thrownBy(
         DurakApp.gameLoop(finishedGame, 0)(using DummyIO)
+      )
+    }
+
+    "gameLoop: initial attacker is done, but other players are active" in {
+      DummyIO.reset()
+      val pDone = Player("P1", Nil, isDone = true)
+      val pActive1 = Player("P2", List(heartAce), isDone = false)
+      val pActive2 = Player("P3", List(spadeSix), isDone = false)
+      val game = GameState(List(pDone, pActive1, pActive2), Nil, Suit.Hearts)
+      // We need to provide enough input for the attack and defend phases to complete one loop
+      DummyIO.enqueue("0", "0", "pass", "take") // P2 attacks with heartAce, P3 defends with spadeSix, P2 passes, P3 takes
+      noException shouldBe thrownBy(
+        DurakApp.gameLoop(game, 0)(using DummyIO)
       )
     }
 
