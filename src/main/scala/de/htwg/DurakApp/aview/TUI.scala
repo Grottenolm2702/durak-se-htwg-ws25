@@ -154,8 +154,6 @@ $statusLine
   }
 
   override def chooseAttackCard(attacker: Player, game: GameState): String =
-    // Bildschirmausgabe über dein renderScreen/clearScreen wäre schöner,
-    // hier ein pragmatischer Ansatz:
     println(s"${attacker.name}, wähle Karte-Index zum Angreifen oder 'pass':")
     readLine().trim
 
