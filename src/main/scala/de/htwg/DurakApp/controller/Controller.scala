@@ -7,54 +7,47 @@ import model.Player
 import model.Card
 import model.GameState
 
-import scala.io.StdIn.readLine
 import scala.util.{Random, Try}
+import scala.io.StdIn.readLine
+import de.htwg.DurakApp.util.Observable
 
-trait ConsoleIO {
-  def readLine(): String
-  def println(s: String): Unit
-}
+final case class Controller() extends Observable:
+  var status = ""
+  var game = GameState(Nil, Nil, Suit.Clubs)
 
-object DefaultConsoleIO extends ConsoleIO {
-  override def readLine(): String = scala.io.StdIn.readLine()
-  override def println(s: String): Unit = Predef.println(s)
-}
+  // Hilfsfunktion: setzt game + status und benachrichtigt Observer
+  private def setGameAndNotify(gs: GameState, st: String): Unit =
+    this.game = gs
+    this.status = st
+    notifyObservers
 
-object DurakApp:
-
-  def safeToInt(s: String): Option[Int] =
+  private def safeToInt(s: String): Option[Int] =
     Try(s.trim.toInt).toOption
 
-  def cardShortString(card: Card): String =
+  private def cardShortString(card: Card): String =
     s"${card.rank.toString} ${card.suit.toString}${
         if card.isTrump then " (T)" else ""
       }"
 
-  def main(args: Array[String]): Unit =
-    given ConsoleIO = DefaultConsoleIO
-    run(DefaultConsoleIO, new Random())
-    ()
-
-  def run(io: ConsoleIO, random: Random): GameState =
-    given ConsoleIO = io
+  def run(random: Random): GameState =
     given Random = random
 
     val game = init()
     val numPlayers = game.playerList.length
     val dealerIndex = random.nextInt(numPlayers)
     val firstAttackerIndex = selectFirstAttacker(game, dealerIndex)
-    RenderTUI.clearAndRender(
-      game,
+    this.game = game
+    this.status =
       s"Dealer: ${game.playerList(dealerIndex).name} — First attacker: ${game.playerList(firstAttackerIndex).name}"
-    )
+    notifyObservers
     gameLoop(game, firstAttackerIndex)
 
-  def moveTrump(list: List[Card]): List[Card] =
+  private def moveTrump(list: List[Card]): List[Card] =
     list match
       case head :: tail => tail :+ head
       case Nil          => Nil
 
-  def findNextDefender(game: GameState, attackerIndex: Int): Int =
+  private def findNextDefender(game: GameState, attackerIndex: Int): Int =
     val n = game.playerList.length
     @annotation.tailrec
     def loop(offset: Int): Int =
@@ -63,7 +56,7 @@ object DurakApp:
       else loop(offset + 1)
     loop(0)
 
-  def createDeck(deckSizeRequested: Int)(using
+  private def createDeck(deckSizeRequested: Int)(using
       random: Random
   ): (List[Card], Suit) =
     val baseDeck = (for
@@ -80,17 +73,16 @@ object DurakApp:
     val marked = subset.map(c => c.copy(isTrump = c.suit == trump))
     (moveTrump(marked), trump)
 
-  def initPlayerList(deck: List[Card], defaultHandSize: Int = 6)(using
-      io: ConsoleIO
+  private def initPlayerList(
+      deck: List[Card],
+      defaultHandSize: Int = 6
   ): (List[Player], List[Card]) =
-    val _ =
-      io // Dummy statement to try and force coverage for the 'using' clause
-    RenderTUI.clearAndRender(
-      GameState(Nil, deck, Suit.Clubs),
-      "Please answer how many players and names"
-    )(using io)
-    io.println("How many players?")
-    val numPlayers = safeToInt(io.readLine()).getOrElse(2).max(2)
+    // vorherige TUI.clearAndRender-Aufruf ersetzt durch setGameAndNotify + TUI.clearAndRender
+    val startState = GameState(Nil, deck, Suit.Clubs)
+    setGameAndNotify(startState, "Please answer how many players and names")
+
+    println("How many players?")
+    val numPlayers = safeToInt(readLine()).getOrElse(2).max(2)
 
     val possibleHandSize = deck.length / numPlayers
     val actualHandSize =
@@ -98,17 +90,18 @@ object DurakApp:
       else possibleHandSize.max(1)
 
     if (actualHandSize != defaultHandSize) {
-      RenderTUI.clearAndRender(
-        GameState(Nil, deck, Suit.Clubs),
+      val noticeState = GameState(Nil, deck, Suit.Clubs)
+      setGameAndNotify(
+        noticeState,
         s"Deck small -> using hand size $actualHandSize (deck ${deck.length} / players $numPlayers)"
-      )(using io)
+      )
     }
 
     val (players, remaining) =
       (1 to numPlayers).foldLeft((List.empty[Player], deck)) {
         case ((acc, curDeck), i) =>
-          io.println(s"Enter name of player $i: ")
-          val name = io.readLine().trim match
+          println(s"Enter name of player $i: ")
+          val name = readLine().trim match
             case "" => s"Player$i"
             case n  => n
           val (hand, newDeck) = curDeck.splitAt(actualHandSize)
@@ -116,16 +109,16 @@ object DurakApp:
       }
     (players, remaining)
 
-  def updateFinishedPlayers(game: GameState)(using io: ConsoleIO): GameState =
+  private def updateFinishedPlayers(game: GameState): GameState =
     val updated = game.playerList.map { p =>
       if p.hand.isEmpty && !p.isDone then
-        io.println(s"${p.name} hat keine Karten mehr und ist fertig!")
+        println(s"${p.name} hat keine Karten mehr und ist fertig!")
         p.copy(isDone = true)
       else p
     }
     game.copy(playerList = updated)
 
-  def selectFirstAttacker(game: GameState, dealerIndex: Int): Int =
+  private def selectFirstAttacker(game: GameState, dealerIndex: Int): Int =
     val players = game.playerList
     val trumpsByPlayer: List[(Int, Int)] = players.zipWithIndex.map {
       case (p, idx) =>
@@ -142,12 +135,12 @@ object DurakApp:
       val candidates = playersWithTrumps.filter(_._2 == bestRank).map(_._1)
       candidates.min
 
-  def init()(using io: ConsoleIO, random: Random): GameState =
-    RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")(
-      using io
-    )
-    io.println("Anzahl Karten im Deck [36]: ")
-    val deckSizeInput = io.readLine().trim
+  private def init()(using random: Random): GameState =
+    val startState = GameState(Nil, Nil, Suit.Clubs)
+    setGameAndNotify(startState, "Start options")
+
+    println("Anzahl Karten im Deck [36]: ")
+    val deckSizeInput = readLine().trim
     val deckSize = safeToInt(deckSizeInput).getOrElse(36)
 
     val (deckWithTrump, trump) = createDeck(deckSize)
@@ -161,27 +154,26 @@ object DurakApp:
       discardPile = Nil
     )
 
-  def checkLooser(gameState: GameState): Boolean =
+  private def checkLooser(gameState: GameState): Boolean =
     val activePlayers = gameState.playerList.filterNot(_.isDone)
     activePlayers.length <= 1
 
-  def handleEnd(game: GameState)(using io: ConsoleIO): Unit =
+  private def handleEnd(game: GameState): Unit =
     val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
     loserOpt match
       case Some(p) =>
-        RenderTUI.clearAndRender(game, s"${p.name} ist der Durak!")(using io)
+        setGameAndNotify(game, s"${p.name} ist der Durak!")
       case None =>
-        RenderTUI.clearAndRender(game, "Alle fertig — Unentschieden!")(using io)
+        setGameAndNotify(game, "Alle fertig — Unentschieden!")
 
-  def findNextActive(game: GameState, startIndex: Int): Int =
+  private def findNextActive(game: GameState, startIndex: Int): Int =
     val n = game.playerList.length
     var idx = (startIndex + 1) % n
     while game.playerList(idx).isDone do idx = (idx + 1) % n
     idx
 
   @annotation.tailrec
-  def gameLoop(gameState: GameState, attackerIndex: Int)(using
-      io: ConsoleIO,
+  private def gameLoop(gameState: GameState, attackerIndex: Int)(using
       random: Random
   ): GameState =
     val gameWithDone = updateFinishedPlayers(gameState)
@@ -198,10 +190,10 @@ object DurakApp:
       val defenderIndex = findNextDefender(gameWithDone, nextActiveAttacker)
       val defender = gameWithDone.playerList(defenderIndex)
 
-      RenderTUI.clearAndRender(
+      setGameAndNotify(
         gameWithDone,
         s"Neue Runde — Angreifer: ${attacker.name}, Verteidiger: ${defender.name}"
-      )(using io)
+      )
 
       val afterAttack = attack(gameWithDone, nextActiveAttacker)
       val (afterDefense, defenderTook) = defend(afterAttack, defenderIndex)
@@ -216,7 +208,7 @@ object DurakApp:
       )
       gameLoop(updatedGame, nextAttacker)
 
-  def nextAttackerIndex(
+  private def nextAttackerIndex(
       game: GameState,
       currentAttacker: Int,
       defenderIndex: Int,
@@ -229,24 +221,23 @@ object DurakApp:
       findNextActive(game, currentAttacker)
     }
 
-  def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
+  private def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
     if attackCard.suit == defendCard.suit then
       defendCard.rank.value > attackCard.rank.value
     else defendCard.isTrump && !attackCard.isTrump
 
-  def tableCardsContainRank(gameState: GameState, searchCard: Card): Boolean =
+  private def tableCardsContainRank(gameState: GameState, searchCard: Card): Boolean =
     val all = gameState.attackingCards ++ gameState.defendingCards
     all.exists(_.rank == searchCard.rank)
 
-  def attack(gameState: GameState, attackerIndex: Int)(using
-      io: ConsoleIO
-  ): GameState = {
+  private def attack(gameState: GameState, attackerIndex: Int): GameState = {
     @annotation.tailrec
     def attackLoop(game: GameState, status: String): GameState = {
-      RenderTUI.clearAndRender(game, status)(using io)
+      setGameAndNotify(game, status)
+
       val attacker = game.playerList(attackerIndex)
-      io.println(s"${attacker.name}, choose card index to attack or 'pass':")
-      val input = io.readLine().trim
+      println(s"${attacker.name}, choose card index to attack or 'pass':")
+      val input = readLine().trim
 
       input match {
         case "pass" =>
@@ -299,11 +290,11 @@ object DurakApp:
       gameState,
       s"${gameState.playerList(attackerIndex).name} is attacking."
     )
-    RenderTUI.clearAndRender(finalState, "Attack phase finished.")(using io)
+    setGameAndNotify(finalState, "Attack phase finished.")
     finalState
   }
 
-  def moveCard(
+  private def moveCard(
       from: List[Card],
       to: List[Card],
       index: Int
@@ -315,9 +306,7 @@ object DurakApp:
       val newTo = to :+ c
       (newFrom, newTo)
 
-  def defend(gameState: GameState, defenderIndex: Int)(using
-      io: ConsoleIO
-  ): (GameState, Boolean) =
+  private def defend(gameState: GameState, defenderIndex: Int): (GameState, Boolean) =
     if (gameState.attackingCards.isEmpty) (gameState, false)
     else
       @annotation.tailrec
@@ -337,10 +326,10 @@ object DurakApp:
           (finalGame, false)
         else
           val attackCard = game.attackingCards(attackCardIndex)
-          io.println(
+          println(
             s"${defender.name}, defend against ${cardShortString(attackCard)} or 'take':"
           )
-          val input = io.readLine().trim
+          val input = readLine().trim
 
           if (input == "take") then
             val newHand =
@@ -370,16 +359,14 @@ object DurakApp:
                   )
                   defendLoop(newGame, updatedDefender, attackCardIndex + 1)
                 else
-                  io.println("This card doesn't beat the attack. Try again.")
+                  println("This card doesn't beat the attack. Try again.")
                   defendLoop(game, defender, attackCardIndex)
               case _ =>
-                io.println("Invalid input. Try again.")
+                println("Invalid input. Try again.")
                 defendLoop(game, defender, attackCardIndex)
       defendLoop(gameState, gameState.playerList(defenderIndex), 0)
 
-  def draw(gameState: GameState, attackerIndex: Int)(using
-      io: ConsoleIO
-  ): GameState = {
+  private def draw(gameState: GameState, attackerIndex: Int): GameState = {
     val n = gameState.playerList.length
     val drawOrder = (0 until n).map(i => (attackerIndex + i) % n).toList
 
@@ -394,10 +381,9 @@ object DurakApp:
             val newPlayers = currentPlayers.updated(playerIdx, updatedPlayer)
             val status =
               s"${newPlayers(playerIdx).name} drew ${drawn.length} card(s)"
-            RenderTUI.clearAndRender(
-              gameState.copy(playerList = newPlayers, deck = rest),
-              status
-            )(using io)
+            val interimGame =
+              gameState.copy(playerList = newPlayers, deck = rest)
+            setGameAndNotify(interimGame, status)
             (newPlayers, rest)
           } else {
             (currentPlayers, currentDeck)
@@ -405,8 +391,6 @@ object DurakApp:
       }
 
     val newGame = gameState.copy(playerList = finalPlayers, deck = finalDeck)
-    RenderTUI.clearAndRender(newGame, "Draw phase finished.")(using io)
+    setGameAndNotify(newGame, "Draw phase finished.")
     newGame
   }
-
-end DurakApp

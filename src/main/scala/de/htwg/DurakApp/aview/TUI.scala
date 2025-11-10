@@ -1,6 +1,15 @@
 package de.htwg.DurakApp
+package aview
 
-object RenderTUI:
+import controller.Controller
+import model.Card
+import model.Suit
+import model.Rank
+import model.GameState
+
+import de.htwg.DurakApp.util.Observer
+
+class TUI(controller: Controller) extends Observer:
 
   private val cardWidth = 7 // "+-----+" == 7 chars
   private val cardHeight = 5 // number of lines per card ASCII art
@@ -106,13 +115,9 @@ $playersStr
 $statusLine
 """.trim
 
-  /** Clear screen and print the rendered UI */
-  def clearAndRender(game: GameState, status: String = "")(using io: ConsoleIO): String = {
+  override def update: Unit = {
     val clear = clearScreen()
-    io.println(clear) // Use the returned string from clearScreen()
-    val render = renderScreen(game, status)
-    io.println(render)
-    render
+    println(clear)
+    val render = renderScreen(controller.game, controller.status)
+    println(render)
   }
-
-end RenderTUI
