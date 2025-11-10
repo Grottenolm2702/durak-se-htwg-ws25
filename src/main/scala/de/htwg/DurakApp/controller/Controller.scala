@@ -1,4 +1,11 @@
 package de.htwg.DurakApp
+package controller
+
+import model.Suit
+import model.Rank
+import model.Player
+import model.Card
+import model.GameState
 
 import scala.io.StdIn.readLine
 import scala.util.{Random, Try}
@@ -19,7 +26,9 @@ object DurakApp:
     Try(s.trim.toInt).toOption
 
   def cardShortString(card: Card): String =
-    s"${card.rank.toString} ${card.suit.toString}${if card.isTrump then " (T)" else ""}"
+    s"${card.rank.toString} ${card.suit.toString}${
+        if card.isTrump then " (T)" else ""
+      }"
 
   def main(args: Array[String]): Unit =
     given ConsoleIO = DefaultConsoleIO
@@ -48,13 +57,15 @@ object DurakApp:
   def findNextDefender(game: GameState, attackerIndex: Int): Int =
     val n = game.playerList.length
     @annotation.tailrec
-    def loop(offset: Int): Int = 
+    def loop(offset: Int): Int =
       val idx = (attackerIndex + 1 + offset) % n
       if idx != attackerIndex && !game.playerList(idx).isDone then idx
       else loop(offset + 1)
     loop(0)
 
-  def createDeck(deckSizeRequested: Int)(using random: Random): (List[Card], Suit) =
+  def createDeck(deckSizeRequested: Int)(using
+      random: Random
+  ): (List[Card], Suit) =
     val baseDeck = (for
       suit <- Suit.values
       rank <- Rank.values
@@ -69,11 +80,15 @@ object DurakApp:
     val marked = subset.map(c => c.copy(isTrump = c.suit == trump))
     (moveTrump(marked), trump)
 
-
-
-  def initPlayerList(deck: List[Card], defaultHandSize: Int = 6)(using io: ConsoleIO): (List[Player], List[Card]) =
-    val _ = io // Dummy statement to try and force coverage for the 'using' clause
-    RenderTUI.clearAndRender(GameState(Nil, deck, Suit.Clubs), "Please answer how many players and names")(using io)
+  def initPlayerList(deck: List[Card], defaultHandSize: Int = 6)(using
+      io: ConsoleIO
+  ): (List[Player], List[Card]) =
+    val _ =
+      io // Dummy statement to try and force coverage for the 'using' clause
+    RenderTUI.clearAndRender(
+      GameState(Nil, deck, Suit.Clubs),
+      "Please answer how many players and names"
+    )(using io)
     io.println("How many players?")
     val numPlayers = safeToInt(io.readLine()).getOrElse(2).max(2)
 
@@ -90,13 +105,14 @@ object DurakApp:
     }
 
     val (players, remaining) =
-      (1 to numPlayers).foldLeft((List.empty[Player], deck)) { case ((acc, curDeck), i) =>
-        io.println(s"Enter name of player $i: ")
-        val name = io.readLine().trim match
-          case "" => s"Player$i"
-          case n  => n
-        val (hand, newDeck) = curDeck.splitAt(actualHandSize)
-        (acc :+ Player(name, hand), newDeck)
+      (1 to numPlayers).foldLeft((List.empty[Player], deck)) {
+        case ((acc, curDeck), i) =>
+          io.println(s"Enter name of player $i: ")
+          val name = io.readLine().trim match
+            case "" => s"Player$i"
+            case n  => n
+          val (hand, newDeck) = curDeck.splitAt(actualHandSize)
+          (acc :+ Player(name, hand), newDeck)
       }
     (players, remaining)
 
@@ -111,10 +127,12 @@ object DurakApp:
 
   def selectFirstAttacker(game: GameState, dealerIndex: Int): Int =
     val players = game.playerList
-    val trumpsByPlayer: List[(Int, Int)] = players.zipWithIndex.map { case (p, idx) =>
-      val trumpRanks = p.hand.filter(_.isTrump).map(_.rank.value)
-      val minRank = if trumpRanks.nonEmpty then trumpRanks.min else Int.MaxValue
-      (idx, minRank)
+    val trumpsByPlayer: List[(Int, Int)] = players.zipWithIndex.map {
+      case (p, idx) =>
+        val trumpRanks = p.hand.filter(_.isTrump).map(_.rank.value)
+        val minRank =
+          if trumpRanks.nonEmpty then trumpRanks.min else Int.MaxValue
+        (idx, minRank)
     }
 
     val playersWithTrumps = trumpsByPlayer.filter(_._2 != Int.MaxValue)
@@ -125,7 +143,9 @@ object DurakApp:
       candidates.min
 
   def init()(using io: ConsoleIO, random: Random): GameState =
-    RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")(using io)
+    RenderTUI.clearAndRender(GameState(Nil, Nil, Suit.Clubs), "Start options")(
+      using io
+    )
     io.println("Anzahl Karten im Deck [36]: ")
     val deckSizeInput = io.readLine().trim
     val deckSize = safeToInt(deckSizeInput).getOrElse(36)
@@ -148,19 +168,22 @@ object DurakApp:
   def handleEnd(game: GameState)(using io: ConsoleIO): Unit =
     val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
     loserOpt match
-      case Some(p) => RenderTUI.clearAndRender(game, s"${p.name} ist der Durak!")(using io)
-      case None    => RenderTUI.clearAndRender(game, "Alle fertig — Unentschieden!")(using io)
+      case Some(p) =>
+        RenderTUI.clearAndRender(game, s"${p.name} ist der Durak!")(using io)
+      case None =>
+        RenderTUI.clearAndRender(game, "Alle fertig — Unentschieden!")(using io)
 
   def findNextActive(game: GameState, startIndex: Int): Int =
     val n = game.playerList.length
     var idx = (startIndex + 1) % n
-    while game.playerList(idx).isDone do
-      idx = (idx + 1) % n
+    while game.playerList(idx).isDone do idx = (idx + 1) % n
     idx
 
-
   @annotation.tailrec
-  def gameLoop(gameState: GameState, attackerIndex: Int)(using io: ConsoleIO, random: Random): GameState =
+  def gameLoop(gameState: GameState, attackerIndex: Int)(using
+      io: ConsoleIO,
+      random: Random
+  ): GameState =
     val gameWithDone = updateFinishedPlayers(gameState)
     if checkLooser(gameWithDone) then
       handleEnd(gameWithDone)
@@ -185,17 +208,26 @@ object DurakApp:
       val afterDraw = draw(afterDefense, nextActiveAttacker)
       val updatedGame = updateFinishedPlayers(afterDraw)
 
-      val nextAttacker = nextAttackerIndex(updatedGame, nextActiveAttacker, defenderIndex, defenderTook)
+      val nextAttacker = nextAttackerIndex(
+        updatedGame,
+        nextActiveAttacker,
+        defenderIndex,
+        defenderTook
+      )
       gameLoop(updatedGame, nextAttacker)
 
-  def nextAttackerIndex(game: GameState, currentAttacker: Int, defenderIndex: Int, defenderTook: Boolean): Int = 
+  def nextAttackerIndex(
+      game: GameState,
+      currentAttacker: Int,
+      defenderIndex: Int,
+      defenderTook: Boolean
+  ): Int =
     val activePlayers = game.playerList.filterNot(_.isDone)
     if (defenderTook) {
       findNextActive(game, defenderIndex)
     } else {
       findNextActive(game, currentAttacker)
     }
-    
 
   def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
     if attackCard.suit == defendCard.suit then
@@ -206,7 +238,9 @@ object DurakApp:
     val all = gameState.attackingCards ++ gameState.defendingCards
     all.exists(_.rank == searchCard.rank)
 
-  def attack(gameState: GameState, attackerIndex: Int)(using io: ConsoleIO): GameState = {
+  def attack(gameState: GameState, attackerIndex: Int)(using
+      io: ConsoleIO
+  ): GameState = {
     @annotation.tailrec
     def attackLoop(game: GameState, status: String): GameState = {
       RenderTUI.clearAndRender(game, status)(using io)
@@ -224,7 +258,8 @@ object DurakApp:
 
         case s =>
           safeToInt(s) match {
-            case None => attackLoop(game, "Invalid input. Use a number or 'pass'.")
+            case None =>
+              attackLoop(game, "Invalid input. Use a number or 'pass'.")
             case Some(idx) =>
               if (idx < 0 || idx >= attacker.hand.length) {
                 attackLoop(game, "Index out of range.")
@@ -232,27 +267,47 @@ object DurakApp:
                 attackLoop(game, "Maximum 6 attack cards reached.")
               } else {
                 val candidate = attacker.hand(idx)
-                val allowed = if (game.attackingCards.isEmpty) true else tableCardsContainRank(game, candidate)
+                val allowed =
+                  if (game.attackingCards.isEmpty) true
+                  else tableCardsContainRank(game, candidate)
                 if (!allowed) {
-                  attackLoop(game, "You can only play cards whose rank is already on the table.")
+                  attackLoop(
+                    game,
+                    "You can only play cards whose rank is already on the table."
+                  )
                 } else {
-                  val (newHand, newAttacking) = moveCard(attacker.hand, game.attackingCards, idx)
+                  val (newHand, newAttacking) =
+                    moveCard(attacker.hand, game.attackingCards, idx)
                   val updatedPlayer = attacker.copy(hand = newHand)
-                  val updatedPlayers = game.playerList.updated(attackerIndex, updatedPlayer)
-                  val newGame = game.copy(playerList = updatedPlayers, attackingCards = newAttacking)
-                  attackLoop(newGame, s"${attacker.name} played ${cardShortString(candidate)}")
+                  val updatedPlayers =
+                    game.playerList.updated(attackerIndex, updatedPlayer)
+                  val newGame = game.copy(
+                    playerList = updatedPlayers,
+                    attackingCards = newAttacking
+                  )
+                  attackLoop(
+                    newGame,
+                    s"${attacker.name} played ${cardShortString(candidate)}"
+                  )
                 }
               }
           }
       }
     }
 
-    val finalState = attackLoop(gameState, s"${gameState.playerList(attackerIndex).name} is attacking.")
+    val finalState = attackLoop(
+      gameState,
+      s"${gameState.playerList(attackerIndex).name} is attacking."
+    )
     RenderTUI.clearAndRender(finalState, "Attack phase finished.")(using io)
     finalState
   }
 
-  def moveCard(from: List[Card], to: List[Card], index: Int): (List[Card], List[Card]) =
+  def moveCard(
+      from: List[Card],
+      to: List[Card],
+      index: Int
+  ): (List[Card], List[Card]) =
     if index < 0 || index >= from.length then (from, to)
     else
       val c = from(index)
@@ -260,36 +315,59 @@ object DurakApp:
       val newTo = to :+ c
       (newFrom, newTo)
 
-  def defend(gameState: GameState, defenderIndex: Int)(using io: ConsoleIO): (GameState, Boolean) =
+  def defend(gameState: GameState, defenderIndex: Int)(using
+      io: ConsoleIO
+  ): (GameState, Boolean) =
     if (gameState.attackingCards.isEmpty) (gameState, false)
     else
       @annotation.tailrec
-      def defendLoop(game: GameState, defender: Player, attackCardIndex: Int): (GameState, Boolean) =
+      def defendLoop(
+          game: GameState,
+          defender: Player,
+          attackCardIndex: Int
+      ): (GameState, Boolean) =
         if (attackCardIndex >= game.attackingCards.length) then
           val cleared = game.attackingCards ++ game.defendingCards
           val updatedDiscard = game.discardPile ++ cleared
-          val finalGame = game.copy(attackingCards = Nil, defendingCards = Nil, discardPile = updatedDiscard)
+          val finalGame = game.copy(
+            attackingCards = Nil,
+            defendingCards = Nil,
+            discardPile = updatedDiscard
+          )
           (finalGame, false)
         else
           val attackCard = game.attackingCards(attackCardIndex)
-          io.println(s"${defender.name}, defend against ${cardShortString(attackCard)} or 'take':")
+          io.println(
+            s"${defender.name}, defend against ${cardShortString(attackCard)} or 'take':"
+          )
           val input = io.readLine().trim
 
           if (input == "take") then
-            val newHand = defender.hand ++ game.attackingCards ++ game.defendingCards
+            val newHand =
+              defender.hand ++ game.attackingCards ++ game.defendingCards
             val updatedDefender = defender.copy(hand = newHand)
-            val updatedPlayers = game.playerList.updated(defenderIndex, updatedDefender)
-            val newGame = game.copy(playerList = updatedPlayers, attackingCards = Nil, defendingCards = Nil)
+            val updatedPlayers =
+              game.playerList.updated(defenderIndex, updatedDefender)
+            val newGame = game.copy(
+              playerList = updatedPlayers,
+              attackingCards = Nil,
+              defendingCards = Nil
+            )
             (newGame, true)
           else
             safeToInt(input) match
               case Some(idx) if idx >= 0 && idx < defender.hand.length =>
                 val defendCard = defender.hand(idx)
                 if (canBeat(attackCard, defendCard, game.trump)) then
-                  val (newHand, newDefending) = moveCard(defender.hand, game.defendingCards, idx)
+                  val (newHand, newDefending) =
+                    moveCard(defender.hand, game.defendingCards, idx)
                   val updatedDefender = defender.copy(hand = newHand)
-                  val updatedPlayers = game.playerList.updated(defenderIndex, updatedDefender)
-                  val newGame = game.copy(playerList = updatedPlayers, defendingCards = newDefending)
+                  val updatedPlayers =
+                    game.playerList.updated(defenderIndex, updatedDefender)
+                  val newGame = game.copy(
+                    playerList = updatedPlayers,
+                    defendingCards = newDefending
+                  )
                   defendLoop(newGame, updatedDefender, attackCardIndex + 1)
                 else
                   io.println("This card doesn't beat the attack. Try again.")
@@ -299,26 +377,32 @@ object DurakApp:
                 defendLoop(game, defender, attackCardIndex)
       defendLoop(gameState, gameState.playerList(defenderIndex), 0)
 
-
-  def draw(gameState: GameState, attackerIndex: Int)(using io: ConsoleIO): GameState = {
+  def draw(gameState: GameState, attackerIndex: Int)(using
+      io: ConsoleIO
+  ): GameState = {
     val n = gameState.playerList.length
     val drawOrder = (0 until n).map(i => (attackerIndex + i) % n).toList
 
-    val (finalPlayers, finalDeck) = drawOrder.foldLeft((gameState.playerList, gameState.deck)) {
-      case ((currentPlayers, currentDeck), playerIdx) =>
-        val player = currentPlayers(playerIdx)
-        if (player.hand.size < 6 && currentDeck.nonEmpty) {
-          val needed = 6 - player.hand.size
-          val (drawn, rest) = currentDeck.splitAt(needed)
-          val updatedPlayer = player.copy(hand = player.hand ++ drawn)
-          val newPlayers = currentPlayers.updated(playerIdx, updatedPlayer)
-          val status = s"${newPlayers(playerIdx).name} drew ${drawn.length} card(s)"
-          RenderTUI.clearAndRender(gameState.copy(playerList = newPlayers, deck = rest), status)(using io)
-          (newPlayers, rest)
-        } else {
-          (currentPlayers, currentDeck)
-        }
-    }
+    val (finalPlayers, finalDeck) =
+      drawOrder.foldLeft((gameState.playerList, gameState.deck)) {
+        case ((currentPlayers, currentDeck), playerIdx) =>
+          val player = currentPlayers(playerIdx)
+          if (player.hand.size < 6 && currentDeck.nonEmpty) {
+            val needed = 6 - player.hand.size
+            val (drawn, rest) = currentDeck.splitAt(needed)
+            val updatedPlayer = player.copy(hand = player.hand ++ drawn)
+            val newPlayers = currentPlayers.updated(playerIdx, updatedPlayer)
+            val status =
+              s"${newPlayers(playerIdx).name} drew ${drawn.length} card(s)"
+            RenderTUI.clearAndRender(
+              gameState.copy(playerList = newPlayers, deck = rest),
+              status
+            )(using io)
+            (newPlayers, rest)
+          } else {
+            (currentPlayers, currentDeck)
+          }
+      }
 
     val newGame = gameState.copy(playerList = finalPlayers, deck = finalDeck)
     RenderTUI.clearAndRender(newGame, "Draw phase finished.")(using io)
