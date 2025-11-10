@@ -123,6 +123,19 @@ class TUISpec extends AnyWordSpec with Matchers {
       names shouldBe List("Alice", "Bob")
     }
 
+    "askForPlayerNames uses default readLine" in {
+      val tui = new TUI(controller)
+
+      // Simulierte Eingaben für zwei Spieler
+      val input = "Alice\nBob\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+
+      Console.withIn(inStream) {
+        val names = tui.askForPlayerNames(2) // **ohne Lambda** → nutzt readLine
+        names shouldBe List("Alice", "Bob")
+      }
+    }
+
     "ask for player names and use default names for empty input" in {
       val tui = new TUI(controller)
       val inputs = List("", "  ")
