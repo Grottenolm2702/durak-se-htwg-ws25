@@ -6,6 +6,8 @@ import java.io.{ByteArrayInputStream, InputStream}
 import scala.util.Random // Added import
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.util.Observer
+import de.htwg.DurakApp.controller.PlayerInput
 
 class DurakSpec extends AnyWordSpec with Matchers {
 
@@ -18,6 +20,29 @@ class DurakSpec extends AnyWordSpec with Matchers {
   val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
   val clubKing = Card(Suit.Clubs, Rank.King, isTrump = false)
   val clubsAce = Card(Suit.Clubs, Rank.Ace, isTrump = false)
+
+  class MockPlayerInput(inputs: List[String]) extends PlayerInput {
+    private var remainingInputs = inputs
+
+    override def chooseAttackCard(attacker: Player, game: GameState): String = {
+      val input = remainingInputs.head
+      remainingInputs = remainingInputs.tail
+      input
+    }
+
+    override def chooseDefenseCard(defender: Player, attackCard: Card, game: GameState): String = {
+      val input = remainingInputs.head
+      remainingInputs = remainingInputs.tail
+      input
+    }
+  }
+
+  class TestObserver(controller: Controller) extends Observer {
+    var messages: List[String] = Nil
+    def update: Unit = {
+      messages = controller.status :: messages
+    }
+  }
 
   "DurakApp" should {
 
@@ -210,6 +235,41 @@ class DurakSpec extends AnyWordSpec with Matchers {
         controller.moveCard(List(heartAce, spadeSix), List(diamondTen), 1)
       from shouldBe List(heartAce)
       to should contain(spadeSix)
+    }
+
+    "attack with out of bounds index should show error" in {
+      val observer = new TestObserver(controller)
+      controller.add(observer)
+      val attacker = Player("A", List(heartAce), false)
+      val g = GameState(List(attacker), Nil, Suit.Hearts)
+      val mockInput = new MockPlayerInput(List("1", "0", "pass")) // index 1 is out of bounds, then valid, then pass
+      controller.attack(g, 0, mockInput)
+      observer.messages.reverse should contain ("Index out of range.")
+      controller.remove(observer)
+    }
+
+    "attack with more than 6 cards should show error" in {
+      val observer = new TestObserver(controller)
+      controller.add(observer)
+      val attacker = Player("A", List.fill(7)(heartAce), false)
+      val attackingCards = List.fill(6)(spadeSix)
+      val g = GameState(List(attacker), Nil, Suit.Hearts, attackingCards = attackingCards)
+      val mockInput = new MockPlayerInput(List("0", "pass"))
+      controller.attack(g, 0, mockInput)
+      observer.messages.reverse should contain ("Maximum 6 attack cards reached.")
+      controller.remove(observer)
+    }
+
+    "attack with not allowed card should show error" in {
+      val observer = new TestObserver(controller)
+      controller.add(observer)
+      val attacker = Player("A", List(diamondTen), false)
+      val attackingCards = List(spadeSix) // rank Six
+      val g = GameState(List(attacker), Nil, Suit.Hearts, attackingCards = attackingCards)
+      val mockInput = new MockPlayerInput(List("0", "pass")) // diamondTen has rank Ten
+      controller.attack(g, 0, mockInput)
+      observer.messages.reverse should contain ("You can only play cards whose rank is already on the table.")
+      controller.remove(observer)
     }
   } // end should
 }
