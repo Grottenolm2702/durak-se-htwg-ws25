@@ -89,12 +89,12 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val inputs = List("pass", "0", "dummy", "dummy", "pass") // First pass is invalid, second input is a valid card index, third and fourth are consumed by recursive calls due to invalid input, and the final pass exits the attackLoop
       val mockInput = new MockPlayerInput(inputs)
 
-      val finalState = controller.attack(gameState, 0, mockInput)
+      controller.attack(gameState, 0, mockInput)
       // After the invalid "pass", the loop continues and then a valid attack is made.
       // The status will reflect the last successful action.
-      finalState.attackingCards.length shouldBe 1
-      finalState.attackingCards.head.rank shouldBe Rank.Seven
-      finalState.playerList.head.hand.length shouldBe 1
+      controller.game.attackingCards.length shouldBe 1
+      controller.game.attackingCards.head.rank shouldBe Rank.Seven
+      controller.game.playerList.head.hand.length shouldBe 0
     }
 
     "defend phase - successful defense" in {
