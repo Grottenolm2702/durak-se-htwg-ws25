@@ -11,14 +11,16 @@ import scala.util.{Random, Try}
 import de.htwg.DurakApp.util.Observable
 
 final case class Controller() extends Observable:
-  var status = ""
-  var game = GameState(Nil, Nil, Suit.Clubs)
+  private var _status = ""
+  private var _game = GameState(Nil, Nil, Suit.Clubs)
 
-  def setGameAndNotify(gs: GameState, st: String): Unit =
-    this.game = gs
-    this.status = st
+  def game: GameState = _game
+  def status: String = _status
+
+  private def setGameAndNotify(gs: GameState, st: String): Unit =
+    _game = gs
+    _status = st
     notifyObservers
-
   def safeToInt(s: String): Option[Int] =
     Try(s.trim.toInt).toOption
 
@@ -38,8 +40,8 @@ final case class Controller() extends Observable:
     val numPlayers = game.playerList.length
     val dealerIndex = random.nextInt(numPlayers)
     val firstAttackerIndex = selectFirstAttacker(game, dealerIndex)
-    this.game = game
-    this.status =
+    this._game = game
+    this._status =
       s"Dealer: ${game.playerList(dealerIndex).name} — First attacker: ${game.playerList(firstAttackerIndex).name}"
     notifyObservers
     gameLoop(game, firstAttackerIndex, inputmethod)
