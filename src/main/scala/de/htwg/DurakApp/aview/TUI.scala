@@ -6,13 +6,15 @@ import model.Card
 import model.Suit
 import model.Rank
 import model.GameState
+import model.Player
 
 import de.htwg.DurakApp.util.Observer
 
 import scala.io.StdIn.readLine
 import scala.util.Try
+import de.htwg.DurakApp.controller.PlayerInput
 
-class TUI(controller: Controller) extends Observer:
+class TUI(controller: Controller) extends Observer with PlayerInput:
 
   private val cardWidth = 7 // "+-----+" == 7 chars
   private val cardHeight = 5 // number of lines per card ASCII art
@@ -34,7 +36,10 @@ class TUI(controller: Controller) extends Observer:
     safeToInt(inputReader()).getOrElse(2).max(2)
   }
 
-  def askForPlayerNames(count: Int, inputReader: () => String = readLine): List[String] = {
+  def askForPlayerNames(
+      count: Int,
+      inputReader: () => String = readLine
+  ): List[String] = {
     (1 to count).map { i =>
       println(s"Enter name of player $i: ")
       inputReader().trim match {
@@ -147,3 +152,19 @@ $statusLine
     val render = renderScreen(controller.game, controller.status)
     println(render)
   }
+
+  override def chooseAttackCard(attacker: Player, game: GameState): String =
+    // Bildschirmausgabe über dein renderScreen/clearScreen wäre schöner,
+    // hier ein pragmatischer Ansatz:
+    println(s"${attacker.name}, wähle Karte-Index zum Angreifen oder 'pass':")
+    readLine().trim
+
+  override def chooseDefenseCard(
+      defender: Player,
+      attackCard: Card,
+      game: GameState
+  ): String =
+    println(
+      s"${defender.name}, verteidige gegen ${controller.cardShortString(attackCard)} oder 'take':"
+    )
+    readLine().trim
