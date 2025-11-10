@@ -8,14 +8,12 @@ import model.Card
 import model.GameState
 
 import scala.util.{Random, Try}
-import scala.io.StdIn.readLine
 import de.htwg.DurakApp.util.Observable
 
 final case class Controller() extends Observable:
   var status = ""
   var game = GameState(Nil, Nil, Suit.Clubs)
 
-  // Hilfsfunktion: setzt game + status und benachrichtigt Observer
   def setGameAndNotify(gs: GameState, st: String): Unit =
     this.game = gs
     this.status = st
@@ -161,7 +159,11 @@ final case class Controller() extends Observable:
     idx
 
   @annotation.tailrec
-  final def gameLoop(gameState: GameState, attackerIndex: Int, inputmethod: PlayerInput)(using
+  final def gameLoop(
+      gameState: GameState,
+      attackerIndex: Int,
+      inputmethod: PlayerInput
+  )(using
       random: Random
   ): GameState =
     val gameWithDone = updateFinishedPlayers(gameState)
@@ -184,7 +186,8 @@ final case class Controller() extends Observable:
       )
 
       val afterAttack = attack(gameWithDone, nextActiveAttacker, inputmethod)
-      val (afterDefense, defenderTook) = defend(afterAttack, defenderIndex, inputmethod)
+      val (afterDefense, defenderTook) =
+        defend(afterAttack, defenderIndex, inputmethod)
       val afterDraw = draw(afterDefense, nextActiveAttacker)
       val updatedGame = updateFinishedPlayers(afterDraw)
 
