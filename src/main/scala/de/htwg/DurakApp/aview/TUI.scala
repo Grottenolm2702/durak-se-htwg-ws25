@@ -9,6 +9,9 @@ import model.GameState
 
 import de.htwg.DurakApp.util.Observer
 
+import scala.io.StdIn.readLine
+import scala.util.Try
+
 class TUI(controller: Controller) extends Observer:
 
   private val cardWidth = 7 // "+-----+" == 7 chars
@@ -17,6 +20,29 @@ class TUI(controller: Controller) extends Observer:
   val RED = "\u001b[31m"
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
+
+  private def safeToInt(s: String): Option[Int] =
+    Try(s.trim.toInt).toOption
+
+  def askForDeckSize(inputReader: () => String = readLine): Int = {
+    println("Anzahl Karten im Deck [36]: ")
+    safeToInt(inputReader()).getOrElse(36)
+  }
+
+  def askForPlayerCount(inputReader: () => String = readLine): Int = {
+    println("How many players?")
+    safeToInt(inputReader()).getOrElse(2).max(2)
+  }
+
+  def askForPlayerNames(count: Int, inputReader: () => String = readLine): List[String] = {
+    (1 to count).map { i =>
+      println(s"Enter name of player $i: ")
+      inputReader().trim match {
+        case "" => s"Player$i"
+        case n  => n
+      }
+    }.toList
+  }
 
   def clearScreen(): String =
     "\u001b[2J\u001b[H"

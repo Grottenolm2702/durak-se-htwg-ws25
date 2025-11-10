@@ -16,23 +16,22 @@ final case class Controller() extends Observable:
   var game = GameState(Nil, Nil, Suit.Clubs)
 
   // Hilfsfunktion: setzt game + status und benachrichtigt Observer
-  private def setGameAndNotify(gs: GameState, st: String): Unit =
+  def setGameAndNotify(gs: GameState, st: String): Unit =
     this.game = gs
     this.status = st
     notifyObservers
 
-  private def safeToInt(s: String): Option[Int] =
+  def safeToInt(s: String): Option[Int] =
     Try(s.trim.toInt).toOption
 
-  private def cardShortString(card: Card): String =
+  def cardShortString(card: Card): String =
     s"${card.rank.toString} ${card.suit.toString}${
         if card.isTrump then " (T)" else ""
       }"
 
-  def run(random: Random): GameState =
+  def setupGameAndStart(deckSize: Int, playerNames: List[String], random: Random): Unit = {
     given Random = random
-
-    val game = init()
+    val game = initGame(deckSize, playerNames)
     val numPlayers = game.playerList.length
     val dealerIndex = random.nextInt(numPlayers)
     val firstAttackerIndex = selectFirstAttacker(game, dealerIndex)
@@ -41,13 +40,48 @@ final case class Controller() extends Observable:
       s"Dealer: ${game.playerList(dealerIndex).name} — First attacker: ${game.playerList(firstAttackerIndex).name}"
     notifyObservers
     gameLoop(game, firstAttackerIndex)
+  }
 
-  private def moveTrump(list: List[Card]): List[Card] =
+  def initGame(deckSize: Int, playerNames: List[String], defaultHandSize: Int = 6)(using random: Random): GameState = {
+    val (deckWithTrump, trump) = createDeck(deckSize)
+    
+    val numPlayers = playerNames.length
+    val possibleHandSize = deckWithTrump.length / numPlayers
+    val actualHandSize =
+      if (deckWithTrump.length >= numPlayers * defaultHandSize) defaultHandSize
+      else possibleHandSize.max(1)
+
+    if (actualHandSize != defaultHandSize) {
+      val noticeState = GameState(Nil, deckWithTrump, trump)
+      setGameAndNotify(
+        noticeState,
+        s"Deck small -> using hand size $actualHandSize (deck ${deckWithTrump.length} / players $numPlayers)"
+      )
+    }
+
+    val (players, remainingDeck) =
+      playerNames.foldLeft((List.empty[Player], deckWithTrump)) {
+        case ((acc, curDeck), name) =>
+          val (hand, newDeck) = curDeck.splitAt(actualHandSize)
+          (acc :+ Player(name, hand), newDeck)
+      }
+
+    GameState(
+      playerList = players,
+      deck = remainingDeck,
+      trump = trump,
+      attackingCards = Nil,
+      defendingCards = Nil,
+      discardPile = Nil
+    )
+  }
+
+  def moveTrump(list: List[Card]): List[Card] =
     list match
       case head :: tail => tail :+ head
       case Nil          => Nil
 
-  private def findNextDefender(game: GameState, attackerIndex: Int): Int =
+  def findNextDefender(game: GameState, attackerIndex: Int): Int =
     val n = game.playerList.length
     @annotation.tailrec
     def loop(offset: Int): Int =
@@ -56,7 +90,7 @@ final case class Controller() extends Observable:
       else loop(offset + 1)
     loop(0)
 
-  private def createDeck(deckSizeRequested: Int)(using
+  def createDeck(deckSizeRequested: Int)(using
       random: Random
   ): (List[Card], Suit) =
     val baseDeck = (for
@@ -73,43 +107,7 @@ final case class Controller() extends Observable:
     val marked = subset.map(c => c.copy(isTrump = c.suit == trump))
     (moveTrump(marked), trump)
 
-  private def initPlayerList(
-      deck: List[Card],
-      defaultHandSize: Int = 6
-  ): (List[Player], List[Card]) =
-    // vorherige TUI.clearAndRender-Aufruf ersetzt durch setGameAndNotify + TUI.clearAndRender
-    val startState = GameState(Nil, deck, Suit.Clubs)
-    setGameAndNotify(startState, "Please answer how many players and names")
-
-    println("How many players?")
-    val numPlayers = safeToInt(readLine()).getOrElse(2).max(2)
-
-    val possibleHandSize = deck.length / numPlayers
-    val actualHandSize =
-      if (deck.length >= numPlayers * defaultHandSize) defaultHandSize
-      else possibleHandSize.max(1)
-
-    if (actualHandSize != defaultHandSize) {
-      val noticeState = GameState(Nil, deck, Suit.Clubs)
-      setGameAndNotify(
-        noticeState,
-        s"Deck small -> using hand size $actualHandSize (deck ${deck.length} / players $numPlayers)"
-      )
-    }
-
-    val (players, remaining) =
-      (1 to numPlayers).foldLeft((List.empty[Player], deck)) {
-        case ((acc, curDeck), i) =>
-          println(s"Enter name of player $i: ")
-          val name = readLine().trim match
-            case "" => s"Player$i"
-            case n  => n
-          val (hand, newDeck) = curDeck.splitAt(actualHandSize)
-          (acc :+ Player(name, hand), newDeck)
-      }
-    (players, remaining)
-
-  private def updateFinishedPlayers(game: GameState): GameState =
+  def updateFinishedPlayers(game: GameState): GameState =
     val updated = game.playerList.map { p =>
       if p.hand.isEmpty && !p.isDone then
         println(s"${p.name} hat keine Karten mehr und ist fertig!")
@@ -118,7 +116,7 @@ final case class Controller() extends Observable:
     }
     game.copy(playerList = updated)
 
-  private def selectFirstAttacker(game: GameState, dealerIndex: Int): Int =
+  def selectFirstAttacker(game: GameState, dealerIndex: Int): Int =
     val players = game.playerList
     val trumpsByPlayer: List[(Int, Int)] = players.zipWithIndex.map {
       case (p, idx) =>
@@ -135,30 +133,11 @@ final case class Controller() extends Observable:
       val candidates = playersWithTrumps.filter(_._2 == bestRank).map(_._1)
       candidates.min
 
-  private def init()(using random: Random): GameState =
-    val startState = GameState(Nil, Nil, Suit.Clubs)
-    setGameAndNotify(startState, "Start options")
-
-    println("Anzahl Karten im Deck [36]: ")
-    val deckSizeInput = readLine().trim
-    val deckSize = safeToInt(deckSizeInput).getOrElse(36)
-
-    val (deckWithTrump, trump) = createDeck(deckSize)
-    val (playerlist, remainingDeck) = initPlayerList(deckWithTrump, 6)
-    GameState(
-      playerList = playerlist,
-      deck = remainingDeck,
-      trump = trump,
-      attackingCards = Nil,
-      defendingCards = Nil,
-      discardPile = Nil
-    )
-
-  private def checkLooser(gameState: GameState): Boolean =
+  def checkLooser(gameState: GameState): Boolean =
     val activePlayers = gameState.playerList.filterNot(_.isDone)
     activePlayers.length <= 1
 
-  private def handleEnd(game: GameState): Unit =
+  def handleEnd(game: GameState): Unit =
     val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
     loserOpt match
       case Some(p) =>
@@ -166,14 +145,14 @@ final case class Controller() extends Observable:
       case None =>
         setGameAndNotify(game, "Alle fertig — Unentschieden!")
 
-  private def findNextActive(game: GameState, startIndex: Int): Int =
+  def findNextActive(game: GameState, startIndex: Int): Int =
     val n = game.playerList.length
     var idx = (startIndex + 1) % n
     while game.playerList(idx).isDone do idx = (idx + 1) % n
     idx
 
   @annotation.tailrec
-  private def gameLoop(gameState: GameState, attackerIndex: Int)(using
+  final def gameLoop(gameState: GameState, attackerIndex: Int)(using
       random: Random
   ): GameState =
     val gameWithDone = updateFinishedPlayers(gameState)
@@ -208,7 +187,7 @@ final case class Controller() extends Observable:
       )
       gameLoop(updatedGame, nextAttacker)
 
-  private def nextAttackerIndex(
+  def nextAttackerIndex(
       game: GameState,
       currentAttacker: Int,
       defenderIndex: Int,
@@ -221,16 +200,16 @@ final case class Controller() extends Observable:
       findNextActive(game, currentAttacker)
     }
 
-  private def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
+  def canBeat(attackCard: Card, defendCard: Card, trump: Suit): Boolean =
     if attackCard.suit == defendCard.suit then
       defendCard.rank.value > attackCard.rank.value
     else defendCard.isTrump && !attackCard.isTrump
 
-  private def tableCardsContainRank(gameState: GameState, searchCard: Card): Boolean =
+  def tableCardsContainRank(gameState: GameState, searchCard: Card): Boolean =
     val all = gameState.attackingCards ++ gameState.defendingCards
     all.exists(_.rank == searchCard.rank)
 
-  private def attack(gameState: GameState, attackerIndex: Int): GameState = {
+  def attack(gameState: GameState, attackerIndex: Int): GameState = {
     @annotation.tailrec
     def attackLoop(game: GameState, status: String): GameState = {
       setGameAndNotify(game, status)
@@ -294,7 +273,7 @@ final case class Controller() extends Observable:
     finalState
   }
 
-  private def moveCard(
+  def moveCard(
       from: List[Card],
       to: List[Card],
       index: Int
@@ -306,7 +285,7 @@ final case class Controller() extends Observable:
       val newTo = to :+ c
       (newFrom, newTo)
 
-  private def defend(gameState: GameState, defenderIndex: Int): (GameState, Boolean) =
+  def defend(gameState: GameState, defenderIndex: Int): (GameState, Boolean) =
     if (gameState.attackingCards.isEmpty) (gameState, false)
     else
       @annotation.tailrec
@@ -366,7 +345,7 @@ final case class Controller() extends Observable:
                 defendLoop(game, defender, attackCardIndex)
       defendLoop(gameState, gameState.playerList(defenderIndex), 0)
 
-  private def draw(gameState: GameState, attackerIndex: Int): GameState = {
+  def draw(gameState: GameState, attackerIndex: Int): GameState = {
     val n = gameState.playerList.length
     val drawOrder = (0 until n).map(i => (attackerIndex + i) % n).toList
 
