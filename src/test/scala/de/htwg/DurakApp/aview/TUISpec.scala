@@ -59,6 +59,18 @@ class TUISpec extends AnyWordSpec with Matchers {
       result shouldBe 36
     }
 
+    "askForDeckSize uses default readLine" in {
+      val tui = new TUI(controller)
+      val input = "42\n"
+
+      // Wir legen readLine auf einen simulierten Input um
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      Console.withIn(inStream) {
+        val result = tui.askForDeckSize() // **ohne Lambda** → nutzt readLine
+        result shouldBe 42
+      }
+    }
+
     "ask for deck size and use provided value" in {
       val tui = new TUI(controller)
       val input = "52"
@@ -71,6 +83,17 @@ class TUISpec extends AnyWordSpec with Matchers {
       val input = ""
       val result = tui.askForPlayerCount(() => input)
       result shouldBe 2
+    }
+
+    "askForPlayerCount uses default readLine" in {
+      val tui = new TUI(controller)
+      val input = "3\n"
+
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      Console.withIn(inStream) {
+        val result = tui.askForPlayerCount()
+        result shouldBe 3
+      }
     }
 
     "ask for player count and use provided value" in {
