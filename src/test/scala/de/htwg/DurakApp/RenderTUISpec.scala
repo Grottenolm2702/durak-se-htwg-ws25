@@ -4,13 +4,14 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import de.htwg.DurakApp.model._
+import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.aview.TUI
 
 class RenderTUISpec extends AnyWordSpec with Matchers {
 
-  object DummyConsoleIO extends ConsoleIO {
-    override def readLine(): String = ""
-    override def println(s: String): Unit = ()
-  }
+  val controller = Controller()
+  val tui = new TUI(controller)
 
   val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = true)
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
@@ -21,13 +22,13 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
 
     "render all suit symbols correctly" in {
       val hearts =
-        RenderTUI.renderCard(Card(Suit.Hearts, Rank.Six, false)).mkString
+        tui.renderCard(Card(Suit.Hearts, Rank.Six, false)).mkString
       val diamonds =
-        RenderTUI.renderCard(Card(Suit.Diamonds, Rank.Seven, false)).mkString
+        tui.renderCard(Card(Suit.Diamonds, Rank.Seven, false)).mkString
       val clubs =
-        RenderTUI.renderCard(Card(Suit.Clubs, Rank.Eight, false)).mkString
+        tui.renderCard(Card(Suit.Clubs, Rank.Eight, false)).mkString
       val spades =
-        RenderTUI.renderCard(Card(Suit.Spades, Rank.Nine, false)).mkString
+        tui.renderCard(Card(Suit.Spades, Rank.Nine, false)).mkString
 
       hearts should include("♥")
       diamonds should include("♦")
@@ -48,7 +49,7 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
         Rank.Ace
       )
       val rendered = allRanks.map(r =>
-        RenderTUI.renderCard(Card(Suit.Hearts, r, false)).mkString
+        tui.renderCard(Card(Suit.Hearts, r, false)).mkString
       )
       rendered.mkString should include("6")
       rendered.mkString should include("7")
@@ -62,22 +63,22 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
     }
 
     "render a single red heart card correctly" in {
-      val lines = RenderTUI.renderCard(heartAce)
+      val lines = tui.renderCard(heartAce)
       lines.mkString("\n") should include("♥")
       lines.mkString should include("A")
       lines.length shouldBe 5
     }
 
     "render a single green spade card correctly" in {
-      val lines = RenderTUI.renderCard(spadeSix)
+      val lines = tui.renderCard(spadeSix)
       lines.mkString("\n") should include("♠")
       lines.mkString should include("6")
       lines.length shouldBe 5
     }
 
     "combine lines of multiple cards into a single string" in {
-      val c1 = RenderTUI.renderCard(heartAce)
-      val c2 = RenderTUI.renderCard(spadeSix)
+      val c1 = tui.renderCard(heartAce)
+      val c2 = tui.renderCard(spadeSix)
       val combined = PrivateMethodTester.combine(c1, c2)
       combined should include("+-----+ +-----+")
     }
@@ -89,7 +90,7 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
 
     "render a hand with indices" in {
       val hand = List(heartAce, spadeSix, diamondTen, clubKing)
-      val output = RenderTUI.renderHandWithIndices(hand)
+      val output = tui.renderHandWithIndices(hand)
       output should include("A")
       output should include("6")
       output should include("10")
@@ -101,24 +102,24 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
     }
 
     "render empty hand as 'Empty hand'" in {
-      RenderTUI.renderHandWithIndices(Nil) should include("Empty hand")
+      tui.renderHandWithIndices(Nil) should include("Empty hand")
     }
 
     "render empty table line" in {
-      val output = RenderTUI.renderTableLine("Attacking", Nil)
+      val output = tui.renderTableLine("Attacking", Nil)
       output should include("Empty")
       output should include("Attacking")
     }
 
     "render table line with cards" in {
-      val output = RenderTUI.renderTableLine("Defending", List(heartAce))
+      val output = tui.renderTableLine("Defending", List(heartAce))
       output should include("Defending")
       output should include("A")
       output should include("♥")
     }
 
     "render screen with non-empty status" in {
-      val p1 = Player("Lucifer", List(heartAce, spadeSix))
+      val p1 = Player("Lucifer", List(heartAce, spadeSix), false)
       val p2 = Player("Michael", List(diamondTen, clubKing), isDone = true)
       val game = GameState(
         playerList = List(p1, p2),
@@ -128,7 +129,7 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
         defendingCards = List(diamondTen),
         discardPile = List(heartAce)
       )
-      val output = RenderTUI.renderScreen(game, "Fight!")
+      val output = tui.renderScreen(game, "Fight!")
       output should include("Trump")
       output should include("Deck")
       output should include("Discard")
@@ -140,63 +141,26 @@ class RenderTUISpec extends AnyWordSpec with Matchers {
     }
 
     "render screen with empty status as 'Status: ready'" in {
-      val game = GameState(List(Player("Solo")), List(heartAce), Suit.Hearts)
-      val output = RenderTUI.renderScreen(game, "")
+      val game = GameState(List(Player("Solo", List(), false)), List(heartAce), Suit.Hearts)
+      val output = tui.renderScreen(game, "")
       output should include("Status: ready")
     }
 
     "render screen with null status as 'Status: ready'" in {
-      val game = GameState(List(Player("Solo")), List(heartAce), Suit.Hearts)
-      val output = RenderTUI.renderScreen(game, null)
+      val game = GameState(List(Player("Solo", List(), false)), List(heartAce), Suit.Hearts)
+      val output = tui.renderScreen(game, null)
       output should include("Status: ready")
     }
-    "render empty table and return correct string on clearAndRender" in {
-      val player1 = Player(
-        "Ronny",
-        List(
-          Card(Suit.Hearts, Rank.Ace, false),
-          Card(Suit.Diamonds, Rank.Seven, false)
-        )
-      )
-      val player2 = Player("Bot", List(Card(Suit.Spades, Rank.Six, false)))
-      val game =
-        GameState(List(player1, player2), Nil, Suit.Hearts, List(), List())
-
-      given ConsoleIO = DummyConsoleIO // Provide implicit ConsoleIO
-      val output = RenderTUI.clearAndRender(game, "Ready")
-
-      // Check that rendering includes key information
-      output should include("Trump: Hearts")
-      output should include("Ronny")
-      output should include("Bot")
-      output should include("Ready")
-
-      // Table empty indicator
-      output should include("Empty")
-    }
-
-    "render with default status and return correct string" in {
-      val player1 = Player("Ronny", List(heartAce))
-      val game = GameState(List(player1), Nil, Suit.Hearts, List(), List())
-
-      given ConsoleIO = DummyConsoleIO
-      val output = RenderTUI.clearAndRender(game)
-
-      output should include("Trump: Hearts")
-      output should include("Ronny")
-      output should include("Status: ready")
-    }
-
   }
 
   // Helper to access private combineCardLines
   private object PrivateMethodTester {
     def combine(cards: List[String]*): String = {
-      val method = classOf[RenderTUI.type].getDeclaredMethods
+      val method = classOf[TUI].getDeclaredMethods
         .find(_.getName.contains("combineCardLines"))
         .get
       method.setAccessible(true)
-      method.invoke(RenderTUI, cards.toList).asInstanceOf[String]
+      method.invoke(tui, cards.toList).asInstanceOf[String]
     }
   }
 }

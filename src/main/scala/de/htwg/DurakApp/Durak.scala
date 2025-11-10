@@ -10,4 +10,9 @@ import scala.util.Random
   val controller = Controller()
   val tui = TUI(controller)
   controller.add(tui)
-  controller.run(new Random)
+
+  val deckSize = tui.askForDeckSize()
+  val playerCount = tui.askForPlayerCount()
+  val playerNames = tui.askForPlayerNames(playerCount)
+
+  controller.setupGameAndStart(deckSize, playerNames, new Random)

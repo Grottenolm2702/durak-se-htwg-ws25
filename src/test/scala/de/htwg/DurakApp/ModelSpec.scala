@@ -3,9 +3,10 @@ package de.htwg.DurakApp
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers._
+import de.htwg.DurakApp.model._
 
 
-class DurakAppSpec extends AnyWordSpec with Matchers{
+class ModelSpec extends AnyWordSpec with Matchers{
 
   "A Card" should {
     "store its suit, rank and trumpBool correctly" in {
@@ -30,7 +31,7 @@ class DurakAppSpec extends AnyWordSpec with Matchers{
   "A Player" should {
     "store its name and hand correctly" in {
       val hand = List(Card(Suit.Hearts, Rank.Six, isTrump = false), Card(Suit.Clubs, Rank.Jack, isTrump = true))
-      val player = Player("Lucifer", hand)
+      val player = Player("Lucifer", hand, false)
       player.name shouldBe "Lucifer"
       player.hand shouldBe hand
     }
@@ -38,8 +39,8 @@ class DurakAppSpec extends AnyWordSpec with Matchers{
   "A Game" should {
     "store its players, deck, table and trump correctly" in {
       val players = List(
-        Player("Lucifer"),
-        Player("Michael")
+        Player("Lucifer", List(), false),
+        Player("Michael", List(), false)
       )
       val deck = List(
         Card(Suit.Spades, Rank.Ace, isTrump = false),
