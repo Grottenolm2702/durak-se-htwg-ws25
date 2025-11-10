@@ -175,6 +175,55 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       finalGame.playerList.find(_.name == "Bob").get.isDone shouldBe false
       finalGame.playerList.find(_.name == "Bob").get.hand.length should be > 1
     }
+
+    "gameLoop should skip a player that is done and select the next active player as attacker" in {
+      val controller = new Controller()
+      given Random = new Random(0)
+
+      class TestObserver extends de.htwg.DurakApp.util.Observer {
+        var messages: List[String] = Nil
+        def update: Unit = {
+          messages = controller.status :: messages
+        }
+      }
+      val observer = new TestObserver
+      controller.add(observer)
+
+
+      // Setup a game state that will end quickly
+      val attackerCard = Card(Suit.Clubs, Rank.Seven)
+      val defenderCard = Card(Suit.Hearts, Rank.Ace)
+      val player1 = Player("Alice", List(), isDone = true)
+      val player2 = Player("Bob", List(attackerCard))
+      val player3 = Player("Charlie", List(defenderCard))
+
+      val initialGameState = GameState(
+        playerList = List(player1, player2, player3),
+        deck = Nil, // Empty deck
+        trump = Suit.Spades
+      )
+
+      // Inputs for the game loop:
+      // 1. Bob (attacker) chooses to play his only card (index 0).
+      // 2. Bob passes.
+      // 3. Charlie (defender) chooses to take the card.
+      val inputs = List("0", "pass", "take")
+      val mockInput = new MockPlayerInput(inputs)
+
+      // Start the game loop with player 1 (Alice) as the initial attacker
+      controller.gameLoop(initialGameState, 0, mockInput)
+
+      // Assert that the observer was notified with the correct new round message
+      observer.messages.reverse should contain ("Neue Runde — Angreifer: Bob, Verteidiger: Charlie")
+
+      // Assert the final state
+      controller.status shouldBe "Charlie ist der Durak!"
+      val finalGame = controller.game
+      finalGame.playerList.find(_.name == "Alice").get.isDone shouldBe true
+      finalGame.playerList.find(_.name == "Bob").get.isDone shouldBe true
+      finalGame.playerList.find(_.name == "Charlie").get.isDone shouldBe false
+      finalGame.playerList.find(_.name == "Charlie").get.hand.length should be > 0
+    }
   }
 }
 
