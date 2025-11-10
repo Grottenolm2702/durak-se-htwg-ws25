@@ -142,6 +142,39 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       finalState.playerList(1).hand.length shouldBe 6 // needs 1
       finalState.deck.length shouldBe 2 // 5 - 2 - 1
     }
+
+    "gameLoop should run a full game until a loser is determined" in {
+      val controller = new Controller()
+      given Random = new Random(0)
+
+      // Setup a game state that will end quickly
+      val attackerCard = Card(Suit.Clubs, Rank.Seven)
+      val defenderCard = Card(Suit.Hearts, Rank.Ace)
+      val attacker = Player("Alice", List(attackerCard))
+      val defender = Player("Bob", List(defenderCard))
+      val initialGameState = GameState(
+        playerList = List(attacker, defender),
+        deck = Nil, // Empty deck
+        trump = Suit.Spades
+      )
+
+      // Inputs for the game loop:
+      // 1. Alice (attacker) chooses to play her only card (index 0).
+      // 2. Alice passes.
+      // 3. Bob (defender) chooses to take the card.
+      val inputs = List("0", "pass", "take")
+      val mockInput = new MockPlayerInput(inputs)
+
+      // Start the game loop
+      controller.gameLoop(initialGameState, 0, mockInput)
+
+      // Assert the final state
+      controller.status shouldBe "Bob ist der Durak!"
+      val finalGame = controller.game
+      finalGame.playerList.find(_.name == "Alice").get.isDone shouldBe true
+      finalGame.playerList.find(_.name == "Bob").get.isDone shouldBe false
+      finalGame.playerList.find(_.name == "Bob").get.hand.length should be > 1
+    }
   }
 }
 
