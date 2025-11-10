@@ -5,8 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers._
 import de.htwg.DurakApp.model._
 
-
-class ModelSpec extends AnyWordSpec with Matchers{
+class ModelSpec extends AnyWordSpec with Matchers {
 
   "A Card" should {
     "store its suit, rank and trumpBool correctly" in {
@@ -30,10 +29,19 @@ class ModelSpec extends AnyWordSpec with Matchers{
   }
   "A Player" should {
     "store its name and hand correctly" in {
-      val hand = List(Card(Suit.Hearts, Rank.Six, isTrump = false), Card(Suit.Clubs, Rank.Jack, isTrump = true))
+      val hand = List(
+        Card(Suit.Hearts, Rank.Six, isTrump = false),
+        Card(Suit.Clubs, Rank.Jack, isTrump = true)
+      )
       val player = Player("Lucifer", hand, false)
       player.name shouldBe "Lucifer"
       player.hand shouldBe hand
+    }
+    "initialize hand and isDone correctly with minimal parameters" in {
+      val player = Player("Michael") // nur Name angegeben
+      player.name shouldBe "Michael"
+      player.hand shouldBe List() // Defaultwert
+      player.isDone shouldBe false // Defaultwert
     }
   }
   "A Game" should {
@@ -47,7 +55,7 @@ class ModelSpec extends AnyWordSpec with Matchers{
         Card(Suit.Diamonds, Rank.Ten, isTrump = true)
       )
       val trump = Suit.Hearts
-      val gameState = GameState(players, deck,  trump = trump)
+      val gameState = GameState(players, deck, trump = trump)
       gameState.playerList shouldBe players
       gameState.deck shouldBe deck
       gameState.trump shouldBe trump
