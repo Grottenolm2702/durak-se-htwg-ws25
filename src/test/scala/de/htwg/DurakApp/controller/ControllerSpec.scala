@@ -86,7 +86,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val defender = Player("Defender", List(Card(Suit.Hearts, Rank.Ace)), false)
       val gameState = GameState(List(attacker, defender), Nil, Suit.Spades, attackingCards = Nil)
 
-      val inputs = List("pass", "0", "dummy", "dummy", "pass") // First pass is invalid, second input is a valid card index, third and fourth are consumed by recursive calls due to invalid input, and the final pass exits the attackLoop
+      val inputs = List("pass", "0", "pass")
       val mockInput = new MockPlayerInput(inputs)
 
       controller.attack(gameState, 0, mockInput)
@@ -223,6 +223,29 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       finalGame.playerList.find(_.name == "Bob").get.isDone shouldBe true
       finalGame.playerList.find(_.name == "Charlie").get.isDone shouldBe false
       finalGame.playerList.find(_.name == "Charlie").get.hand.length should be > 0
+    }
+
+    "setupGameAndStart should run a full game with a small deck" in {
+      val controller = new Controller()
+      class TestObserver extends de.htwg.DurakApp.util.Observer {
+        var messages: List[String] = Nil
+        def update: Unit = {
+          messages = controller.status :: messages
+        }
+      }
+      val observer = new TestObserver
+      controller.add(observer)
+
+      val playerNames = List("P1", "P2")
+      val mockInput = new MockPlayerInput(List("0", "pass", "take"))
+
+      controller.setupGameAndStart(2, playerNames, new Random(0), mockInput)
+
+      val initialStatus = observer.messages.reverse(1)
+      initialStatus should include ("Dealer:")
+      initialStatus should include ("First attacker:")
+
+      controller.status should endWith ("ist der Durak!")
     }
   }
 }
