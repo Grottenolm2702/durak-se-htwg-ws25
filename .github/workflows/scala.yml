@@ -16,10 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Scala
+      - name: Setup Scala (JVM)
         uses: coursier/setup-action@v1
         with:
           jvm: temurin:21
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Cache sbt
         uses: actions/cache@v4
@@ -27,10 +30,11 @@ jobs:
           path: |
             ~/.ivy2/cache
             ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
-      
+            ~/.cache/coursier
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/*.sbt') }}
+
       - name: Run tests
-        run: sbt clean test
+        run: sbt test
         
       - name: Run coverage
         run: sbt coverage test
@@ -40,4 +44,3 @@ jobs:
 
       - name: Upload to Coveralls
         run: sbt coveralls
-
