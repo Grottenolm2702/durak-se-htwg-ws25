@@ -29,18 +29,9 @@ jobs:
             ~/.sbt
             ~/.cache/coursier
           key: ${{ runner.os }}-sbt-${{ hashFiles('**/*.sbt') }}
-
-      - name: Run tests
-        run: sbt test
         
       - name: Run coverage
         run: sbt clean coverage test
-
-      - name: Coverage report
-        run: sbt coverageReport
-
-      - name: Generate coverage XML
-        run: sbt coverageAggregate
 
       - name: Generate coverage report and upload to Coveralls
         run: sbt coverageReport coveralls
