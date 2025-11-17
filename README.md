@@ -1,4 +1,4 @@
-![CI](https://github.com/Grottenolm2702/durak-se-htwg-ws25/actions/workflows/scala.yml/badge.svg)
+![CI](https://github.com/Grottenolm2702/durak-se-htwg-ws25/actions/workflows/ci.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/Grottenolm2702/durak-se-htwg-ws25/badge.svg?branch=main)](https://coveralls.io/github/Grottenolm2702/durak-se-htwg-ws25?branch=main)
 
 ## sbt project compiled with Scala 3
