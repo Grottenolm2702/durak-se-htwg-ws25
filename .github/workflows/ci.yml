@@ -41,3 +41,14 @@ jobs:
 
       - name: Coverage report
         run: sbt coverageReport
+
+      - name: Generate coverage XML
+        run: sbt coverageAggregate
+
+      - name: Upload to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coveralls-repo-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          path-to-lcov: target/scala-3.*/scoverage-report/scoverage.xml
+
