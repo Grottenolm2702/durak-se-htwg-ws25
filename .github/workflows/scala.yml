@@ -41,6 +41,3 @@ jobs:
 
       - name: Coverage report
         run: sbt coverageReport
-
-      - name: Upload to Coveralls
-        run: sbt coveralls
