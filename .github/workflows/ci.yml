@@ -1,8 +1,5 @@
 name: CI
 
-env:
-  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-
 on:
   push:
     branches: [ main ]
@@ -37,7 +34,7 @@ jobs:
         run: sbt test
         
       - name: Run coverage
-        run: sbt coverage test
+        run: sbt clean coverage test
 
       - name: Coverage report
         run: sbt coverageReport
@@ -45,10 +42,7 @@ jobs:
       - name: Generate coverage XML
         run: sbt coverageAggregate
 
-      - name: Upload to Coveralls
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          coveralls-repo-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
-          path-to-lcov: target/scala-3.*/scoverage-report/scoverage.xml
-
+      - name: Generate coverage report and upload to Coveralls
+        run: sbt coverageReport coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
