@@ -45,7 +45,7 @@ def renderCard(card: Card): List[String] =
 def renderHand(hand: List[Card]): String =
   if hand.isEmpty then "Empty hand"
   else
-    val lines = hand.map(renderCard) // List[List[String]]
+    val lines = hand.map(renderCard)
     val combined = lines.transpose.map(_.mkString(" "))
     combined.mkString("\n")
 

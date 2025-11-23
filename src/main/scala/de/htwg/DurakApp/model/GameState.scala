@@ -6,5 +6,7 @@ case class GameState(
     trump: Suit,
     attackingCards: List[Card] = Nil,
     defendingCards: List[Card] = Nil,
-    discardPile: List[Card] = Nil
+    discardPile: List[Card] = Nil,
+    status : GameStatus = GameStatus.WELCOME,
+    activePlayerId: Int = 0
 )

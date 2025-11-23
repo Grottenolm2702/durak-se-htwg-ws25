@@ -7,6 +7,7 @@ import model.Suit
 import model.Rank
 import model.GameState
 import model.Player
+import model.GameStatus
 
 import de.htwg.DurakApp.util.Observer
 
@@ -16,24 +17,21 @@ import de.htwg.DurakApp.controller.PlayerInput
 
 class TUI(controller: Controller) extends Observer with PlayerInput:
 
-  private val cardWidth = 7 // "+-----+" == 7 chars
-  private val cardHeight = 5 // number of lines per card ASCII art
+  private val cardWidth = 7
+  private val cardHeight = 5
 
   val RED = "\u001b[31m"
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
 
-  private def safeToInt(s: String): Option[Int] =
-    Try(s.trim.toInt).toOption
-
   def askForDeckSize(inputReader: () => String = readLine): Int = {
     println("Anzahl Karten im Deck [36]: ")
-    safeToInt(inputReader()).getOrElse(36)
+    Try(inputReader().trim.toInt).getOrElse(36)
   }
 
   def askForPlayerCount(inputReader: () => String = readLine): Int = {
     println("How many players?")
-    safeToInt(inputReader()).getOrElse(2).max(2)
+    Try(inputReader().trim.toInt).getOrElse(2).max(2)
   }
 
   def askForPlayerNames(
@@ -90,7 +88,6 @@ class TUI(controller: Controller) extends Observer with PlayerInput:
     else
       val cardLines: List[List[String]] = hand.map(renderCard)
       val cardsBlock = combineCardLines(cardLines)
-      // build index line with center-aligned indices under each card
       val indexCells = hand.zipWithIndex.map { case (_, i) =>
         val s = i.toString
         val total = cardWidth
@@ -146,23 +143,62 @@ $playersStr
 $statusLine
 """.trim
 
+  def buildStatusString(game: GameState): String =
+    game.status match {
+      case GameStatus.WELCOME      => "Willkommen bei Durak!"
+      case GameStatus.PLAYER_SETUP => "Spieler werden eingerichtet."
+      case GameStatus.ATTACK =>
+        val attacker = game.playerList(game.activePlayerId)
+        s"Angreifer ${attacker.name} ist am Zug."
+      case GameStatus.DEFEND =>
+        val defender = game.playerList(game.activePlayerId)
+        s"Verteidiger ${defender.name} ist am Zug."
+      case GameStatus.TAKE =>
+        val player = game.playerList(game.activePlayerId)
+        s"${player.name} nimmt die Karten."
+      case GameStatus.PASS =>
+        val player = game.playerList(game.activePlayerId)
+        s"${player.name} hat gepasst."
+      case GameStatus.INVALID_MOVE => "Ungültiger Zug!"
+      case GameStatus.GAME_OVER =>
+        val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
+        loserOpt match {
+          case Some(p) => s"Spiel beendet! ${p.name} ist der Durak!"
+          case None    => "Spiel beendet! Unentschieden."
+        }
+      case GameStatus.QUIT => "Spiel beendet."
+    }
+
+  def cardShortString(card: Card): String =
+    s"${card.rank.toString} ${card.suit.toString}${
+        if card.isTrump then " (T)" else ""
+      }"
+
   override def update: Unit = {
     val clear = clearScreen()
     println(clear)
-    val render = renderScreen(controller.game, controller.status)
+    val game = controller.game
+    val status = buildStatusString(game)
+    val render = renderScreen(game, status)
     println(render)
   }
 
-  override def chooseAttackCard(attacker: Player, game: GameState): String =
+  override def chooseAttackCard(attacker: Player, game: GameState): Int =
     println(s"${attacker.name}, wähle Karte-Index zum Angreifen oder 'pass':")
-    readLine().trim
+    readLine().trim match {
+      case "pass" => -1
+      case s => Try(s.toInt).getOrElse(-2) // Using -2 for invalid integer input
+    }
 
   override def chooseDefenseCard(
       defender: Player,
       attackCard: Card,
       game: GameState
-  ): String =
+  ): Int =
     println(
-      s"${defender.name}, verteidige gegen ${controller.cardShortString(attackCard)} oder 'take':"
+      s"${defender.name}, verteidige gegen ${cardShortString(attackCard)} oder 'take':"
     )
-    readLine().trim
+    readLine().trim match {
+      case "take" => -1
+      case s => Try(s.toInt).getOrElse(-2) // Using -2 for invalid integer input
+    }
