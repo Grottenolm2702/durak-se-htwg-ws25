@@ -196,7 +196,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         attackingCards = List(attackingCard)
       )
 
-      val inputs = List("take")
+      val inputs = List("100", "take")
       val mockInput = new MockPlayerInput(inputs)
 
       val (finalState, defenderTook) =
