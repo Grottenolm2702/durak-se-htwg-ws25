@@ -10,7 +10,8 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 class TUISpec extends AnyWordSpec with Matchers {
 
   "A TUI" should {
-    val controller = new Controller()
+    val initialGame = GameState(playerList = Nil, deck = Nil, trump = Suit.Clubs)
+    val controller = new Controller(initialGame)
     val tui = new TUI(controller)
 
     val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = true)
@@ -23,14 +24,29 @@ class TUISpec extends AnyWordSpec with Matchers {
       val attacker = Player("Lucifer")
       val game = GameState(Nil, Nil, Suit.Clubs)
 
-      // Simuliere Benutzereingabe
       val input = "1\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
       Console.withIn(inStream) {
         val outputStream = new ByteArrayOutputStream()
         Console.withOut(outputStream) {
           val choice = tui.chooseAttackCard(attacker, game)
-          choice shouldBe "1"
+          choice shouldBe 1
+          outputStream.toString should include("Lucifer, wähle Karte-Index")
+        }
+      }
+    }
+
+    "allow attacker to pass" in {
+      val attacker = Player("Lucifer")
+      val game = GameState(Nil, Nil, Suit.Clubs)
+
+      val input = "pass\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      Console.withIn(inStream) {
+        val outputStream = new ByteArrayOutputStream()
+        Console.withOut(outputStream) {
+          val choice = tui.chooseAttackCard(attacker, game)
+          choice shouldBe -1
           outputStream.toString should include("Lucifer, wähle Karte-Index")
         }
       }
@@ -41,13 +57,30 @@ class TUISpec extends AnyWordSpec with Matchers {
       val attackCard = Card(Suit.Hearts, Rank.Six, isTrump = false)
       val game = GameState(Nil, Nil, Suit.Clubs)
 
+      val input = "0\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      Console.withIn(inStream) {
+        val outputStream = new ByteArrayOutputStream()
+        Console.withOut(outputStream) {
+          val choice = tui.chooseDefenseCard(defender, attackCard, game)
+          choice shouldBe 0
+          outputStream.toString should include("Michael, verteidige gegen")
+        }
+      }
+    }
+
+    "allow defender to take" in {
+      val defender = Player("Michael")
+      val attackCard = Card(Suit.Hearts, Rank.Six, isTrump = false)
+      val game = GameState(Nil, Nil, Suit.Clubs)
+
       val input = "take\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
       Console.withIn(inStream) {
         val outputStream = new ByteArrayOutputStream()
         Console.withOut(outputStream) {
           val choice = tui.chooseDefenseCard(defender, attackCard, game)
-          choice shouldBe "take"
+          choice shouldBe -1
           outputStream.toString should include("Michael, verteidige gegen")
         }
       }
@@ -290,7 +323,8 @@ class TUISpec extends AnyWordSpec with Matchers {
 
   // Helper to access private combineCardLines
   private object PrivateMethodTester {
-    val controller = new Controller()
+    val initialGame = GameState(playerList = Nil, deck = Nil, trump = Suit.Clubs)
+    val controller = new Controller(initialGame)
     val tui = new TUI(controller)
     def combine(cards: List[String]*): String = {
       val method = classOf[TUI].getDeclaredMethods
