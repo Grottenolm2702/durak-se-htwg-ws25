@@ -10,7 +10,8 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 class TUISpec extends AnyWordSpec with Matchers {
 
   "A TUI" should {
-    val initialGame = GameState(playerList = Nil, deck = Nil, trump = Suit.Clubs)
+    val initialGame =
+      GameState(playerList = Nil, deck = Nil, trump = Suit.Clubs)
     val controller = new Controller(initialGame)
     val tui = new TUI(controller)
 
@@ -18,7 +19,6 @@ class TUISpec extends AnyWordSpec with Matchers {
     val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
     val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
     val clubKing = Card(Suit.Clubs, Rank.King, isTrump = false)
-
 
     "allow attacker to choose a card" in {
       val attacker = Player("Lucifer")
@@ -34,6 +34,127 @@ class TUISpec extends AnyWordSpec with Matchers {
           outputStream.toString should include("Lucifer, wähle Karte-Index")
         }
       }
+    }
+
+    "buildStatusString - WELCOME" in {
+      val game = GameState(
+        playerList = Nil,
+        deck = Nil,
+        trump = Suit.Clubs,
+        status = GameStatus.WELCOME
+      )
+      tui.buildStatusString(game) shouldBe "Willkommen bei Durak!"
+    }
+
+    "buildStatusString - PLAYER_SETUP" in {
+      val game = GameState(
+        playerList = Nil,
+        deck = Nil,
+        trump = Suit.Clubs,
+        status = GameStatus.PLAYER_SETUP
+      )
+      tui.buildStatusString(game) shouldBe "Spieler werden eingerichtet."
+    }
+
+    "buildStatusString - ATTACK shows attacker name" in {
+      val attacker = Player("Angreifer", Nil)
+      val defender = Player("Verteidiger", Nil)
+      val game = GameState(
+        playerList = List(attacker, defender),
+        deck = Nil,
+        trump = Suit.Clubs,
+        activePlayerId = 0,
+        status = GameStatus.ATTACK
+      )
+      tui.buildStatusString(game) should include(
+        "Angreifer Angreifer ist am Zug."
+      )
+    }
+
+    "buildStatusString - DEFEND shows defender name" in {
+      val a = Player("A", Nil)
+      val d = Player("D", Nil)
+      val game = GameState(
+        playerList = List(a, d),
+        deck = Nil,
+        trump = Suit.Clubs,
+        activePlayerId = 1,
+        status = GameStatus.DEFEND
+      )
+      tui.buildStatusString(game) should include("Verteidiger D ist am Zug.")
+    }
+
+    "buildStatusString - TAKE shows who takes" in {
+      val p = Player("P", Nil)
+      val game = GameState(
+        playerList = List(p),
+        deck = Nil,
+        trump = Suit.Clubs,
+        activePlayerId = 0,
+        status = GameStatus.TAKE
+      )
+      tui.buildStatusString(game) should include("P nimmt die Karten.")
+    }
+
+    "buildStatusString - PASS shows who passed" in {
+      val p = Player("P", Nil)
+      val game = GameState(
+        playerList = List(p),
+        deck = Nil,
+        trump = Suit.Clubs,
+        activePlayerId = 0,
+        status = GameStatus.PASS
+      )
+      tui.buildStatusString(game) should include("P hat gepasst.")
+    }
+
+    "buildStatusString - INVALID_MOVE" in {
+      val game = GameState(
+        playerList = Nil,
+        deck = Nil,
+        trump = Suit.Clubs,
+        status = GameStatus.INVALID_MOVE
+      )
+      tui.buildStatusString(game) shouldBe "Ungültiger Zug!"
+    }
+
+    "buildStatusString - GAME_OVER with loser" in {
+      // Spieler 1 ist done, Spieler 2 ist noch nicht done und hat Karten -> loser = Spieler 2
+      val donePlayer = Player("Done", Nil, isDone = true)
+      val loser =
+        Player("Loser", List(Card(Suit.Clubs, Rank.Six)), isDone = false)
+      val game = GameState(
+        playerList = List(donePlayer, loser),
+        deck = Nil,
+        trump = Suit.Clubs,
+        status = GameStatus.GAME_OVER
+      )
+      tui.buildStatusString(game) should include(
+        "Spiel beendet! Loser ist der Durak!"
+      )
+    }
+
+    "buildStatusString - GAME_OVER draw (no loser)" in {
+      // alle Spieler entweder done oder ohne Hand -> Unentschieden
+      val p1 = Player("P1", Nil, isDone = true)
+      val p2 = Player("P2", Nil, isDone = true)
+      val game = GameState(
+        playerList = List(p1, p2),
+        deck = Nil,
+        trump = Suit.Clubs,
+        status = GameStatus.GAME_OVER
+      )
+      tui.buildStatusString(game) shouldBe "Spiel beendet! Unentschieden."
+    }
+
+    "buildStatusString - QUIT" in {
+      val game = GameState(
+        playerList = Nil,
+        deck = Nil,
+        trump = Suit.Clubs,
+        status = GameStatus.QUIT
+      )
+      tui.buildStatusString(game) shouldBe "Spiel beendet."
     }
 
     "allow attacker to pass" in {
@@ -216,9 +337,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         Rank.King,
         Rank.Ace
       )
-      val rendered = allRanks.map(r =>
-        tui.renderCard(Card(Suit.Hearts, r, false)).mkString
-      )
+      val rendered =
+        allRanks.map(r => tui.renderCard(Card(Suit.Hearts, r, false)).mkString)
       rendered.mkString should include("6")
       rendered.mkString should include("7")
       rendered.mkString should include("8")
@@ -309,13 +429,21 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "render screen with empty status as 'Status: ready'" in {
-      val game = GameState(List(Player("Solo", List(), false)), List(heartAce), Suit.Hearts)
+      val game = GameState(
+        List(Player("Solo", List(), false)),
+        List(heartAce),
+        Suit.Hearts
+      )
       val output = tui.renderScreen(game, "")
       output should include("Status: ready")
     }
 
     "render screen with null status as 'Status: ready'" in {
-      val game = GameState(List(Player("Solo", List(), false)), List(heartAce), Suit.Hearts)
+      val game = GameState(
+        List(Player("Solo", List(), false)),
+        List(heartAce),
+        Suit.Hearts
+      )
       val output = tui.renderScreen(game, null)
       output should include("Status: ready")
     }
@@ -331,13 +459,14 @@ class TUISpec extends AnyWordSpec with Matchers {
       val s = tui.cardShortString(spadeSix)
       s should include("Six")
       s should include("Spades")
-      s should not include("(T)")
+      s should not include ("(T)")
     }
   }
 
   // Helper to access private combineCardLines
   private object PrivateMethodTester {
-    val initialGame = GameState(playerList = Nil, deck = Nil, trump = Suit.Clubs)
+    val initialGame =
+      GameState(playerList = Nil, deck = Nil, trump = Suit.Clubs)
     val controller = new Controller(initialGame)
     val tui = new TUI(controller)
     def combine(cards: List[String]*): String = {
