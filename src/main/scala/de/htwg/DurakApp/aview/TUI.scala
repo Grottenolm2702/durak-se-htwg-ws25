@@ -170,6 +170,11 @@ $statusLine
       case GameStatus.QUIT => "Spiel beendet."
     }
 
+  def cardShortString(card: Card): String =
+    s"${card.rank.toString} ${card.suit.toString}${
+        if card.isTrump then " (T)" else ""
+      }"
+
   override def update: Unit = {
     val clear = clearScreen()
     println(clear)
@@ -192,7 +197,7 @@ $statusLine
       game: GameState
   ): Int =
     println(
-      s"${defender.name}, verteidige gegen ${controller.cardShortString(attackCard)} oder 'take':"
+      s"${defender.name}, verteidige gegen ${cardShortString(attackCard)} oder 'take':"
     )
     readLine().trim match {
       case "take" => -1
