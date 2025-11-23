@@ -21,10 +21,7 @@ final class Controller(var game: GameState) extends Observable:
 
 
 
-  def cardShortString(card: Card): String =
-    s"${card.rank.toString} ${card.suit.toString}${
-        if card.isTrump then " (T)" else ""
-      }"
+
 
   def setupGameAndStart(
       deckSize: Int,
