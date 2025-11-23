@@ -13,15 +13,10 @@ import de.htwg.DurakApp.util.Observable
 
 final class Controller(var game: GameState) extends Observable:
 
-
   private def setGameAndNotify(gs: GameState): GameState =
     game = gs
     notifyObservers
     game
-
-
-
-
 
   def setupGameAndStart(
       deckSize: Int,
@@ -109,8 +104,7 @@ final class Controller(var game: GameState) extends Observable:
 
   def updateFinishedPlayers(game: GameState): GameState =
     val updated = game.playerList.map { p =>
-      if p.hand.isEmpty && !p.isDone then
-        p.copy(isDone = true)
+      if p.hand.isEmpty && !p.isDone then p.copy(isDone = true)
       else p
     }
     game.copy(playerList = updated)
@@ -138,7 +132,6 @@ final class Controller(var game: GameState) extends Observable:
 
   def handleEnd(game: GameState): Unit =
     setGameAndNotify(game.copy(status = GameStatus.GAME_OVER))
-
 
   def findNextActive(game: GameState, startIndex: Int): Int =
     val n = game.playerList.length
@@ -179,7 +172,8 @@ final class Controller(var game: GameState) extends Observable:
       )
       setGameAndNotify(gameReadyToAttack)
 
-      val afterAttack = attack(gameReadyToAttack, nextActiveAttacker, inputmethod)
+      val afterAttack =
+        attack(gameReadyToAttack, nextActiveAttacker, inputmethod)
       val (afterDefense, defenderTook) =
         defend(afterAttack, defenderIndex, inputmethod)
       val afterDraw = draw(afterDefense, nextActiveAttacker)
@@ -303,8 +297,13 @@ final class Controller(var game: GameState) extends Observable:
           (finalGame, false)
         else
           val attackCard = game.attackingCards(attackCardIndex)
-          setGameAndNotify(game.copy(status = GameStatus.DEFEND, activePlayerId = defenderIndex))
-          
+          setGameAndNotify(
+            game.copy(
+              status = GameStatus.DEFEND,
+              activePlayerId = defenderIndex
+            )
+          )
+
           input.chooseDefenseCard(defender, attackCard, game) match {
             case -1 => // take
               val newHand =
