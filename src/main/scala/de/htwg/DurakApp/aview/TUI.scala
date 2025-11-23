@@ -7,6 +7,7 @@ import model.Suit
 import model.Rank
 import model.GameState
 import model.Player
+import model.GameStatus
 
 import de.htwg.DurakApp.util.Observer
 
@@ -90,7 +91,6 @@ class TUI(controller: Controller) extends Observer with PlayerInput:
     else
       val cardLines: List[List[String]] = hand.map(renderCard)
       val cardsBlock = combineCardLines(cardLines)
-      // build index line with center-aligned indices under each card
       val indexCells = hand.zipWithIndex.map { case (_, i) =>
         val s = i.toString
         val total = cardWidth
@@ -146,10 +146,38 @@ $playersStr
 $statusLine
 """.trim
 
+  def buildStatusString(game: GameState): String =
+    game.status match {
+      case GameStatus.WELCOME => "Willkommen bei Durak!"
+      case GameStatus.PLAYER_SETUP => "Spieler werden eingerichtet."
+      case GameStatus.ATTACK =>
+        val attacker = game.playerList(game.activePlayerId)
+        s"Angreifer ${attacker.name} ist am Zug."
+      case GameStatus.DEFEND =>
+        val defender = game.playerList(game.activePlayerId)
+        s"Verteidiger ${defender.name} ist am Zug."
+      case GameStatus.TAKE =>
+        val player = game.playerList(game.activePlayerId)
+        s"${player.name} nimmt die Karten."
+      case GameStatus.PASS =>
+        val player = game.playerList(game.activePlayerId)
+        s"${player.name} hat gepasst."
+      case GameStatus.INVALID_MOVE => "Ungültiger Zug!"
+      case GameStatus.GAME_OVER =>
+        val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
+        loserOpt match {
+          case Some(p) => s"Spiel beendet! ${p.name} ist der Durak!"
+          case None => "Spiel beendet! Unentschieden."
+        }
+      case GameStatus.QUIT => "Spiel beendet."
+    }
+
   override def update: Unit = {
     val clear = clearScreen()
     println(clear)
-    val render = renderScreen(controller.game, controller.status)
+    val game = controller.game
+    val status = buildStatusString(game)
+    val render = renderScreen(game, status)
     println(render)
   }
 

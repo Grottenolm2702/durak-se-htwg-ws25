@@ -5,22 +5,20 @@ import model.Suit
 import model.Rank
 import model.Player
 import model.Card
+import model.GameStatus
 import model.GameState
 
 import scala.util.{Random, Try}
 import de.htwg.DurakApp.util.Observable
 
-final case class Controller() extends Observable:
-  private var _status = ""
-  private var _game = GameState(Nil, Nil, Suit.Clubs)
+final class Controller(var game: GameState) extends Observable:
 
-  def game: GameState = _game
-  def status: String = _status
 
-  private def setGameAndNotify(gs: GameState, st: String): Unit =
-    _game = gs
-    _status = st
+  private def setGameAndNotify(gs: GameState): GameState =
+    game = gs
     notifyObservers
+    game
+
   def safeToInt(s: String): Option[Int] =
     Try(s.trim.toInt).toOption
 
@@ -36,14 +34,11 @@ final case class Controller() extends Observable:
       inputmethod: PlayerInput
   ): Unit = {
     given Random = random
-    val game = initGame(deckSize, playerNames)
-    val numPlayers = game.playerList.length
+    val initialGame = initGame(deckSize, playerNames)
+    val numPlayers = initialGame.playerList.length
     val dealerIndex = random.nextInt(numPlayers)
-    val firstAttackerIndex = selectFirstAttacker(game, dealerIndex)
-    this._game = game
-    this._status =
-      s"Dealer: ${game.playerList(dealerIndex).name} — First attacker: ${game.playerList(firstAttackerIndex).name}"
-    notifyObservers
+    val firstAttackerIndex = selectFirstAttacker(initialGame, dealerIndex)
+    val game = initialGame.copy(activePlayerId = firstAttackerIndex)
     gameLoop(game, firstAttackerIndex, inputmethod)
   }
 
@@ -63,8 +58,7 @@ final case class Controller() extends Observable:
     if (actualHandSize != defaultHandSize) {
       val noticeState = GameState(Nil, deckWithTrump, trump)
       setGameAndNotify(
-        noticeState,
-        s"Deck small -> using hand size $actualHandSize (deck ${deckWithTrump.length} / players $numPlayers)"
+        noticeState
       )
     }
 
@@ -81,7 +75,8 @@ final case class Controller() extends Observable:
       trump = trump,
       attackingCards = Nil,
       defendingCards = Nil,
-      discardPile = Nil
+      discardPile = Nil,
+      status = GameStatus.PLAYER_SETUP
     )
   }
 
@@ -147,18 +142,21 @@ final case class Controller() extends Observable:
     activePlayers.length <= 1
 
   def handleEnd(game: GameState): Unit =
-    val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
-    loserOpt match
-      case Some(p) =>
-        setGameAndNotify(game, s"${p.name} ist der Durak!")
-      case None =>
-        setGameAndNotify(game, "Alle fertig — Unentschieden!")
+    setGameAndNotify(game.copy(status = GameStatus.GAME_OVER))
+
 
   def findNextActive(game: GameState, startIndex: Int): Int =
     val n = game.playerList.length
-    var idx = (startIndex + 1) % n
-    while game.playerList(idx).isDone do idx = (idx + 1) % n
-    idx
+    @annotation.tailrec
+    def findNext(currentIndex: Int): Int = {
+      val nextIndex = (currentIndex + 1) % n
+      if (!game.playerList(nextIndex).isDone) {
+        nextIndex
+      } else {
+        findNext(nextIndex)
+      }
+    }
+    findNext(startIndex)
 
   @annotation.tailrec
   final def gameLoop(
@@ -178,16 +176,15 @@ final case class Controller() extends Observable:
           findNextActive(gameWithDone, attackerIndex)
         else attackerIndex
 
-      val attacker = gameWithDone.playerList(nextActiveAttacker)
       val defenderIndex = findNextDefender(gameWithDone, nextActiveAttacker)
-      val defender = gameWithDone.playerList(defenderIndex)
 
-      setGameAndNotify(
-        gameWithDone,
-        s"Neue Runde — Angreifer: ${attacker.name}, Verteidiger: ${defender.name}"
+      val gameReadyToAttack = gameWithDone.copy(
+        status = GameStatus.ATTACK,
+        activePlayerId = nextActiveAttacker
       )
+      setGameAndNotify(gameReadyToAttack)
 
-      val afterAttack = attack(gameWithDone, nextActiveAttacker, inputmethod)
+      val afterAttack = attack(gameReadyToAttack, nextActiveAttacker, inputmethod)
       val (afterDefense, defenderTook) =
         defend(afterAttack, defenderIndex, inputmethod)
       val afterDraw = draw(afterDefense, nextActiveAttacker)
@@ -229,32 +226,25 @@ final case class Controller() extends Observable:
       input: PlayerInput
   ): GameState = {
     @annotation.tailrec
-    def attackLoop(game: GameState, status: String): GameState = {
-      setGameAndNotify(game, status)
-
+    def attackLoop(game: GameState): GameState = {
+      setGameAndNotify(game)
       val attacker = game.playerList(attackerIndex)
-      val raw = input.chooseAttackCard(attacker, game).trim
-
-      raw match {
+      input.chooseAttackCard(attacker, game).trim match {
         case "pass" =>
           if (game.attackingCards.isEmpty) {
-            attackLoop(
-              game,
-              "You can't pass before playing at least one card."
-            )
+            attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
           } else {
-            game
+            game.copy(status = GameStatus.PASS)
           }
-
         case s =>
           safeToInt(s) match {
             case None =>
-              attackLoop(game, "Invalid input. Use a number or 'pass'.")
+              attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
             case Some(idx) =>
               if (idx < 0 || idx >= attacker.hand.length) {
-                attackLoop(game, "Index out of range.")
+                attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
               } else if (game.attackingCards.length >= 6) {
-                attackLoop(game, "Maximum 6 attack cards reached.")
+                attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
               } else {
                 val candidate = attacker.hand(idx)
                 val allowed =
@@ -262,10 +252,7 @@ final case class Controller() extends Observable:
                   else tableCardsContainRank(game, candidate)
 
                 if (!allowed) {
-                  attackLoop(
-                    game,
-                    "You can only play cards whose rank is already on the table."
-                  )
+                  attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
                 } else {
                   val (newHand, newAttacking) =
                     moveCard(attacker.hand, game.attackingCards, idx)
@@ -274,24 +261,16 @@ final case class Controller() extends Observable:
                     game.playerList.updated(attackerIndex, updatedPlayer)
                   val newGame = game.copy(
                     playerList = updatedPlayers,
-                    attackingCards = newAttacking
+                    attackingCards = newAttacking,
+                    status = GameStatus.ATTACK
                   )
-                  attackLoop(
-                    newGame,
-                    s"${attacker.name} played ${cardShortString(candidate)}"
-                  )
+                  attackLoop(newGame)
                 }
               }
           }
       }
     }
-
-    val finalState = attackLoop(
-      gameState,
-      s"${gameState.playerList(attackerIndex).name} is attacking."
-    )
-    setGameAndNotify(finalState, "Attack phase finished.")
-    finalState
+    attackLoop(gameState)
   }
 
   def moveCard(
@@ -320,25 +299,22 @@ final case class Controller() extends Observable:
           attackCardIndex: Int
       ): (GameState, Boolean) =
         if attackCardIndex >= game.attackingCards.length then
-          // Alle Angriffe erfolgreich abgewehrt -> Karten kommen auf den Ablagestapel
           val cleared = game.attackingCards ++ game.defendingCards
           val updatedDiscard = game.discardPile ++ cleared
           val finalGame = game.copy(
             attackingCards = Nil,
             defendingCards = Nil,
-            discardPile = updatedDiscard
+            discardPile = updatedDiscard,
+            status = GameStatus.DEFEND
           )
-          setGameAndNotify(
-            finalGame,
-            s"${defender.name} hat alle Karten abgewehrt."
-          )
+          setGameAndNotify(finalGame)
           (finalGame, false)
         else
           val attackCard = game.attackingCards(attackCardIndex)
+          setGameAndNotify(game.copy(status = GameStatus.DEFEND, activePlayerId = defenderIndex))
           val raw = input.chooseDefenseCard(defender, attackCard, game).trim
 
           if raw == "take" then
-            // Verteidiger nimmt alle Karten
             val newHand =
               defender.hand ++ game.attackingCards ++ game.defendingCards
             val updatedDefender = defender.copy(hand = newHand)
@@ -347,9 +323,10 @@ final case class Controller() extends Observable:
             val newGame = game.copy(
               playerList = updatedPlayers,
               attackingCards = Nil,
-              defendingCards = Nil
+              defendingCards = Nil,
+              status = GameStatus.TAKE
             )
-            setGameAndNotify(newGame, s"${defender.name} nimmt die Karten.")
+            setGameAndNotify(newGame)
             (newGame, true)
           else
             safeToInt(raw) match
@@ -363,25 +340,16 @@ final case class Controller() extends Observable:
                     game.playerList.updated(defenderIndex, updatedDefender)
                   val newGame = game.copy(
                     playerList = updatedPlayers,
-                    defendingCards = newDefending
+                    defendingCards = newDefending,
+                    status = GameStatus.DEFEND
                   )
-                  setGameAndNotify(
-                    newGame,
-                    s"${defender.name} schlägt ${cardShortString(attackCard)} mit ${cardShortString(defendCard)}"
-                  )
-                  // nächster Angriff
+                  setGameAndNotify(newGame)
                   defendLoop(newGame, updatedDefender, attackCardIndex + 1)
                 else
-                  setGameAndNotify(
-                    game,
-                    "Diese Karte schlägt den Angriff nicht. Versuche eine andere Karte oder 'take'."
-                  )
+                  setGameAndNotify(game.copy(status = GameStatus.INVALID_MOVE))
                   defendLoop(game, defender, attackCardIndex)
               case _ =>
-                setGameAndNotify(
-                  game,
-                  "Ungültige Eingabe. Gib einen Index oder 'take' ein."
-                )
+                setGameAndNotify(game.copy(status = GameStatus.INVALID_MOVE))
                 defendLoop(game, defender, attackCardIndex)
 
       defendLoop(gameState, gameState.playerList(defenderIndex), 0)
@@ -399,11 +367,6 @@ final case class Controller() extends Observable:
             val (drawn, rest) = currentDeck.splitAt(needed)
             val updatedPlayer = player.copy(hand = player.hand ++ drawn)
             val newPlayers = currentPlayers.updated(playerIdx, updatedPlayer)
-            val status =
-              s"${newPlayers(playerIdx).name} drew ${drawn.length} card(s)"
-            val interimGame =
-              gameState.copy(playerList = newPlayers, deck = rest)
-            setGameAndNotify(interimGame, status)
             (newPlayers, rest)
           } else {
             (currentPlayers, currentDeck)
@@ -411,6 +374,6 @@ final case class Controller() extends Observable:
       }
 
     val newGame = gameState.copy(playerList = finalPlayers, deck = finalDeck)
-    setGameAndNotify(newGame, "Draw phase finished.")
+    setGameAndNotify(newGame)
     newGame
   }
