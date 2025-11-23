@@ -181,10 +181,10 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       val stream = new ByteArrayOutputStream()
       Console.withOut(stream) {
-        controller.notifyObservers // This will trigger tui.update
+        controller.notifyObservers
       }
       val output = stream.toString()
-      output should include("Status: Spieler werden eingerichtet.")
+      output should include("Status: Willkommen bei Durak!")
       output should include("Trump: Clubs")
     }
 
