@@ -24,7 +24,6 @@ class TUI(controller: Controller) extends Observer with PlayerInput:
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
 
-
   def askForDeckSize(inputReader: () => String = readLine): Int = {
     println("Anzahl Karten im Deck [36]: ")
     Try(inputReader().trim.toInt).getOrElse(36)
@@ -146,7 +145,7 @@ $statusLine
 
   def buildStatusString(game: GameState): String =
     game.status match {
-      case GameStatus.WELCOME => "Willkommen bei Durak!"
+      case GameStatus.WELCOME      => "Willkommen bei Durak!"
       case GameStatus.PLAYER_SETUP => "Spieler werden eingerichtet."
       case GameStatus.ATTACK =>
         val attacker = game.playerList(game.activePlayerId)
@@ -165,7 +164,7 @@ $statusLine
         val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
         loserOpt match {
           case Some(p) => s"Spiel beendet! ${p.name} ist der Durak!"
-          case None => "Spiel beendet! Unentschieden."
+          case None    => "Spiel beendet! Unentschieden."
         }
       case GameStatus.QUIT => "Spiel beendet."
     }
