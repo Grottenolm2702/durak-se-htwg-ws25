@@ -184,7 +184,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         controller.notifyObservers // This will trigger tui.update
       }
       val output = stream.toString()
-      output should include("Status: ready")
+      output should include("Status: Spieler werden eingerichtet.")
       output should include("Trump: Clubs")
     }
 
@@ -318,6 +318,20 @@ class TUISpec extends AnyWordSpec with Matchers {
       val game = GameState(List(Player("Solo", List(), false)), List(heartAce), Suit.Hearts)
       val output = tui.renderScreen(game, null)
       output should include("Status: ready")
+    }
+
+    "cardShortString: return short string for card (includes trump tag)" in {
+      val s = tui.cardShortString(heartAce)
+      s should include("Ace")
+      s should include("Hearts")
+      s should include("(T)")
+    }
+
+    "cardShortString: return short string for card (excludes trump tag)" in {
+      val s = tui.cardShortString(spadeSix)
+      s should include("Six")
+      s should include("Spades")
+      s should not include("(T)")
     }
   }
 

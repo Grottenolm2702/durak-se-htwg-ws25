@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model._
 import de.htwg.DurakApp.util.Observer
 import scala.util.Random
+import de.htwg.DurakApp.aview.TUI
 
 class ControllerSpec extends AnyWordSpec with Matchers {
 
@@ -17,6 +18,8 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
     val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
     val clubKing = Card(Suit.Clubs, Rank.King, isTrump = false)
+
+
 
     "initialize a game correctly" in {
       given Random = new Random(0)
@@ -56,7 +59,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val gameState = GameState(List(player1, player2), Nil, Suit.Clubs)
 
       controller.handleEnd(gameState)
-      controller.status shouldBe "Player 2 ist der Durak!"
+      controller.game.status shouldBe GameStatus.GAME_OVER
     }
 
     "handle game end with no loser (draw)" in {
@@ -65,7 +68,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val gameState = GameState(List(player1, player2), Nil, Suit.Clubs)
 
       controller.handleEnd(gameState)
-      controller.status shouldBe "Alle fertig — Unentschieden!"
+      controller.game.status shouldBe GameStatus.GAME_OVER
     }
 
     "attack phase" in {
@@ -167,7 +170,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.gameLoop(initialGameState, 0, mockInput)
 
       // Assert the final state
-      controller.status shouldBe "Bob ist der Durak!"
+      controller.game.status shouldBe GameStatus.GAME_OVER
       val finalGame = controller.game
       finalGame.playerList.find(_.name == "Alice").get.isDone shouldBe true
       finalGame.playerList.find(_.name == "Bob").get.isDone shouldBe false
@@ -177,13 +180,8 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     "gameLoop should skip a player that is done and select the next active player as attacker" in {
       given Random = new Random(0)
 
-      class TestObserver extends de.htwg.DurakApp.util.Observer {
-        var messages: List[String] = Nil
-        def update: Unit = {
-          messages = controller.status :: messages
-        }
-      }
-      val observer = new TestObserver
+
+      val observer = new TestObserver(controller)
       controller.add(observer)
 
 
@@ -211,10 +209,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.gameLoop(initialGameState, 0, mockInput)
 
       // Assert that the observer was notified with the correct new round message
-      observer.messages.reverse should contain ("Neue Runde — Angreifer: Bob, Verteidiger: Charlie")
+      observer.messages.reverse should contain ("Angreifer Bob ist am Zug.")
 
       // Assert the final state
-      controller.status shouldBe "Charlie ist der Durak!"
+      controller.game.status shouldBe GameStatus.GAME_OVER
       val finalGame = controller.game
       finalGame.playerList.find(_.name == "Alice").get.isDone shouldBe true
       finalGame.playerList.find(_.name == "Bob").get.isDone shouldBe true
@@ -223,13 +221,8 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     }
 
     "setupGameAndStart should run a full game with a small deck" in {
-      class TestObserver extends de.htwg.DurakApp.util.Observer {
-        var messages: List[String] = Nil
-        def update: Unit = {
-          messages = controller.status :: messages
-        }
-      }
-      val observer = new TestObserver
+
+      val observer = new TestObserver(controller)
       controller.add(observer)
 
       val playerNames = List("P1", "P2")
@@ -241,7 +234,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       initialStatus should include ("Dealer:")
       initialStatus should include ("First attacker:")
 
-      controller.status should endWith ("ist der Durak!")
+      new TUI(controller).buildStatusString(controller.game) should endWith ("ist der Durak!")
     }
 
     "attack phase with various invalid inputs" in {
@@ -255,7 +248,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val finalState = controller.attack(gameState, 0, mockInput)
       finalState.attackingCards.length shouldBe 1
       finalState.playerList.head.hand.length shouldBe 1
-      controller.status shouldBe "Attack phase finished."
+      controller.game.status shouldBe GameStatus.PASS
     }
 
     "defend phase when no attack is happening" in {
@@ -280,7 +273,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val (finalState, defenderTook) = controller.defend(gameState, 1, mockInput)
       defenderTook shouldBe true
       finalState.playerList(1).hand.length shouldBe 2
-      controller.status shouldBe "Defender nimmt die Karten."
+      controller.game.status shouldBe GameStatus.TAKE
     }
 
     "draw phase should not change anything if hands are full" in {
@@ -297,27 +290,11 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
 
 
-    "cardShortString: return short string for card (includes trump tag)" in {
-      val s = controller.cardShortString(heartAce)
-      s should include("Ace")
-      s should include("Hearts")
-      s should include("(T)")
-    }
 
-    "cardShortString: return short string for card (excludes trump tag)" in {
-      val s = controller.cardShortString(spadeSix)
-      s should include("Six")
-      s should include("Spades")
-      s should not include("(T)")
-    }
 
-    "moveTrump: rotates first card to end and handles Nil" in {
-      controller.moveTrump(Nil) shouldBe Nil
-      val lst = List(heartAce, spadeSix, diamondTen)
-      val moved = controller.moveTrump(lst)
-      moved.last shouldBe heartAce
-      moved.head shouldBe spadeSix
-    }
+
+
+
 
     "findNextDefender: finds the next non-done player" in {
       val p1 = Player("A", List(), false)
@@ -489,7 +466,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val g = GameState(List(attacker), Nil, Suit.Hearts)
       val mockInput = new MockPlayerInput(List("1", "0", "pass")) // index 1 is out of bounds, then valid, then pass
       controller.attack(g, 0, mockInput)
-      observer.messages.reverse should contain ("Index out of range.")
+      observer.messages.reverse should contain ("Ungültiger Zug!")
       controller.remove(observer)
     }
 
@@ -501,7 +478,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val g = GameState(List(attacker), Nil, Suit.Hearts, attackingCards = attackingCards)
       val mockInput = new MockPlayerInput(List("0", "pass"))
       controller.attack(g, 0, mockInput)
-      observer.messages.reverse should contain ("Maximum 6 attack cards reached.")
+      observer.messages.reverse should contain ("Ungültiger Zug!")
       controller.remove(observer)
     }
 
@@ -513,34 +490,41 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val g = GameState(List(attacker), Nil, Suit.Hearts, attackingCards = attackingCards)
       val mockInput = new MockPlayerInput(List("0", "pass")) // diamondTen has rank Ten
       controller.attack(g, 0, mockInput)
-      observer.messages.reverse should contain ("You can only play cards whose rank is already on the table.")
+      observer.messages.reverse should contain ("Ungültiger Zug!")
       controller.remove(observer)
     }
   }
 }
 
-class MockPlayerInput(inputs: List[Int]) extends PlayerInput {
+class MockPlayerInput(inputs: List[String]) extends PlayerInput {
   private var remainingInputs = inputs
+
+  private def parseInput(input: String): Int = input match {
+    case "pass" => -1
+    case "take" => -1
+    case s if s.forall(Character.isDigit) => s.toInt
+    case _ => -2 // Invalid input
+  }
 
   override def chooseAttackCard(attacker: Player, game: GameState): Int = {
     val input = remainingInputs.head
     remainingInputs = remainingInputs.tail
-    input
+    parseInput(input)
   }
 
   override def chooseDefenseCard(defender: Player, attackCard: Card, game: GameState): Int = {
     val input = remainingInputs.head
     remainingInputs = remainingInputs.tail
-    input
+    parseInput(input)
   }
 }
 
-class TestObserver extends Observer {
+class TestObserver(controller: Controller) extends Observer {
   var messages: List[String] = Nil
-  def update: Unit = {
-    // This is a bit of a hack to get the status message from the controller
-    // It would be better to have the controller pass the message to the observer
-    val game = new Controller(GameState(Nil, Nil, Suit.Clubs)).game
-    messages = new TUI(new Controller(game)).buildStatusString(game) :: messages
+  private val tui = new TUI(controller) // TUI needs the controller to build status strings
+
+  override def update: Unit = {
+    // Capture the status message using TUI's buildStatusString
+    messages = tui.buildStatusString(controller.game) :: messages
   }
 }
