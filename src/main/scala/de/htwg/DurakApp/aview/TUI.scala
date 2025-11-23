@@ -16,8 +16,8 @@ import de.htwg.DurakApp.controller.PlayerInput
 
 class TUI(controller: Controller) extends Observer with PlayerInput:
 
-  private val cardWidth = 7 // "+-----+" == 7 chars
-  private val cardHeight = 5 // number of lines per card ASCII art
+  private val cardWidth = 7
+  private val cardHeight = 5
 
   val RED = "\u001b[31m"
   val GREEN = "\u001b[32m"
