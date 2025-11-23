@@ -10,7 +10,8 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
   "A Controller" should {
 
-    val controller = new Controller()
+    val initialGame = GameState(playerList = Nil, deck = Nil, trump = Suit.Clubs)
+    val controller = new Controller(initialGame)
     val FixedRandom: Random = new Random(0)
     val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = true)
     val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
@@ -294,11 +295,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       finalState.deck.length shouldBe 5
     }
 
-    "safeToInt: convert string to int safely" in {
-      controller.safeToInt("42") shouldBe Some(42)
-      controller.safeToInt("abc") shouldBe None
-      controller.safeToInt(" 7 ") shouldBe Some(7)
-    }
+
 
     "cardShortString: return short string for card (includes trump tag)" in {
       val s = controller.cardShortString(heartAce)
@@ -522,25 +519,28 @@ class ControllerSpec extends AnyWordSpec with Matchers {
   }
 }
 
-class MockPlayerInput(inputs: List[String]) extends PlayerInput {
+class MockPlayerInput(inputs: List[Int]) extends PlayerInput {
   private var remainingInputs = inputs
 
-  override def chooseAttackCard(attacker: Player, game: GameState): String = {
+  override def chooseAttackCard(attacker: Player, game: GameState): Int = {
     val input = remainingInputs.head
     remainingInputs = remainingInputs.tail
     input
   }
 
-  override def chooseDefenseCard(defender: Player, attackCard: Card, game: GameState): String = {
+  override def chooseDefenseCard(defender: Player, attackCard: Card, game: GameState): Int = {
     val input = remainingInputs.head
     remainingInputs = remainingInputs.tail
     input
   }
 }
 
-class TestObserver(controller: Controller) extends Observer {
+class TestObserver extends Observer {
   var messages: List[String] = Nil
   def update: Unit = {
-    messages = controller.status :: messages
+    // This is a bit of a hack to get the status message from the controller
+    // It would be better to have the controller pass the message to the observer
+    val game = new Controller(GameState(Nil, Nil, Suit.Clubs)).game
+    messages = new TUI(new Controller(game)).buildStatusString(game) :: messages
   }
 }

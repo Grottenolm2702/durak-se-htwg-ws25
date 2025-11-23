@@ -24,17 +24,15 @@ class TUI(controller: Controller) extends Observer with PlayerInput:
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
 
-  private def safeToInt(s: String): Option[Int] =
-    Try(s.trim.toInt).toOption
 
   def askForDeckSize(inputReader: () => String = readLine): Int = {
     println("Anzahl Karten im Deck [36]: ")
-    safeToInt(inputReader()).getOrElse(36)
+    Try(inputReader().trim.toInt).getOrElse(36)
   }
 
   def askForPlayerCount(inputReader: () => String = readLine): Int = {
     println("How many players?")
-    safeToInt(inputReader()).getOrElse(2).max(2)
+    Try(inputReader().trim.toInt).getOrElse(2).max(2)
   }
 
   def askForPlayerNames(
@@ -181,16 +179,22 @@ $statusLine
     println(render)
   }
 
-  override def chooseAttackCard(attacker: Player, game: GameState): String =
+  override def chooseAttackCard(attacker: Player, game: GameState): Int =
     println(s"${attacker.name}, wähle Karte-Index zum Angreifen oder 'pass':")
-    readLine().trim
+    readLine().trim match {
+      case "pass" => -1
+      case s => Try(s.toInt).getOrElse(-2) // Using -2 for invalid integer input
+    }
 
   override def chooseDefenseCard(
       defender: Player,
       attackCard: Card,
       game: GameState
-  ): String =
+  ): Int =
     println(
       s"${defender.name}, verteidige gegen ${controller.cardShortString(attackCard)} oder 'take':"
     )
-    readLine().trim
+    readLine().trim match {
+      case "take" => -1
+      case s => Try(s.toInt).getOrElse(-2) // Using -2 for invalid integer input
+    }
