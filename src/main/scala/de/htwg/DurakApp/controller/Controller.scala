@@ -23,7 +23,7 @@ final class Controller(var game: GameState) extends Observable:
       playerNames: List[String],
       random: Random,
       inputmethod: PlayerInput
-  ): Unit = {
+  ): GameState = {
     given Random = random
     val initialGame = initGame(deckSize, playerNames)
     val numPlayers = initialGame.playerList.length
@@ -45,8 +45,6 @@ final class Controller(var game: GameState) extends Observable:
     val actualHandSize =
       if (deckWithTrump.length >= numPlayers * defaultHandSize) defaultHandSize
       else possibleHandSize.max(1)
-
-
 
     val (players, remainingDeck) =
       playerNames.foldLeft((List.empty[Player], deckWithTrump)) {
@@ -141,13 +139,17 @@ final class Controller(var game: GameState) extends Observable:
     }
     findNext(startIndex)
 
-  private def handleRoundStartAndEnd(initialState: GameState, currentAttacker: Int)(using random: Random): (GameState, Option[Int]) =
+  private def handleRoundStartAndEnd(
+      initialState: GameState,
+      currentAttacker: Int
+  )(using random: Random): (GameState, Option[Int]) =
     val gameWithDonePlayers = updateFinishedPlayers(initialState)
     if checkLooser(gameWithDonePlayers) then
-      val finalGameState = handleEnd(gameWithDonePlayers) // Now handleEnd is pure
-      (finalGameState, None) // Game over, no next attacker
+      val finalGameState = handleEnd(
+        gameWithDonePlayers
+      )
+      (finalGameState, None)
     else
-      // Determine the actual attacker for this round, skipping done players
       val actualAttackerForRound =
         if gameWithDonePlayers.playerList(currentAttacker).isDone then
           findNextActive(gameWithDonePlayers, currentAttacker)
@@ -164,7 +166,9 @@ final class Controller(var game: GameState) extends Observable:
       status = GameStatus.ATTACK,
       activePlayerId = actualAttacker
     )
-    setGameAndNotify(gameReadyToAttack) // This notification is part of the turn phase display
+    setGameAndNotify(
+      gameReadyToAttack
+    )
 
     val afterAttack =
       attack(gameReadyToAttack, actualAttacker, inputmethod)
@@ -174,7 +178,6 @@ final class Controller(var game: GameState) extends Observable:
 
     (afterDraw, defenderTook)
 
-
   @annotation.tailrec
   final def gameLoop(
       gameState: GameState,
@@ -183,15 +186,16 @@ final class Controller(var game: GameState) extends Observable:
   )(using
       random: Random
   ): GameState =
-    val (gameAfterRoundStart, nextAttackerOpt) = handleRoundStartAndEnd(gameState, attackerIndex)
+    val (gameAfterRoundStart, nextAttackerOpt) =
+      handleRoundStartAndEnd(gameState, attackerIndex)
 
     nextAttackerOpt match
       case None =>
-        // Game is over, set the final state and return
         setGameAndNotify(gameAfterRoundStart)
         gameAfterRoundStart
       case Some(actualAttacker) =>
-        val defenderIndex = findNextDefender(gameAfterRoundStart, actualAttacker)
+        val defenderIndex =
+          findNextDefender(gameAfterRoundStart, actualAttacker)
 
         val (gameAfterPhases, defenderTook) = executeTurnPhases(
           gameAfterRoundStart,
@@ -203,7 +207,7 @@ final class Controller(var game: GameState) extends Observable:
 
         val nextAttacker = nextAttackerIndex(
           updatedGame,
-          actualAttacker, // Use actualAttacker for current attacker in nextAttackerIndex
+          actualAttacker,
           defenderIndex,
           defenderTook
         )
@@ -236,13 +240,11 @@ final class Controller(var game: GameState) extends Observable:
       attacker: Player,
       cardIndex: Int
   ): Boolean =
-    // Check 1: Valid index
     if (cardIndex < 0 || cardIndex >= attacker.hand.length) then false
-    // Check 2: Max attacking cards
     else if (game.attackingCards.length >= 6) then false
     else
       val candidate = attacker.hand(cardIndex)
-      // Check 3: Card rank on table, or it's the first attack card
+
       if (game.attackingCards.isEmpty) then true
       else tableCardsContainRank(game, candidate)
 
@@ -256,19 +258,20 @@ final class Controller(var game: GameState) extends Observable:
       setGameAndNotify(game)
       val attacker = game.playerList(attackerIndex)
       input.chooseAttackCard(attacker, game) match {
-        case -1 => // pass
+        case -1 =>
           if (game.attackingCards.isEmpty) {
             attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
           } else {
             game.copy(status = GameStatus.PASS)
           }
-        case -2 => // invalid integer input
+        case -2 =>
           attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
         case idx =>
           if (!isValidAttackMove(game, attacker, idx)) {
             attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
           } else {
-            val candidate = attacker.hand(idx) // This is safe now due to isValidAttackMove
+            val candidate =
+              attacker.hand(idx)
             val (newHand, newAttacking) =
               moveCard(attacker.hand, game.attackingCards, idx)
             val updatedPlayer = attacker.copy(hand = newHand)
@@ -304,7 +307,9 @@ final class Controller(var game: GameState) extends Observable:
       attackCard: Card,
       chosenDefendCardIndex: Int
   ): Boolean =
-    if (chosenDefendCardIndex < 0 || chosenDefendCardIndex >= defender.hand.length) then false
+    if (
+      chosenDefendCardIndex < 0 || chosenDefendCardIndex >= defender.hand.length
+    ) then false
     else
       val defendCard = defender.hand(chosenDefendCardIndex)
       canBeat(attackCard, defendCard, game.trump)
@@ -343,7 +348,7 @@ final class Controller(var game: GameState) extends Observable:
           )
 
           input.chooseDefenseCard(defender, attackCard, game) match {
-            case -1 => // take
+            case -1 =>
               val newHand =
                 defender.hand ++ game.attackingCards ++ game.defendingCards
               val updatedDefender = defender.copy(hand = newHand)
@@ -357,12 +362,13 @@ final class Controller(var game: GameState) extends Observable:
               )
               setGameAndNotify(newGame)
               (newGame, true)
-            case -2 => // invalid integer input
+            case -2 =>
               setGameAndNotify(game.copy(status = GameStatus.INVALID_MOVE))
               defendLoop(game, defender, attackCardIndex)
             case idx =>
               if (isValidDefenseMove(game, defender, attackCard, idx)) then
-                val defendCard = defender.hand(idx) // Safe due to isValidDefenseMove
+                val defendCard =
+                  defender.hand(idx)
                 val (newHand, newDefending) =
                   moveCard(defender.hand, game.defendingCards, idx)
                 val updatedDefender = defender.copy(hand = newHand)
