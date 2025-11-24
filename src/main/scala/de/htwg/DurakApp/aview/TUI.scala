@@ -183,22 +183,22 @@ $statusLine
     println(render)
   }
 
-  override def chooseAttackCard(attacker: Player, game: GameState): Int =
+  override def choosePassOrAttackCard(attacker: Player, game: GameState): (Boolean, Int) =
     println(s"${attacker.name}, wähle Karte-Index zum Angreifen oder 'pass':")
     readLine().trim match {
-      case "pass" => -1
-      case s => Try(s.toInt).getOrElse(-2) // Using -2 for invalid integer input
+      case "pass" => (true, 0)
+      case s      => Try(s.toInt).map(idx => (false, idx)).getOrElse((false, -1))
     }
 
-  override def chooseDefenseCard(
+  override def chooseTakeOrDefenseCard(
       defender: Player,
       attackCard: Card,
       game: GameState
-  ): Int =
+  ): (Boolean, Int) =
     println(
       s"${defender.name}, verteidige gegen ${cardShortString(attackCard)} oder 'take':"
     )
     readLine().trim match {
-      case "take" => -1
-      case s => Try(s.toInt).getOrElse(-2) // Using -2 for invalid integer input
+      case "take" => (true, 0)
+      case s      => Try(s.toInt).map(idx => (false, idx)).getOrElse((false, -1))
     }

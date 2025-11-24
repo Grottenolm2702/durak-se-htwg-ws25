@@ -6,5 +6,5 @@ import model.Card
 import model.GameState
 
 trait PlayerInput:
-  def chooseAttackCard(attacker: Player, game: GameState): Int
-  def chooseDefenseCard(defender: Player, attackCard: Card, game: GameState): Int
+  def choosePassOrAttackCard(attacker: Player, game: GameState): (Boolean, Int)
+  def chooseTakeOrDefenseCard(defender: Player, attackCard: Card, game: GameState): (Boolean, Int)

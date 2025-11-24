@@ -29,8 +29,8 @@ class TUISpec extends AnyWordSpec with Matchers {
       Console.withIn(inStream) {
         val outputStream = new ByteArrayOutputStream()
         Console.withOut(outputStream) {
-          val choice = tui.chooseAttackCard(attacker, game)
-          choice shouldBe 1
+          val choice = tui.choosePassOrAttackCard(attacker, game)
+          choice shouldBe (false, 1)
           outputStream.toString should include("Lucifer, wähle Karte-Index")
         }
       }
@@ -166,8 +166,8 @@ class TUISpec extends AnyWordSpec with Matchers {
       Console.withIn(inStream) {
         val outputStream = new ByteArrayOutputStream()
         Console.withOut(outputStream) {
-          val choice = tui.chooseAttackCard(attacker, game)
-          choice shouldBe -1
+          val choice = tui.choosePassOrAttackCard(attacker, game)
+          choice shouldBe (true, 0)
           outputStream.toString should include("Lucifer, wähle Karte-Index")
         }
       }
@@ -183,8 +183,8 @@ class TUISpec extends AnyWordSpec with Matchers {
       Console.withIn(inStream) {
         val outputStream = new ByteArrayOutputStream()
         Console.withOut(outputStream) {
-          val choice = tui.chooseDefenseCard(defender, attackCard, game)
-          choice shouldBe 0
+          val choice = tui.chooseTakeOrDefenseCard(defender, attackCard, game)
+          choice shouldBe (false, 0)
           outputStream.toString should include("Michael, verteidige gegen")
         }
       }
@@ -200,8 +200,8 @@ class TUISpec extends AnyWordSpec with Matchers {
       Console.withIn(inStream) {
         val outputStream = new ByteArrayOutputStream()
         Console.withOut(outputStream) {
-          val choice = tui.chooseDefenseCard(defender, attackCard, game)
-          choice shouldBe -1
+          val choice = tui.chooseTakeOrDefenseCard(defender, attackCard, game)
+          choice shouldBe (true, 0)
           outputStream.toString should include("Michael, verteidige gegen")
         }
       }

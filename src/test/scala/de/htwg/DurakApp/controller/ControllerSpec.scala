@@ -662,26 +662,28 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 class MockPlayerInput(inputs: List[String]) extends PlayerInput {
   private var remainingInputs = inputs
 
-  private def parseInput(input: String): Int = input match {
-    case "pass"                           => -1
-    case "take"                           => -1
-    case s if s.forall(Character.isDigit) => s.toInt
-    case _                                => -2
-  }
-
-  override def chooseAttackCard(attacker: Player, game: GameState): Int = {
+  override def choosePassOrAttackCard(
+      attacker: Player,
+      game: GameState
+  ): (Boolean, Int) = {
     val input = remainingInputs.head
     remainingInputs = remainingInputs.tail
-    parseInput(input)
+    input match {
+      case "pass" => (true, 0)
+      case s      => util.Try(s.toInt).map(idx => (false, idx)).getOrElse((false, -1))
+    }
   }
 
-  override def chooseDefenseCard(
+  override def chooseTakeOrDefenseCard(
       defender: Player,
       attackCard: Card,
       game: GameState
-  ): Int = {
+  ): (Boolean, Int) = {
     val input = remainingInputs.head
     remainingInputs = remainingInputs.tail
-    parseInput(input)
+    input match {
+      case "take" => (true, 0)
+      case s      => util.Try(s.toInt).map(idx => (false, idx)).getOrElse((false, -1))
+    }
   }
 }
