@@ -257,16 +257,16 @@ final class Controller(var game: GameState) extends Observable:
     def attackLoop(game: GameState): GameState = {
       setGameAndNotify(game)
       val attacker = game.playerList(attackerIndex)
-      input.chooseAttackCard(attacker, game) match {
-        case -1 =>
+      input.choosePassOrAttackCard(attacker, game) match {
+        case (true, _) => // Pass
           if (game.attackingCards.isEmpty) {
             attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
           } else {
             game.copy(status = GameStatus.PASS)
           }
-        case -2 =>
+        case (false, -1) => // Invalid input
           attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
-        case idx =>
+        case (false, idx) =>
           if (!isValidAttackMove(game, attacker, idx)) {
             attackLoop(game.copy(status = GameStatus.INVALID_MOVE))
           } else {
@@ -347,8 +347,8 @@ final class Controller(var game: GameState) extends Observable:
             )
           )
 
-          input.chooseDefenseCard(defender, attackCard, game) match {
-            case -1 =>
+          input.chooseTakeOrDefenseCard(defender, attackCard, game) match {
+            case (true, _) => // Take
               val newHand =
                 defender.hand ++ game.attackingCards ++ game.defendingCards
               val updatedDefender = defender.copy(hand = newHand)
@@ -362,10 +362,10 @@ final class Controller(var game: GameState) extends Observable:
               )
               setGameAndNotify(newGame)
               (newGame, true)
-            case -2 =>
+            case (false, -1) => // Invalid input
               setGameAndNotify(game.copy(status = GameStatus.INVALID_MOVE))
               defendLoop(game, defender, attackCardIndex)
-            case idx =>
+            case (false, idx) =>
               if (isValidDefenseMove(game, defender, attackCard, idx)) then
                 val defendCard =
                   defender.hand(idx)
