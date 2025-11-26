@@ -4,11 +4,12 @@ import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.util.Observable
 import de.htwg.DurakApp.controller.command.{Command, CommandFactory}
+import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, TakeCardsAction, InvalidAction}
 
 class Controller(var gameState: GameState) extends Observable {
 
-  def processInput(input: String): Unit = {
-    val result = CommandFactory.createCommand(input, gameState)
+  def processPlayerAction(action: PlayerAction): Unit = {
+    val result = CommandFactory.createCommand(action, gameState)
     result match {
       case Left(event) =>
         this.gameState = gameState.copy(lastEvent = Some(event))

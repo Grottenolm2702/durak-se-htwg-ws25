@@ -3,20 +3,21 @@ package de.htwg.DurakApp.controller.command
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.GameEvent
 
-object CommandFactory {
-  def createCommand(input: String, gameState: GameState): Either[GameEvent, Command] = {
-    val inputArgs = input.trim.toLowerCase.split("\\s+").toList
-    inputArgs.headOption match {
-      case Some("play") if inputArgs.length > 1 =>
-        Right(PlayCardCommand(inputArgs.tail.mkString(" ")))
+import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, TakeCardsAction, InvalidAction}
 
-      case Some("pass") =>
+object CommandFactory {
+  def createCommand(action: PlayerAction, gameState: GameState): Either[GameEvent, Command] = {
+    action match {
+      case PlayCardAction(cardString) =>
+        Right(PlayCardCommand(cardString))
+
+      case PassAction =>
         Right(PassCommand())
 
-      case Some("take") =>
+      case TakeCardsAction =>
         Right(TakeCardsCommand())
 
-      case _ =>
+      case InvalidAction =>
         Left(GameEvent.InvalidMove)
     }
   }

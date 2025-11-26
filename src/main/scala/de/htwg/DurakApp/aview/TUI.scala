@@ -4,6 +4,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
+import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, TakeCardsAction, InvalidAction} // Import PlayerAction
 
 import scala.io.StdIn.readLine
 import scala.util.Try
@@ -24,6 +25,20 @@ class TUI(controller: Controller) extends Observer {
     println("Spiel beendet.")
   }
 
+  private def parseTuiInput(input: String): PlayerAction = {
+    val inputArgs = input.trim.toLowerCase.split("\\s+").toList
+    inputArgs.headOption match {
+      case Some("play") if inputArgs.length > 1 =>
+        PlayCardAction(inputArgs.tail.mkString(" "))
+      case Some("pass") =>
+        PassAction
+      case Some("take") =>
+        TakeCardsAction
+      case _ =>
+        InvalidAction
+    }
+  }
+
   @scala.annotation.tailrec
   private def gameLoop(): Unit = {
     printPrompt(controller.gameState)
@@ -31,7 +46,8 @@ class TUI(controller: Controller) extends Observer {
     if (input == "q" || input == "quit") {
       ()
     } else {
-      controller.processInput(input)
+      val action = parseTuiInput(input)
+      controller.processPlayerAction(action)
       controller.gameState.lastEvent match {
         case Some(GameEvent.GameOver(_, _)) => ()
         case _ => gameLoop()
