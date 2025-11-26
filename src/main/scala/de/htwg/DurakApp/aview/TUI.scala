@@ -48,6 +48,22 @@ class TUI(controller: Controller) extends Observer {
     Try(inputReader().trim.toInt).getOrElse(36).max(6)
   }
 
+  def askForPlayerCount(inputReader: () => String = readLine): Int = {
+    println("Spieleranzahl?")
+    Try(inputReader().trim.toInt).getOrElse(2).max(2)
+  }
+
+  def askForPlayerNames(
+      count: Int,
+      inputReader: () => String = readLine
+  ): List[String] = {
+    (1 to count).map {i =>
+      println(s"Enter name of player $i: ")
+      inputReader().trim()  match {
+        case "" => s"Player$i"
+        case n => n}
+      }.toList
+  }
   private def printPrompt(game: GameState): Unit = {
     val activePlayer = game.gamePhase match {
       case AttackPhase  => game.players(game.attackerIndex)
