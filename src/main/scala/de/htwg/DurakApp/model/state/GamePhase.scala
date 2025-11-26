@@ -12,7 +12,7 @@ object GameEvent {
   case object Take extends GameEvent
   case object Draw extends GameEvent
   case class RoundEnd(cleared: Boolean) extends GameEvent
-  case class GameOver(winner: Player, loser: Player) extends GameEvent
+  case class GameOver(winner: Player, loser: Option[Player]) extends GameEvent
 }
 
 trait GamePhase {

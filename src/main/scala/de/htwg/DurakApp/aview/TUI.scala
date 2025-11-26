@@ -32,7 +32,10 @@ class TUI(controller: Controller) extends Observer {
       ()
     } else {
       controller.processInput(input)
-      gameLoop()
+      controller.gameState.lastEvent match {
+        case Some(GameEvent.GameOver(_, _)) => ()
+        case _ => gameLoop()
+      }
     }
   }
 
@@ -182,8 +185,10 @@ $statusLine
         case GameEvent.RoundEnd(cleared) =>
           if (cleared) "Runde vorbei, Tisch geleert."
           else "Runde vorbei, Karten aufgenommen."
-        case GameEvent.GameOver(_, loser) =>
+        case GameEvent.GameOver(_, Some(loser)) =>
           s"Spiel beendet! ${loser.name} ist der Durak!"
+        case GameEvent.GameOver(_, None) =>
+          s"Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!"
       }
       .getOrElse(game.gamePhase.toString)
   }
