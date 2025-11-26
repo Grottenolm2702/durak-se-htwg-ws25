@@ -15,18 +15,20 @@ object Setup {
       rank <- standardRanks
     } yield Card(suit, rank)
 
-    val effectiveDeckSize = requestedDeckSize.max(6).min(fullStandardDeck.length)
+    val effectiveDeckSize = requestedDeckSize.min(fullStandardDeck.length)
 
     Random.shuffle(fullStandardDeck).take(effectiveDeckSize)
   }
 
   def setupGame(playerNames: List[String], deckSize: Int): GameState = {
-    if (playerNames.length < 2) throw new IllegalArgumentException("Need at least two players.")
+    if (playerNames.length < 2)
+      throw new IllegalArgumentException("Need at least two players.")
 
     val deck = createDeck(deckSize)
-    val handSize = 6
-    if (deck.length < playerNames.length * handSize) {
-        throw new IllegalArgumentException(s"Not enough cards for ${playerNames.length} players with a hand size of $handSize. Need at least ${playerNames.length * handSize} cards, but only have ${deck.length}.")
+    if (deck.length < playerNames.length) {
+      throw new IllegalArgumentException(
+        s"Not enough cards for ${playerNames.length} players. Need at least ${playerNames.length} cards, but only have ${deck.length}."
+      )
     }
 
     val players = playerNames.map(name => Player(name, List.empty))

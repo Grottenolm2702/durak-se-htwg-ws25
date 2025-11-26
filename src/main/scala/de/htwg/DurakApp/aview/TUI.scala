@@ -45,7 +45,7 @@ class TUI(controller: Controller) extends Observer {
 
   def askForDeckSize(inputReader: () => String = readLine): Int = {
     println("Anzahl Karten im Deck (z.B. 36 für Standard): ")
-    Try(inputReader().trim.toInt).getOrElse(36).max(6)
+    Try(inputReader().trim.toInt).getOrElse(36).max(2)
   }
 
   def askForPlayerCount(inputReader: () => String = readLine): Int = {

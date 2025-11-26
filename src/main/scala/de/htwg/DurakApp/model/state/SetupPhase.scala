@@ -10,8 +10,11 @@ case object SetupPhase extends GamePhase {
 
     val (dealtPlayers, remainingDeck) = dealCards(gameState.players, shuffledDeck)
 
-    val trumpCard = remainingDeck.last
-    val finalDeck = remainingDeck.dropRight(1) :+ trumpCard
+    val (trumpCard, finalDeck) = if (remainingDeck.isEmpty) {
+      (shuffledDeck.last, List.empty)
+    } else {
+      (remainingDeck.last, remainingDeck.dropRight(1) :+ remainingDeck.last)
+    }
 
     val attackerIndex = findFirstAttacker(dealtPlayers, trumpCard.suit)
     val defenderIndex = (attackerIndex + 1) % dealtPlayers.size
@@ -32,7 +35,8 @@ case object SetupPhase extends GamePhase {
 
   private def dealCards(players: List[Player], deck: List[Card]): (List[Player], List[Card]) = {
     val numPlayers = players.size
-    val cardsToDeal = numPlayers * 6
+    val handSize = (deck.length / numPlayers).min(6)
+    val cardsToDeal = numPlayers * handSize
 
     val (dealtCards, remainingDeck) = deck.splitAt(cardsToDeal)
     val hands = dealtCards.grouped(numPlayers).toList.transpose
