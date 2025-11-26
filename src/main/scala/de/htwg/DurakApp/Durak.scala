@@ -20,6 +20,7 @@ import controller.{Controller, Setup}
 
     val controller = new Controller(initialGameState)
     val tui = new TUI(controller)
+    controller.add(tui)
 
     tui.run()
   }
