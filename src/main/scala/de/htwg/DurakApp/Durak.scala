@@ -3,18 +3,11 @@ package de.htwg.DurakApp
 import aview.TUI
 import controller.{Controller, Setup}
 
-@main def run(): Unit = {
-
-  println("Geben Sie die Spielernamen ein (kommagetrennt):")
-  val names = scala.io.StdIn.readLine()
-  val playerNames = names.split(',').map(_.trim).filter(_.nonEmpty).toList
-
-  if (playerNames.length < 2) {
-    println("Es werden mindestens 2 Spieler benötigt. Bitte neu starten.")
-  } else {
-    val tempTui = new TUI(new Controller(null))
-
-    val deckSize = tempTui.askForDeckSize()
+@main def run: Unit = {
+    val temptui = TUI(new Controller(null))
+    val deckSize = temptui.askForDeckSize()
+    val playerCount = temptui.askForPlayerCount()
+    val playerNames = temptui.askForPlayerNames(playerCount)
 
     val initialGameState = Setup.setupGame(playerNames, deckSize)
 
@@ -24,4 +17,3 @@ import controller.{Controller, Setup}
 
     tui.run()
   }
-}
