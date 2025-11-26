@@ -4,7 +4,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
-import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, TakeCardsAction, InvalidAction} // Import PlayerAction
+import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, TakeCardsAction, InvalidAction}
 
 import scala.io.StdIn.readLine
 import scala.util.Try
