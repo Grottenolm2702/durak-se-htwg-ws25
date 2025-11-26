@@ -7,20 +7,22 @@ case object EndPhase extends GamePhase {
     val playersWithCards = gameState.players.filter(_.hand.nonEmpty)
     val playersWithoutCards = gameState.players.filter(_.hand.isEmpty)
 
-    val loser = playersWithCards.headOption
-
-    val winner = playersWithoutCards.headOption
-
-    (winner, loser) match {
-      case (Some(w), Some(l)) =>
-        gameState.copy(
-          gamePhase = this,
-          lastEvent = Some(GameEvent.GameOver(w, l))
+    playersWithCards.headOption match {
+      case Some(loser) =>
+        val winner = playersWithoutCards.headOption.getOrElse(
+          throw new IllegalStateException("EndPhase: Expected at least one player without cards when a loser is identified.")
         )
-      case _ =>
         gameState.copy(
           gamePhase = this,
-          lastEvent = Some(GameEvent.InvalidMove)
+          lastEvent = Some(GameEvent.GameOver(winner, Some(loser)))
+        )
+      case None =>
+        val representativeWinner = gameState.players.headOption.getOrElse(
+          throw new IllegalStateException("EndPhase: No players in game state. Cannot determine winner.")
+        )
+        gameState.copy(
+          gamePhase = this,
+          lastEvent = Some(GameEvent.GameOver(representativeWinner, None))
         )
     }
   }
