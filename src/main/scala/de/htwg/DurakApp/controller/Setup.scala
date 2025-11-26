@@ -1,0 +1,48 @@
+package de.htwg.DurakApp.controller
+
+import de.htwg.DurakApp.model.*
+import de.htwg.DurakApp.model.state.SetupPhase
+
+import scala.util.Random
+
+object Setup {
+  def createDeck(requestedDeckSize: Int): List[Card] = {
+    val suits = Suit.values.toList
+    val standardRanks = Rank.values.toList
+
+    val fullStandardDeck = for {
+      suit <- suits
+      rank <- standardRanks
+    } yield Card(suit, rank)
+
+    val effectiveDeckSize = requestedDeckSize.max(6).min(fullStandardDeck.length)
+
+    Random.shuffle(fullStandardDeck).take(effectiveDeckSize)
+  }
+
+  def setupGame(playerNames: List[String], deckSize: Int): GameState = {
+    if (playerNames.length < 2) throw new IllegalArgumentException("Need at least two players.")
+
+    val deck = createDeck(deckSize)
+    val handSize = 6
+    if (deck.length < playerNames.length * handSize) {
+        throw new IllegalArgumentException(s"Not enough cards for ${playerNames.length} players with a hand size of $handSize. Need at least ${playerNames.length * handSize} cards, but only have ${deck.length}.")
+    }
+
+    val players = playerNames.map(name => Player(name, List.empty))
+
+    val preSetupState = GameState(
+      players = players,
+      deck = deck,
+      table = Map.empty,
+      discardPile = List.empty,
+      trumpCard = deck.head,
+      attackerIndex = 0,
+      defenderIndex = 0,
+      gamePhase = SetupPhase,
+      lastEvent = None
+    )
+
+    SetupPhase.handle(preSetupState)
+  }
+}

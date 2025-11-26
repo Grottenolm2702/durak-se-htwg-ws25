@@ -1,94 +1,92 @@
-package de.htwg.DurakApp
-package aview
+package de.htwg.DurakApp.aview
 
-import controller.Controller
-import model.Card
-import model.Suit
-import model.Rank
-import model.GameState
-import model.Player
-import model.GameStatus
-
+import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.model.*
+import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
 
 import scala.io.StdIn.readLine
 import scala.util.Try
-import de.htwg.DurakApp.controller.PlayerInput
 
-class TUI(controller: Controller) extends Observer with PlayerInput:
+class TUI(controller: Controller) extends Observer {
+
+  controller.add(this)
 
   private val cardWidth = 7
-  private val cardHeight = 5
-
   val RED = "\u001b[31m"
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
 
+  def run(): Unit = {
+    println(clearScreen())
+    println("Willkommen bei Durak!")
+    update // Initial render to show the board before the first prompt
+    gameLoop() // Start the loop
+    println("Spiel beendet.")
+  }
+
+  @scala.annotation.tailrec
+  private def gameLoop(): Unit = {
+    printPrompt(controller.gameState)
+    val input = readLine()
+    if (input == "q" || input == "quit") {
+      () // Stop recursion
+    } else {
+      controller.processInput(input)
+      // The controller notifies observers, which calls 'update'.
+      // Then we loop for the next input.
+      gameLoop()
+    }
+  }
+
+  override def update: Unit = {
+    println(clearScreen())
+    val game = controller.gameState
+    val render = renderScreen(game, buildStatusString(game))
+    println(render)
+    // Prompt is now printed at the start of the gameLoop to ensure correct ordering.
+  }
+
   def askForDeckSize(inputReader: () => String = readLine): Int = {
-    println("Anzahl Karten im Deck [36]: ")
-    Try(inputReader().trim.toInt).getOrElse(36)
+    println("Anzahl Karten im Deck (z.B. 36 für Standard, oder 20 für schnelles Spiel): ")
+    Try(inputReader().trim.toInt).getOrElse(36).max(6) // Minimum 6 cards to make sense
   }
 
-  def askForPlayerCount(inputReader: () => String = readLine): Int = {
-    println("How many players?")
-    Try(inputReader().trim.toInt).getOrElse(2).max(2)
+  private def printPrompt(game: GameState): Unit = {
+    val activePlayer = game.gamePhase match {
+      case AttackPhase => game.players(game.attackerIndex)
+      case DefensePhase => game.players(game.defenderIndex)
+      case _ => game.players(game.attackerIndex) // Default case
+    }
+    println(s"${activePlayer.name}, dein Zug ('play index', 'pass', 'take'):")
+    print("> ")
   }
 
-  def askForPlayerNames(
-      count: Int,
-      inputReader: () => String = readLine
-  ): List[String] = {
-    (1 to count).map { i =>
-      println(s"Enter name of player $i: ")
-      inputReader().trim match {
-        case "" => s"Player$i"
-        case n  => n
-      }
-    }.toList
-  }
+  def clearScreen(): String = "\u001b[2J\u001b[H"
 
-  def clearScreen(): String =
-    "\u001b[2J\u001b[H"
-
-  def renderCard(card: Card): List[String] =
-    val (colorStart, colorEnd) = card.suit match
+  def renderCard(card: Card): List[String] = {
+    val (colorStart, colorEnd) = card.suit match {
       case Suit.Hearts | Suit.Diamonds => (RED, RESET)
       case Suit.Clubs | Suit.Spades    => (GREEN, RESET)
-
-    val symbol = card.suit match
-      case Suit.Hearts   => "\u2665" // ♥
-      case Suit.Diamonds => "\u2666" // ♦
-      case Suit.Clubs    => "\u2663" // ♣
-      case Suit.Spades   => "\u2660" // ♠
-
-    val rankStr = card.rank match
-      case Rank.Six   => "6"
-      case Rank.Seven => "7"
-      case Rank.Eight => "8"
-      case Rank.Nine  => "9"
-      case Rank.Ten   => "10"
-      case Rank.Jack  => "J"
-      case Rank.Queen => "Q"
-      case Rank.King  => "K"
-      case Rank.Ace   => "A"
-
+    }
+    val symbol = card.suit.toString.head
+    val rankStr = card.rank.toString
     val rankField = f"|$colorStart$rankStr%-2s$colorEnd   |"
     val suitField = s"|  $colorStart$symbol$colorEnd  |"
     List("+-----+", rankField, suitField, "|     |", "+-----+")
+  }
 
-  private def combineCardLines(cards: List[List[String]]): String =
-    if cards.isEmpty then ""
-    else
-      val transposed = cards.transpose
-      val combinedLines = transposed.map(_.mkString(" "))
-      combinedLines.mkString("\n")
+  private def combineCardLines(cards: List[List[String]]): String = {
+    if (cards.isEmpty) ""
+    else cards.transpose.map(_.mkString(" ")).mkString("\n")
+  }
 
-  def renderHandWithIndices(hand: List[Card]): String =
-    if hand.isEmpty then "Empty hand"
-    else
-      val cardLines: List[List[String]] = hand.map(renderCard)
+  def renderHandWithIndices(hand: List[Card]): String = {
+    if (hand.isEmpty) "Leere Hand"
+    else {
+      val cardLines = hand.map(renderCard)
       val cardsBlock = combineCardLines(cardLines)
-      val indexCells = hand.zipWithIndex.map { case (_, i) =>
+      val indexCells = hand.indices.map { i =>
         val s = i.toString
         val total = cardWidth
         val left = (total - s.length) / 2
@@ -97,108 +95,57 @@ class TUI(controller: Controller) extends Observer with PlayerInput:
       }
       val indexLine = indexCells.mkString(" ")
       s"$cardsBlock\n$indexLine"
+    }
+  }
 
-  def renderTableLine(label: String, table: List[Card]): String =
-    val header = s"$label (${table.length})"
-    if table.isEmpty then s"$header:\n  Empty"
-    else
-      val cardLines = table.map(renderCard)
-      val combined = combineCardLines(cardLines)
-      s"$header:\n$combined"
+  def renderTable(game: GameState): String = {
+    val attackingCards = game.table.keys.toList
+    val defendingCards = game.table.values.flatten.toList
 
-  def renderScreen(game: GameState, status: String): String =
-    val header =
-      val deckInfo = s"Deck: ${game.deck.length}"
-      val discardInfo = s"Discard: ${game.discardPile.length}"
-      val trumpInfo = s"Trump: ${game.trump}"
-      s"$trumpInfo    $deckInfo    $discardInfo"
+    val attackHeader = s"Angriff (${attackingCards.length})"
+    val attackRender = if (attackingCards.isEmpty) "  Leer" else combineCardLines(attackingCards.map(renderCard))
 
-    val attacking = renderTableLine("Attacking", game.attackingCards)
-    val defending = renderTableLine("Defending", game.defendingCards)
+    val defenseHeader = s"Verteidigung (${defendingCards.length})"
+    val defenseRender = if (defendingCards.isEmpty) "  Leer" else combineCardLines(defendingCards.map(renderCard))
 
-    val playersStr = game.playerList
-      .map { p =>
-        val nameLine =
-          if p.isDone then s"\u001b[2m${p.name} (fertig)\u001b[0m" // grau
-          else s"${p.name} (cards: ${p.hand.length})"
-        val handBlock =
-          if p.isDone then "----" else renderHandWithIndices(p.hand)
-        s"$nameLine\n$handBlock"
-      }
-      .mkString("\n\n")
+    s"$attackHeader\n$attackRender\n\n$defenseHeader\n$defenseRender"
+  }
 
-    val statusLine =
-      if status == null || status.trim.isEmpty then "Status: ready"
-      else s"Status: $status"
+
+  def renderScreen(game: GameState, status: String): String = {
+    val header = s"Trumpf: ${game.trumpCard.suit}    Deck: ${game.deck.length}    Ablagestapel: ${game.discardPile.length}"
+
+    val table = renderTable(game)
+
+    val playersStr = game.players.map {
+      p =>
+        s"${p.name} (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
+    }.mkString("\n\n")
+
+    val statusLine = s"Status: $status"
 
     s"""
 $header
 
-$attacking
-
-$defending
+$table
 
 $playersStr
 
 $statusLine
 """.trim
-
-  def buildStatusString(game: GameState): String =
-    game.status match {
-      case GameStatus.WELCOME      => "Willkommen bei Durak!"
-      case GameStatus.PLAYER_SETUP => "Spieler werden eingerichtet."
-      case GameStatus.ATTACK =>
-        val attacker = game.playerList(game.activePlayerId)
-        s"Angreifer ${attacker.name} ist am Zug."
-      case GameStatus.DEFEND =>
-        val defender = game.playerList(game.activePlayerId)
-        s"Verteidiger ${defender.name} ist am Zug."
-      case GameStatus.TAKE =>
-        val player = game.playerList(game.activePlayerId)
-        s"${player.name} nimmt die Karten."
-      case GameStatus.PASS =>
-        val player = game.playerList(game.activePlayerId)
-        s"${player.name} hat gepasst."
-      case GameStatus.INVALID_MOVE => "Ungültiger Zug!"
-      case GameStatus.GAME_OVER =>
-        val loserOpt = game.playerList.find(p => !p.isDone && p.hand.nonEmpty)
-        loserOpt match {
-          case Some(p) => s"Spiel beendet! ${p.name} ist der Durak!"
-          case None    => "Spiel beendet! Unentschieden."
-        }
-      case GameStatus.QUIT => "Spiel beendet."
-    }
-
-  def cardShortString(card: Card): String =
-    s"${card.rank.toString} ${card.suit.toString}${
-        if card.isTrump then " (T)" else ""
-      }"
-
-  override def update: Unit = {
-    val clear = clearScreen()
-    println(clear)
-    val game = controller.game
-    val status = buildStatusString(game)
-    val render = renderScreen(game, status)
-    println(render)
   }
 
-  override def choosePassOrAttackCard(attacker: Player, game: GameState): (Boolean, Int) =
-    println(s"${attacker.name}, wähle Karte-Index zum Angreifen oder 'pass':")
-    readLine().trim match {
-      case "pass" => (true, 0)
-      case s      => Try(s.toInt).map(idx => (false, idx)).getOrElse((false, -1))
-    }
-
-  override def chooseTakeOrDefenseCard(
-      defender: Player,
-      attackCard: Card,
-      game: GameState
-  ): (Boolean, Int) =
-    println(
-      s"${defender.name}, verteidige gegen ${cardShortString(attackCard)} oder 'take':"
-    )
-    readLine().trim match {
-      case "take" => (true, 0)
-      case s      => Try(s.toInt).map(idx => (false, idx)).getOrElse((false, -1))
-    }
+  def buildStatusString(game: GameState): String = {
+    game.lastEvent.map {
+      case GameEvent.InvalidMove => s"${RED}Ungültiger Zug!$RESET"
+      case GameEvent.NotYourTurn => s"${RED}Du bist nicht am Zug!$RESET"
+      case GameEvent.Attack(card) => s"Angriff mit ${card.rank} ${card.suit}."
+      case GameEvent.Defend(card) => s"Verteidigung mit ${card.rank} ${card.suit}."
+      case GameEvent.Pass => "Passen."
+      case GameEvent.Take => "Karten aufgenommen."
+      case GameEvent.Draw => "Karten werden gezogen."
+      case GameEvent.RoundEnd(cleared) => if (cleared) "Runde vorbei, Tisch geleert." else "Runde vorbei, Karten aufgenommen."
+      case GameEvent.GameOver(_, loser) => s"Spiel beendet! ${loser.name} ist der Durak!"
+    }.getOrElse(game.gamePhase.toString)
+  }
+}

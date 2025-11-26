@@ -1,20 +1,26 @@
 package de.htwg.DurakApp
 
 import aview.TUI
-import controller.Controller
-import model.{GameState, GameStatus, Suit}
-import scala.util.Random
+import controller.{Controller, Setup}
 
-@main def run: Unit =
+@main def run(): Unit = {
 
-  val initialGameState = GameState(Nil, Nil, Suit.Clubs, status = GameStatus.WELCOME)
-  val controller = new Controller(initialGameState)
-  val tui = new TUI(controller)
-  controller.add(tui)
+  println("Geben Sie die Spielernamen ein (kommagetrennt):")
+  val names = scala.io.StdIn.readLine()
+  val playerNames = names.split(',').map(_.trim).filter(_.nonEmpty).toList
 
-  val deckSize = tui.askForDeckSize()
-  val playerCount = tui.askForPlayerCount()
-  val playerNames = tui.askForPlayerNames(playerCount)
+  if (playerNames.length < 2) {
+    println("Es werden mindestens 2 Spieler benötigt. Bitte neu starten.")
+  } else {
+    val tempTui = new TUI(new Controller(null))
 
-  controller.setupGameAndStart(deckSize, playerNames, new Random, tui)
+    val deckSize = tempTui.askForDeckSize()
 
+    val initialGameState = Setup.setupGame(playerNames, deckSize)
+
+    val controller = new Controller(initialGameState)
+    val tui = new TUI(controller)
+
+    tui.run()
+  }
+}
