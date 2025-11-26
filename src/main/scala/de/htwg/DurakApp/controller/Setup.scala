@@ -45,6 +45,6 @@ object Setup {
       lastEvent = None
     )
 
-    SetupPhase.handle(preSetupState)
+    preSetupState.gamePhase.handle(preSetupState)
   }
 }
