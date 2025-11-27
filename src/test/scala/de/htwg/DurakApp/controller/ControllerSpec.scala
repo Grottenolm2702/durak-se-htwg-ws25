@@ -3,31 +3,31 @@ package de.htwg.DurakApp.controller
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model._
-import de.htwg.DurakApp.model.state._ // Import all state phases
+import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.controller.command.{Command, CommandFactory}
 
 import scala.util.Random
 
 class ControllerSpec extends AnyWordSpec with Matchers {
 
-  // Define some cards for convenience, not necessarily trumps by default
+ 
   val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = false)
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
   val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
   val clubKing = Card(Suit.Clubs, Rank.King, isTrump = false)
 
-  // Default values for GameState instantiation
-  val defaultTrumpCard: Card = Card(Suit.Clubs, Rank.Six, isTrump = true) // A default trump card
+ 
+  val defaultTrumpCard: Card = Card(Suit.Clubs, Rank.Six, isTrump = true)
   val defaultTable: Map[Card, Option[Card]] = Map.empty
   val defaultDiscardPile: List[Card] = List.empty
   val defaultAttackerIndex: Int = 0
   val defaultDefenderIndex: Int = 1
-  val defaultGamePhase: GamePhase = SetupPhase // Default starting phase
+  val defaultGamePhase: GamePhase = SetupPhase
   val defaultLastEvent: Option[GameEvent] = None
   val defaultPassedPlayers: Set[Int] = Set.empty
   val defaultRoundWinner: Option[Int] = None
 
-  // Helper function to create GameState with defaults
+ 
   def createGameState(
       players: List[Player],
       deck: List[Card] = List.empty,
@@ -59,18 +59,18 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val player2 = Player("P2", List(diamondTen))
       val initialGameState = createGameState(
         players = List(player1, player2),
-        trumpCard = heartAce.copy(isTrump = true), // Ensure trump is set for game logic
+        trumpCard = heartAce.copy(isTrump = true),
         gamePhase = AttackPhase,
         attackerIndex = 0,
         defenderIndex = 1
       )
       val controller = new Controller(initialGameState)
 
-      controller.processPlayerAction(PlayCardAction("0")) // Play spade six (first card)
+      controller.processPlayerAction(PlayCardAction("0"))
 
       val updatedGameState = controller.gameState
-      updatedGameState.players.head.hand.size.shouldBe(1) // P1 played a card
-      updatedGameState.table.keys.head.shouldBe(spadeSix) // Card should be on the table
+      updatedGameState.players.head.hand.size.shouldBe(1)
+      updatedGameState.table.keys.head.shouldBe(spadeSix)
     }
 
     "process player action for passing" in {
@@ -80,7 +80,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         players = List(player1, player2),
         trumpCard = heartAce.copy(isTrump = true),
         gamePhase = AttackPhase,
-        table = Map(clubKing -> None), // Attacker attacks, defender passes
+        table = Map(clubKing -> None),
         attackerIndex = 0,
         defenderIndex = 1
       )
@@ -89,9 +89,9 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.processPlayerAction(PassAction)
 
       val updatedGameState = controller.gameState
-      // Defender should now have passed, and game phase should transition if all passes are done or round ends
-      updatedGameState.gamePhase.shouldBe(AttackPhase) // Attacker passed, so should transition through DrawPhase and RoundPhase to AttackPhase
-      updatedGameState.roundWinner.isDefined.shouldBe(true) // Attacker passed, defender wins round
+     
+      updatedGameState.gamePhase.shouldBe(AttackPhase)
+      updatedGameState.roundWinner.isDefined.shouldBe(true)
     }
 
     "process player action for taking cards" in {
@@ -101,7 +101,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         players = List(player1, player2),
         trumpCard = heartAce.copy(isTrump = true),
         gamePhase = DefensePhase,
-        table = Map(clubKing -> None), // Attacker played, defender takes
+        table = Map(clubKing -> None),
         attackerIndex = 0,
         defenderIndex = 1
       )
@@ -110,8 +110,8 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.processPlayerAction(TakeCardsAction)
 
       val updatedGameState = controller.gameState
-      updatedGameState.players(1).hand.should(contain(clubKing)) // Defender took the card
-      updatedGameState.gamePhase.shouldBe(AttackPhase) // After taking cards and redrawing, it should be AttackPhase
+      updatedGameState.players(1).hand.should(contain(clubKing))
+      updatedGameState.gamePhase.shouldBe(AttackPhase)
     }
 
     "return a status string based on the current game phase" in {
