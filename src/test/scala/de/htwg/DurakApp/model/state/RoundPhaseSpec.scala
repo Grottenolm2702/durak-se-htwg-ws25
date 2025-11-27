@@ -18,14 +18,14 @@ class RoundPhaseSpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1,
         gamePhase = RoundPhase,
-        roundWinner = Some(0) // Attacker won the round
+        roundWinner = Some(0)
       )
 
       val resultState = RoundPhase.handle(initialGameState)
 
       resultState.table.should(be (empty))
-      resultState.discardPile.length shouldBe 2 // Cards from table moved to discard pile
-      resultState.roundWinner shouldBe None // Reset after round
+      resultState.discardPile.length shouldBe 2
+      resultState.roundWinner shouldBe None
       resultState.gamePhase shouldBe AttackPhase
       resultState.lastEvent.get shouldBe a[GameEvent.RoundEnd]
       resultState.lastEvent.get.asInstanceOf[GameEvent.RoundEnd].cleared shouldBe true
@@ -44,13 +44,13 @@ class RoundPhaseSpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1,
         gamePhase = RoundPhase,
-        roundWinner = None // No round winner, cards taken
+        roundWinner = None
       )
 
       val resultState = RoundPhase.handle(initialGameState)
 
       resultState.table.should(be (empty))
-      resultState.discardPile.length shouldBe 0 // Cards from table are taken by defender, not moved to discard pile if no round winner
+      resultState.discardPile.length shouldBe 0
       resultState.roundWinner shouldBe None
       resultState.gamePhase shouldBe AttackPhase
       resultState.lastEvent.get shouldBe a[GameEvent.RoundEnd]
@@ -59,10 +59,10 @@ class RoundPhaseSpec extends AnyWordSpec with Matchers {
 
     "transition to EndPhase if only one active player remains and deck is empty" in {
       val player1 = Player("P1", List.empty, isDone = true)
-      val player2 = Player("P2", List(Card(Suit.Clubs, Rank.Six))) // Only one active player with cards
+      val player2 = Player("P2", List(Card(Suit.Clubs, Rank.Six)))
       val initialGameState = GameState(
         players = List(player1, player2),
-        deck = List.empty, // Deck is empty
+        deck = List.empty,
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = Card(Suit.Diamonds, Rank.Ace),

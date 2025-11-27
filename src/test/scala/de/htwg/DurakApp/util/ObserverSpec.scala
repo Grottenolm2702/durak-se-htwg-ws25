@@ -44,7 +44,7 @@ class ObserverSpec extends AnyWordSpec with Matchers {
 }
 
 class TestObserver extends Observer {
-  private var _updateCount: Int = 0 // Using private var for internal state, exposed via val method
+  private var _updateCount: Int = 0
   def update: Unit = _updateCount += 1
   def wasUpdated: Boolean = _updateCount > 0
   def reset(): Unit = _updateCount = 0

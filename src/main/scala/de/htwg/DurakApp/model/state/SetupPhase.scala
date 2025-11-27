@@ -15,7 +15,7 @@ case object SetupPhase extends GamePhase {
       (
         shuffledDeck.last,
         List.empty
-      ) // Assuming shuffledDeck is never empty for deckSize >= 2
+      )
     } else {
       (remainingDeck.last, remainingDeck.dropRight(1))
     }

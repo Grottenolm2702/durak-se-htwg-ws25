@@ -6,7 +6,6 @@ import de.htwg.DurakApp.model._
 
 class GamePhaseSpec extends AnyWordSpec with Matchers {
 
-  // Test GameEvent case objects and case classes
   "GameEvent" should {
     "have correct InvalidMove event" in {
       GameEvent.InvalidMove shouldBe GameEvent.InvalidMove
@@ -62,11 +61,9 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  // Test default GamePhase trait implementations
   "GamePhase trait's default methods" should {
-    // Create an anonymous class extending GamePhase for testing default implementations
     val testGamePhase = new GamePhase {
-      override def handle(gameState: GameState): GameState = gameState // No-op handle for testing defaults
+      override def handle(gameState: GameState): GameState = gameState
     }
 
     val initialGameState = GameState(

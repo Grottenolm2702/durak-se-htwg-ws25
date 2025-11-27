@@ -38,7 +38,7 @@ case object AttackPhase extends GamePhase {
     gameState.copy(
       players = newPlayers,
       table = newTable,
-      gamePhase = DefensePhase, // Switch to defense
+      gamePhase = DefensePhase,
       lastEvent = Some(GameEvent.Attack(card))
     )
   }

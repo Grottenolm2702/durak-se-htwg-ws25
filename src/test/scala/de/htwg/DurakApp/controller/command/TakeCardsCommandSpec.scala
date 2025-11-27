@@ -11,17 +11,17 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
     val defendCard = Card(Suit.Clubs, Rank.Seven)
 
     val player1 = Player("P1", List(Card(Suit.Hearts, Rank.Ace)))
-    val player2 = Player("P2", List(Card(Suit.Diamonds, Rank.Ten))) // Defender
+    val player2 = Player("P2", List(Card(Suit.Diamonds, Rank.Ten)))
 
     val initialGameState = GameState(
       players = List(player1, player2),
       deck = List.empty,
-      table = Map(attackCard -> Some(defendCard)), // Cards on table
+      table = Map(attackCard -> Some(defendCard)),
       discardPile = List.empty,
       trumpCard = Card(Suit.Diamonds, Rank.Ace),
       attackerIndex = 0,
       defenderIndex = 1,
-      gamePhase = DefensePhase // Defender is active
+      gamePhase = DefensePhase
     )
 
     "execute correctly by making the defender take cards from the table" in {
@@ -31,7 +31,7 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
       resultState.players(1).hand.should(contain(attackCard))
       resultState.players(1).hand.should(contain(defendCard))
       resultState.table.should(be (empty))
-      resultState.gamePhase shouldBe AttackPhase // Should transition to AttackPhase after DrawPhase
+      resultState.gamePhase shouldBe AttackPhase
       resultState.lastEvent.get shouldBe GameEvent.RoundEnd(cleared = false)
     }
   }
