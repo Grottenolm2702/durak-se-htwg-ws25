@@ -361,7 +361,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       val output = outStream.toString()
-      output should include("Alice, dein Zug ('play index', 'pass', 'take'):")
+      output should include("Alice, dein Zug ('play index', 'pass'):")
     }
 
     "show the correct prompt for the defender in DefensePhase" in {
@@ -386,7 +386,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       val output = outStream.toString()
-      output should include("Bob, dein Zug ('play index', 'pass', 'take'):")
+      output should include("Bob, dein Zug ('play index', 'take'):")
     }
 
     "process a 'play' command" in {
@@ -607,6 +607,31 @@ class TUISpec extends AnyWordSpec with Matchers {
       val output = outStream.toString()
       output should include(
         "RoundAttacker, dein Zug ('play index', 'pass', 'take'):"
+      )
+    }
+
+    "print the correct prompt for DrawPhase (default case)" in {
+      val player = Player("DrawPlayer", List(spadeSix))
+      val game = createGameState(
+        players = List(player),
+        gamePhase = DrawPhase,
+        attackerIndex = 0
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "q\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      val output = outStream.toString()
+      output should include(
+        "DrawPlayer, dein Zug ('play index', 'pass', 'take'):"
       )
     }
 
