@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.model.state
 
 import de.htwg.DurakApp.model.{Card, GameState, Player, Suit}
+import de.htwg.DurakApp.model.builder.GameStateBuilder
 
 import scala.util.Random
 
@@ -25,17 +26,20 @@ case object SetupPhase extends GamePhase {
     val attackerIndex = findFirstAttacker(dealtPlayers, trumpCard.suit)
     val defenderIndex = (attackerIndex + 1) % dealtPlayers.size
 
-    val initialState = GameState(
-      players = dealtPlayers,
-      deck = finalDeck,
-      table = Map.empty,
-      discardPile = List.empty,
-      trumpCard = trumpCard,
-      attackerIndex = attackerIndex,
-      defenderIndex = defenderIndex,
-      gamePhase = RoundPhase,
-      lastEvent = None
-    )
+    val initialState = GameStateBuilder()
+      .withPlayers(dealtPlayers)
+      .withDeck(finalDeck)
+      .withTable(Map.empty)
+      .withDiscardPile(List.empty)
+      .withTrumpCard(trumpCard)
+      .withAttackerIndex(attackerIndex)
+      .withDefenderIndex(defenderIndex)
+      .withGamePhase(RoundPhase)
+      .withLastEvent(None)
+      .withPassedPlayers(Set.empty)
+      .withRoundWinner(None)
+      .build()
+
     initialState.gamePhase.handle(initialState)
   }
 
