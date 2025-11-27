@@ -23,9 +23,9 @@ class CommandFactorySpec extends AnyWordSpec with Matchers {
 
   "A CommandFactory" should {
     "create a PlayCardCommand for PlayCardAction" in {
-      val action = PlayCardAction("0")
+      val action = PlayCardAction(player1.hand.head)
       val command = CommandFactory.createCommand(action, game)
-      command shouldBe Right(PlayCardCommand("0"))
+      command shouldBe Right(PlayCardCommand(player1.hand.head))
     }
 
     "create a PassCommand for PassAction" in {

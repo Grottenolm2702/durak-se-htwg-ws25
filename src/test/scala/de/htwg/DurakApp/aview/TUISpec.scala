@@ -54,6 +54,7 @@ class TUISpec extends AnyWordSpec with Matchers {
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
   val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
   val clubKing = Card(Suit.Clubs, Rank.King, isTrump = false)
+  val spadeTen = Card(Suit.Spades, Rank.Ten, isTrump = false)
 
   "A TUI" should {
 
@@ -699,6 +700,72 @@ class TUISpec extends AnyWordSpec with Matchers {
       val rEight = tui.renderCard(eight).mkString
       rEight should include("8")
       rEight should include("\u2660")
+    }
+
+    "process a 'play' command during DefensePhase" in {
+      val attacker = Player("Alice", List.empty)
+      val defender = Player("Bob", List(spadeTen))
+      val game = createGameState(
+        players = List(attacker, defender),
+        table = Map(spadeSix -> None),
+        gamePhase = DefensePhase,
+        defenderIndex = 1
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "play 0\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.Defend(spadeTen)))
+    }
+
+    "return InvalidAction for out-of-bounds 'play' index" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val game = createGameState(
+        players = List(attacker),
+        gamePhase = AttackPhase
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "play 5\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
+    }
+
+    "return InvalidAction for non-integer 'play' argument" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val game = createGameState(
+        players = List(attacker),
+        gamePhase = AttackPhase
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "play foo\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
     }
 
   }

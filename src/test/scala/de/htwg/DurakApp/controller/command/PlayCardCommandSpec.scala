@@ -11,7 +11,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     val player1Card2 = Card(Suit.Clubs, Rank.Seven)
     val player2Card = Card(Suit.Hearts, Rank.Ace)
 
-    val player1ForAttack = Player("P1", List(player1Card1)) // Simplify hand for this test
+    val player1ForAttack = Player("P1", List(player1Card1, player1Card2))
     val player2ForAttack = Player("P2", List(player2Card))
 
     val initialGameStateAttack = GameState(
@@ -26,13 +26,13 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     )
 
     val attackCardOnTable = Card(Suit.Spades, Rank.Eight)
-    val defendingCard = Card(Suit.Spades, Rank.Nine) // Card that can beat attackCardOnTable
+    val defendingCard = Card(Suit.Spades, Rank.Nine)
     val player1ForDefense = Player("P1", List.empty)
     val player2ForDefense = Player("P2", List(defendingCard))
     val initialGameStateDefense = GameState(
       players = List(player1ForDefense, player2ForDefense),
       deck = List.empty,
-      table = Map(attackCardOnTable -> None), // A card is on table to defend against
+      table = Map(attackCardOnTable -> None),
       discardPile = List.empty,
       trumpCard = Card(Suit.Diamonds, Rank.Ace),
       attackerIndex = 0,
@@ -41,37 +41,38 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     )
 
     "execute correctly when playing a card in AttackPhase" in {
-      val command = PlayCardCommand("0") // Play first card
+      val command = PlayCardCommand(player1Card1)
       val resultState = command.execute(initialGameStateAttack)
 
-      resultState.players(0).hand.shouldNot(contain(player1Card1))
-      resultState.table.keys.should(contain(player1Card1))
+      resultState.players(0).hand should not contain player1Card1
+      resultState.table.keys should contain(player1Card1)
       resultState.gamePhase shouldBe DefensePhase
       resultState.lastEvent.get shouldBe a[GameEvent.Attack]
     }
 
     "execute correctly when playing a card in DefensePhase" in {
-      val command = PlayCardCommand("0") // Play first card (player1Card1) to defend
-      val resultState = command.execute(initialGameStateDefense)
+      val gameState = initialGameStateDefense.copy(
+        gamePhase = DefensePhase,
+        table = Map(attackCardOnTable -> None),
+        players = List(player1ForDefense, player2ForDefense)
+      )
+      val command = PlayCardCommand(defendingCard)
+      val resultState = command.execute(gameState)
 
-      resultState.players(0).hand.shouldNot(contain(player1Card1))
-      resultState.table.get(attackCardOnTable).flatten.should(contain(defendingCard))
-      resultState.gamePhase shouldBe AttackPhase // All defended, switches back to AttackPhase
+      resultState.players(1).hand should not contain defendingCard
+      resultState.table(attackCardOnTable) should contain(defendingCard)
+      resultState.gamePhase shouldBe AttackPhase
       resultState.lastEvent.get shouldBe a[GameEvent.Defend]
     }
 
-    "not execute with an invalid card index" in {
-      val command = PlayCardCommand("99") // Invalid index
+    "return InvalidMove when player plays a card not in hand" in {
+      val wrongCard = Card(Suit.Hearts, Rank.King)
+      val command = PlayCardCommand(wrongCard)
       val resultState = command.execute(initialGameStateAttack)
       resultState.lastEvent.get shouldBe GameEvent.InvalidMove
-      resultState shouldBe initialGameStateAttack.copy(lastEvent = Some(GameEvent.InvalidMove))
-    }
-
-    "not execute with non-numeric input" in {
-      val command = PlayCardCommand("foo") // Non-numeric input
-      val resultState = command.execute(initialGameStateAttack)
-      resultState.lastEvent.get shouldBe GameEvent.InvalidMove
-      resultState shouldBe initialGameStateAttack.copy(lastEvent = Some(GameEvent.InvalidMove))
+      resultState shouldBe initialGameStateAttack.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
     }
   }
 }

@@ -66,7 +66,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(initialGameState)
 
-      controller.processPlayerAction(PlayCardAction("0"))
+      controller.processPlayerAction(PlayCardAction(spadeSix))
 
       val updatedGameState = controller.gameState
       updatedGameState.players.head.hand.size.shouldBe(1)
