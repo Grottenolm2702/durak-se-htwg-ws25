@@ -12,14 +12,50 @@ class SetupSpec extends AnyWordSpec with Matchers {
     "create a deck of the specified size" in {
       val deck = Setup.createDeck(36)
       deck.length shouldBe 36
-      deck.foreach(_.isTrump shouldBe false) // Initially no trumps
-      deck.distinct.length shouldBe 36 // All cards should be unique
+      deck.foreach(_.isTrump shouldBe false)
+      deck.distinct.length shouldBe 36
     }
 
     "create a smaller deck if requested size exceeds available cards" in {
-      val deck = Setup.createDeck(100) // More than a standard deck
-      deck.length shouldBe (Suit.values.length * Rank.values.length) // Should be full standard deck size
+      val deck = Setup.createDeck(100)
+      deck.length shouldBe (Suit.values.length * Rank.values.length)
       deck.distinct.length shouldBe (Suit.values.length * Rank.values.length)
+    }
+
+    "dealCards should handle handSize == 0 (no cards dealt to any player)" in {
+      val players = List(
+        Player(
+          "A",
+          List(Card(Suit.Clubs, Rank.Six))
+        ),
+        Player("B", List(Card(Suit.Clubs, Rank.Seven))),
+        Player("C", List(Card(Suit.Clubs, Rank.Eight)))
+      )
+
+      val deck = List(
+        Card(Suit.Diamonds, Rank.Ace)
+      )
+
+      val initial = GameState(
+        players = players,
+        deck = deck,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = deck.head,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = SetupPhase
+      )
+
+      val result = SetupPhase.handle(initial)
+
+      result.players.foreach(_.hand shouldBe empty)
+
+      result.deck.size shouldBe 0
+
+      result.trumpCard.isTrump shouldBe true
+
+      result.gamePhase should not be SetupPhase
     }
 
     "setup game correctly with default deck size" in {
@@ -27,29 +63,70 @@ class SetupSpec extends AnyWordSpec with Matchers {
       val gameState = Setup.setupGame(playerNames, 36)
 
       gameState.players.size shouldBe 2
-      gameState.players.foreach(_.name shouldNot be (empty))
-      gameState.players.foreach(_.hand.length shouldBe 6) // Each player gets 6 cards
-      gameState.deck.length shouldBe (36 - 12 - 1) // 36 total - 12 dealt - 1 trump = 23 (assuming trump is removed)
-                                                  // Re-check SetupPhase.scala. Trump is NOT removed, so 36-12 = 24
-      gameState.deck.length shouldBe 23 // 36 total - 12 dealt - 1 trump = 23
+      gameState.players.foreach(_.name shouldNot be(empty))
+      gameState.players.foreach(
+        _.hand.length shouldBe 6
+      )
+      gameState.deck.length shouldBe (36 - 12 - 1)
+      gameState.deck.length shouldBe 23
 
       gameState.trumpCard.isTrump shouldBe true
-      gameState.gamePhase shouldBe AttackPhase // SetupPhase -> RoundPhase -> AttackPhase
-      gameState.attackerIndex should(be >= 0)
-      gameState.attackerIndex should(be < gameState.players.size)
-      gameState.defenderIndex should(be >= 0)
-      gameState.defenderIndex should(be < gameState.players.size)
-      gameState.defenderIndex shouldNot(equal(gameState.attackerIndex))
-      gameState.lastEvent shouldBe Some(GameEvent.RoundEnd(cleared = false)) // As set by RoundPhase
+      gameState.gamePhase shouldBe AttackPhase
+      gameState.attackerIndex should (be >= 0)
+      gameState.attackerIndex should (be < gameState.players.size)
+      gameState.defenderIndex should (be >= 0)
+      gameState.defenderIndex should (be < gameState.players.size)
+      gameState.defenderIndex shouldNot (equal(gameState.attackerIndex))
+      gameState.lastEvent shouldBe Some(
+        GameEvent.RoundEnd(cleared = false)
+      )
+    }
+
+    "handle the remainingDeck.isEmpty branch (all cards dealt)" in {
+      val p1 = Player("P1", List.empty)
+      val p2 = Player("P2", List.empty)
+
+      val deck = List(
+        Card(Suit.Clubs, Rank.Six),
+        Card(Suit.Clubs, Rank.Seven),
+        Card(Suit.Diamonds, Rank.Six),
+        Card(Suit.Diamonds, Rank.Seven)
+      )
+
+      val initial = GameState(
+        players = List(p1, p2),
+        deck = deck,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = deck.head,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = SetupPhase
+      )
+
+      val result = SetupPhase.handle(initial)
+
+      result.deck shouldBe empty
+
+      result.players.foreach(_.hand.length shouldBe 2)
+
+      result.trumpCard.isTrump shouldBe true
+
+      result.gamePhase should not be SetupPhase
     }
 
     "throw IllegalArgumentException for less than two players" in {
-      an[IllegalArgumentException] should be thrownBy Setup.setupGame(List("Alice"), 36)
+      an[IllegalArgumentException] should be thrownBy Setup.setupGame(
+        List("Alice"),
+        36
+      )
     }
 
     "throw IllegalArgumentException for not enough cards for players" in {
-      // 2 players, 6 cards each = 12 cards needed. Deck size 11 is too small.
-      an[IllegalArgumentException] should be thrownBy Setup.setupGame(List("Alice", "Bob"), 11)
+      an[IllegalArgumentException] should be thrownBy Setup.setupGame(
+        List("Alice", "Bob"),
+        11
+      )
     }
   }
 }

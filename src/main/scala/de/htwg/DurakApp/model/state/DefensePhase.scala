@@ -20,7 +20,7 @@ case object DefensePhase extends GamePhase {
 
     val attackCardOpt = gameState.table.find { case (_, defense) => defense.isEmpty }.map(_._1)
     if (attackCardOpt.isEmpty) {
-      return gameState.copy(lastEvent = Some(GameEvent.InvalidMove)) // Should not happen
+      return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
     val attackCard = attackCardOpt.get
 
