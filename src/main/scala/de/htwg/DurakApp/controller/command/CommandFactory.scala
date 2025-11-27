@@ -8,8 +8,8 @@ import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, Ta
 object CommandFactory {
   def createCommand(action: PlayerAction, gameState: GameState): Either[GameEvent, Command] = {
     action match {
-      case PlayCardAction(cardString) =>
-        Right(PlayCardCommand(cardString))
+      case PlayCardAction(card) =>
+        Right(PlayCardCommand(card))
 
       case PassAction =>
         Right(PassCommand())

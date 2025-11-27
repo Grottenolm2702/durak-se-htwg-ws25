@@ -31,11 +31,24 @@ class TUI(controller: Controller) extends Observer {
     println("Spiel beendet.")
   }
 
-  private def parseTuiInput(input: String): PlayerAction = {
+  private def parseTuiInput(input: String, game: GameState): PlayerAction = {
     val inputArgs = input.trim.toLowerCase.split("\\s+").toList
     inputArgs.headOption match {
       case Some("play") if inputArgs.length > 1 =>
-        PlayCardAction(inputArgs.tail.mkString(" "))
+        val cardIndex = Try(inputArgs(1).toInt).toOption
+        cardIndex match {
+          case Some(index) =>
+            val activePlayer = game.gamePhase match {
+              case DefensePhase => game.players(game.defenderIndex)
+              case _            => game.players(game.attackerIndex)
+            }
+            if (index >= 0 && index < activePlayer.hand.length) {
+              PlayCardAction(activePlayer.hand(index))
+            } else {
+              InvalidAction
+            }
+          case None => InvalidAction
+        }
       case Some("pass") =>
         PassAction
       case Some("take") =>
@@ -52,7 +65,7 @@ class TUI(controller: Controller) extends Observer {
     if (input == "q" || input == "quit") {
       ()
     } else {
-      val action = parseTuiInput(input)
+      val action = parseTuiInput(input, controller.gameState)
       controller.processPlayerAction(action)
       controller.gameState.lastEvent match {
         case Some(GameEvent.GameOver(_, _)) => ()
