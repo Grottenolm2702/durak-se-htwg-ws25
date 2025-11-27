@@ -103,6 +103,7 @@ class TUI(controller: Controller) extends Observer {
       }
     }.toList
   }
+
   private def printPrompt(game: GameState): Unit = {
     val activePlayer = game.gamePhase match {
       case AttackPhase  => game.players(game.attackerIndex)
@@ -121,6 +122,9 @@ class TUI(controller: Controller) extends Observer {
   def clearScreen(): String = "\u001b[2J\u001b[H"
 
   def renderCard(card: Card): List[String] = {
+    val w = cardWidth
+    val inner = w - 2
+
     val (colorStart, colorEnd) = card.suit match {
       case Suit.Hearts | Suit.Diamonds => (RED, RESET)
       case Suit.Clubs | Suit.Spades    => (GREEN, RESET)
@@ -143,9 +147,22 @@ class TUI(controller: Controller) extends Observer {
       case Rank.King  => "K"
       case Rank.Ace   => "A"
 
-    val rankField = f"|$colorStart$rankStr%-2s$colorEnd   |"
-    val suitField = s"|  $colorStart$symbol$colorEnd  |"
-    List("+-----+", rankField, suitField, "|     |", "+-----+")
+    val top = "+" + "-".repeat(inner) + "+"
+
+    val rankFieldWidth = math.min(2, inner)
+    val rankPadded =
+      if (rankStr.length >= rankFieldWidth) rankStr.take(rankFieldWidth)
+      else rankStr + " ".repeat(rankFieldWidth - rankStr.length)
+    val rankRemaining = inner - rankFieldWidth
+    val rankField = "|" + colorStart + rankPadded + colorEnd + " ".repeat(rankRemaining) + "|"
+
+    val symbolLeft = (inner - 1) / 2
+    val symbolRight = inner - 1 - symbolLeft
+    val suitField = "|" + " ".repeat(symbolLeft) + colorStart + symbol + colorEnd + " ".repeat(symbolRight) + "|"
+
+    val emptyLine = "|" + " ".repeat(inner) + "|"
+
+    List(top, rankField, suitField, emptyLine, top)
   }
 
   private[aview] def combineCardLines(cards: List[List[String]]): String = {
