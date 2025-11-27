@@ -330,13 +330,11 @@ class TUISpec extends AnyWordSpec with Matchers {
           List(Card(Suit.Diamonds, Rank.Ten), Card(Suit.Clubs, Rank.Jack))
         val renderedHand = tui.renderHandWithIndices(hand)
 
-        // Check for card content
         renderedHand should include("10")
         renderedHand should include("\u2666")
         renderedHand should include("J")
         renderedHand should include("\u2663")
 
-        // Check for indices using regex
         renderedHand should include regex "\n\\s*0\\s+1\\s*"
       }
     }
@@ -439,10 +437,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       val defender = Player("Bob", List(heartAce, diamondTen))
       val game = createGameState(
         players = List(attacker, defender),
-        table = Map(clubKing -> None), // Table must not be empty to pass
+        table = Map(clubKing -> None),
         gamePhase = AttackPhase,
         attackerIndex = 0,
-        passedPlayers = Set(1) // Defender has already passed
+        passedPlayers = Set(1)
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
@@ -467,7 +465,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         table = Map(clubKing -> None),
         gamePhase = AttackPhase,
         attackerIndex = 0,
-        passedPlayers = Set(1) // Defender has already passed
+        passedPlayers = Set(1)
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
@@ -548,5 +546,160 @@ class TUISpec extends AnyWordSpec with Matchers {
       val output = outStream.toString()
       output should include("Spiel beendet.")
     }
+
+    "stop the gameLoop when controller sets GameOver after an action" in {
+      val attacker = Player("A", List(spadeSix))
+      val defender = Player("D", List(heartAce))
+      val initial = createGameState(
+        players = List(attacker, defender),
+        gamePhase = AttackPhase
+      )
+
+      class TestController(gs: GameState) extends Controller(gs) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): Unit = {
+          this.gameState = this.gameState.copy(lastEvent =
+            Some(GameEvent.GameOver(attacker, Some(defender)))
+          )
+        }
+      }
+
+      val controller = new TestController(initial)
+      val tui = new TUI(controller)
+
+      val input =
+        "unknown\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      val output = outStream.toString()
+      output should include("Spiel beendet.")
+    }
+
+    "print the attacker prompt for non-attack/defense phases (default case)" in {
+      val attacker = Player("RoundAttacker", List(spadeSix))
+      val defender = Player("RoundDefender", List(heartAce))
+      val game = createGameState(
+        players = List(attacker, defender),
+        gamePhase = RoundPhase,
+        attackerIndex = 0
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "q\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      val output = outStream.toString()
+      output should include(
+        "RoundAttacker, dein Zug ('play index', 'pass', 'take'):"
+      )
+    }
+
+    "renderCard includes Nine and Queen correctly" in {
+      val controller = new Controller(createGameState(List.empty))
+      val tui = new TUI(controller)
+
+      val nineCard = Card(Suit.Clubs, Rank.Nine)
+      val queenCard = Card(Suit.Hearts, Rank.Queen)
+
+      val rNine = tui.renderCard(nineCard).mkString
+      rNine should include("9")
+      rNine should include("\u2663")
+
+      val rQueen = tui.renderCard(queenCard).mkString
+      rQueen should include("Q")
+      rQueen should include("\u2665")
+    }
+
+    "renderTable shows defending cards (calls combineCardLines for defenses)" in {
+      val attack = Card(Suit.Spades, Rank.Six)
+      val defend = Card(Suit.Diamonds, Rank.Ten)
+      val pA = Player("A", List(attack))
+      val pD = Player("D", List(defend))
+      val game = createGameState(
+        players = List(pA, pD),
+        table = Map(attack -> Some(defend)),
+        gamePhase = AttackPhase
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+
+      val tableStr = tui.renderTable(game)
+      tableStr should include("Angriff (1)")
+      tableStr should include("Verteidigung (1)")
+      tableStr should include(
+        "\u2666"
+      )
+      tableStr should include("10")
+    }
+
+    "buildStatusString - NotYourTurn, Draw and RoundEnd cases" in {
+      val controller = new Controller(createGameState(List.empty))
+      val tui = new TUI(controller)
+
+      val g1 = createGameState(
+        players = List(Player("P", List.empty)),
+        lastEvent = Some(GameEvent.NotYourTurn)
+      )
+      tui.buildStatusString(g1).should(include("Du bist nicht am Zug!"))
+
+      val g2 = createGameState(
+        players = List(Player("P", List.empty)),
+        lastEvent = Some(GameEvent.Draw)
+      )
+      tui.buildStatusString(g2).should(include("Karten werden gezogen."))
+
+      val g3 = createGameState(
+        players = List(Player("P", List.empty)),
+        lastEvent = Some(GameEvent.RoundEnd(cleared = true))
+      )
+      tui.buildStatusString(g3).should(include("Runde vorbei, Tisch geleert."))
+
+      val g4 = createGameState(
+        players = List(Player("P", List.empty)),
+        lastEvent = Some(GameEvent.RoundEnd(cleared = false))
+      )
+      tui
+        .buildStatusString(g4)
+        .should(include("Runde vorbei, Karten aufgenommen."))
+    }
+
+    "combineCardLines returns empty string for empty list" in {
+      val controller = new Controller(createGameState(List.empty))
+      val tui = new TUI(controller)
+
+      tui.combineCardLines(List.empty) shouldBe ""
+    }
+
+    "renderCard includes Seven and Eight correctly" in {
+      val controller = new Controller(createGameState(List.empty))
+      val tui = new TUI(controller)
+
+      val seven = Card(Suit.Diamonds, Rank.Seven)
+      val eight = Card(Suit.Spades, Rank.Eight)
+
+      val rSeven = tui.renderCard(seven).mkString
+      rSeven should include("7")
+      rSeven should include("\u2666")
+
+      val rEight = tui.renderCard(eight).mkString
+      rEight should include("8")
+      rEight should include("\u2660")
+    }
+
   }
 }

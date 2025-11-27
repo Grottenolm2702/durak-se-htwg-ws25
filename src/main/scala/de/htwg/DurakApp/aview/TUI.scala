@@ -4,7 +4,13 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
-import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, TakeCardsAction, InvalidAction}
+import de.htwg.DurakApp.controller.{
+  PlayerAction,
+  PlayCardAction,
+  PassAction,
+  TakeCardsAction,
+  InvalidAction
+}
 
 import scala.io.StdIn.readLine
 import scala.util.Try
@@ -50,7 +56,7 @@ class TUI(controller: Controller) extends Observer {
       controller.processPlayerAction(action)
       controller.gameState.lastEvent match {
         case Some(GameEvent.GameOver(_, _)) => ()
-        case _ => gameLoop()
+        case _                              => gameLoop()
       }
     }
   }
@@ -76,12 +82,13 @@ class TUI(controller: Controller) extends Observer {
       count: Int,
       inputReader: () => String = readLine
   ): List[String] = {
-    (1 to count).map {i =>
+    (1 to count).map { i =>
       println(s"Enter name of player $i: ")
-      inputReader().trim()  match {
+      inputReader().trim() match {
         case "" => s"Player$i"
-        case n => n}
-      }.toList
+        case n  => n
+      }
+    }.toList
   }
   private def printPrompt(game: GameState): Unit = {
     val activePlayer = game.gamePhase match {
@@ -123,7 +130,7 @@ class TUI(controller: Controller) extends Observer {
     List("+-----+", rankField, suitField, "|     |", "+-----+")
   }
 
-  private def combineCardLines(cards: List[List[String]]): String = {
+  private[aview] def combineCardLines(cards: List[List[String]]): String = {
     if (cards.isEmpty) ""
     else cards.transpose.map(_.mkString(" ")).mkString("\n")
   }
