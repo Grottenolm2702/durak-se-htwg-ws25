@@ -91,7 +91,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val updatedGameState = controller.gameState
      
       updatedGameState.gamePhase.shouldBe(AttackPhase)
-      updatedGameState.roundWinner.isDefined.shouldBe(true)
+      updatedGameState.roundWinner.isDefined.shouldBe(false)
     }
 
     "process player action for taking cards" in {

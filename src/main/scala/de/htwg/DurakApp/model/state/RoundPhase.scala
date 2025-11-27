@@ -21,6 +21,7 @@ case object RoundPhase extends GamePhase {
       discardPile = newDiscardPile,
       passedPlayers = Set.empty,
       lastEvent = Some(GameEvent.RoundEnd(cleared = gameState.roundWinner.isDefined)),
+      roundWinner = None,
       gamePhase = AttackPhase
     )
 

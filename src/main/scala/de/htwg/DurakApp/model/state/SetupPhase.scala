@@ -10,11 +10,8 @@ case object SetupPhase extends GamePhase {
 
     val (dealtPlayers, remainingDeck) = dealCards(gameState.players, shuffledDeck)
 
-    val (trumpCard, finalDeck) = if (remainingDeck.isEmpty) {
-      (shuffledDeck.last, List.empty)
-    } else {
-      (remainingDeck.last, remainingDeck.dropRight(1) :+ remainingDeck.last)
-    }
+    val trumpCard = remainingDeck.last.copy(isTrump = true) // Take last card and mark as trump
+    val finalDeck = remainingDeck // Trump card remains in the deck
 
     val attackerIndex = findFirstAttacker(dealtPlayers, trumpCard.suit)
     val defenderIndex = (attackerIndex + 1) % dealtPlayers.size
