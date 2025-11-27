@@ -5,20 +5,20 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model._
-import de.htwg.DurakApp.model.state._ // Import all state phases and GameEvent
+import de.htwg.DurakApp.model.state._
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 
 import de.htwg.DurakApp.util.Observable
 
 class TUISpec extends AnyWordSpec with Matchers {
 
-  // Default values for GameState instantiation
+ 
   val defaultTrumpCard: Card = Card(Suit.Clubs, Rank.Six, isTrump = true)
   val defaultTable: Map[Card, Option[Card]] = Map.empty
   val defaultDiscardPile: List[Card] = List.empty
   val defaultAttackerIndex: Int = 0
   val defaultDefenderIndex: Int = 1
-  val defaultGamePhase: GamePhase = SetupPhase // Default starting phase
+  val defaultGamePhase: GamePhase = SetupPhase
   val defaultLastEvent: Option[GameEvent] = None
   val defaultPassedPlayers: Set[Int] = Set.empty
   val defaultRoundWinner: Option[Int] = None
@@ -39,7 +39,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     GameState(players, deck, table, discardPile, trumpCard, attackerIndex, defenderIndex, gamePhase, lastEvent, passedPlayers, roundWinner)
   }
 
-  // Define some cards for convenience
+ 
   val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = false)
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
   val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
@@ -48,7 +48,7 @@ class TUISpec extends AnyWordSpec with Matchers {
   "A TUI" should {
 
     "buildStatusString - SetupPhase (Welcome)" in {
-      val game = createGameState(players = List.empty, gamePhase = SetupPhase, lastEvent = None) // Initial state for welcome
+      val game = createGameState(players = List.empty, gamePhase = SetupPhase, lastEvent = None)
       val controller = new Controller(game)
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Willkommen bei Durak!")
@@ -93,7 +93,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val p = Player("P", List.empty)
       val game = createGameState(
         players = List(p),
-        gamePhase = DrawPhase, // After taking cards, it's typically DrawPhase
+        gamePhase = DrawPhase,
         lastEvent = Some(GameEvent.Take)
       )
       val controller = new Controller(game)
@@ -105,7 +105,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val p = Player("P", List.empty)
       val game = createGameState(
         players = List(p),
-        gamePhase = DrawPhase, // After passing, it's typically DrawPhase
+        gamePhase = DrawPhase,
         lastEvent = Some(GameEvent.Pass)
       )
       val controller = new Controller(game)
@@ -126,7 +126,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val game = createGameState(
         players = List(donePlayer, loser),
         gamePhase = EndPhase,
-        lastEvent = Some(GameEvent.GameOver(donePlayer, Some(loser))) // Provide actual players for GameOver
+        lastEvent = Some(GameEvent.GameOver(donePlayer, Some(loser)))
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
@@ -139,7 +139,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val game = createGameState(
         players = List(p1, p2),
         gamePhase = EndPhase,
-        lastEvent = Some(GameEvent.GameOver(p1, None)) // No loser
+        lastEvent = Some(GameEvent.GameOver(p1, None))
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
@@ -154,9 +154,9 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "ask for deck size and use default" in {
-      val controller = new Controller(createGameState(List.empty)) // Controller needs initial state
+      val controller = new Controller(createGameState(List.empty))
       val tui = new TUI(controller)
-      val input = "\n" // Empty input means default
+      val input = "\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
       Console.withIn(inStream) {
         val result = tui.askForDeckSize()
