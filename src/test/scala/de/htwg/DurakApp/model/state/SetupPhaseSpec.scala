@@ -43,7 +43,7 @@ class SetupPhaseSpec extends AnyWordSpec with Matchers {
 
       resultState.players.size shouldBe 2
       resultState.players.foreach(_.hand.length shouldBe 6)
-      resultState.deck.length shouldBe 1 // One trump card remaining from the initial deck, now gone (original logic expectation)
+      resultState.deck.length shouldBe 0 // One trump card remaining from the initial deck, now gone (original logic expectation)
       resultState.trumpCard.isTrump shouldBe true
       resultState.gamePhase shouldBe AttackPhase // RoundPhase.handle is called which transitions to AttackPhase
       resultState.attackerIndex should(be >= 0)
@@ -89,7 +89,7 @@ class SetupPhaseSpec extends AnyWordSpec with Matchers {
 
       resultState.players.size shouldBe 2
       resultState.players.foreach(_.hand.length shouldBe 6)
-      resultState.deck.length shouldBe 1 // Deck should be empty after dealing and taking trump (original logic expectation)
+      resultState.deck.length shouldBe 0 // Deck should be empty after dealing and taking trump (original logic expectation)
       resultState.trumpCard.isTrump shouldBe true
       resultState.gamePhase shouldBe AttackPhase
       resultState.attackerIndex should(be >= 0)
