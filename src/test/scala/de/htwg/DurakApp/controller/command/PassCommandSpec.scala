@@ -12,7 +12,7 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
     val initialGameState = GameState(
       players = List(player1, player2),
       deck = List.empty,
-      table = Map(Card(Suit.Spades, Rank.Seven) -> None), // Cards on table to allow passing
+      table = Map(Card(Suit.Spades, Rank.Seven) -> None),
       discardPile = List.empty,
       trumpCard = Card(Suit.Diamonds, Rank.Ace),
       attackerIndex = 0,
@@ -24,19 +24,28 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
       val command = PassCommand()
       val resultState = command.execute(initialGameState)
 
-      // Attacker passing should result in DrawPhase -> RoundPhase -> AttackPhase
-      // And roundWinner should be set
       resultState.gamePhase shouldBe AttackPhase
       resultState.roundWinner.isDefined shouldBe false
       resultState.lastEvent.get shouldBe GameEvent.RoundEnd(cleared = true)
     }
 
     "not execute when passing is invalid (e.g., empty table)" in {
-      val invalidGameState = initialGameState.copy(table = Map.empty) // No cards on table
+      val invalidGameState = initialGameState.copy(table = Map.empty)
       val command = PassCommand()
       val resultState = command.execute(invalidGameState)
 
-      resultState shouldBe invalidGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      resultState shouldBe invalidGameState.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
+    }
+
+    "execute correctly when defender passes (DefensePhase branch)" in {
+      val defenseGameState = initialGameState.copy(gamePhase = DefensePhase)
+
+      val command = PassCommand()
+      val resultState = command.execute(defenseGameState)
+
+      resultState.lastEvent shouldBe Some(GameEvent.InvalidMove)
     }
   }
 }
