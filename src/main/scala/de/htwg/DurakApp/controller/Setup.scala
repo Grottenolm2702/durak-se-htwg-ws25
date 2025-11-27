@@ -21,16 +21,14 @@ object Setup {
   }
 
   def setupGame(playerNames: List[String], deckSize: Int): GameState = {
-    if (playerNames.length < 2)
-      throw new IllegalArgumentException("Need at least two players.")
+    require(playerNames.length >= 2, "Need at least two players.")
 
     val deck = createDeck(deckSize)
     val minCardsRequired = playerNames.length * 6 + 1
-    if (deck.length < minCardsRequired) {
-      throw new IllegalArgumentException(
-        s"Not enough cards for ${playerNames.length} players. Need at least ${minCardsRequired} cards, but only have ${deck.length}."
-      )
-    }
+    require(
+      deck.length >= minCardsRequired,
+      s"Not enough cards for ${playerNames.length} players. Need at least ${minCardsRequired} cards, but only have ${deck.length}."
+    )
 
     val players = playerNames.map(name => Player(name, List.empty))
 

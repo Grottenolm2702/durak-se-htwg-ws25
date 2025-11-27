@@ -116,17 +116,19 @@ class SetupSpec extends AnyWordSpec with Matchers {
     }
 
     "throw IllegalArgumentException for less than two players" in {
-      an[IllegalArgumentException] should be thrownBy Setup.setupGame(
+      val thrown = the[IllegalArgumentException] thrownBy Setup.setupGame(
         List("Alice"),
         36
       )
+      thrown.getMessage should include("Need at least two players.")
     }
 
     "throw IllegalArgumentException for not enough cards for players" in {
-      an[IllegalArgumentException] should be thrownBy Setup.setupGame(
+      val thrown = the[IllegalArgumentException] thrownBy Setup.setupGame(
         List("Alice", "Bob"),
         11
       )
+      thrown.getMessage should include("Not enough cards for")
     }
   }
 }
