@@ -3,6 +3,8 @@ package de.htwg.DurakApp.controller
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.SetupPhase
 
+import de.htwg.DurakApp.model.builder.GameStateBuilder
+
 import scala.util.Random
 
 object Setup {
@@ -32,17 +34,19 @@ object Setup {
 
     val players = playerNames.map(name => Player(name, List.empty))
 
-    val preSetupState = GameState(
-      players = players,
-      deck = deck,
-      table = Map.empty,
-      discardPile = List.empty,
-      trumpCard = deck.head,
-      attackerIndex = 0,
-      defenderIndex = 0,
-      gamePhase = SetupPhase,
-      lastEvent = None
-    )
+    val preSetupState = GameStateBuilder()
+      .withPlayers(players)
+      .withDeck(deck)
+      .withTable(Map.empty)
+      .withDiscardPile(List.empty)
+      .withTrumpCard(deck.head)
+      .withAttackerIndex(0)
+      .withDefenderIndex(0)
+      .withGamePhase(SetupPhase)
+      .withLastEvent(None)
+      .withPassedPlayers(Set.empty)
+      .withRoundWinner(None)
+      .build()
 
     preSetupState.gamePhase.handle(preSetupState)
   }
