@@ -70,9 +70,6 @@ case object DefensePhase extends GamePhase {
     if (attackCard.suit != trumpSuit && defenseCard.suit == trumpSuit) {
       return true
     }
-    if (attackCard.suit == trumpSuit && defenseCard.suit == trumpSuit && defenseCard.rank.value > attackCard.rank.value) {
-      return true
-    }
     false
   }
 }
