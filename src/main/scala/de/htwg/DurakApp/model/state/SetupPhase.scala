@@ -7,14 +7,14 @@ import scala.util.Random
 
 case object SetupPhase extends GamePhase {
   override def handle(gameState: GameState): GameState = {
-    val shuffledDeck = Random.shuffle(gameState.deck)
+    val deckToUse = gameState.deck
 
     val (dealtPlayers, remainingDeck) =
-      dealCards(gameState.players, shuffledDeck)
+      dealCards(gameState.players, deckToUse)
 
     val (rawTrumpCard, restOfDeck) = if (remainingDeck.isEmpty) {
       (
-        shuffledDeck.last,
+        deckToUse.last,
         List.empty
       )
     } else {
@@ -26,7 +26,7 @@ case object SetupPhase extends GamePhase {
     val attackerIndex = findFirstAttacker(dealtPlayers, trumpCard.suit)
     val defenderIndex = (attackerIndex + 1) % dealtPlayers.size
 
-    val initialState = GameStateBuilder()
+    val finalGameState = gameState.toBuilder
       .withPlayers(dealtPlayers)
       .withDeck(finalDeck)
       .withTable(Map.empty)
@@ -40,7 +40,7 @@ case object SetupPhase extends GamePhase {
       .withRoundWinner(None)
       .build()
 
-    initialState.gamePhase.handle(initialState)
+    finalGameState.gamePhase.handle(finalGameState)
   }
 
   private def dealCards(
