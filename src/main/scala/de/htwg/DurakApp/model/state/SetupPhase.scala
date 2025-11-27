@@ -8,10 +8,14 @@ case object SetupPhase extends GamePhase {
   override def handle(gameState: GameState): GameState = {
     val shuffledDeck = Random.shuffle(gameState.deck)
 
-    val (dealtPlayers, remainingDeck) = dealCards(gameState.players, shuffledDeck)
+    val (dealtPlayers, remainingDeck) =
+      dealCards(gameState.players, shuffledDeck)
 
     val (rawTrumpCard, restOfDeck) = if (remainingDeck.isEmpty) {
-      (shuffledDeck.last, List.empty) // Assuming shuffledDeck is never empty for deckSize >= 2
+      (
+        shuffledDeck.last,
+        List.empty
+      ) // Assuming shuffledDeck is never empty for deckSize >= 2
     } else {
       (remainingDeck.last, remainingDeck.dropRight(1))
     }
@@ -35,16 +39,21 @@ case object SetupPhase extends GamePhase {
     initialState.gamePhase.handle(initialState)
   }
 
-  private def dealCards(players: List[Player], deck: List[Card]): (List[Player], List[Card]) = {
+  private def dealCards(
+      players: List[Player],
+      deck: List[Card]
+  ): (List[Player], List[Card]) = {
     val numPlayers = players.size
     val handSize = (deck.length / numPlayers).min(6)
     val cardsToDeal = numPlayers * handSize
-
     val (dealtCards, remainingDeck) = deck.splitAt(cardsToDeal)
-    val hands = dealtCards.grouped(numPlayers).toList.transpose
+
+    val handsByPlayer: List[List[Card]] =
+      if (handSize == 0) List.fill(numPlayers)(List.empty)
+      else dealtCards.grouped(numPlayers).toList.transpose
 
     val updatedPlayers = players.zipWithIndex.map { case (player, idx) =>
-      if (idx < hands.size) player.copy(hand = hands(idx)) else player
+      player.copy(hand = handsByPlayer(idx))
     }
 
     (updatedPlayers, remainingDeck)

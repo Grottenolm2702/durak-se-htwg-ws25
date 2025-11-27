@@ -25,7 +25,7 @@ object Setup {
       throw new IllegalArgumentException("Need at least two players.")
 
     val deck = createDeck(deckSize)
-    val minCardsRequired = playerNames.length * 6 + 1 // Minimum 6 cards per player + 1 for trump
+    val minCardsRequired = playerNames.length * 6 + 1
     if (deck.length < minCardsRequired) {
       throw new IllegalArgumentException(
         s"Not enough cards for ${playerNames.length} players. Need at least ${minCardsRequired} cards, but only have ${deck.length}."
