@@ -203,9 +203,18 @@ $statusLine
           else "Runde vorbei, Karten aufgenommen."
         case GameEvent.GameOver(_, Some(loser)) =>
           s"Spiel beendet! ${loser.name} ist der Durak!"
+        case GameEvent.GameOver(winner, None) if winner.name == "Quit" =>
+          s"Spiel beendet."
         case GameEvent.GameOver(_, None) =>
           s"Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!"
       }
-      .getOrElse(game.gamePhase.toString)
+      .getOrElse(
+        game.gamePhase match {
+          case SetupPhase =>
+            if (game.players.isEmpty) "Willkommen bei Durak!"
+            else "Spieler werden eingerichtet."
+          case _ => game.gamePhase.toString
+        }
+      )
   }
 }
