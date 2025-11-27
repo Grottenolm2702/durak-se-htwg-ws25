@@ -12,7 +12,6 @@ import de.htwg.DurakApp.util.Observable
 
 class TUISpec extends AnyWordSpec with Matchers {
 
- 
   val defaultTrumpCard: Card = Card(Suit.Clubs, Rank.Six, isTrump = true)
   val defaultTable: Map[Card, Option[Card]] = Map.empty
   val defaultDiscardPile: List[Card] = List.empty
@@ -36,10 +35,21 @@ class TUISpec extends AnyWordSpec with Matchers {
       passedPlayers: Set[Int] = defaultPassedPlayers,
       roundWinner: Option[Int] = defaultRoundWinner
   ): GameState = {
-    GameState(players, deck, table, discardPile, trumpCard, attackerIndex, defenderIndex, gamePhase, lastEvent, passedPlayers, roundWinner)
+    GameState(
+      players,
+      deck,
+      table,
+      discardPile,
+      trumpCard,
+      attackerIndex,
+      defenderIndex,
+      gamePhase,
+      lastEvent,
+      passedPlayers,
+      roundWinner
+    )
   }
 
- 
   val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = false)
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
   val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
@@ -48,14 +58,22 @@ class TUISpec extends AnyWordSpec with Matchers {
   "A TUI" should {
 
     "buildStatusString - SetupPhase (Welcome)" in {
-      val game = createGameState(players = List.empty, gamePhase = SetupPhase, lastEvent = None)
+      val game = createGameState(
+        players = List.empty,
+        gamePhase = SetupPhase,
+        lastEvent = None
+      )
       val controller = new Controller(game)
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Willkommen bei Durak!")
     }
 
     "buildStatusString - SetupPhase (Player Setup)" in {
-      val game = createGameState(players = List(Player("TestPlayer", List.empty)), gamePhase = SetupPhase, lastEvent = None)
+      val game = createGameState(
+        players = List(Player("TestPlayer", List.empty)),
+        gamePhase = SetupPhase,
+        lastEvent = None
+      )
       val controller = new Controller(game)
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Spieler werden eingerichtet.")
@@ -72,7 +90,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include ("Angriff mit Six Spades."))
+      tui.buildStatusString(game).should(include("Angriff mit Six Spades."))
     }
 
     "buildStatusString - DefensePhase shows defender name" in {
@@ -86,7 +104,9 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include ("Verteidigung mit Ten Diamonds."))
+      tui
+        .buildStatusString(game)
+        .should(include("Verteidigung mit Ten Diamonds."))
     }
 
     "buildStatusString - Take shows who takes" in {
@@ -98,7 +118,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include ("Karten aufgenommen."))
+      tui.buildStatusString(game).should(include("Karten aufgenommen."))
     }
 
     "buildStatusString - Pass shows who passed" in {
@@ -110,11 +130,14 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include ("Passen."))
+      tui.buildStatusString(game).should(include("Passen."))
     }
 
     "buildStatusString - InvalidMove" in {
-      val game = createGameState(players = List.empty, lastEvent = Some(GameEvent.InvalidMove))
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.InvalidMove)
+      )
       val controller = new Controller(game)
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Ungültiger Zug!"))
@@ -122,7 +145,8 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "buildStatusString - GameOver with loser" in {
       val donePlayer = Player("Done", List.empty, isDone = true)
-      val loser = Player("Loser", List(Card(Suit.Clubs, Rank.Six)), isDone = false)
+      val loser =
+        Player("Loser", List(Card(Suit.Clubs, Rank.Six)), isDone = false)
       val game = createGameState(
         players = List(donePlayer, loser),
         gamePhase = EndPhase,
@@ -130,7 +154,9 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include ("Spiel beendet! Loser ist der Durak!"))
+      tui
+        .buildStatusString(game)
+        .should(include("Spiel beendet! Loser ist der Durak!"))
     }
 
     "buildStatusString - GameOver draw (no loser)" in {
@@ -143,11 +169,19 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(game)
       val tui = new TUI(controller)
-      tui.buildStatusString(game).shouldBe("Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!")
+      tui
+        .buildStatusString(game)
+        .shouldBe(
+          "Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!"
+        )
     }
 
     "buildStatusString - Quit (simulated by GameOver)" in {
-      val game = createGameState(players = List.empty, gamePhase = EndPhase, lastEvent = Some(GameEvent.GameOver(Player("Quit", List.empty), None)))
+      val game = createGameState(
+        players = List.empty,
+        gamePhase = EndPhase,
+        lastEvent = Some(GameEvent.GameOver(Player("Quit", List.empty), None))
+      )
       val controller = new Controller(game)
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Spiel beendet.")
@@ -237,7 +271,9 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "update method should print to console" in {
-      val controller = new Controller(createGameState(List.empty, trumpCard = defaultTrumpCard))
+      val controller = new Controller(
+        createGameState(List.empty, trumpCard = defaultTrumpCard)
+      )
       val tui = new TUI(controller)
       controller.add(tui)
 
@@ -246,8 +282,271 @@ class TUISpec extends AnyWordSpec with Matchers {
         controller.notifyObservers
       }
       val output = stream.toString()
-      output.should(include ("Status: Willkommen bei Durak!"))
-      output.should(include (defaultTrumpCard.suit.toString))
+      output.should(include("Status: Willkommen bei Durak!"))
+      output.should(include(defaultTrumpCard.suit.toString))
+    }
+
+    "renderCard" should {
+      "contain rank and suit for a red card" in {
+        val controller = new Controller(createGameState(List.empty))
+        val tui = new TUI(controller)
+        val card = Card(Suit.Hearts, Rank.Ace)
+        val renderedCard = tui.renderCard(card).mkString
+        renderedCard should include("A")
+        renderedCard should include("\u2665")
+      }
+
+      "contain rank and suit for a black card" in {
+        val controller = new Controller(createGameState(List.empty))
+        val tui = new TUI(controller)
+        val card = Card(Suit.Spades, Rank.King)
+        val renderedCard = tui.renderCard(card).mkString
+        renderedCard should include("K")
+        renderedCard should include("\u2660")
+      }
+    }
+
+    "renderHandWithIndices" should {
+      "return 'Leere Hand' for an empty hand" in {
+        val controller = new Controller(createGameState(List.empty))
+        val tui = new TUI(controller)
+        tui.renderHandWithIndices(List.empty) should be("Leere Hand")
+      }
+
+      "render a single card with its index" in {
+        val controller = new Controller(createGameState(List.empty))
+        val tui = new TUI(controller)
+        val hand = List(Card(Suit.Diamonds, Rank.Ten))
+        val renderedHand = tui.renderHandWithIndices(hand)
+        renderedHand should include("10")
+        renderedHand should include("\u2666")
+        renderedHand should endWith("\n   0   ")
+      }
+
+      "render multiple cards with their indices" in {
+        val controller = new Controller(createGameState(List.empty))
+        val tui = new TUI(controller)
+        val hand =
+          List(Card(Suit.Diamonds, Rank.Ten), Card(Suit.Clubs, Rank.Jack))
+        val renderedHand = tui.renderHandWithIndices(hand)
+
+        // Check for card content
+        renderedHand should include("10")
+        renderedHand should include("\u2666")
+        renderedHand should include("J")
+        renderedHand should include("\u2663")
+
+        // Check for indices using regex
+        renderedHand should include regex "\n\\s*0\\s+1\\s*"
+      }
+    }
+
+    "show the correct prompt for the attacker in AttackPhase" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val defender = Player("Bob", List(heartAce))
+      val game = createGameState(
+        players = List(attacker, defender),
+        gamePhase = AttackPhase,
+        attackerIndex = 0
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "q\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      val output = outStream.toString()
+      output should include("Alice, dein Zug ('play index', 'pass', 'take'):")
+    }
+
+    "show the correct prompt for the defender in DefensePhase" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val defender = Player("Bob", List(heartAce))
+      val game = createGameState(
+        players = List(attacker, defender),
+        gamePhase = DefensePhase,
+        attackerIndex = 0,
+        defenderIndex = 1
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "q\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      val output = outStream.toString()
+      output should include("Bob, dein Zug ('play index', 'pass', 'take'):")
+    }
+
+    "process a 'play' command" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val defender = Player("Bob", List(heartAce))
+      val game = createGameState(
+        players = List(attacker, defender),
+        gamePhase = AttackPhase,
+        attackerIndex = 0
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "play 0\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.Attack(spadeSix)))
+    }
+
+    "treat 'play' without an argument as an invalid command" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val game = createGameState(
+        players = List(attacker),
+        gamePhase = AttackPhase
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "play\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
+    }
+
+    "process a 'pass' command" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val defender = Player("Bob", List(heartAce, diamondTen))
+      val game = createGameState(
+        players = List(attacker, defender),
+        table = Map(clubKing -> None), // Table must not be empty to pass
+        gamePhase = AttackPhase,
+        attackerIndex = 0,
+        passedPlayers = Set(1) // Defender has already passed
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "pass\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.RoundEnd(true)))
+    }
+
+    "process a formatted 'PASS' command" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val defender = Player("Bob", List(heartAce, diamondTen))
+      val game = createGameState(
+        players = List(attacker, defender),
+        table = Map(clubKing -> None),
+        gamePhase = AttackPhase,
+        attackerIndex = 0,
+        passedPlayers = Set(1) // Defender has already passed
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "  PASS  \nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.RoundEnd(true)))
+    }
+
+    "process a 'take' command" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val defender = Player("Bob", List(heartAce))
+      val game = createGameState(
+        players = List(attacker, defender),
+        table = Map(clubKing -> None),
+        gamePhase = DefensePhase,
+        defenderIndex = 1
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "take\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.RoundEnd(false)))
+    }
+
+    "process an unknown command as invalid" in {
+      val attacker = Player("Alice", List(spadeSix))
+      val game =
+        createGameState(players = List(attacker), gamePhase = AttackPhase)
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "unknown-command\nq\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
+    }
+
+    "terminate on 'quit' input" in {
+      val game = createGameState(
+        players = List(Player("Alice", List.empty)),
+        gamePhase = AttackPhase,
+        attackerIndex = 0
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      val input = "quit\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      val output = outStream.toString()
+      output should include("Spiel beendet.")
     }
   }
 }
