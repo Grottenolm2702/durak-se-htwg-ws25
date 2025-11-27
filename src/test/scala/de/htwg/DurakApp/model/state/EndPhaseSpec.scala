@@ -18,7 +18,7 @@ class EndPhaseSpec extends AnyWordSpec with Matchers {
         trumpCard = Card(Suit.Diamonds, Rank.Ace),
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = EndPhase // Already in EndPhase
+        gamePhase = EndPhase
       )
 
       val resultState = EndPhase.handle(initialGameState)
