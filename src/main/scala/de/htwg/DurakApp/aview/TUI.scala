@@ -109,7 +109,12 @@ class TUI(controller: Controller) extends Observer {
       case DefensePhase => game.players(game.defenderIndex)
       case _            => game.players(game.attackerIndex)
     }
-    println(s"${activePlayer.name}, dein Zug ('play index', 'pass', 'take'):")
+    val moves = game.gamePhase match {
+      case AttackPhase  => "('play index', 'pass')"
+      case DefensePhase => "('play index', 'take')"
+      case _            => "('play index', 'pass', 'take')"
+    }
+    println(s"${activePlayer.name}, dein Zug ${moves}:")
     print("> ")
   }
 
