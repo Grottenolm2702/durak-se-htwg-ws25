@@ -26,7 +26,7 @@ object Setup {
     require(playerNames.length >= 2, "Need at least two players.")
 
     val deck = createDeck(deckSize)
-    val minCardsRequired = playerNames.length * 6 + 1
+    val minCardsRequired = playerNames.length
     require(
       deck.length >= minCardsRequired,
       s"Not enough cards for ${playerNames.length} players. Need at least ${minCardsRequired} cards, but only have ${deck.length}."

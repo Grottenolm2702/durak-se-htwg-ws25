@@ -126,7 +126,7 @@ class SetupSpec extends AnyWordSpec with Matchers {
     "throw IllegalArgumentException for not enough cards for players" in {
       val thrown = the[IllegalArgumentException] thrownBy Setup.setupGame(
         List("Alice", "Bob"),
-        11
+        1
       )
       thrown.getMessage should include("Not enough cards for")
     }
