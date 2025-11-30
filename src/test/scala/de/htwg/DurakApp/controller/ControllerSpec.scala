@@ -10,13 +10,11 @@ import scala.util.Random
 
 class ControllerSpec extends AnyWordSpec with Matchers {
 
- 
   val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = false)
   val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
   val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
   val clubKing = Card(Suit.Clubs, Rank.King, isTrump = false)
 
- 
   val defaultTrumpCard: Card = Card(Suit.Clubs, Rank.Six, isTrump = true)
   val defaultTable: Map[Card, Option[Card]] = Map.empty
   val defaultDiscardPile: List[Card] = List.empty
@@ -27,7 +25,6 @@ class ControllerSpec extends AnyWordSpec with Matchers {
   val defaultPassedPlayers: Set[Int] = Set.empty
   val defaultRoundWinner: Option[Int] = None
 
- 
   def createGameState(
       players: List[Player],
       deck: List[Card] = List.empty,
@@ -41,7 +38,19 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       passedPlayers: Set[Int] = defaultPassedPlayers,
       roundWinner: Option[Int] = defaultRoundWinner
   ): GameState = {
-    GameState(players, deck, table, discardPile, trumpCard, attackerIndex, defenderIndex, gamePhase, lastEvent, passedPlayers, roundWinner)
+    GameState(
+      players,
+      deck,
+      table,
+      discardPile,
+      trumpCard,
+      attackerIndex,
+      defenderIndex,
+      gamePhase,
+      lastEvent,
+      passedPlayers,
+      roundWinner
+    )
   }
 
   "A Controller" should {
@@ -89,7 +98,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.processPlayerAction(PassAction)
 
       val updatedGameState = controller.gameState
-     
+
       updatedGameState.gamePhase.shouldBe(AttackPhase)
       updatedGameState.roundWinner.isDefined.shouldBe(false)
     }

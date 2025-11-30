@@ -26,7 +26,9 @@ class InvalidInputHandlerSpec extends AnyWordSpec with Matchers {
     val invalidHandler = new InvalidInputHandler()
 
     "always return InvalidAction" in {
-      invalidHandler.handleRequest("anything", gameState) should be(InvalidAction)
+      invalidHandler.handleRequest("anything", gameState) should be(
+        InvalidAction
+      )
     }
   }
 }

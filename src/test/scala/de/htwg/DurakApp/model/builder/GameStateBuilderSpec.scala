@@ -31,7 +31,10 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
         .withPlayers(List(player1, player2))
         .build()
 
-      customGameState.players should contain theSameElementsAs List(player1, player2)
+      customGameState.players should contain theSameElementsAs List(
+        player1,
+        player2
+      )
     }
 
     "create a GameState with a custom trump card" in {
@@ -55,7 +58,8 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       val player1 = Player("Alice", List(Card(Suit.Clubs, Rank.Seven)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Eight)))
       val deck = List(Card(Suit.Hearts, Rank.Nine))
-      val table = Map(Card(Suit.Spades, Rank.Ten) -> Some(Card(Suit.Spades, Rank.Jack)))
+      val table =
+        Map(Card(Suit.Spades, Rank.Ten) -> Some(Card(Suit.Spades, Rank.Jack)))
       val discardPile = List(Card(Suit.Clubs, Rank.Queen))
       val trump = Card(Suit.Diamonds, Rank.King)
 
@@ -70,7 +74,10 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
         .withGamePhase(DefensePhase)
         .build()
 
-      complexGameState.players should contain theSameElementsAs List(player1, player2)
+      complexGameState.players should contain theSameElementsAs List(
+        player1,
+        player2
+      )
       complexGameState.deck shouldBe deck
       complexGameState.table shouldBe table
       complexGameState.discardPile shouldBe discardPile
@@ -82,7 +89,8 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
     "ensure immutability of the builder instance" in {
       val initialBuilder = GameStateBuilder()
-      val builderWithPlayers = initialBuilder.withPlayers(List(Player("Test", List.empty)))
+      val builderWithPlayers =
+        initialBuilder.withPlayers(List(Player("Test", List.empty)))
 
       initialBuilder.players shouldBe empty
       builderWithPlayers.players should not be empty

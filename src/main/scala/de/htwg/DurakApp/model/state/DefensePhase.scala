@@ -8,8 +8,14 @@ case object DefensePhase extends GamePhase {
     gameState
   }
 
-  override def playCard(card: Card, playerIdx: Int, gameState: GameState): GameState = {
-    if (playerIdx < 0 || playerIdx >= gameState.players.size || playerIdx != gameState.defenderIndex) {
+  override def playCard(
+      card: Card,
+      playerIdx: Int,
+      gameState: GameState
+  ): GameState = {
+    if (
+      playerIdx < 0 || playerIdx >= gameState.players.size || playerIdx != gameState.defenderIndex
+    ) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 
@@ -18,7 +24,8 @@ case object DefensePhase extends GamePhase {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    val attackCardOpt = gameState.table.find { case (_, defense) => defense.isEmpty }.map(_._1)
+    val attackCardOpt =
+      gameState.table.find { case (_, defense) => defense.isEmpty }.map(_._1)
     if (attackCardOpt.isEmpty) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
@@ -29,7 +36,8 @@ case object DefensePhase extends GamePhase {
     }
 
     val newHand = player.hand.filterNot(_ == card)
-    val newPlayers = gameState.players.updated(playerIdx, player.copy(hand = newHand))
+    val newPlayers =
+      gameState.players.updated(playerIdx, player.copy(hand = newHand))
     val newTable = gameState.table.updated(attackCard, Some(card))
 
     val allDefended = newTable.values.forall(_.isDefined)
@@ -44,14 +52,18 @@ case object DefensePhase extends GamePhase {
   }
 
   override def takeCards(playerIdx: Int, gameState: GameState): GameState = {
-    if (playerIdx < 0 || playerIdx >= gameState.players.size || playerIdx != gameState.defenderIndex) {
+    if (
+      playerIdx < 0 || playerIdx >= gameState.players.size || playerIdx != gameState.defenderIndex
+    ) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
     val defender = gameState.players(playerIdx)
 
-    val cardsFromTable = gameState.table.keys.toList ++ gameState.table.values.flatten.toList
+    val cardsFromTable =
+      gameState.table.keys.toList ++ gameState.table.values.flatten.toList
     val newHand = defender.hand ++ cardsFromTable
-    val newPlayers = gameState.players.updated(playerIdx, defender.copy(hand = newHand))
+    val newPlayers =
+      gameState.players.updated(playerIdx, defender.copy(hand = newHand))
 
     val newState = gameState.copy(
       players = newPlayers,
@@ -63,8 +75,14 @@ case object DefensePhase extends GamePhase {
     newState.gamePhase.handle(newState)
   }
 
-  private def canDefend(attackCard: Card, defenseCard: Card, trumpSuit: Suit): Boolean = {
-    if (attackCard.suit == defenseCard.suit && defenseCard.rank.value > attackCard.rank.value) {
+  private def canDefend(
+      attackCard: Card,
+      defenseCard: Card,
+      trumpSuit: Suit
+  ): Boolean = {
+    if (
+      attackCard.suit == defenseCard.suit && defenseCard.rank.value > attackCard.rank.value
+    ) {
       return true
     }
     if (attackCard.suit != trumpSuit && defenseCard.suit == trumpSuit) {

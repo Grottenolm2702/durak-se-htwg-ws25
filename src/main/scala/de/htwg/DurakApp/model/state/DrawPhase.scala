@@ -6,28 +6,34 @@ case object DrawPhase extends GamePhase {
   override def handle(gameState: GameState): GameState = {
     val attacker = gameState.attackerIndex
     val passiveAttackers = gameState.players.indices.filter(p =>
-      p != attacker && p != gameState.defenderIndex && !gameState.passedPlayers.contains(p)
+      p != attacker && p != gameState.defenderIndex && !gameState.passedPlayers
+        .contains(p)
     )
     val defender = gameState.defenderIndex
 
-    val drawOrder = (List(attacker) ++ passiveAttackers) ++ (if (gameState.roundWinner.isDefined) List(defender) else Nil)
+    val drawOrder =
+      (List(attacker) ++ passiveAttackers) ++ (if (
+                                                 gameState.roundWinner.isDefined
+                                               ) List(defender)
+                                               else Nil)
 
-    val (finalPlayers, finalDeck) = drawOrder.foldLeft((gameState.players, gameState.deck)) {
-      case ((currentPlayers, currentDeck), playerIdx) =>
-        if (currentDeck.isEmpty) {
-          (currentPlayers, currentDeck)
-        } else {
-          val player = currentPlayers(playerIdx)
-          val cardsToDraw = 6 - player.hand.size
-          if (cardsToDraw > 0) {
-            val (drawnCards, nextDeck) = currentDeck.splitAt(cardsToDraw)
-            val updatedPlayer = player.copy(hand = player.hand ++ drawnCards)
-            (currentPlayers.updated(playerIdx, updatedPlayer), nextDeck)
-          } else {
+    val (finalPlayers, finalDeck) =
+      drawOrder.foldLeft((gameState.players, gameState.deck)) {
+        case ((currentPlayers, currentDeck), playerIdx) =>
+          if (currentDeck.isEmpty) {
             (currentPlayers, currentDeck)
+          } else {
+            val player = currentPlayers(playerIdx)
+            val cardsToDraw = 6 - player.hand.size
+            if (cardsToDraw > 0) {
+              val (drawnCards, nextDeck) = currentDeck.splitAt(cardsToDraw)
+              val updatedPlayer = player.copy(hand = player.hand ++ drawnCards)
+              (currentPlayers.updated(playerIdx, updatedPlayer), nextDeck)
+            } else {
+              (currentPlayers, currentDeck)
+            }
           }
-        }
-    }
+      }
 
     val (nextAttacker, nextDefender) = if (gameState.roundWinner.isDefined) {
       val newAttacker = defender

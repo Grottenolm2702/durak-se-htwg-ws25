@@ -8,7 +8,10 @@ class DrawPhaseSpec extends AnyWordSpec with Matchers {
   "A DrawPhase" should {
     "handle drawing cards for players with less than 6 cards" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
-      val player2 = Player("P2", List(Card(Suit.Diamonds, Rank.Seven), Card(Suit.Diamonds, Rank.Eight)))
+      val player2 = Player(
+        "P2",
+        List(Card(Suit.Diamonds, Rank.Seven), Card(Suit.Diamonds, Rank.Eight))
+      )
       val deck = List(
         Card(Suit.Hearts, Rank.Ace),
         Card(Suit.Hearts, Rank.King),
@@ -66,10 +69,13 @@ class DrawPhaseSpec extends AnyWordSpec with Matchers {
       resultState.gamePhase.shouldBe(AttackPhase)
     }
 
-        "skip players that are in passedPlayers when drawing" in {
+    "skip players that are in passedPlayers when drawing" in {
       val attacker = Player("P0", List(Card(Suit.Clubs, Rank.Six)))
       val defender = Player("P1", List.fill(6)(Card(Suit.Diamonds, Rank.Seven)))
-      val passive1 = Player("P2", List(Card(Suit.Hearts, Rank.Six), Card(Suit.Hearts, Rank.Seven)))
+      val passive1 = Player(
+        "P2",
+        List(Card(Suit.Hearts, Rank.Six), Card(Suit.Hearts, Rank.Seven))
+      )
       val passedPlayer = Player("P3", List.empty)
 
       val deck = List(

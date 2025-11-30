@@ -10,7 +10,8 @@ case object RoundPhase extends GamePhase {
     }
 
     val newDiscardPile = if (gameState.roundWinner.isDefined) {
-      val cardsFromTable = gameState.table.keys.toList ++ gameState.table.values.flatten.toList
+      val cardsFromTable =
+        gameState.table.keys.toList ++ gameState.table.values.flatten.toList
       gameState.discardPile ++ cardsFromTable
     } else {
       gameState.discardPile
@@ -20,7 +21,8 @@ case object RoundPhase extends GamePhase {
       table = Map.empty,
       discardPile = newDiscardPile,
       passedPlayers = Set.empty,
-      lastEvent = Some(GameEvent.RoundEnd(cleared = gameState.roundWinner.isDefined)),
+      lastEvent =
+        Some(GameEvent.RoundEnd(cleared = gameState.roundWinner.isDefined)),
       roundWinner = None,
       gamePhase = AttackPhase
     )

@@ -7,11 +7,19 @@ case object AttackPhase extends GamePhase {
     gameState
   }
 
-  override def playCard(card: Card, playerIdx: Int, gameState: GameState): GameState = {
+  override def playCard(
+      card: Card,
+      playerIdx: Int,
+      gameState: GameState
+  ): GameState = {
     if (playerIdx < 0 || playerIdx >= gameState.players.size) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
-    if (playerIdx != gameState.attackerIndex && !gameState.passedPlayers.contains(playerIdx)) {
+    if (
+      playerIdx != gameState.attackerIndex && !gameState.passedPlayers.contains(
+        playerIdx
+      )
+    ) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 
@@ -20,7 +28,9 @@ case object AttackPhase extends GamePhase {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    val tableRanks = gameState.table.keys.map(_.rank).toSet ++ gameState.table.values.flatten.map(_.rank).toSet
+    val tableRanks = gameState.table.keys
+      .map(_.rank)
+      .toSet ++ gameState.table.values.flatten.map(_.rank).toSet
     if (gameState.table.nonEmpty && !tableRanks.contains(card.rank)) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
@@ -32,7 +42,8 @@ case object AttackPhase extends GamePhase {
     }
 
     val newHand = player.hand.filterNot(_ == card)
-    val newPlayers = gameState.players.updated(playerIdx, player.copy(hand = newHand))
+    val newPlayers =
+      gameState.players.updated(playerIdx, player.copy(hand = newHand))
     val newTable = gameState.table + (card -> None)
 
     gameState.copy(
@@ -47,7 +58,11 @@ case object AttackPhase extends GamePhase {
     if (playerIdx < 0 || playerIdx >= gameState.players.size) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
-    if (playerIdx != gameState.attackerIndex && !gameState.passedPlayers.contains(playerIdx)) {
+    if (
+      playerIdx != gameState.attackerIndex && !gameState.passedPlayers.contains(
+        playerIdx
+      )
+    ) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 

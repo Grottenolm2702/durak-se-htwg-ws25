@@ -7,7 +7,7 @@ case class PassCommand() extends Command {
   override def execute(gameState: GameState): GameState = {
     val activePlayerIdx = gameState.gamePhase match {
       case DefensePhase => gameState.defenderIndex
-      case _ => gameState.attackerIndex
+      case _            => gameState.attackerIndex
     }
     gameState.gamePhase.pass(activePlayerIdx, gameState)
   }

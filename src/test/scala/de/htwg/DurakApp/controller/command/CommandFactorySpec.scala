@@ -2,7 +2,12 @@ package de.htwg.DurakApp.controller.command
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.{InvalidAction, PassAction, PlayCardAction, TakeCardsAction}
+import de.htwg.DurakApp.controller.{
+  InvalidAction,
+  PassAction,
+  PlayCardAction,
+  TakeCardsAction
+}
 import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.model.{Card, GameState, Player, Rank, Suit}
 import de.htwg.DurakApp.model.state._

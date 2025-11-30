@@ -81,19 +81,25 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
     "return InvalidMove for default playCard" in {
       val resultState = testGamePhase.playCard(testCard, 0, initialGameState)
       resultState.lastEvent shouldBe Some(GameEvent.InvalidMove)
-      resultState shouldBe initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      resultState shouldBe initialGameState.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
     }
 
     "return InvalidMove for default pass" in {
       val resultState = testGamePhase.pass(0, initialGameState)
       resultState.lastEvent shouldBe Some(GameEvent.InvalidMove)
-      resultState shouldBe initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      resultState shouldBe initialGameState.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
     }
 
     "return InvalidMove for default takeCards" in {
       val resultState = testGamePhase.takeCards(0, initialGameState)
       resultState.lastEvent shouldBe Some(GameEvent.InvalidMove)
-      resultState shouldBe initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      resultState shouldBe initialGameState.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
     }
   }
 }

@@ -32,12 +32,16 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     playHandler.setNext(passHandler)
 
     "handle 'play 0' command" in {
-      playHandler.handleRequest("play 0", gameState) should be(PlayCardAction(spadeSix))
+      playHandler.handleRequest("play 0", gameState) should be(
+        PlayCardAction(spadeSix)
+      )
     }
-    
+
     "handle 'play 0' command during defense phase" in {
       val defenseState = gameState.copy(gamePhase = DefensePhase)
-      playHandler.handleRequest("play 0", defenseState) should be(PlayCardAction(heartAce))
+      playHandler.handleRequest("play 0", defenseState) should be(
+        PlayCardAction(heartAce)
+      )
     }
 
     "return InvalidAction for 'play' with out of bounds index" in {
