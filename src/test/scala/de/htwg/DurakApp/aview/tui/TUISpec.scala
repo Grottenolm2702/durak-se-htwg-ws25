@@ -11,6 +11,9 @@ import de.htwg.DurakApp.util.Observable
 
 class TUISpec extends AnyWordSpec with Matchers {
 
+  val GREEN = "\u001b[32m"
+  val RESET = "\u001b[0m"
+
   val defaultTrumpCard: Card = Card(Suit.Clubs, Rank.Six, isTrump = true)
   val defaultTable: Map[Card, Option[Card]] = Map.empty
   val defaultDiscardPile: List[Card] = List.empty
@@ -270,10 +273,15 @@ class TUISpec extends AnyWordSpec with Matchers {
       tui.clearScreen().shouldBe("\u001b[2J\u001b[H")
     }
 
-    "update method should print to console" in {
-      val controller = new Controller(
-        createGameState(List.empty, trumpCard = defaultTrumpCard)
+    "update method should print to console with active player highlighted" in {
+      val player = Player("TestPlayer", List(heartAce))
+      val game = createGameState(
+        players = List(player),
+        trumpCard = defaultTrumpCard,
+        gamePhase = AttackPhase,
+        attackerIndex = 0
       )
+      val controller = new Controller(game)
       val tui = new TUI(controller)
       controller.add(tui)
 
@@ -282,8 +290,9 @@ class TUISpec extends AnyWordSpec with Matchers {
         controller.notifyObservers
       }
       val output = stream.toString()
-      output.should(include("Status: Willkommen bei Durak!"))
-      output.should(include(defaultTrumpCard.suit.toString))
+      output should include("Status: AttackPhase")
+      output should include(defaultTrumpCard.suit.toString)
+      output should include(s"$GREEN${player.name}$RESET (Karten: 1)")
     }
 
     "renderCard" should {
@@ -360,7 +369,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       val output = outStream.toString()
-      output should include("Alice, dein Zug ('play index', 'pass'):")
+      output should include(s"${GREEN}Alice$RESET, dein Zug ('play index', 'pass'):")
     }
 
     "show the correct prompt for the defender in DefensePhase" in {
@@ -385,7 +394,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       val output = outStream.toString()
-      output should include("Bob, dein Zug ('play index', 'take'):")
+      output should include(s"${GREEN}Bob$RESET, dein Zug ('play index', 'take'):")
     }
 
     "parseTuiInput (Chain of Responsibility)" should {
@@ -527,7 +536,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       val output = outStream.toString()
       output should include(
-        "RoundAttacker, dein Zug ('play index', 'pass', 'take'):"
+        s"${GREEN}RoundAttacker$RESET, dein Zug ('play index', 'pass', 'take'):"
       )
     }
 
@@ -552,7 +561,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       val output = outStream.toString()
       output should include(
-        "DrawPlayer, dein Zug ('play index', 'pass', 'take'):"
+        s"${GREEN}DrawPlayer$RESET, dein Zug ('play index', 'pass', 'take'):"
       )
     }
 
