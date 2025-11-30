@@ -1,5 +1,4 @@
-package de.htwg.DurakApp
-package aview
+package de.htwg.DurakApp.aview.tui
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -7,7 +6,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model._
 import de.htwg.DurakApp.model.state._
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-
+import de.htwg.DurakApp.aview.tui.TUI
 import de.htwg.DurakApp.util.Observable
 
 class TUISpec extends AnyWordSpec with Matchers {
@@ -389,141 +388,63 @@ class TUISpec extends AnyWordSpec with Matchers {
       output should include("Bob, dein Zug ('play index', 'take'):")
     }
 
-    "process a 'play' command" in {
+    "parseTuiInput (Chain of Responsibility)" should {
       val attacker = Player("Alice", List(spadeSix))
       val defender = Player("Bob", List(heartAce))
-      val game = createGameState(
+      val gameAttackPhase = createGameState(
         players = List(attacker, defender),
-        gamePhase = AttackPhase,
-        attackerIndex = 0
-      )
-      val controller = new Controller(game)
-      val tui = new TUI(controller)
-      val input = "play 0\nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      controller.gameState.lastEvent should be(Some(GameEvent.Attack(spadeSix)))
-    }
-
-    "treat 'play' without an argument as an invalid command" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val game = createGameState(
-        players = List(attacker),
-        gamePhase = AttackPhase
-      )
-      val controller = new Controller(game)
-      val tui = new TUI(controller)
-      val input = "play\nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
-    }
-
-    "process a 'pass' command" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val defender = Player("Bob", List(heartAce, diamondTen))
-      val game = createGameState(
-        players = List(attacker, defender),
-        table = Map(clubKing -> None),
         gamePhase = AttackPhase,
         attackerIndex = 0,
-        passedPlayers = Set(1)
-      )
-      val controller = new Controller(game)
-      val tui = new TUI(controller)
-      val input = "pass\nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      controller.gameState.lastEvent should be(Some(GameEvent.RoundEnd(true)))
-    }
-
-    "process a formatted 'PASS' command" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val defender = Player("Bob", List(heartAce, diamondTen))
-      val game = createGameState(
-        players = List(attacker, defender),
-        table = Map(clubKing -> None),
-        gamePhase = AttackPhase,
-        attackerIndex = 0,
-        passedPlayers = Set(1)
-      )
-      val controller = new Controller(game)
-      val tui = new TUI(controller)
-      val input = "  PASS  \nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      controller.gameState.lastEvent should be(Some(GameEvent.RoundEnd(true)))
-    }
-
-    "process a 'take' command" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val defender = Player("Bob", List(heartAce))
-      val game = createGameState(
-        players = List(attacker, defender),
-        table = Map(clubKing -> None),
-        gamePhase = DefensePhase,
         defenderIndex = 1
       )
-      val controller = new Controller(game)
+      val gameDefensePhase = gameAttackPhase.copy(gamePhase = DefensePhase)
+      val controller = new Controller(gameAttackPhase)
       val tui = new TUI(controller)
-      val input = "take\nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
 
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
+      "handle 'play 0' during AttackPhase" in {
+        val action = tui.parseTuiInput("play 0", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
       }
 
-      controller.gameState.lastEvent should be(Some(GameEvent.RoundEnd(false)))
-    }
-
-    "process an unknown command as invalid" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val game =
-        createGameState(players = List(attacker), gamePhase = AttackPhase)
-      val controller = new Controller(game)
-      val tui = new TUI(controller)
-      val input = "unknown-command\nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
+      "handle 'play 0' during DefensePhase" in {
+        val action = tui.parseTuiInput("play 0", gameDefensePhase)
+        action should be(de.htwg.DurakApp.controller.PlayCardAction(heartAce))
       }
 
-      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
+      "handle 'pass'" in {
+        val action = tui.parseTuiInput("pass", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.PassAction)
+      }
+
+      "handle 'take'" in {
+        val action = tui.parseTuiInput("take", gameDefensePhase)
+        action should be(de.htwg.DurakApp.controller.TakeCardsAction)
+      }
+
+      "handle invalid command" in {
+        val action = tui.parseTuiInput("foo", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.InvalidAction)
+      }
+
+      "handle 'play' without index" in {
+        val action = tui.parseTuiInput("play", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.InvalidAction)
+      }
+
+      "handle 'play' with non-numeric index" in {
+        val action = tui.parseTuiInput("play foo", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.InvalidAction)
+      }
+
+      "handle 'play' with out-of-bounds index" in {
+        val action = tui.parseTuiInput("play 5", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.InvalidAction)
+      }
+
+      "handle case-insensitivity and whitespace" in {
+        val action = tui.parseTuiInput("  PLaY 0  ", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
+      }
     }
 
     "terminate on 'quit' input" in {
@@ -727,39 +648,28 @@ class TUISpec extends AnyWordSpec with Matchers {
       rEight should include("\u2660")
     }
 
-    "process a 'play' command during DefensePhase" in {
-      val attacker = Player("Alice", List.empty)
-      val defender = Player("Bob", List(spadeTen))
-      val game = createGameState(
+    "gameLoop continues when no GameOver (case _ => gameLoop())" in {
+      val attacker = Player("A", List(spadeSix))
+      val defender = Player("D", List(heartAce))
+      val initial = createGameState(
         players = List(attacker, defender),
-        table = Map(spadeSix -> None),
-        gamePhase = DefensePhase,
-        defenderIndex = 1
-      )
-      val controller = new Controller(game)
-      val tui = new TUI(controller)
-      val input = "play 0\nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      controller.gameState.lastEvent should be(Some(GameEvent.Defend(spadeTen)))
-    }
-
-    "return InvalidAction for out-of-bounds 'play' index" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val game = createGameState(
-        players = List(attacker),
         gamePhase = AttackPhase
       )
-      val controller = new Controller(game)
+
+      class TestController(gs: GameState) extends Controller(gs) {
+        var calls = 0
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): Unit = {
+          calls += 1
+          this.gameState = this.gameState.copy(lastEvent = Some(GameEvent.Pass))
+        }
+      }
+
+      val controller = new TestController(initial)
       val tui = new TUI(controller)
-      val input = "play 5\nq\n"
+
+      val input = "pass\nq\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
       val outStream = new ByteArrayOutputStream()
 
@@ -769,28 +679,9 @@ class TUISpec extends AnyWordSpec with Matchers {
         }
       }
 
-      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
-    }
-
-    "return InvalidAction for non-integer 'play' argument" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val game = createGameState(
-        players = List(attacker),
-        gamePhase = AttackPhase
-      )
-      val controller = new Controller(game)
-      val tui = new TUI(controller)
-      val input = "play foo\nq\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
+      val output = outStream.toString()
+      controller.calls shouldBe 1
+      output should include("Spiel beendet.")
     }
 
   }
