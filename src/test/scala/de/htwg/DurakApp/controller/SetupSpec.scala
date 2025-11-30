@@ -60,26 +60,26 @@ class SetupSpec extends AnyWordSpec with Matchers {
 
     "setup game correctly with default deck size" in {
       val playerNames = List("Alice", "Bob")
-      val gameState = Setup.setupGame(playerNames, 36)
+      val gameState = Setup.setupGame(playerNames, 36).get
 
-      gameState.players.size shouldBe 2
-      gameState.players.foreach(_.name shouldNot be(empty))
+      gameState.players.size.shouldBe(2)
+      gameState.players.foreach(_.name.shouldNot(be(empty)))
       gameState.players.foreach(
-        _.hand.length shouldBe 6
+        _.hand.length.shouldBe(6)
       )
-      gameState.deck.length shouldBe (36 - 12 - 1)
-      gameState.deck.length shouldBe 23
+      gameState.deck.length.shouldBe(36 - 12 - 1)
+      gameState.deck.length.shouldBe(23)
 
-      gameState.trumpCard.isTrump shouldBe true
-      gameState.gamePhase shouldBe AttackPhase
-      gameState.attackerIndex should (be >= 0)
-      gameState.attackerIndex should (be < gameState.players.size)
-      gameState.defenderIndex should (be >= 0)
-      gameState.defenderIndex should (be < gameState.players.size)
-      gameState.defenderIndex shouldNot (equal(gameState.attackerIndex))
-      gameState.lastEvent shouldBe Some(
+      gameState.trumpCard.isTrump.shouldBe(true)
+      gameState.gamePhase.shouldBe(AttackPhase)
+      gameState.attackerIndex.should(be >= 0)
+      gameState.attackerIndex.should(be < gameState.players.size)
+      gameState.defenderIndex.should(be >= 0)
+      gameState.defenderIndex.should(be < gameState.players.size)
+      gameState.defenderIndex.shouldNot(equal(gameState.attackerIndex))
+      gameState.lastEvent.shouldBe(Some(
         GameEvent.RoundEnd(cleared = false)
-      )
+      ))
     }
 
     "handle the remainingDeck.isEmpty branch (all cards dealt)" in {
@@ -115,20 +115,14 @@ class SetupSpec extends AnyWordSpec with Matchers {
       result.gamePhase should not be SetupPhase
     }
 
-    "throw IllegalArgumentException for less than two players" in {
-      val thrown = the[IllegalArgumentException] thrownBy Setup.setupGame(
-        List("Alice"),
-        36
-      )
-      thrown.getMessage should include("Need at least two players.")
+    "return None for less than two players" in {
+      val gameState = Setup.setupGame(List("Alice"), 36)
+      gameState shouldBe None
     }
 
-    "throw IllegalArgumentException for not enough cards for players" in {
-      val thrown = the[IllegalArgumentException] thrownBy Setup.setupGame(
-        List("Alice", "Bob"),
-        1
-      )
-      thrown.getMessage should include("Not enough cards for")
+    "return None for not enough cards for players" in {
+      val gameState = Setup.setupGame(List("Alice", "Bob"), 1)
+      gameState shouldBe None
     }
   }
 }
