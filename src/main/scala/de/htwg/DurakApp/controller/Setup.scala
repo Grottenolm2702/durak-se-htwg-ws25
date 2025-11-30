@@ -22,15 +22,16 @@ object Setup {
     Random.shuffle(fullStandardDeck).take(effectiveDeckSize)
   }
 
-  def setupGame(playerNames: List[String], deckSize: Int): GameState = {
-    require(playerNames.length >= 2, "Need at least two players.")
+  def setupGame(playerNames: List[String], deckSize: Int): Option[GameState] = {
+    if (playerNames.length < 2) {
+      return None
+    }
 
     val deck = createDeck(deckSize)
     val minCardsRequired = playerNames.length
-    require(
-      deck.length >= minCardsRequired,
-      s"Not enough cards for ${playerNames.length} players. Need at least ${minCardsRequired} cards, but only have ${deck.length}."
-    )
+    if (deck.length < minCardsRequired) {
+      return None
+    }
 
     val players = playerNames.map(name => Player(name, List.empty))
 
@@ -48,6 +49,6 @@ object Setup {
       .withRoundWinner(None)
       .build()
 
-    preSetupState.gamePhase.handle(preSetupState)
+    Some(preSetupState.gamePhase.handle(preSetupState))
   }
 }

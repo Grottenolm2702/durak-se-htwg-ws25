@@ -11,9 +11,10 @@ import de.htwg.DurakApp.controller.{Controller, Setup}
 
     val initialGameState = Setup.setupGame(playerNames, deckSize)
 
-    val controller = new Controller(initialGameState)
-    val tui = new TUI(controller)
-    controller.add(tui)
-
-    tui.run()
+    initialGameState.foreach { state =>
+      val controller = new Controller(state)
+      val tui = new TUI(controller)
+      controller.add(tui)
+      tui.run()
+    }
   }

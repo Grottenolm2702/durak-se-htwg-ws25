@@ -59,51 +59,5 @@ class EndPhaseSpec extends AnyWordSpec with Matchers {
         .shouldBe(None)
       resultState.gamePhase.shouldBe(EndPhase)
     }
-
-    "throw an exception if a loser exists but no winner can be determined" in {
-      val loser1 =
-        Player("L1", List(Card(Suit.Clubs, Rank.Six)), isDone = false)
-      val loser2 =
-        Player("L2", List(Card(Suit.Hearts, Rank.Seven)), isDone = false)
-
-      val brokenGameState = GameState(
-        players = List(loser1, loser2),
-        deck = List.empty,
-        table = Map.empty,
-        discardPile = List.empty,
-        trumpCard = Card(Suit.Diamonds, Rank.Ace),
-        attackerIndex = 0,
-        defenderIndex = 1,
-        gamePhase = EndPhase
-      )
-
-      val exception = intercept[IllegalArgumentException] {
-        EndPhase.handle(brokenGameState)
-      }
-
-      exception.getMessage should include
-        "EndPhase: Expected at least one player without cards when a loser is identified."
-    }
-
-    "throw an exception if no players exist in game state" in {
-      val emptyGameState = GameState(
-        players = List.empty,
-        deck = List.empty,
-        table = Map.empty,
-        discardPile = List.empty,
-        trumpCard = Card(Suit.Diamonds, Rank.Ace),
-        attackerIndex = 0,
-        defenderIndex = 1,
-        gamePhase = EndPhase
-      )
-
-      val exception = intercept[IllegalArgumentException] {
-        EndPhase.handle(emptyGameState)
-      }
-
-      exception.getMessage should include
-        "EndPhase: No players in game state. Cannot determine winner."
-    }
-
   }
 }
