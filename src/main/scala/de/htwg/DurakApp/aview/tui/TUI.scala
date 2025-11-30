@@ -1,5 +1,6 @@
-package de.htwg.DurakApp.aview
+package de.htwg.DurakApp.aview.tui
 
+import de.htwg.DurakApp.aview.tui.handler.{InputHandler, InvalidInputHandler, PassHandler, PlayCardHandler, TakeCardsHandler}
 import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
@@ -23,6 +24,15 @@ class TUI(controller: Controller) extends Observer {
   val GREEN = "\u001b[32m"
   val RESET = "\u001b[0m"
 
+  private val inputHandler: InputHandler = {
+    val play = new PlayCardHandler()
+    val pass = new PassHandler()
+    val take = new TakeCardsHandler()
+    val invalid = new InvalidInputHandler()
+    play.setNext(pass).setNext(take).setNext(invalid)
+    play
+  }
+
   def run(): Unit = {
     println(clearScreen())
     println("Willkommen bei Durak!")
@@ -31,31 +41,8 @@ class TUI(controller: Controller) extends Observer {
     println("Spiel beendet.")
   }
 
-  private def parseTuiInput(input: String, game: GameState): PlayerAction = {
-    val inputArgs = input.trim.toLowerCase.split("\\s+").toList
-    inputArgs.headOption match {
-      case Some("play") if inputArgs.length > 1 =>
-        val cardIndex = Try(inputArgs(1).toInt).toOption
-        cardIndex match {
-          case Some(index) =>
-            val activePlayer = game.gamePhase match {
-              case DefensePhase => game.players(game.defenderIndex)
-              case _            => game.players(game.attackerIndex)
-            }
-            if (index >= 0 && index < activePlayer.hand.length) {
-              PlayCardAction(activePlayer.hand(index))
-            } else {
-              InvalidAction
-            }
-          case None => InvalidAction
-        }
-      case Some("pass") =>
-        PassAction
-      case Some("take") =>
-        TakeCardsAction
-      case _ =>
-        InvalidAction
-    }
+  def parseTuiInput(input: String, game: GameState): PlayerAction = {
+    inputHandler.handleRequest(input, game)
   }
 
   @scala.annotation.tailrec

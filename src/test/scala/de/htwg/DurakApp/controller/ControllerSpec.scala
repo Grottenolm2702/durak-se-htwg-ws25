@@ -122,5 +122,18 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val controller = new Controller(initialGameState)
       controller.getStatusString().shouldBe("AttackPhase")
     }
+
+    "update lastEvent when an InvalidAction is processed" in {
+      val player1 = Player("P1", List(spadeSix))
+      val initialGameState = createGameState(
+        players = List(player1),
+        gamePhase = AttackPhase
+      )
+      val controller = new Controller(initialGameState)
+
+      controller.processPlayerAction(InvalidAction)
+
+      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
+    }
   }
 }

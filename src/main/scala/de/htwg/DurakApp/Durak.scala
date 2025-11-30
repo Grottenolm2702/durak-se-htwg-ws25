@@ -1,7 +1,7 @@
 package de.htwg.DurakApp
 
-import aview.TUI
-import controller.{Controller, Setup}
+import de.htwg.DurakApp.aview.tui.TUI
+import de.htwg.DurakApp.controller.{Controller, Setup}
 
 @main def run: Unit = {
     val temptui = TUI(new Controller(null))
