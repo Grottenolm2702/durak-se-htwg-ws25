@@ -108,7 +108,7 @@ class TUI(controller: Controller) extends Observer {
       case DefensePhase => "('play index', 'take')"
       case _            => "('play index', 'pass', 'take')"
     }
-    println(s"${activePlayer.name}, dein Zug ${moves}:")
+    println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
     print("> ")
   }
 
@@ -206,9 +206,16 @@ class TUI(controller: Controller) extends Observer {
 
     val table = renderTable(game)
 
+    val activePlayer = game.gamePhase match {
+      case AttackPhase  => game.players(game.attackerIndex)
+      case DefensePhase => game.players(game.defenderIndex)
+      case _            => game.players(game.attackerIndex)
+    }
+
     val playersStr = game.players
       .map { p =>
-        s"${p.name} (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
+        val playerName = if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
+        s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
       }
       .mkString("\n\n")
 
