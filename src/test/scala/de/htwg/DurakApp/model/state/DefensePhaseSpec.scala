@@ -44,7 +44,7 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       resultState.players(1).hand.shouldNot(contain(defenseCard))
       resultState.table.get(attackCard).flatten.should(contain(defenseCard))
       resultState.gamePhase.shouldBe(AttackPhase)
-      resultState.lastEvent.get.should(be (a[GameEvent.Defend]))
+      resultState.lastEvent.get.should(be(a[GameEvent.Defend]))
     }
 
     "not allow a defender to play a non-beating card" in {
@@ -64,7 +64,9 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       )
 
       val resultState = DefensePhase.playCard(defenseCard, 1, initialGameState)
-      resultState.shouldBe(initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove)))
+      resultState.shouldBe(
+        initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      )
     }
 
     "allow a defender to take cards" in {
@@ -84,7 +86,7 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
 
       val resultState = DefensePhase.takeCards(1, initialGameState)
       resultState.players(1).hand.should(contain(attackCard))
-      resultState.table.should(be (empty))
+      resultState.table.should(be(empty))
       resultState.gamePhase.shouldBe(AttackPhase)
       resultState.lastEvent.get.shouldBe(GameEvent.RoundEnd(cleared = false))
     }
@@ -105,10 +107,12 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       )
 
       val resultState = DefensePhase.takeCards(0, initialGameState)
-      resultState.shouldBe(initialGameState.copy(lastEvent = Some(GameEvent.NotYourTurn)))
+      resultState.shouldBe(
+        initialGameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
+      )
     }
 
-        "not allow a non-defender to play a card (NotYourTurn)" in {
+    "not allow a non-defender to play a card (NotYourTurn)" in {
       val attackCard = Card(Suit.Clubs, Rank.Six)
       val defenseCard = Card(Suit.Clubs, Rank.Seven)
       val attacker = Player("A", List(attackCard))
@@ -188,7 +192,7 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       res.players(1).hand.shouldNot(contain(trump))
       res.table.get(attackCard).flatten.should(contain(trump))
       res.gamePhase shouldBe AttackPhase
-      res.lastEvent.get.should(be (a[GameEvent.Defend]))
+      res.lastEvent.get.should(be(a[GameEvent.Defend]))
     }
 
     "allow defender to beat a trump attack with higher trump (trump vs trump)" in {
@@ -211,7 +215,7 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       res.players(1).hand.shouldNot(contain(defenseCard))
       res.table.get(attackCard).flatten.should(contain(defenseCard))
       res.gamePhase shouldBe AttackPhase
-      res.lastEvent.get.should(be (a[GameEvent.Defend]))
+      res.lastEvent.get.should(be(a[GameEvent.Defend]))
     }
 
     "remain in DefensePhase when not all attacks are defended (nextPhase = DefensePhase)" in {
@@ -234,7 +238,7 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       val res = DefensePhase.playCard(defenseCard, 1, initial)
       res.gamePhase shouldBe DefensePhase
       res.table.values.count(_.isEmpty) shouldBe 1
-      res.lastEvent.get.should(be (a[GameEvent.Defend]))
+      res.lastEvent.get.should(be(a[GameEvent.Defend]))
     }
   }
 }

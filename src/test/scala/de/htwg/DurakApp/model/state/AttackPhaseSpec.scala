@@ -25,7 +25,8 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
 
     "allow an attacker to play a card" in {
       val attackerCard = Card(Suit.Clubs, Rank.Seven)
-      val player1 = Player("P1", List(attackerCard, Card(Suit.Clubs, Rank.Eight)))
+      val player1 =
+        Player("P1", List(attackerCard, Card(Suit.Clubs, Rank.Eight)))
       val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Ace)))
       val initialGameState = GameState(
         players = List(player1, player2),
@@ -62,7 +63,9 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       )
 
       val resultState = AttackPhase.playCard(attackerCard, 0, initialGameState)
-      resultState shouldBe initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      resultState shouldBe initialGameState.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
     }
 
     "not allow playing card if rank does not match table cards" in {
@@ -79,8 +82,11 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase
       )
 
-      val resultState = AttackPhase.playCard(Card(Suit.Clubs, Rank.Six), 0, initialGameState)
-      resultState shouldBe initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      val resultState =
+        AttackPhase.playCard(Card(Suit.Clubs, Rank.Six), 0, initialGameState)
+      resultState shouldBe initialGameState.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
     }
 
     "allow attacker to pass" in {
@@ -118,9 +124,10 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       )
 
       val resultState = AttackPhase.pass(0, initialGameState)
-      resultState shouldBe initialGameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      resultState shouldBe initialGameState.copy(lastEvent =
+        Some(GameEvent.InvalidMove)
+      )
     }
-
 
     "not allow playCard with an invalid player index" in {
       val card = Card(Suit.Clubs, Rank.Seven)
@@ -229,10 +236,11 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase
       )
 
-      val alreadyPassed = baseState.copy(passedPlayers = baseState.passedPlayers + 1)
+      val alreadyPassed =
+        baseState.copy(passedPlayers = baseState.passedPlayers + 1)
 
       val result = AttackPhase.pass(1, alreadyPassed)
-      result.passedPlayers should contain (1)
+      result.passedPlayers should contain(1)
       result.passedPlayers shouldBe alreadyPassed.passedPlayers
     }
   }

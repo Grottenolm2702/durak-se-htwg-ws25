@@ -4,7 +4,13 @@ import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.util.Observable
 import de.htwg.DurakApp.controller.command.{Command, CommandFactory}
-import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, PassAction, TakeCardsAction, InvalidAction}
+import de.htwg.DurakApp.controller.{
+  PlayerAction,
+  PlayCardAction,
+  PassAction,
+  TakeCardsAction,
+  InvalidAction
+}
 
 class Controller(var gameState: GameState) extends Observable {
 

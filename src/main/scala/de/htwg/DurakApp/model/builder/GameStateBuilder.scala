@@ -8,17 +8,17 @@ object GameStateBuilder {
 }
 
 case class GameStateBuilder(
-  players: List[Player] = List.empty,
-  deck: List[Card] = List.empty,
-  table: Map[Card, Option[Card]] = Map.empty,
-  discardPile: List[Card] = List.empty,
-  trumpCard: Card = Card(Suit.Hearts, Rank.Six),
-  attackerIndex: Int = 0,
-  defenderIndex: Int = 1,
-  gamePhase: GamePhase = SetupPhase,
-  lastEvent: Option[GameEvent] = None,
-  passedPlayers: Set[Int] = Set.empty,
-  roundWinner: Option[Int] = None
+    players: List[Player] = List.empty,
+    deck: List[Card] = List.empty,
+    table: Map[Card, Option[Card]] = Map.empty,
+    discardPile: List[Card] = List.empty,
+    trumpCard: Card = Card(Suit.Hearts, Rank.Six),
+    attackerIndex: Int = 0,
+    defenderIndex: Int = 1,
+    gamePhase: GamePhase = SetupPhase,
+    lastEvent: Option[GameEvent] = None,
+    passedPlayers: Set[Int] = Set.empty,
+    roundWinner: Option[Int] = None
 ) {
 
   def withPlayers(newPlayers: List[Player]): GameStateBuilder =

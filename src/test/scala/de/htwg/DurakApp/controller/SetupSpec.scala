@@ -77,9 +77,11 @@ class SetupSpec extends AnyWordSpec with Matchers {
       gameState.defenderIndex.should(be >= 0)
       gameState.defenderIndex.should(be < gameState.players.size)
       gameState.defenderIndex.shouldNot(equal(gameState.attackerIndex))
-      gameState.lastEvent.shouldBe(Some(
-        GameEvent.RoundEnd(cleared = false)
-      ))
+      gameState.lastEvent.shouldBe(
+        Some(
+          GameEvent.RoundEnd(cleared = false)
+        )
+      )
     }
 
     "handle the remainingDeck.isEmpty branch (all cards dealt)" in {

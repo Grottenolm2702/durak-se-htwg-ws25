@@ -7,7 +7,10 @@ import de.htwg.DurakApp.model.state.DefensePhase
 import scala.util.Try
 
 class PlayCardHandler extends InputHandler {
-  override def handleRequest(input: String, gameState: GameState): PlayerAction = {
+  override def handleRequest(
+      input: String,
+      gameState: GameState
+  ): PlayerAction = {
     val inputArgs = input.trim.toLowerCase.split("\\s+").toList
     inputArgs.headOption match {
       case Some("play") if inputArgs.length > 1 =>

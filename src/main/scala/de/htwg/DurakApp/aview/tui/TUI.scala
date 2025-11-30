@@ -1,6 +1,12 @@
 package de.htwg.DurakApp.aview.tui
 
-import de.htwg.DurakApp.aview.tui.handler.{InputHandler, InvalidInputHandler, PassHandler, PlayCardHandler, TakeCardsHandler}
+import de.htwg.DurakApp.aview.tui.handler.{
+  InputHandler,
+  InvalidInputHandler,
+  PassHandler,
+  PlayCardHandler,
+  TakeCardsHandler
+}
 import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
@@ -141,11 +147,14 @@ class TUI(controller: Controller) extends Observer {
       if (rankStr.length >= rankFieldWidth) rankStr.take(rankFieldWidth)
       else rankStr + " ".repeat(rankFieldWidth - rankStr.length)
     val rankRemaining = inner - rankFieldWidth
-    val rankField = "|" + colorStart + rankPadded + colorEnd + " ".repeat(rankRemaining) + "|"
+    val rankField =
+      "|" + colorStart + rankPadded + colorEnd + " ".repeat(rankRemaining) + "|"
 
     val symbolLeft = (inner - 1) / 2
     val symbolRight = inner - 1 - symbolLeft
-    val suitField = "|" + " ".repeat(symbolLeft) + colorStart + symbol + colorEnd + " ".repeat(symbolRight) + "|"
+    val suitField =
+      "|" + " ".repeat(symbolLeft) + colorStart + symbol + colorEnd + " "
+        .repeat(symbolRight) + "|"
 
     val emptyLine = "|" + " ".repeat(inner) + "|"
 

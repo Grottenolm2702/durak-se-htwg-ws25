@@ -21,17 +21,17 @@ class ObserverSpec extends AnyWordSpec with Matchers {
       val observer2 = new TestObserver
       observable.add(observer1)
       observable.add(observer2)
-      
+
       observable.notifyObservers
       observer1.wasUpdated.shouldBe(true)
       observer2.wasUpdated.shouldBe(true)
-      
+
       observer1.reset()
       observer2.reset()
-      
+
       observable.remove(observer1)
       observable.notifyObservers
-      
+
       observer1.wasUpdated.shouldBe(false)
       observer2.wasUpdated.shouldBe(true)
     }

@@ -27,7 +27,7 @@ class SetupPhaseSpec extends AnyWordSpec with Matchers {
         Card(Suit.Diamonds, Rank.Eight),
         Card(Suit.Diamonds, Rank.Nine)
       )
-      
+
       val initialGameState = GameState(
         players = initialPlayers,
         deck = initialDeck,
@@ -46,11 +46,11 @@ class SetupPhaseSpec extends AnyWordSpec with Matchers {
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
       resultState.gamePhase shouldBe AttackPhase
-      resultState.attackerIndex should(be >= 0)
-      resultState.attackerIndex should(be < resultState.players.size)
-      resultState.defenderIndex should(be >= 0)
-      resultState.defenderIndex should(be < resultState.players.size)
-      resultState.defenderIndex shouldNot(equal(resultState.attackerIndex))
+      resultState.attackerIndex should (be >= 0)
+      resultState.attackerIndex should (be < resultState.players.size)
+      resultState.defenderIndex should (be >= 0)
+      resultState.defenderIndex should (be < resultState.players.size)
+      resultState.defenderIndex shouldNot (equal(resultState.attackerIndex))
       resultState.lastEvent shouldBe Some(GameEvent.RoundEnd(cleared = false))
     }
 
@@ -73,7 +73,7 @@ class SetupPhaseSpec extends AnyWordSpec with Matchers {
         Card(Suit.Hearts, Rank.Jack),
         Card(Suit.Diamonds, Rank.Six)
       )
-      
+
       val initialGameState = GameState(
         players = initialPlayers,
         deck = initialDeck,
@@ -92,11 +92,11 @@ class SetupPhaseSpec extends AnyWordSpec with Matchers {
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
       resultState.gamePhase shouldBe AttackPhase
-      resultState.attackerIndex should(be >= 0)
-      resultState.attackerIndex should(be < resultState.players.size)
-      resultState.defenderIndex should(be >= 0)
-      resultState.defenderIndex should(be < resultState.players.size)
-      resultState.defenderIndex shouldNot(equal(resultState.attackerIndex))
+      resultState.attackerIndex should (be >= 0)
+      resultState.attackerIndex should (be < resultState.players.size)
+      resultState.defenderIndex should (be >= 0)
+      resultState.defenderIndex should (be < resultState.players.size)
+      resultState.defenderIndex shouldNot (equal(resultState.attackerIndex))
     }
   }
 }
