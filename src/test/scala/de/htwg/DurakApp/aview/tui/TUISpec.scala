@@ -536,7 +536,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       val output = outStream.toString()
       output should include(
-        s"${GREEN}RoundAttacker$RESET, dein Zug ('play index', 'pass', 'take'):"
+        s"${GREEN}RoundAttacker$RESET, dein Zug ('play index', 'pass', 'take', 'u', 'r'):"
       )
     }
 
@@ -561,7 +561,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       val output = outStream.toString()
       output should include(
-        s"${GREEN}DrawPlayer$RESET, dein Zug ('play index', 'pass', 'take'):"
+        s"${GREEN}DrawPlayer$RESET, dein Zug ('play index', 'pass', 'take', 'u', 'r'):"
       )
     }
 
