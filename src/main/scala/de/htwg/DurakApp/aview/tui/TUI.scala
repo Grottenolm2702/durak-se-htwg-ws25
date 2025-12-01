@@ -71,9 +71,9 @@ class TUI(controller: Controller) extends Observer {
       val action = parseTuiInput(input, controller.gameState)
       action match {
         case UndoAction | RedoAction =>
-        case _ => controller.processPlayerAction(action)
+        case _                       => controller.processPlayerAction(action)
       }
-      
+
       controller.gameState.lastEvent match {
         case Some(GameEvent.GameOver(_, _)) =>
         case _                              => gameLoop()
@@ -148,7 +148,7 @@ class TUI(controller: Controller) extends Observer {
       case Rank.Seven => "7"
       case Rank.Eight => "8"
       case Rank.Nine  => "9"
-      case Rank.Ten  => "10"
+      case Rank.Ten   => "10"
       case Rank.Jack  => "J"
       case Rank.Queen => "Q"
       case Rank.King  => "K"
@@ -228,7 +228,8 @@ class TUI(controller: Controller) extends Observer {
 
     val playersStr = game.players
       .map { p =>
-        val playerName = if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
+        val playerName =
+          if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
         s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
       }
       .mkString("\n\n")

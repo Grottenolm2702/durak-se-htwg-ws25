@@ -13,7 +13,8 @@ import de.htwg.DurakApp.controller.{
 }
 
 class Controller(var gameState: GameState) extends Observable {
-  private var undoRedoManager: ImmutableUndoRedoManager = ImmutableUndoRedoManager().save(gameState)
+  private var undoRedoManager: ImmutableUndoRedoManager =
+    ImmutableUndoRedoManager().save(gameState)
 
   def processPlayerAction(action: PlayerAction): Unit = {
     val oldGameStateBeforeAction = this.gameState
@@ -54,7 +55,8 @@ class Controller(var gameState: GameState) extends Observable {
         this.gameState = previousState
         notifyObservers
       case None =>
-        this.gameState = this.gameState.copy(lastEvent = Some(GameEvent.CannotUndo))
+        this.gameState =
+          this.gameState.copy(lastEvent = Some(GameEvent.CannotUndo))
         notifyObservers
     }
   }
@@ -66,7 +68,8 @@ class Controller(var gameState: GameState) extends Observable {
         this.gameState = nextState
         notifyObservers
       case None =>
-        this.gameState = this.gameState.copy(lastEvent = Some(GameEvent.CannotRedo))
+        this.gameState =
+          this.gameState.copy(lastEvent = Some(GameEvent.CannotRedo))
         notifyObservers
     }
   }
