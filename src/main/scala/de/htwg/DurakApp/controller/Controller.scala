@@ -3,7 +3,7 @@ package de.htwg.DurakApp.controller
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.util.{Observable, ImmutableUndoRedoManager}
-import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
+import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory, PhaseChangeCommand}
 import de.htwg.DurakApp.controller.{
   PlayerAction,
   PlayCardAction,
@@ -14,7 +14,7 @@ import de.htwg.DurakApp.controller.{
 
 class Controller(var gameState: GameState) extends Observable {
   private var undoRedoManager: ImmutableUndoRedoManager =
-    ImmutableUndoRedoManager().save(gameState)
+    ImmutableUndoRedoManager()
 
   def processPlayerAction(action: PlayerAction): Unit = {
     val oldGameStateBeforeAction = this.gameState
@@ -28,18 +28,19 @@ class Controller(var gameState: GameState) extends Observable {
       case Right(command) =>
         val gameStateAfterCommand = command.execute(oldGameStateBeforeAction)
         this.gameState = gameStateAfterCommand
-        undoRedoManager = undoRedoManager.save(this.gameState)
+        undoRedoManager = undoRedoManager.save(command, oldGameStateBeforeAction)
         notifyObservers
 
         var currentPhaseState = this.gameState
         var continueHandling = true
 
         while (continueHandling) {
+          val oldPhaseStateBeforeHandle = currentPhaseState
           val nextState = currentPhaseState.gamePhase.handle(currentPhaseState)
           if (nextState != currentPhaseState) {
             currentPhaseState = nextState
             this.gameState = nextState
-            undoRedoManager = undoRedoManager.save(this.gameState)
+            undoRedoManager = undoRedoManager.save(new PhaseChangeCommand(), oldPhaseStateBeforeHandle)
             notifyObservers
           } else {
             continueHandling = false
@@ -49,7 +50,7 @@ class Controller(var gameState: GameState) extends Observable {
   }
 
   def undo(): Unit = {
-    undoRedoManager.undo match {
+    undoRedoManager.undo(this.gameState) match {
       case Some((newManager, previousState)) =>
         undoRedoManager = newManager
         this.gameState = previousState
@@ -62,7 +63,7 @@ class Controller(var gameState: GameState) extends Observable {
   }
 
   def redo(): Unit = {
-    undoRedoManager.redo match {
+    undoRedoManager.redo(this.gameState) match {
       case Some((newManager, nextState)) =>
         undoRedoManager = newManager
         this.gameState = nextState

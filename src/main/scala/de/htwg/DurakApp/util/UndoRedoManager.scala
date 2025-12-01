@@ -1,37 +1,38 @@
 package de.htwg.DurakApp.util
 
+import de.htwg.DurakApp.controller.command.GameCommand
 import de.htwg.DurakApp.model.GameState
 
 case class ImmutableUndoRedoManager(
-    undoStack: List[GameState],
-    redoStack: List[GameState]
+    undoStack: List[(GameCommand, GameState)],
+    redoStack: List[(GameCommand, GameState)]
 ) {
-  def save(state: GameState): ImmutableUndoRedoManager = {
-    this.copy(undoStack = state :: undoStack, redoStack = Nil)
+  def save(command: GameCommand, oldState: GameState): ImmutableUndoRedoManager = {
+    this.copy(undoStack = (command, oldState) :: undoStack, redoStack = Nil)
   }
 
-  def undo: Option[(ImmutableUndoRedoManager, GameState)] = {
+  def undo(currentGameState: GameState): Option[(ImmutableUndoRedoManager, GameState)] = {
     undoStack match {
-      case _ :: previousState :: tailOfUndoStack =>
-        val current = undoStack.head
+      case (command, previousState) :: tailOfUndoStack =>
+        val undoneState = command.undo(currentGameState, previousState)
         val newManager = this.copy(
-          undoStack = previousState :: tailOfUndoStack,
-          redoStack = current :: redoStack
+          undoStack = tailOfUndoStack,
+          redoStack = (command, previousState) :: redoStack
         )
-        Some((newManager, previousState))
-      case _ :: Nil => None
-      case Nil      => None
+        Some((newManager, undoneState))
+      case Nil => None
     }
   }
 
-  def redo: Option[(ImmutableUndoRedoManager, GameState)] = {
+  def redo(currentGameState: GameState): Option[(ImmutableUndoRedoManager, GameState)] = {
     redoStack match {
-      case headOfRedoStack :: tailOfRedoStack =>
+      case (command, stateBeforeRedoCommand) :: tailOfRedoStack =>
+        val redoneState = command.execute(currentGameState)
         val newManager = this.copy(
-          undoStack = headOfRedoStack :: undoStack,
+          undoStack = (command, stateBeforeRedoCommand) :: undoStack,
           redoStack = tailOfRedoStack
         )
-        Some((newManager, headOfRedoStack))
+        Some((newManager, redoneState))
       case Nil => None
     }
   }
