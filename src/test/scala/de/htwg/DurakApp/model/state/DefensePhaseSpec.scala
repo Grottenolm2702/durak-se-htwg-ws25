@@ -87,8 +87,8 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       val resultState = DefensePhase.takeCards(1, initialGameState)
       resultState.players(1).hand.should(contain(attackCard))
       resultState.table.should(be(empty))
-      resultState.gamePhase.shouldBe(AttackPhase)
-      resultState.lastEvent.get.shouldBe(GameEvent.RoundEnd(cleared = false))
+      resultState.gamePhase.shouldBe(DrawPhase)
+      resultState.lastEvent.get.shouldBe(GameEvent.Take)
     }
 
     "not allow an attacker to take cards" in {

@@ -24,9 +24,9 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
       val command = PassCommand()
       val resultState = command.execute(initialGameState)
 
-      resultState.gamePhase shouldBe AttackPhase
-      resultState.roundWinner.isDefined shouldBe false
-      resultState.lastEvent.get shouldBe GameEvent.RoundEnd(cleared = true)
+      resultState.gamePhase shouldBe DrawPhase
+      resultState.roundWinner shouldBe Some(1)
+      resultState.lastEvent.get shouldBe GameEvent.Pass
     }
 
     "not execute when passing is invalid (e.g., empty table)" in {

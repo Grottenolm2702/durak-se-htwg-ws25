@@ -72,7 +72,7 @@ case object DefensePhase extends GamePhase {
       roundWinner = None,
       lastEvent = Some(GameEvent.Take)
     )
-    newState.gamePhase.handle(newState)
+    newState
   }
 
   private def canDefend(

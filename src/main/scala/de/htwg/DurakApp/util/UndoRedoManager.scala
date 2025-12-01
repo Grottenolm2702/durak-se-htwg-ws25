@@ -12,19 +12,21 @@ case class ImmutableUndoRedoManager(
 
   def undo: Option[(ImmutableUndoRedoManager, GameState)] = {
     undoStack match {
+      case _ :: previousState :: tailOfUndoStack =>
+        val current = undoStack.head
+        val newManager = this.copy(undoStack = previousState :: tailOfUndoStack, redoStack = current :: redoStack)
+        Some((newManager, previousState))
+      case _ :: Nil => None
       case Nil => None
-      case head :: tail =>
-        val newManager = this.copy(undoStack = tail, redoStack = head :: redoStack)
-        Some((newManager, head))
     }
   }
 
   def redo: Option[(ImmutableUndoRedoManager, GameState)] = {
     redoStack match {
+      case headOfRedoStack :: tailOfRedoStack =>
+        val newManager = this.copy(undoStack = headOfRedoStack :: undoStack, redoStack = tailOfRedoStack)
+        Some((newManager, headOfRedoStack))
       case Nil => None
-      case head :: tail =>
-        val newManager = this.copy(undoStack = head :: undoStack, redoStack = tail)
-        Some((newManager, head))
     }
   }
 }

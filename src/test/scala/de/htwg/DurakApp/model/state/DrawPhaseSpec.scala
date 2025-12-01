@@ -41,8 +41,8 @@ class DrawPhaseSpec extends AnyWordSpec with Matchers {
       resultState.players(1).hand.length.shouldBe(6)
       resultState.deck.length.shouldBe(0)
 
-      resultState.gamePhase.shouldBe(AttackPhase)
-      resultState.lastEvent.get.shouldBe(GameEvent.RoundEnd(cleared = true))
+      resultState.gamePhase.shouldBe(RoundPhase)
+      resultState.lastEvent.get.shouldBe(GameEvent.Draw)
     }
 
     "not change hands if all players have 6 or more cards" in {
@@ -66,7 +66,7 @@ class DrawPhaseSpec extends AnyWordSpec with Matchers {
       resultState.players(0).hand.length.shouldBe(6)
       resultState.players(1).hand.length.shouldBe(7)
       resultState.deck.length.shouldBe(1)
-      resultState.gamePhase.shouldBe(AttackPhase)
+      resultState.gamePhase.shouldBe(RoundPhase)
     }
 
     "skip players that are in passedPlayers when drawing" in {
@@ -114,7 +114,7 @@ class DrawPhaseSpec extends AnyWordSpec with Matchers {
 
       result.deck.length.shouldBe(0)
 
-      result.gamePhase shouldBe AttackPhase
+      result.gamePhase shouldBe RoundPhase
     }
   }
 }

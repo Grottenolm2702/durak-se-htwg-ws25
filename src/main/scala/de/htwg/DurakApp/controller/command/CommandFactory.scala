@@ -17,7 +17,7 @@ object CommandFactory {
   def createCommand(
       action: PlayerAction,
       gameState: GameState
-  ): Either[GameEvent, Command] = {
+  ): Either[GameEvent, GameCommand] = {
     action match {
       case PlayCardAction(card) =>
         Right(PlayCardCommand(card))
