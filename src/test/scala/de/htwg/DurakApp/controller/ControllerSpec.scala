@@ -144,5 +144,83 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
       controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
     }
+
+    "handle undo correctly" in {
+      val player1 = Player("P1", List(spadeSix))
+      val player2 = Player("P2", List(diamondTen))
+      val initialGameState = createGameState(
+        players = List(player1, player2),
+        trumpCard = heartAce.copy(isTrump = true),
+        gamePhase = AttackPhase,
+        attackerIndex = 0,
+        defenderIndex = 1
+      )
+      val controller = new Controller(initialGameState)
+
+      controller.processPlayerAction(PlayCardAction(spadeSix))
+      val gameStateAfterPlay = controller.gameState
+
+      controller.undo()
+      val gameStateAfterUndo = controller.gameState
+
+      gameStateAfterUndo shouldBe initialGameState
+    }
+
+    "handle redo correctly" in {
+      val player1 = Player("P1", List(spadeSix))
+      val player2 = Player("P2", List(diamondTen))
+      val initialGameState = createGameState(
+        players = List(player1, player2),
+        trumpCard = heartAce.copy(isTrump = true),
+        gamePhase = AttackPhase,
+        attackerIndex = 0,
+        defenderIndex = 1
+      )
+      val controller = new Controller(initialGameState)
+
+      controller.processPlayerAction(PlayCardAction(spadeSix))
+      val gameStateAfterPlay = controller.gameState
+
+      controller.undo()
+      val gameStateAfterUndo = controller.gameState
+      gameStateAfterUndo shouldBe initialGameState
+
+      controller.redo()
+      val gameStateAfterRedo = controller.gameState
+
+      gameStateAfterRedo shouldBe gameStateAfterPlay
+    }
+
+    "not undo when no actions have been performed (initial state)" in {
+      val player1 = Player("P1", List(spadeSix))
+      val initialGameState = createGameState(
+        players = List(player1),
+        gamePhase = AttackPhase,
+        trumpCard = defaultTrumpCard
+      )
+      val controller = new Controller(initialGameState)
+
+      val gameStateBeforeUndo = controller.gameState
+      controller.undo()
+      controller.gameState shouldBe gameStateBeforeUndo.copy(lastEvent =
+        Some(GameEvent.CannotUndo)
+      )
+    }
+
+    "not redo when no actions have been undone" in {
+      val player1 = Player("P1", List(spadeSix))
+      val initialGameState = createGameState(
+        players = List(player1),
+        gamePhase = AttackPhase,
+        trumpCard = defaultTrumpCard
+      )
+      val controller = new Controller(initialGameState)
+
+      val gameStateBeforeRedo = controller.gameState
+      controller.redo()
+      controller.gameState shouldBe gameStateBeforeRedo.copy(lastEvent =
+        Some(GameEvent.CannotRedo)
+      )
+    }
   }
 }

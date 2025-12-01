@@ -190,6 +190,30 @@ class TUISpec extends AnyWordSpec with Matchers {
       tui.buildStatusString(game).shouldBe("Spiel beendet.")
     }
 
+    "buildStatusString - CannotUndo" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.CannotUndo)
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      tui
+        .buildStatusString(game)
+        .should(include("Nichts zum Rückgängigmachen!"))
+    }
+
+    "buildStatusString - CannotRedo" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.CannotRedo)
+      )
+      val controller = new Controller(game)
+      val tui = new TUI(controller)
+      tui
+        .buildStatusString(game)
+        .should(include("Nichts zum Wiederherstellen!"))
+    }
+
     "ask for deck size and use default" in {
       val controller = new Controller(createGameState(List.empty))
       val tui = new TUI(controller)
@@ -715,6 +739,44 @@ class TUISpec extends AnyWordSpec with Matchers {
       val output = outStream.toString()
       controller.calls shouldBe 1
       output should include("Spiel beendet.")
+    }
+
+    "gameLoop should not call processPlayerAction for UndoAction or RedoAction" in {
+      val player = Player("TestPlayer", List(spadeSix))
+      val initialGameState = createGameState(players = List(player))
+
+      class MockController(gs: GameState) extends Controller(gs) {
+        var processPlayerActionCalled = false
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): Unit = {
+          processPlayerActionCalled = true
+        }
+      }
+      val mockController = new MockController(initialGameState)
+      val tui = new TUI(mockController)
+
+      mockController.processPlayerActionCalled = false
+      val inputUndo = "undo\nq\n"
+      val inStreamUndo = new ByteArrayInputStream(inputUndo.getBytes)
+      Console.withIn(inStreamUndo) {
+        val outStream = new ByteArrayOutputStream()
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+      mockController.processPlayerActionCalled shouldBe false
+
+      mockController.processPlayerActionCalled = false
+      val inputRedo = "redo\nq\n"
+      val inStreamRedo = new ByteArrayInputStream(inputRedo.getBytes)
+      Console.withIn(inStreamRedo) {
+        val outStream = new ByteArrayOutputStream()
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+      mockController.processPlayerActionCalled shouldBe false
     }
 
   }
