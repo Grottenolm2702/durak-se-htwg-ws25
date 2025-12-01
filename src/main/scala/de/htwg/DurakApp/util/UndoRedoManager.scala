@@ -14,17 +14,23 @@ case class ImmutableUndoRedoManager(
     undoStack match {
       case _ :: previousState :: tailOfUndoStack =>
         val current = undoStack.head
-        val newManager = this.copy(undoStack = previousState :: tailOfUndoStack, redoStack = current :: redoStack)
+        val newManager = this.copy(
+          undoStack = previousState :: tailOfUndoStack,
+          redoStack = current :: redoStack
+        )
         Some((newManager, previousState))
       case _ :: Nil => None
-      case Nil => None
+      case Nil      => None
     }
   }
 
   def redo: Option[(ImmutableUndoRedoManager, GameState)] = {
     redoStack match {
       case headOfRedoStack :: tailOfRedoStack =>
-        val newManager = this.copy(undoStack = headOfRedoStack :: undoStack, redoStack = tailOfRedoStack)
+        val newManager = this.copy(
+          undoStack = headOfRedoStack :: undoStack,
+          redoStack = tailOfRedoStack
+        )
         Some((newManager, headOfRedoStack))
       case Nil => None
     }

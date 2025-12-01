@@ -8,10 +8,46 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
 
   "An ImmutableUndoRedoManager" should {
 
-    val initialState = GameState(Nil, Nil, Map.empty, Nil, Card(Suit.Clubs, Rank.Six), 0, 1, de.htwg.DurakApp.model.state.SetupPhase)
-    val state1 = GameState(Nil, Nil, Map.empty, Nil, Card(Suit.Clubs, Rank.Seven), 1, 2, de.htwg.DurakApp.model.state.SetupPhase)
-    val state2 = GameState(Nil, Nil, Map.empty, Nil, Card(Suit.Clubs, Rank.Eight), 2, 3, de.htwg.DurakApp.model.state.SetupPhase)
-    val state3 = GameState(Nil, Nil, Map.empty, Nil, Card(Suit.Clubs, Rank.Nine), 3, 0, de.htwg.DurakApp.model.state.SetupPhase)
+    val initialState = GameState(
+      Nil,
+      Nil,
+      Map.empty,
+      Nil,
+      Card(Suit.Clubs, Rank.Six),
+      0,
+      1,
+      de.htwg.DurakApp.model.state.SetupPhase
+    )
+    val state1 = GameState(
+      Nil,
+      Nil,
+      Map.empty,
+      Nil,
+      Card(Suit.Clubs, Rank.Seven),
+      1,
+      2,
+      de.htwg.DurakApp.model.state.SetupPhase
+    )
+    val state2 = GameState(
+      Nil,
+      Nil,
+      Map.empty,
+      Nil,
+      Card(Suit.Clubs, Rank.Eight),
+      2,
+      3,
+      de.htwg.DurakApp.model.state.SetupPhase
+    )
+    val state3 = GameState(
+      Nil,
+      Nil,
+      Map.empty,
+      Nil,
+      Card(Suit.Clubs, Rank.Nine),
+      3,
+      0,
+      de.htwg.DurakApp.model.state.SetupPhase
+    )
 
     "be empty initially" in {
       val manager = ImmutableUndoRedoManager()
@@ -38,7 +74,8 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     }
 
     "undo multiple states correctly" in {
-      val manager = ImmutableUndoRedoManager().save(initialState).save(state1).save(state2)
+      val manager =
+        ImmutableUndoRedoManager().save(initialState).save(state1).save(state2)
       val (m1, s1) = manager.undo.get
       s1 should be(state1)
       m1.undoStack should be(List(state1, initialState))
@@ -66,7 +103,8 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     }
 
     "redo multiple states correctly" in {
-      val manager = ImmutableUndoRedoManager().save(initialState).save(state1).save(state2)
+      val manager =
+        ImmutableUndoRedoManager().save(initialState).save(state1).save(state2)
       val (m1, _) = manager.undo.get
       val (m2, _) = m1.undo.get
 
