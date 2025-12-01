@@ -19,7 +19,7 @@ import de.htwg.DurakApp.controller.{
 class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
     extends Observable {
 
-  def processPlayerAction(action: PlayerAction): Unit = {
+  def processPlayerAction(action: PlayerAction): GameState = {
     val oldGameStateBeforeAction = this.gameState
     val result = CommandFactory.createCommand(action, oldGameStateBeforeAction)
 
@@ -39,7 +39,7 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
         def handlePhaseRecursively(
             currentState: GameState,
             currentUndoRedoManager: UndoRedoManager
-        ): Unit = {
+        ): GameState = {
           val oldPhaseStateBeforeHandle = currentState
           val nextState = currentState.gamePhase.handle(currentState)
 
@@ -51,36 +51,45 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
             )
             notifyObservers
             handlePhaseRecursively(this.gameState, this.undoRedoManager)
-          } else {}
+          } else {
+            currentState
+          }
         }
 
-        handlePhaseRecursively(this.gameState, this.undoRedoManager)
+        val finalStateFromPhaseHandling =
+          handlePhaseRecursively(this.gameState, this.undoRedoManager)
+        this.gameState = finalStateFromPhaseHandling
     }
+    this.gameState
   }
 
-  def undo(): Unit = {
+  def undo(): Option[GameState] = {
     undoRedoManager.undo(this.gameState) match {
       case Some((newManager, previousState)) =>
         undoRedoManager = newManager
         this.gameState = previousState
         notifyObservers
+        Some(this.gameState)
       case None =>
         this.gameState =
           this.gameState.copy(lastEvent = Some(GameEvent.CannotUndo))
         notifyObservers
+        None
     }
   }
 
-  def redo(): Unit = {
+  def redo(): Option[GameState] = {
     undoRedoManager.redo(this.gameState) match {
       case Some((newManager, nextState)) =>
         undoRedoManager = newManager
         this.gameState = nextState
         notifyObservers
+        Some(this.gameState)
       case None =>
         this.gameState =
           this.gameState.copy(lastEvent = Some(GameEvent.CannotRedo))
         notifyObservers
+        None
     }
   }
 
