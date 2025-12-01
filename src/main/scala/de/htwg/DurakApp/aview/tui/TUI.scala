@@ -5,7 +5,9 @@ import de.htwg.DurakApp.aview.tui.handler.{
   InvalidInputHandler,
   PassHandler,
   PlayCardHandler,
-  TakeCardsHandler
+  TakeCardsHandler,
+  UndoHandler,
+  RedoHandler
 }
 import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.*
@@ -16,7 +18,9 @@ import de.htwg.DurakApp.controller.{
   PlayCardAction,
   PassAction,
   TakeCardsAction,
-  InvalidAction
+  InvalidAction,
+  UndoAction,
+  RedoAction
 }
 
 import scala.io.StdIn.readLine
@@ -31,12 +35,18 @@ class TUI(controller: Controller) extends Observer {
   val RESET = "\u001b[0m"
 
   private val inputHandler: InputHandler = {
+    val undo = new UndoHandler(controller)
+    val redo = new RedoHandler(controller)
     val play = new PlayCardHandler()
     val pass = new PassHandler()
     val take = new TakeCardsHandler()
     val invalid = new InvalidInputHandler()
-    play.setNext(pass).setNext(take).setNext(invalid)
-    play
+    undo.setNext(redo)
+    redo.setNext(play)
+    play.setNext(pass)
+    pass.setNext(take)
+    take.setNext(invalid)
+    undo
   }
 
   def run(): Unit = {
@@ -58,18 +68,11 @@ class TUI(controller: Controller) extends Observer {
     if (input == "q" || input == "quit") {
       ()
     } else {
-      val processedAction =
-        if (input == "u") {
-          controller.undo()
-          true
-        } else if (input == "r") {
-          controller.redo()
-          true
-        } else {
-          val action = parseTuiInput(input, controller.gameState)
-          controller.processPlayerAction(action)
-          true
-        }
+      val action = parseTuiInput(input, controller.gameState)
+      action match {
+        case UndoAction | RedoAction => // Handled directly by UndoHandler/RedoHandler
+        case _ => controller.processPlayerAction(action)
+      }
       
       controller.gameState.lastEvent match {
         case Some(GameEvent.GameOver(_, _)) =>
@@ -115,8 +118,8 @@ class TUI(controller: Controller) extends Observer {
       case _            => game.players(game.attackerIndex)
     }
     val moves = game.gamePhase match {
-      case AttackPhase  => "('play index', 'pass')"
-      case DefensePhase => "('play index', 'take')"
+      case AttackPhase  => "('play index', 'pass', 'u', 'r')"
+      case DefensePhase => "('play index', 'take', 'u', 'r')"
       case _            => "('play index', 'pass', 'take', 'u', 'r')"
     }
     println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
