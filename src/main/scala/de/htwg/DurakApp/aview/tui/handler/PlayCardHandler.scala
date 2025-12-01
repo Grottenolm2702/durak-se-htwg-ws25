@@ -6,7 +6,8 @@ import de.htwg.DurakApp.model.state.DefensePhase
 
 import scala.util.Try
 
-class PlayCardHandler(override val next: Option[InputHandler] = None) extends InputHandler {
+class PlayCardHandler(override val next: Option[InputHandler] = None)
+    extends InputHandler {
   override def handleRequest(
       input: String,
       gameState: GameState

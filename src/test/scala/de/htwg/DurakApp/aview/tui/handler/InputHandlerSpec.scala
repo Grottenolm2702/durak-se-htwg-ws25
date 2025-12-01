@@ -2,6 +2,9 @@ package de.htwg.DurakApp.aview.tui.handler
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.model.builder.GameStateBuilder
+import de.htwg.DurakApp.util.UndoRedoManager
 
 class InputHandlerSpec extends AnyWordSpec with Matchers {
 
@@ -10,6 +13,28 @@ class InputHandlerSpec extends AnyWordSpec with Matchers {
       val handler2 = new TakeCardsHandler()
       val handler1 = new PassHandler(Some(handler2))
       handler1.next should be(Some(handler2))
+    }
+  }
+
+  "RedoHandler" should {
+    "have next set to None by default" in {
+      val controller = new Controller(
+        GameStateBuilder().build(),
+        UndoRedoManager()
+      )
+      val redoHandler = new RedoHandler(controller)
+      redoHandler.next should be(None)
+    }
+  }
+
+  "UndoHandler" should {
+    "have next set to None by default" in {
+      val controller = new Controller(
+        GameStateBuilder().build(),
+        UndoRedoManager()
+      )
+      val undoHandler = new UndoHandler(controller)
+      undoHandler.next should be(None)
     }
   }
 }
