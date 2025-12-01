@@ -369,7 +369,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       val output = outStream.toString()
-      output should include(s"${GREEN}Alice$RESET, dein Zug ('play index', 'pass'):")
+      output should include(s"${GREEN}Alice$RESET, dein Zug ('play index', 'pass', 'u', 'r'):")
     }
 
     "show the correct prompt for the defender in DefensePhase" in {
@@ -394,7 +394,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       val output = outStream.toString()
-      output should include(s"${GREEN}Bob$RESET, dein Zug ('play index', 'take'):")
+      output should include(s"${GREEN}Bob$RESET, dein Zug ('play index', 'take', 'u', 'r'):")
     }
 
     "parseTuiInput (Chain of Responsibility)" should {
@@ -428,6 +428,26 @@ class TUISpec extends AnyWordSpec with Matchers {
       "handle 'take'" in {
         val action = tui.parseTuiInput("take", gameDefensePhase)
         action should be(de.htwg.DurakApp.controller.TakeCardsAction)
+      }
+
+      "handle 'undo'" in {
+        val action = tui.parseTuiInput("undo", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.UndoAction)
+      }
+
+      "handle 'z' as undo" in {
+        val action = tui.parseTuiInput("z", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.UndoAction)
+      }
+
+      "handle 'redo'" in {
+        val action = tui.parseTuiInput("redo", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.RedoAction)
+      }
+
+      "handle 'y' as redo" in {
+        val action = tui.parseTuiInput("y", gameAttackPhase)
+        action should be(de.htwg.DurakApp.controller.RedoAction)
       }
 
       "handle invalid command" in {

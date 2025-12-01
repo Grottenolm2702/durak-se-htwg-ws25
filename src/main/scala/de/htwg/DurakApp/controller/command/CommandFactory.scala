@@ -8,7 +8,9 @@ import de.htwg.DurakApp.controller.{
   PlayCardAction,
   PassAction,
   TakeCardsAction,
-  InvalidAction
+  InvalidAction,
+  UndoAction,
+  RedoAction
 }
 
 object CommandFactory {
@@ -26,7 +28,7 @@ object CommandFactory {
       case TakeCardsAction =>
         Right(TakeCardsCommand())
 
-      case InvalidAction =>
+      case InvalidAction | UndoAction | RedoAction =>
         Left(GameEvent.InvalidMove)
     }
   }
