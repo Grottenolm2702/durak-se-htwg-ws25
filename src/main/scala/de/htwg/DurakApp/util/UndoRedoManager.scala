@@ -3,15 +3,20 @@ package de.htwg.DurakApp.util
 import de.htwg.DurakApp.controller.command.GameCommand
 import de.htwg.DurakApp.model.GameState
 
-case class ImmutableUndoRedoManager(
+case class UndoRedoManager(
     undoStack: List[(GameCommand, GameState)],
     redoStack: List[(GameCommand, GameState)]
 ) {
-  def save(command: GameCommand, oldState: GameState): ImmutableUndoRedoManager = {
+  def save(
+      command: GameCommand,
+      oldState: GameState
+  ): UndoRedoManager = {
     this.copy(undoStack = (command, oldState) :: undoStack, redoStack = Nil)
   }
 
-  def undo(currentGameState: GameState): Option[(ImmutableUndoRedoManager, GameState)] = {
+  def undo(
+      currentGameState: GameState
+  ): Option[(UndoRedoManager, GameState)] = {
     undoStack match {
       case (command, previousState) :: tailOfUndoStack =>
         val undoneState = command.undo(currentGameState, previousState)
@@ -24,7 +29,9 @@ case class ImmutableUndoRedoManager(
     }
   }
 
-  def redo(currentGameState: GameState): Option[(ImmutableUndoRedoManager, GameState)] = {
+  def redo(
+      currentGameState: GameState
+  ): Option[(UndoRedoManager, GameState)] = {
     redoStack match {
       case (command, stateBeforeRedoCommand) :: tailOfRedoStack =>
         val redoneState = command.execute(currentGameState)
@@ -38,6 +45,6 @@ case class ImmutableUndoRedoManager(
   }
 }
 
-object ImmutableUndoRedoManager {
-  def apply(): ImmutableUndoRedoManager = ImmutableUndoRedoManager(Nil, Nil)
+object UndoRedoManager {
+  def apply(): UndoRedoManager = UndoRedoManager(Nil, Nil)
 }
