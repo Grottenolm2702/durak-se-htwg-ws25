@@ -8,7 +8,7 @@ import de.htwg.DurakApp.controller.{
 }
 import de.htwg.DurakApp.model.GameState
 
-class UndoHandler(controller: Controller) extends InputHandler {
+class UndoHandler(controller: Controller, override val next: Option[InputHandler] = None) extends InputHandler {
   override def handleRequest(
       input: String,
       gameState: GameState
@@ -18,7 +18,7 @@ class UndoHandler(controller: Controller) extends InputHandler {
         controller.undo()
         UndoAction
       case _ =>
-        next.map(_.handleRequest(input, gameState)).getOrElse(InvalidAction)
+        super.handleRequest(input, gameState)
     }
   }
 }

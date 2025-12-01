@@ -7,7 +7,7 @@ import de.htwg.DurakApp.controller.{
 }
 import de.htwg.DurakApp.model.GameState
 
-class TakeCardsHandler extends InputHandler {
+class TakeCardsHandler(override val next: Option[InputHandler] = None) extends InputHandler {
   override def handleRequest(
       input: String,
       gameState: GameState
@@ -17,7 +17,7 @@ class TakeCardsHandler extends InputHandler {
       case Some("take") =>
         TakeCardsAction
       case _ =>
-        next.map(_.handleRequest(input, gameState)).getOrElse(InvalidAction)
+        super.handleRequest(input, gameState)
     }
   }
 }

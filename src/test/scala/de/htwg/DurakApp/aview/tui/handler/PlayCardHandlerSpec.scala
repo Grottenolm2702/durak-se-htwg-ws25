@@ -27,9 +27,8 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
   )
 
   "A PlayCardHandler" should {
-    val playHandler = new PlayCardHandler()
     val passHandler = new PassHandler()
-    playHandler.setNext(passHandler)
+    val playHandler = new PlayCardHandler(Some(passHandler))
 
     "handle 'play 0' command" in {
       playHandler.handleRequest("play 0", gameState) should be(

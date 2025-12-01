@@ -23,9 +23,8 @@ class PassHandlerSpec extends AnyWordSpec with Matchers {
   )
 
   "A PassHandler" should {
-    val passHandler = new PassHandler()
     val takeHandler = new TakeCardsHandler()
-    passHandler.setNext(takeHandler)
+    val passHandler = new PassHandler(Some(takeHandler))
 
     "handle 'pass' command" in {
       passHandler.handleRequest("pass", gameState) should be(PassAction)

@@ -23,9 +23,8 @@ class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
   )
 
   "A TakeCardsHandler" should {
-    val takeHandler = new TakeCardsHandler()
     val invalidHandler = new InvalidInputHandler()
-    takeHandler.setNext(invalidHandler)
+    val takeHandler = new TakeCardsHandler(Some(invalidHandler))
 
     "handle 'take' command" in {
       takeHandler.handleRequest("take", gameState) should be(TakeCardsAction)

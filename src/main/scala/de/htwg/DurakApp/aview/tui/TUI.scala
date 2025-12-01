@@ -35,17 +35,12 @@ class TUI(controller: Controller) extends Observer {
   val RESET = "\u001b[0m"
 
   private val inputHandler: InputHandler = {
-    val undo = new UndoHandler(controller)
-    val redo = new RedoHandler(controller)
-    val play = new PlayCardHandler()
-    val pass = new PassHandler()
-    val take = new TakeCardsHandler()
     val invalid = new InvalidInputHandler()
-    undo.setNext(redo)
-    redo.setNext(play)
-    play.setNext(pass)
-    pass.setNext(take)
-    take.setNext(invalid)
+    val take = new TakeCardsHandler(Some(invalid))
+    val pass = new PassHandler(Some(take))
+    val play = new PlayCardHandler(Some(pass))
+    val redo = new RedoHandler(controller, Some(play))
+    val undo = new UndoHandler(controller, Some(redo))
     undo
   }
 
