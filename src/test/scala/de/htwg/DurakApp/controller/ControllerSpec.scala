@@ -58,7 +58,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     "be initialized with a given GameState" in {
       val initialPlayers = List(Player("TestPlayer", List.empty))
       val initialGameState = createGameState(players = initialPlayers)
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       controller.gameState.players.head.name.shouldBe("TestPlayer")
     }
@@ -73,7 +76,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       controller.processPlayerAction(PlayCardAction(spadeSix))
 
@@ -93,7 +99,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       controller.processPlayerAction(PassAction)
 
@@ -114,7 +123,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       controller.processPlayerAction(TakeCardsAction)
 
@@ -128,7 +140,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         players = List(Player("Test", List.empty)),
         gamePhase = AttackPhase
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       controller.getStatusString().shouldBe("AttackPhase")
     }
 
@@ -138,7 +153,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         players = List(player1),
         gamePhase = AttackPhase
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       controller.processPlayerAction(InvalidAction)
 
@@ -155,7 +173,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       controller.processPlayerAction(PlayCardAction(spadeSix))
       val gameStateAfterPlay = controller.gameState
@@ -176,7 +197,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       controller.processPlayerAction(PlayCardAction(spadeSix))
       val gameStateAfterPlay = controller.gameState
@@ -198,7 +222,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         trumpCard = defaultTrumpCard
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       val gameStateBeforeUndo = controller.gameState
       controller.undo()
@@ -214,7 +241,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         trumpCard = defaultTrumpCard
       )
-      val controller = new Controller(initialGameState)
+      val controller = new Controller(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
 
       val gameStateBeforeRedo = controller.gameState
       controller.redo()

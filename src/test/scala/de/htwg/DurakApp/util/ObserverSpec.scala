@@ -44,8 +44,9 @@ class ObserverSpec extends AnyWordSpec with Matchers {
 }
 
 class TestObserver extends Observer {
-  private var _updateCount: Int = 0
-  def update: Unit = _updateCount += 1
-  def wasUpdated: Boolean = _updateCount > 0
-  def reset(): Unit = _updateCount = 0
+  private val _updateCount: java.util.concurrent.atomic.AtomicInteger =
+    new java.util.concurrent.atomic.AtomicInteger(0)
+  def update: Unit = _updateCount.incrementAndGet()
+  def wasUpdated: Boolean = _updateCount.get() > 0
+  def reset(): Unit = _updateCount.set(0)
 }

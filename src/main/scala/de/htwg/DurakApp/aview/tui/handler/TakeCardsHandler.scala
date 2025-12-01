@@ -7,7 +7,8 @@ import de.htwg.DurakApp.controller.{
 }
 import de.htwg.DurakApp.model.GameState
 
-class TakeCardsHandler(override val next: Option[InputHandler] = None) extends InputHandler {
+class TakeCardsHandler(override val next: Option[InputHandler] = None)
+    extends InputHandler {
   override def handleRequest(
       input: String,
       gameState: GameState

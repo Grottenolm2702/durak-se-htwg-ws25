@@ -16,9 +16,8 @@ import de.htwg.DurakApp.controller.{
   InvalidAction
 }
 
-class Controller(var gameState: GameState) extends Observable {
-  private var undoRedoManager: UndoRedoManager =
-    UndoRedoManager()
+class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
+    extends Observable {
 
   def processPlayerAction(action: PlayerAction): Unit = {
     val oldGameStateBeforeAction = this.gameState
@@ -36,24 +35,26 @@ class Controller(var gameState: GameState) extends Observable {
           undoRedoManager.save(command, oldGameStateBeforeAction)
         notifyObservers
 
-        var currentPhaseState = this.gameState
-        var continueHandling = true
+        @scala.annotation.tailrec
+        def handlePhaseRecursively(
+            currentState: GameState,
+            currentUndoRedoManager: UndoRedoManager
+        ): Unit = {
+          val oldPhaseStateBeforeHandle = currentState
+          val nextState = currentState.gamePhase.handle(currentState)
 
-        while (continueHandling) {
-          val oldPhaseStateBeforeHandle = currentPhaseState
-          val nextState = currentPhaseState.gamePhase.handle(currentPhaseState)
-          if (nextState != currentPhaseState) {
-            currentPhaseState = nextState
+          if (nextState != currentState) {
             this.gameState = nextState
-            undoRedoManager = undoRedoManager.save(
+            this.undoRedoManager = currentUndoRedoManager.save(
               new PhaseChangeCommand(),
               oldPhaseStateBeforeHandle
             )
             notifyObservers
-          } else {
-            continueHandling = false
-          }
+            handlePhaseRecursively(this.gameState, this.undoRedoManager)
+          } else {}
         }
+
+        handlePhaseRecursively(this.gameState, this.undoRedoManager)
     }
   }
 

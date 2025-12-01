@@ -7,6 +7,8 @@ trait InputHandler {
   val next: Option[InputHandler]
 
   def handleRequest(input: String, gameState: GameState): PlayerAction = {
-    next.map(handler => handler.handleRequest(input, gameState)).getOrElse(InvalidAction)
+    next
+      .map(handler => handler.handleRequest(input, gameState))
+      .getOrElse(InvalidAction)
   }
 }

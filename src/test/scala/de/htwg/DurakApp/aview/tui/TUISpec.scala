@@ -66,7 +66,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = SetupPhase,
         lastEvent = None
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Willkommen bei Durak!")
     }
@@ -77,7 +78,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = SetupPhase,
         lastEvent = None
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Spieler werden eingerichtet.")
     }
@@ -91,7 +93,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         lastEvent = Some(GameEvent.Attack(spadeSix))
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Angriff mit Six Spades."))
     }
@@ -105,7 +108,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         lastEvent = Some(GameEvent.Defend(diamondTen))
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -119,7 +123,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = DrawPhase,
         lastEvent = Some(GameEvent.Take)
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Karten aufgenommen."))
     }
@@ -131,7 +136,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = DrawPhase,
         lastEvent = Some(GameEvent.Pass)
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Passen."))
     }
@@ -141,7 +147,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.InvalidMove)
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Ungültiger Zug!"))
     }
@@ -155,7 +162,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = EndPhase,
         lastEvent = Some(GameEvent.GameOver(donePlayer, Some(loser)))
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -170,7 +178,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = EndPhase,
         lastEvent = Some(GameEvent.GameOver(p1, None))
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -185,7 +194,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = EndPhase,
         lastEvent = Some(GameEvent.GameOver(Player("Quit", List.empty), None))
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Spiel beendet.")
     }
@@ -195,7 +205,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.CannotUndo)
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -207,7 +218,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.CannotRedo)
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -215,7 +227,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "ask for deck size and use default" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       val input = "\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -226,7 +241,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "askForDeckSize uses provided value" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       val input = "52\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -237,7 +255,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "ask for player count and use default" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       val input = "\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -248,7 +269,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "askForPlayerCount uses provided value" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       val input = "3\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -259,7 +283,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "ask for player count and handle minimum" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       val input = "1\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -270,7 +297,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "ask for player names and use provided names" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       val input = "Alice\nBob\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -281,7 +311,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "ask for player names and use default names for empty input" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       val input = "\n\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -292,7 +325,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "clearScreen returns ANSI escape sequence" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
       tui.clearScreen().shouldBe("\u001b[2J\u001b[H")
     }
@@ -305,7 +341,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         attackerIndex = 0
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       controller.add(tui)
 
@@ -321,7 +358,10 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "renderCard" should {
       "contain rank and suit for a red card" in {
-        val controller = new Controller(createGameState(List.empty))
+        val controller = new Controller(
+          createGameState(List.empty),
+          de.htwg.DurakApp.util.UndoRedoManager()
+        )
         val tui = new TUI(controller)
         val card = Card(Suit.Hearts, Rank.Ace)
         val renderedCard = tui.renderCard(card).mkString
@@ -330,7 +370,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       "contain rank and suit for a black card" in {
-        val controller = new Controller(createGameState(List.empty))
+        val controller = new Controller(
+          createGameState(List.empty),
+          de.htwg.DurakApp.util.UndoRedoManager()
+        )
         val tui = new TUI(controller)
         val card = Card(Suit.Spades, Rank.King)
         val renderedCard = tui.renderCard(card).mkString
@@ -341,13 +384,19 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "renderHandWithIndices" should {
       "return 'Leere Hand' for an empty hand" in {
-        val controller = new Controller(createGameState(List.empty))
+        val controller = new Controller(
+          createGameState(List.empty),
+          de.htwg.DurakApp.util.UndoRedoManager()
+        )
         val tui = new TUI(controller)
         tui.renderHandWithIndices(List.empty) should be("Leere Hand")
       }
 
       "render a single card with its index" in {
-        val controller = new Controller(createGameState(List.empty))
+        val controller = new Controller(
+          createGameState(List.empty),
+          de.htwg.DurakApp.util.UndoRedoManager()
+        )
         val tui = new TUI(controller)
         val hand = List(Card(Suit.Diamonds, Rank.Ten))
         val renderedHand = tui.renderHandWithIndices(hand)
@@ -357,7 +406,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       "render multiple cards with their indices" in {
-        val controller = new Controller(createGameState(List.empty))
+        val controller = new Controller(
+          createGameState(List.empty),
+          de.htwg.DurakApp.util.UndoRedoManager()
+        )
         val tui = new TUI(controller)
         val hand =
           List(Card(Suit.Diamonds, Rank.Ten), Card(Suit.Clubs, Rank.Jack))
@@ -380,7 +432,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         attackerIndex = 0
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       val input = "q\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -407,7 +460,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         attackerIndex = 0,
         defenderIndex = 1
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       val input = "q\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -435,7 +489,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         defenderIndex = 1
       )
       val gameDefensePhase = gameAttackPhase.copy(gamePhase = DefensePhase)
-      val controller = new Controller(gameAttackPhase)
+      val controller =
+        new Controller(gameAttackPhase, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
 
       "handle 'play 0' during AttackPhase" in {
@@ -510,7 +565,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         attackerIndex = 0
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       val input = "quit\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -534,7 +590,10 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase
       )
 
-      class TestController(gs: GameState) extends Controller(gs) {
+      class TestController(
+          gs: GameState,
+          undoManager: de.htwg.DurakApp.util.UndoRedoManager
+      ) extends Controller(gs, undoManager) {
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): Unit = {
@@ -544,7 +603,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         }
       }
 
-      val controller = new TestController(initial)
+      val controller =
+        new TestController(initial, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
 
       val input =
@@ -570,7 +630,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = RoundPhase,
         attackerIndex = 0
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       val input = "q\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -595,7 +656,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = DrawPhase,
         attackerIndex = 0
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
       val input = "q\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -614,7 +676,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "renderCard includes Nine and Queen correctly" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
 
       val nineCard = Card(Suit.Clubs, Rank.Nine)
@@ -639,7 +704,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         table = Map(attack -> Some(defend)),
         gamePhase = AttackPhase
       )
-      val controller = new Controller(game)
+      val controller =
+        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
       val tui = new TUI(controller)
 
       val tableStr = tui.renderTable(game)
@@ -652,7 +718,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "buildStatusString - NotYourTurn, Draw and RoundEnd cases" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
 
       val g1 = createGameState(
@@ -683,14 +752,20 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "combineCardLines returns empty string for empty list" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
 
       tui.combineCardLines(List.empty) shouldBe ""
     }
 
     "renderCard includes Seven and Eight correctly" in {
-      val controller = new Controller(createGameState(List.empty))
+      val controller = new Controller(
+        createGameState(List.empty),
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(controller)
 
       val seven = Card(Suit.Diamonds, Rank.Seven)
@@ -713,31 +788,44 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase
       )
 
-      class TestController(gs: GameState) extends Controller(gs) {
-        var calls = 0
+      class TestController(
+          gs: GameState,
+          undoManager: de.htwg.DurakApp.util.UndoRedoManager
+      ) extends Controller(gs, undoManager) {
+        val calls = new java.util.concurrent.atomic.AtomicInteger(0)
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): Unit = {
-          calls += 1
+          calls.incrementAndGet()
           this.gameState = this.gameState.copy(lastEvent = Some(GameEvent.Pass))
         }
       }
 
-      val controller = new TestController(initial)
+      val controller =
+        new TestController(initial, de.htwg.DurakApp.util.UndoRedoManager())
+
       val tui = new TUI(controller)
 
-      val input = "pass\nq\n"
+      val input =
+        "pass\nq\n"
+
       val inStream = new ByteArrayInputStream(input.getBytes)
+
       val outStream = new ByteArrayOutputStream()
 
       Console.withIn(inStream) {
+
         Console.withOut(outStream) {
+
           tui.run()
+
         }
+
       }
 
       val output = outStream.toString()
-      controller.calls shouldBe 1
+
+      controller.calls.get() shouldBe 1
       output should include("Spiel beendet.")
     }
 
@@ -745,18 +833,25 @@ class TUISpec extends AnyWordSpec with Matchers {
       val player = Player("TestPlayer", List(spadeSix))
       val initialGameState = createGameState(players = List(player))
 
-      class MockController(gs: GameState) extends Controller(gs) {
-        var processPlayerActionCalled = false
+      class MockController(
+          gs: GameState,
+          undoManager: de.htwg.DurakApp.util.UndoRedoManager
+      ) extends Controller(gs, undoManager) {
+        val processPlayerActionCalled =
+          new java.util.concurrent.atomic.AtomicBoolean(false)
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): Unit = {
-          processPlayerActionCalled = true
+          processPlayerActionCalled.set(true)
         }
       }
-      val mockController = new MockController(initialGameState)
+      val mockController = new MockController(
+        initialGameState,
+        de.htwg.DurakApp.util.UndoRedoManager()
+      )
       val tui = new TUI(mockController)
 
-      mockController.processPlayerActionCalled = false
+      mockController.processPlayerActionCalled.set(false)
       val inputUndo = "undo\nq\n"
       val inStreamUndo = new ByteArrayInputStream(inputUndo.getBytes)
       Console.withIn(inStreamUndo) {
@@ -765,9 +860,9 @@ class TUISpec extends AnyWordSpec with Matchers {
           tui.run()
         }
       }
-      mockController.processPlayerActionCalled shouldBe false
+      mockController.processPlayerActionCalled.get() shouldBe false
 
-      mockController.processPlayerActionCalled = false
+      mockController.processPlayerActionCalled.set(false)
       val inputRedo = "redo\nq\n"
       val inStreamRedo = new ByteArrayInputStream(inputRedo.getBytes)
       Console.withIn(inStreamRedo) {
@@ -776,7 +871,7 @@ class TUISpec extends AnyWordSpec with Matchers {
           tui.run()
         }
       }
-      mockController.processPlayerActionCalled shouldBe false
+      mockController.processPlayerActionCalled.get() shouldBe false
     }
 
   }
