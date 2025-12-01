@@ -5,11 +5,16 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.controller.command.GameCommand
 
-class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
+class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
 
   val initialState = GameState(
-    Nil, Nil, Map.empty, Nil,
-    Card(Suit.Clubs, Rank.Six), 0, 1,
+    Nil,
+    Nil,
+    Map.empty,
+    Nil,
+    Card(Suit.Clubs, Rank.Six),
+    0,
+    1,
     de.htwg.DurakApp.model.state.SetupPhase
   )
   val state1 = initialState.copy(attackerIndex = initialState.attackerIndex + 1)
@@ -24,22 +29,28 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
       gameState should be(oldState)
       newState
     }
-    override def undo(currentGameState: GameState, previousGameState: GameState): GameState = {
+    override def undo(
+        currentGameState: GameState,
+        previousGameState: GameState
+    ): GameState = {
       currentGameState should be(newState)
       previousGameState
     }
   }
 
-  "An ImmutableUndoRedoManager" should {
+  "An UndoRedoManager" should {
 
     "be empty initially" in {
-      val manager = ImmutableUndoRedoManager()
+      val manager = UndoRedoManager()
       manager.undoStack should be(Nil)
       manager.redoStack should be(Nil)
     }
 
     "save a state correctly" in {
-      val manager = ImmutableUndoRedoManager().save(TestCommand(initialState, state1), initialState)
+      val manager = UndoRedoManager().save(
+        TestCommand(initialState, state1),
+        initialState
+      )
       manager.undoStack.head._2 should be(initialState)
       manager.undoStack.head._1 shouldBe a[TestCommand]
       manager.redoStack should be(Nil)
@@ -52,7 +63,7 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     }
 
     "undo a state correctly" in {
-      val manager = ImmutableUndoRedoManager()
+      val manager = UndoRedoManager()
         .save(TestCommand(initialState, state1), initialState)
         .save(TestCommand(state1, state2), state1)
 
@@ -64,7 +75,7 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     }
 
     "undo multiple states correctly" in {
-      val manager = ImmutableUndoRedoManager()
+      val manager = UndoRedoManager()
         .save(TestCommand(initialState, state1), initialState)
         .save(TestCommand(state1, state2), state1)
         .save(TestCommand(state2, state3), state2)
@@ -81,26 +92,27 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     }
 
     "return None when undoing with an empty undoStack" in {
-      val manager = ImmutableUndoRedoManager()
+      val manager = UndoRedoManager()
       manager.undo(initialState) should be(None)
     }
 
     "redo a state correctly" in {
-      val manager = ImmutableUndoRedoManager()
+      val manager = UndoRedoManager()
         .save(TestCommand(initialState, state1), initialState)
         .save(TestCommand(state1, state2), state1)
 
       val (managerAfterUndo, undoneState) = manager.undo(state2).get
       undoneState should be(state1)
 
-      val (managerAfterRedo, redoneState) = managerAfterUndo.redo(undoneState).get
+      val (managerAfterRedo, redoneState) =
+        managerAfterUndo.redo(undoneState).get
       redoneState should be(state2)
       managerAfterRedo.undoStack.head._2 should be(state1)
       managerAfterRedo.redoStack should be(Nil)
     }
 
     "redo multiple states correctly" in {
-      val manager = ImmutableUndoRedoManager()
+      val manager = UndoRedoManager()
         .save(TestCommand(initialState, state1), initialState)
         .save(TestCommand(state1, state2), state1)
         .save(TestCommand(state2, state3), state2)
@@ -122,31 +134,39 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     }
 
     "return None when redoing with an empty redoStack" in {
-      val manager = ImmutableUndoRedoManager().save(TestCommand(initialState, state1), initialState)
+      val manager = UndoRedoManager().save(
+        TestCommand(initialState, state1),
+        initialState
+      )
       manager.redo(state1) should be(None)
     }
 
     "clear redo stack on new save" in {
-      val manager = ImmutableUndoRedoManager()
+      val manager = UndoRedoManager()
         .save(TestCommand(initialState, state1), initialState)
         .save(TestCommand(state1, state2), state1)
 
       val (managerAfterUndo, _) = manager.undo(state2).get
-      val managerAfterNewSave = managerAfterUndo.save(TestCommand(state1, state3), state1)
+      val managerAfterNewSave =
+        managerAfterUndo.save(TestCommand(state1, state3), state1)
       managerAfterNewSave.undoStack.head._2 should be(state1)
       managerAfterNewSave.redoStack should be(Nil)
     }
 
     "handle initial state correctly with undo" in {
-      val manager = ImmutableUndoRedoManager().save(TestCommand(initialState, state1), initialState)
+      val manager = UndoRedoManager().save(
+        TestCommand(initialState, state1),
+        initialState
+      )
       val (m1, s1) = manager.undo(state1).get
       s1 should be(initialState)
       m1.undo(initialState) should be(None)
     }
 
     "return the correct manager instance after operations" in {
-      val initialManager = ImmutableUndoRedoManager()
-      val manager1 = initialManager.save(TestCommand(initialState, state1), initialState)
+      val initialManager = UndoRedoManager()
+      val manager1 =
+        initialManager.save(TestCommand(initialState, state1), initialState)
       val manager2 = manager1.save(TestCommand(state1, state2), state1)
 
       val (managerAfterUndo, _) = manager2.undo(state2).get
