@@ -58,10 +58,21 @@ class TUI(controller: Controller) extends Observer {
     if (input == "q" || input == "quit") {
       ()
     } else {
-      val action = parseTuiInput(input, controller.gameState)
-      controller.processPlayerAction(action)
+      val processedAction =
+        if (input == "u") {
+          controller.undo()
+          true
+        } else if (input == "r") {
+          controller.redo()
+          true
+        } else {
+          val action = parseTuiInput(input, controller.gameState)
+          controller.processPlayerAction(action)
+          true
+        }
+      
       controller.gameState.lastEvent match {
-        case Some(GameEvent.GameOver(_, _)) => ()
+        case Some(GameEvent.GameOver(_, _)) =>
         case _                              => gameLoop()
       }
     }
@@ -106,7 +117,7 @@ class TUI(controller: Controller) extends Observer {
     val moves = game.gamePhase match {
       case AttackPhase  => "('play index', 'pass')"
       case DefensePhase => "('play index', 'take')"
-      case _            => "('play index', 'pass', 'take')"
+      case _            => "('play index', 'pass', 'take', 'u', 'r')"
     }
     println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
     print("> ")
@@ -134,7 +145,7 @@ class TUI(controller: Controller) extends Observer {
       case Rank.Seven => "7"
       case Rank.Eight => "8"
       case Rank.Nine  => "9"
-      case Rank.Ten   => "10"
+      case Rank.Ten  => "10"
       case Rank.Jack  => "J"
       case Rank.Queen => "Q"
       case Rank.King  => "K"
@@ -252,6 +263,8 @@ $statusLine
           s"Spiel beendet."
         case GameEvent.GameOver(_, None) =>
           s"Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!"
+        case GameEvent.CannotUndo => s"${RED}Nichts zum Rückgängigmachen!$RESET"
+        case GameEvent.CannotRedo => s"${RED}Nichts zum Wiederherstellen!$RESET"
       }
       .getOrElse(
         game.gamePhase match {
