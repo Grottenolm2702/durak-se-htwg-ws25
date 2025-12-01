@@ -31,8 +31,8 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
       resultState.players(1).hand.should(contain(attackCard))
       resultState.players(1).hand.should(contain(defendCard))
       resultState.table.should(be(empty))
-      resultState.gamePhase shouldBe AttackPhase
-      resultState.lastEvent.get shouldBe GameEvent.RoundEnd(cleared = false)
+      resultState.gamePhase shouldBe DrawPhase
+      resultState.lastEvent.get shouldBe GameEvent.Take
     }
   }
 }

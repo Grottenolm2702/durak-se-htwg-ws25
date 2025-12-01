@@ -3,7 +3,7 @@ package de.htwg.DurakApp.controller
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.util.{Observable, ImmutableUndoRedoManager}
-import de.htwg.DurakApp.controller.command.{Command, CommandFactory}
+import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 import de.htwg.DurakApp.controller.{
   PlayerAction,
   PlayCardAction,
@@ -16,16 +16,35 @@ class Controller(var gameState: GameState) extends Observable {
   private var undoRedoManager: ImmutableUndoRedoManager = ImmutableUndoRedoManager().save(gameState)
 
   def processPlayerAction(action: PlayerAction): Unit = {
-    val oldGameState = this.gameState
-    val result = CommandFactory.createCommand(action, gameState)
+    val oldGameStateBeforeAction = this.gameState
+    val result = CommandFactory.createCommand(action, oldGameStateBeforeAction)
+
     result match {
       case Left(event) =>
-        this.gameState = gameState.copy(lastEvent = Some(event))
+        this.gameState = oldGameStateBeforeAction.copy(lastEvent = Some(event))
+        notifyObservers
+
       case Right(command) =>
-        this.gameState = command.execute(gameState)
+        val gameStateAfterCommand = command.execute(oldGameStateBeforeAction)
+        this.gameState = gameStateAfterCommand
         undoRedoManager = undoRedoManager.save(this.gameState)
+        notifyObservers
+
+        var currentPhaseState = this.gameState
+        var continueHandling = true
+
+        while (continueHandling) {
+          val nextState = currentPhaseState.gamePhase.handle(currentPhaseState)
+          if (nextState != currentPhaseState) {
+            currentPhaseState = nextState
+            this.gameState = nextState
+            undoRedoManager = undoRedoManager.save(this.gameState)
+            notifyObservers
+          } else {
+            continueHandling = false
+          }
+        }
     }
-    notifyObservers
   }
 
   def undo(): Unit = {

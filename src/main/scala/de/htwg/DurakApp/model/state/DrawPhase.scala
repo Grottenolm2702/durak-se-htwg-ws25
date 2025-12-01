@@ -51,6 +51,6 @@ case object DrawPhase extends GamePhase {
       gamePhase = RoundPhase,
       lastEvent = Some(GameEvent.Draw)
     )
-    newState.gamePhase.handle(newState)
+    newState
   }
 }

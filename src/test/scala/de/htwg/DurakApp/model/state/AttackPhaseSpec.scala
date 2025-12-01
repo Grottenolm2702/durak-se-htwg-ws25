@@ -104,9 +104,9 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       )
 
       val resultState = AttackPhase.pass(0, initialGameState)
-      resultState.gamePhase shouldBe AttackPhase
-      resultState.roundWinner.isDefined shouldBe false
-      resultState.lastEvent.get shouldBe GameEvent.RoundEnd(cleared = true)
+      resultState.gamePhase shouldBe DrawPhase
+      resultState.roundWinner shouldBe Some(1)
+      resultState.lastEvent.get shouldBe GameEvent.Pass
     }
 
     "not allow passing if table is empty" in {

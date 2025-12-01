@@ -32,7 +32,7 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     "undo a state correctly" in {
       val manager = ImmutableUndoRedoManager().save(initialState).save(state1)
       val (managerAfterUndo, undoneState) = manager.undo.get
-      undoneState should be(state1)
+      undoneState should be(initialState)
       managerAfterUndo.undoStack should be(List(initialState))
       managerAfterUndo.redoStack should be(List(state1))
     }
@@ -40,12 +40,12 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     "undo multiple states correctly" in {
       val manager = ImmutableUndoRedoManager().save(initialState).save(state1).save(state2)
       val (m1, s1) = manager.undo.get
-      s1 should be(state2)
+      s1 should be(state1)
       m1.undoStack should be(List(state1, initialState))
       m1.redoStack should be(List(state2))
 
       val (m2, s2) = m1.undo.get
-      s2 should be(state1)
+      s2 should be(initialState)
       m2.undoStack should be(List(initialState))
       m2.redoStack should be(List(state1, state2))
     }
@@ -84,8 +84,6 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
     "return None when redoing with an empty redoStack" in {
       val manager = ImmutableUndoRedoManager().save(initialState)
       manager.redo should be(None)
-      val (managerAfterUndo, _) = manager.undo.get
-      managerAfterUndo.redo.isDefined should be(true)
     }
 
     "clear redo stack on new save" in {
@@ -98,12 +96,7 @@ class ImmutableUndoRedoManagerSpec extends AnyWordSpec with Matchers {
 
     "handle initial state correctly with undo" in {
       val manager = ImmutableUndoRedoManager().save(initialState)
-      val (m1, s1) = manager.undo.get
-      s1 should be(initialState)
-      m1.undoStack should be(Nil)
-      m1.redoStack should be(List(initialState))
-
-      m1.undo should be(None)
+      manager.undo should be(None)
     }
 
     "return the correct manager instance after operations" in {

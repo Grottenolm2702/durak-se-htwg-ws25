@@ -76,7 +76,7 @@ case object AttackPhase extends GamePhase {
         roundWinner = Some(gameState.defenderIndex),
         lastEvent = Some(GameEvent.Pass)
       )
-      newState.gamePhase.handle(newState)
+      newState
     } else {
       gameState.copy(passedPlayers = gameState.passedPlayers + playerIdx)
     }

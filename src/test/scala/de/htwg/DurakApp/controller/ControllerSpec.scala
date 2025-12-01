@@ -4,7 +4,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model._
 import de.htwg.DurakApp.model.state._
-import de.htwg.DurakApp.controller.command.{Command, CommandFactory}
+import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 
 import scala.util.Random
 

@@ -70,7 +70,7 @@ class TUI(controller: Controller) extends Observer {
     } else {
       val action = parseTuiInput(input, controller.gameState)
       action match {
-        case UndoAction | RedoAction => // Handled directly by UndoHandler/RedoHandler
+        case UndoAction | RedoAction =>
         case _ => controller.processPlayerAction(action)
       }
       
