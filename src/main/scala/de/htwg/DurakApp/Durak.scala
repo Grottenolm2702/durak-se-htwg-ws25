@@ -2,9 +2,10 @@ package de.htwg.DurakApp
 
 import de.htwg.DurakApp.aview.tui.TUI
 import de.htwg.DurakApp.controller.{Controller, Setup}
+import de.htwg.DurakApp.model.builder.GameStateBuilder
 
 @main def run: Unit = {
-  val temptui = TUI(new Controller(null))
+  val temptui = TUI(new Controller(GameStateBuilder().build()))
   val deckSize = temptui.askForDeckSize()
   val playerCount = temptui.askForPlayerCount()
   val playerNames = temptui.askForPlayerNames(playerCount)
