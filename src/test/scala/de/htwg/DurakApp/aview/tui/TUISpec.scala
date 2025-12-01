@@ -596,10 +596,11 @@ class TUISpec extends AnyWordSpec with Matchers {
       ) extends Controller(gs, undoManager) {
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
-        ): Unit = {
+        ): de.htwg.DurakApp.model.GameState = {
           this.gameState = this.gameState.copy(lastEvent =
             Some(GameEvent.GameOver(attacker, Some(defender)))
           )
+          this.gameState // Return the updated gameState
         }
       }
 
@@ -795,9 +796,10 @@ class TUISpec extends AnyWordSpec with Matchers {
         val calls = new java.util.concurrent.atomic.AtomicInteger(0)
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
-        ): Unit = {
+        ): de.htwg.DurakApp.model.GameState = {
           calls.incrementAndGet()
           this.gameState = this.gameState.copy(lastEvent = Some(GameEvent.Pass))
+          this.gameState
         }
       }
 
@@ -841,8 +843,9 @@ class TUISpec extends AnyWordSpec with Matchers {
           new java.util.concurrent.atomic.AtomicBoolean(false)
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
-        ): Unit = {
+        ): de.htwg.DurakApp.model.GameState = {
           processPlayerActionCalled.set(true)
+          this.gameState
         }
       }
       val mockController = new MockController(
