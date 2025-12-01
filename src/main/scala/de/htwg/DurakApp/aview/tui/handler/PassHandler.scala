@@ -3,7 +3,7 @@ package de.htwg.DurakApp.aview.tui.handler
 import de.htwg.DurakApp.controller.{PassAction, PlayerAction, InvalidAction}
 import de.htwg.DurakApp.model.GameState
 
-class PassHandler extends InputHandler {
+class PassHandler(override val next: Option[InputHandler] = None) extends InputHandler {
   override def handleRequest(
       input: String,
       gameState: GameState
@@ -13,7 +13,7 @@ class PassHandler extends InputHandler {
       case Some("pass") =>
         PassAction
       case _ =>
-        next.map(_.handleRequest(input, gameState)).getOrElse(InvalidAction)
+        super.handleRequest(input, gameState)
     }
   }
 }
