@@ -36,5 +36,26 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       gameState.deck.shouldBe(deck)
       gameState.trumpCard.shouldBe(trumpCard)
     }
+
+    "have a description method that returns the game phase as a string" in {
+      val players = List(Player("Player1", Nil), Player("Player2", Nil))
+      val deck = List(Card(Suit.Clubs, Rank.Seven))
+      val trumpCard = Card(Suit.Hearts, Rank.Seven)
+      val gameState = GameState(
+        players = players,
+        deck = deck,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = SetupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None
+      )
+
+      gameState.description shouldBe SetupPhase.toString
+    }
   }
 }
