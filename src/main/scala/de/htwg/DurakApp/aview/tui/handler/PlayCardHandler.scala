@@ -28,7 +28,9 @@ class PlayCardHandler(override val next: Option[InputHandler] = None)
               InvalidAction
             }
           case Failure(e) =>
-            println(s"Ungültige Eingabe (${e.getMessage}). Bitte eine Zahl als Kartenindex angeben.")
+            println(
+              s"Ungültige Eingabe (${e.getMessage}). Bitte eine Zahl als Kartenindex angeben."
+            )
             InvalidAction
         }
       case _ =>
