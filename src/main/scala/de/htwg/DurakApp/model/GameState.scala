@@ -17,6 +17,8 @@ case class GameState(
     roundWinner: Option[Int] = None
 ) {
 
+  def description: String = gamePhase.toString
+
   def toBuilder: GameStateBuilder = {
     GameStateBuilder()
       .withPlayers(players)

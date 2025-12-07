@@ -1,9 +1,11 @@
 package de.htwg.DurakApp
 
+import de.htwg.DurakApp.aview.gui.DurakGUI
 import de.htwg.DurakApp.aview.tui.TUI
 import de.htwg.DurakApp.controller.{Controller, Setup}
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 import de.htwg.DurakApp.util.UndoRedoManager
+import scalafx.application.Platform
 
 @main def run: Unit = {
   val inputTui = TUI(
@@ -17,6 +19,13 @@ import de.htwg.DurakApp.util.UndoRedoManager
     val controller = new Controller(state, UndoRedoManager())
     val tui = new TUI(controller)
     controller.add(tui)
+
+    Platform.startup(() => {
+      val gui = new DurakGUI(controller)
+      gui.start()
+    })
+
     tui.run()
   }
 }
+
