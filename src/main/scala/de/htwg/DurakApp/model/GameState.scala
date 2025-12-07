@@ -1,12 +1,34 @@
 package de.htwg.DurakApp.model
 
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
+import de.htwg.DurakApp.model.builder.GameStateBuilder
+
 case class GameState(
-    playerList: List[Player],
+    players: List[Player],
     deck: List[Card],
-    trump: Suit,
-    attackingCards: List[Card] = Nil,
-    defendingCards: List[Card] = Nil,
-    discardPile: List[Card] = Nil,
-    status : GameStatus = GameStatus.WELCOME,
-    activePlayerId: Int = 0
-)
+    table: Map[Card, Option[Card]],
+    discardPile: List[Card],
+    trumpCard: Card,
+    attackerIndex: Int,
+    defenderIndex: Int,
+    gamePhase: GamePhase,
+    lastEvent: Option[GameEvent] = None,
+    passedPlayers: Set[Int] = Set.empty,
+    roundWinner: Option[Int] = None
+) {
+
+  def toBuilder: GameStateBuilder = {
+    GameStateBuilder()
+      .withPlayers(players)
+      .withDeck(deck)
+      .withTable(table)
+      .withDiscardPile(discardPile)
+      .withTrumpCard(trumpCard)
+      .withAttackerIndex(attackerIndex)
+      .withDefenderIndex(defenderIndex)
+      .withGamePhase(gamePhase)
+      .withLastEvent(lastEvent)
+      .withPassedPlayers(passedPlayers)
+      .withRoundWinner(roundWinner)
+  }
+}

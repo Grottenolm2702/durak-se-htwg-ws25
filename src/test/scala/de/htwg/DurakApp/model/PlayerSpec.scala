@@ -12,14 +12,14 @@ class PlayerSpec extends AnyWordSpec with Matchers {
         Card(Suit.Clubs, Rank.Jack, isTrump = true)
       )
       val player = Player("Lucifer", hand, false)
-      player.name shouldBe "Lucifer"
-      player.hand shouldBe hand
+      player.name.shouldBe("Lucifer")
+      player.hand.shouldBe(hand)
     }
     "initialize hand and isDone correctly with minimal parameters" in {
       val player = Player("Michael")
-      player.name shouldBe "Michael"
-      player.hand shouldBe List()
-      player.isDone shouldBe false
+      player.name.shouldBe("Michael")
+      player.hand.shouldBe(List())
+      player.isDone.shouldBe(false)
     }
   }
 }
