@@ -88,7 +88,9 @@ class TUI(controller: Controller) extends Observer {
     Try(inputReader().trim.toInt) match {
       case Success(value) => value.max(2)
       case Failure(e) =>
-        println(s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 36.")
+        println(
+          s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 36."
+        )
         36
     }
   }
@@ -98,7 +100,9 @@ class TUI(controller: Controller) extends Observer {
     Try(inputReader().trim.toInt) match {
       case Success(value) => value.max(2)
       case Failure(e) =>
-        println(s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 2.")
+        println(
+          s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 2."
+        )
         2
     }
   }

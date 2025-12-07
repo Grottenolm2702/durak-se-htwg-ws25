@@ -28,4 +28,3 @@ import scalafx.application.Platform
     tui.run()
   }
 }
-
