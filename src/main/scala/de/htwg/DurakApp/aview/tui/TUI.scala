@@ -24,7 +24,7 @@ import de.htwg.DurakApp.controller.{
 }
 
 import scala.io.StdIn.readLine
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class TUI(controller: Controller) extends Observer {
 
@@ -85,12 +85,22 @@ class TUI(controller: Controller) extends Observer {
 
   def askForDeckSize(inputReader: () => String = readLine): Int = {
     println("Anzahl Karten im Deck (z.B. 36 für Standard): ")
-    Try(inputReader().trim.toInt).getOrElse(36).max(2)
+    Try(inputReader().trim.toInt) match {
+      case Success(value) => value.max(2)
+      case Failure(e) =>
+        println(s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 36.")
+        36
+    }
   }
 
   def askForPlayerCount(inputReader: () => String = readLine): Int = {
     println("Spieleranzahl?")
-    Try(inputReader().trim.toInt).getOrElse(2).max(2)
+    Try(inputReader().trim.toInt) match {
+      case Success(value) => value.max(2)
+      case Failure(e) =>
+        println(s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 2.")
+        2
+    }
   }
 
   def askForPlayerNames(
