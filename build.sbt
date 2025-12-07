@@ -13,5 +13,5 @@ lazy val root = project
     libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test,
     libraryDependencies += "org.scalafx" %% "scalafx" % "19.0.0-R30",
 
-    coverageExcludedFiles := """.*Main"""
+    coverageExcludedFiles := ".*Main|.*gui.*"
   )
