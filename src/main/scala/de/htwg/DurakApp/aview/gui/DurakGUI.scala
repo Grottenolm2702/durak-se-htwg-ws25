@@ -11,6 +11,8 @@ import scalafx.scene.Scene
 import scalafx.scene.control.*
 import scalafx.scene.layout.*
 import scalafx.stage.Stage
+import scalafx.event.ActionEvent
+import scalafx.event.EventIncludes.*
 
 import scalafx.beans.property.ObjectProperty
 import de.htwg.DurakApp.model.GameState
