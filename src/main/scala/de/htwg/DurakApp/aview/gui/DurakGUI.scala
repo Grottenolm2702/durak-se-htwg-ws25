@@ -28,6 +28,9 @@ class DurakGUI(controller: Controller) extends Observer {
     fitHeight = 80
     preserveRatio = true
   }
+  private val deckSizeLabel = new Label("Deck: 0") {
+    style = "-fx-font-size: 14pt; -fx-text-fill: #333;"
+  }
   private val trumpDisplay = new HBox {
     spacing = 10
     alignment = Pos.Center
@@ -337,12 +340,13 @@ class DurakGUI(controller: Controller) extends Observer {
   }
 
   private def updateTrump(gameState: GameState): Unit = {
-    trumpCardView.image =
-      if (gameState.deck.nonEmpty || gameState.players.nonEmpty)
-        loadCardImage(gameState.trumpCard)
-      else
-        null
-  }
+        trumpCardView.image = {
+          if (gameState.deck.nonEmpty || gameState.players.nonEmpty)
+            loadCardImage(gameState.trumpCard)
+          else
+            null
+        }
+        deckSizeLabel.text.value = s"Deck: ${gameState.deck.size}"  }
 
   private def loadCardImage(card: Card): Image = {
     val imagePath = cardToImagePath(card)
