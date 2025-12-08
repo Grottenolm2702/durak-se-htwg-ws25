@@ -311,4 +311,273 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       updatedGameState.lastEvent shouldBe Some(GameEvent.ExitApplication)
     }
   }
+
+  "Setup and Game Control Actions" should {
+    "set SetupError for invalid player count (less than 2)" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = SetupPhase
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(SetPlayerCountAction(1))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set SetupError for invalid player count (more than 6)" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = SetupPhase
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(SetPlayerCountAction(7))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set SetupError when adding too many player names" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = AskPlayerNamesPhase,
+        setupPlayerCount = Some(2),
+        setupPlayerNames = List("Player1", "Player2")
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(AddPlayerNameAction("Player3"))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set SetupError when adding an empty player name" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = AskPlayerNamesPhase,
+        setupPlayerCount = Some(2)
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(AddPlayerNameAction(""))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set SetupError when SetDeckSizeAction results in None from Setup.setupGame" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = AskDeckSizePhase,
+        setupPlayerNames = List("P1", "P2", "P3", "P4", "P5", "P6")
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(SetDeckSizeAction(5))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set SetupError for invalid deck size (less than 2)" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = AskDeckSizePhase
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(SetDeckSizeAction(1))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set SetupError for invalid deck size (more than 36)" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = AskDeckSizePhase
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(SetDeckSizeAction(37))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set SetupError when PlayAgainAction results in None from Setup.setupGame" in {
+      val initialGameState = createGameState(
+        players = List.empty,
+        gamePhase = AskPlayAgainPhase,
+        setupPlayerNames = List("P1", "P2", "P3", "P4", "P5", "P6"),
+        setupDeckSize = Some(5)
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(PlayAgainAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for unhandled action in AskPlayAgainPhase" in {
+      val initialGameState = createGameState(
+        players = List(Player("P1", List.empty)),
+        gamePhase = AskPlayAgainPhase
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+      controller.processPlayerAction(PassAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.InvalidMove)
+    }
+  }
+
+  "Invalid actions during simple phases" should {
+    val testCard = Card(Suit.Spades, Rank.Seven)
+    val testPlayer = Player("TestPlayer", List.empty)
+    val initialPlayers = List(testPlayer)
+
+    "set InvalidMove for playCard in AskDeckSizePhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = AskDeckSizePhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PlayCardAction(testCard))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for pass in AskDeckSizePhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = AskDeckSizePhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PassAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for takeCards in AskDeckSizePhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = AskDeckSizePhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(TakeCardsAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for playCard in AskPlayerCountPhase" in {
+      val initialGameState = createGameState(
+        players = initialPlayers,
+        gamePhase = AskPlayerCountPhase
+      )
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PlayCardAction(testCard))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for pass in AskPlayerCountPhase" in {
+      val initialGameState = createGameState(
+        players = initialPlayers,
+        gamePhase = AskPlayerCountPhase
+      )
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PassAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for takeCards in AskPlayerCountPhase" in {
+      val initialGameState = createGameState(
+        players = initialPlayers,
+        gamePhase = AskPlayerCountPhase
+      )
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(TakeCardsAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for playCard in AskPlayerNamesPhase" in {
+      val initialGameState = createGameState(
+        players = initialPlayers,
+        gamePhase = AskPlayerNamesPhase
+      )
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PlayCardAction(testCard))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for pass in AskPlayerNamesPhase" in {
+      val initialGameState = createGameState(
+        players = initialPlayers,
+        gamePhase = AskPlayerNamesPhase
+      )
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PassAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set InvalidMove for takeCards in AskPlayerNamesPhase" in {
+      val initialGameState = createGameState(
+        players = initialPlayers,
+        gamePhase = AskPlayerNamesPhase
+      )
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(TakeCardsAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "set GameSetupComplete for playCard in GameStartPhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = GameStartPhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PlayCardAction(testCard))
+      controller.gameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+    }
+
+    "set GameSetupComplete for pass in GameStartPhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = GameStartPhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PassAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+    }
+
+    "set GameSetupComplete for takeCards in GameStartPhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = GameStartPhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(TakeCardsAction)
+      controller.gameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+    }
+
+    "set GameOver for playCard in EndPhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = EndPhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PlayCardAction(testCard))
+      controller.gameState.lastEvent shouldBe Some(
+        GameEvent.GameOver(Player("TestPlayer", List(), false), None)
+      )
+    }
+
+    "set GameOver for pass in EndPhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = EndPhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(PassAction)
+      controller.gameState.lastEvent shouldBe Some(
+        GameEvent.GameOver(Player("TestPlayer", List(), false), None)
+      )
+    }
+
+    "set GameOver for takeCards in EndPhase" in {
+      val initialGameState =
+        createGameState(players = initialPlayers, gamePhase = EndPhase)
+      val controller = new Controller(initialGameState, UndoRedoManager())
+      controller.processPlayerAction(TakeCardsAction)
+      controller.gameState.lastEvent shouldBe Some(
+        GameEvent.GameOver(Player("TestPlayer", List(), false), None)
+      )
+    }
+  }
 }
