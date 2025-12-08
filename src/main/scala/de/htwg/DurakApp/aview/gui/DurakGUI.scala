@@ -298,7 +298,8 @@ class DurakGUI(controller: Controller) extends Observer {
       case EndPhase =>
         gameState.lastEvent match {
           case Some(GameEvent.GameOver(winner, loserOpt)) =>
-            val loserText = loserOpt.map(l => s" (${l.name} is the Durak!)").getOrElse("")
+            val loserText =
+              loserOpt.map(l => s" (${l.name} is the Durak!)").getOrElse("")
             winnerLabel.text = s"${winner.name} Wins!$loserText"
             winnerDisplayPane.visible = true
             gameDisplayPane.effect = new GaussianBlur(10)
