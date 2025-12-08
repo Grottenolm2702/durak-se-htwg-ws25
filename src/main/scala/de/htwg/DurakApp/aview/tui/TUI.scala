@@ -55,7 +55,6 @@ class TUI(controller: Controller) extends Observer {
 
   @scala.annotation.tailrec
   private def gameLoop(): Unit = {
-    printPrompt(controller.gameState)
     val input = readLine()
     if (input == "q" || input == "quit") ()
     else {
@@ -84,6 +83,7 @@ class TUI(controller: Controller) extends Observer {
         renderScreen(game, buildStatusString(game))
     }
     println(render)
+    printPrompt(controller.gameState)
   }
 
   private def description(game: GameState): String = game.gamePhase match {
