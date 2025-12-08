@@ -1,41 +1,17 @@
 package de.htwg.DurakApp.aview.tui
 
-import de.htwg.DurakApp.aview.tui.handler.{
-  InputHandler,
-  InvalidInputHandler,
-  PassHandler,
-  PlayCardHandler,
-  TakeCardsHandler,
-  UndoHandler,
-  RedoHandler
-}
-import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.aview.tui.handler._
+import de.htwg.DurakApp.controller._
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
-import de.htwg.DurakApp.controller.{ 
-  PlayerAction,
-  PlayCardAction,
-  PassAction,
-  TakeCardsAction,
-  InvalidAction,
-  UndoAction,
-  RedoAction,
-  SetPlayerCountAction,
-  AddPlayerNameAction,
-  SetDeckSizeAction
-}
 
 import scala.io.StdIn.readLine
 import scala.util.{Failure, Success, Try}
 
 class TUI(controller: Controller) extends Observer {
 
-  private val cardWidth = 7
-
-  val RED = "\u001b[31m"
-  val GREEN = "\u001b[32m"
-  val RESET = "\u001b[0m"
+  import TUI._
 
   private val inputHandler: InputHandler = {
     val invalid = new InvalidInputHandler()
@@ -55,43 +31,31 @@ class TUI(controller: Controller) extends Observer {
     println("Spiel beendet.")
   }
 
-  def parseTuiInput(input: String, game: GameState): PlayerAction = {
-    game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase =>
-        Try(input.trim.toInt) match {
-          case Success(count) => SetPlayerCountAction(count)
-          case Failure(_) =>
-            InvalidAction
-        }
-      case AskPlayerNamesPhase =>
-        AddPlayerNameAction(input.trim)
-      case AskDeckSizePhase =>
-        Try(input.trim.toInt) match {
-          case Success(size) => SetDeckSizeAction(size)
-          case Failure(_) =>
-            InvalidAction
-        }
-      case _ =>
-        inputHandler.handleRequest(input, game)
-    }
+  def parseTuiInput(input: String, game: GameState): PlayerAction = game.gamePhase match {
+    case SetupPhase | AskPlayerCountPhase =>
+      Try(input.trim.toInt).map(SetPlayerCountAction).getOrElse(InvalidAction)
+    case AskPlayerNamesPhase =>
+      AddPlayerNameAction(input.trim)
+    case AskDeckSizePhase =>
+      Try(input.trim.toInt).map(SetDeckSizeAction).getOrElse(InvalidAction)
+    case _ =>
+      inputHandler.handleRequest(input, game)
   }
 
   @scala.annotation.tailrec
   private def gameLoop(): Unit = {
     printPrompt(controller.gameState)
     val input = readLine()
-    if (input == "q" || input == "quit") {
-      ()
-    } else {
+    if (input == "q" || input == "quit") ()
+    else {
       val action = parseTuiInput(input, controller.gameState)
       action match {
         case UndoAction | RedoAction =>
-        case _                       => controller.processPlayerAction(action)
+        case _ => controller.processPlayerAction(action)
       }
-
       controller.gameState.lastEvent match {
         case Some(GameEvent.GameOver(_, _)) =>
-        case _                              => gameLoop()
+        case _ => gameLoop()
       }
     }
   }
@@ -100,8 +64,7 @@ class TUI(controller: Controller) extends Observer {
     println(clearScreen())
     val game = controller.gameState
     val render = game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase =>
+      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
         buildStatusString(game)
       case _ =>
         renderScreen(game, buildStatusString(game))
@@ -109,43 +72,33 @@ class TUI(controller: Controller) extends Observer {
     println(render)
   }
 
-  private def description(game: GameState): String = {
-    import de.htwg.DurakApp.model.state.*
-    game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
-      case AskPlayerNamesPhase => s"Spielername ${game.setupPlayerNames.length + 1}:"
-      case AskDeckSizePhase    => "Deckgröße eingeben (2-36):"
-      case _                   => game.gamePhase.toString
-    }
+  private def description(game: GameState): String = game.gamePhase match {
+    case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
+    case AskPlayerNamesPhase => s"Spielername ${game.setupPlayerNames.length + 1}:"
+    case AskDeckSizePhase    => "Deckgröße eingeben (2-36):"
+    case _                   => game.gamePhase.toString
   }
 
   private def printPrompt(game: GameState): Unit = {
     game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase =>
-        println(
-          description(game)
-        )
+      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
+        println(description(game))
         print("> ")
       case _ =>
         val activePlayer = game.gamePhase match {
           case AttackPhase  => game.players(game.attackerIndex)
           case DefensePhase => game.players(game.defenderIndex)
-          case _ =>
-            null
+          case _ => null
         }
         val moves = game.gamePhase match {
           case AttackPhase  => "('play index', 'pass', 'u', 'r')"
           case DefensePhase => "('play index', 'take', 'u', 'r')"
           case _            => ""
         }
-        if (activePlayer != null) {
-          println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
-        } else {
-          println(
-            s"${description(game)}"
-          )
-        }
+        if (activePlayer != null)
+          println(s"$GREEN${activePlayer.name}$RESET, dein Zug $moves:")
+        else
+          println(description(game))
         print("> ")
     }
   }
@@ -161,13 +114,14 @@ class TUI(controller: Controller) extends Observer {
       case Suit.Clubs | Suit.Spades    => (GREEN, RESET)
     }
 
-    val symbol = card.suit match
+    val symbol = card.suit match {
       case Suit.Hearts   => "\u2665"
       case Suit.Diamonds => "\u2666"
       case Suit.Clubs    => "\u2663"
       case Suit.Spades   => "\u2660"
+    }
 
-    val rankStr = card.rank.match
+    val rankStr = card.rank match {
       case Rank.Six   => "6"
       case Rank.Seven => "7"
       case Rank.Eight => "8"
@@ -177,49 +131,46 @@ class TUI(controller: Controller) extends Observer {
       case Rank.Queen => "Q"
       case Rank.King  => "K"
       case Rank.Ace   => "A"
+    }
 
-    val top = "+" + "-".repeat(inner) + "+"
+    val top = "+" + "-" * inner + "+"
 
     val rankFieldWidth = math.min(2, inner)
     val rankPadded =
       if (rankStr.length >= rankFieldWidth) rankStr.take(rankFieldWidth)
-      else rankStr + " ".repeat(rankFieldWidth - rankStr.length)
+      else rankStr + " " * (rankFieldWidth - rankStr.length)
     val rankRemaining = inner - rankFieldWidth
     val rankField =
-      "|" + colorStart + rankPadded + colorEnd + " ".repeat(rankRemaining) + "|"
+      "|" + colorStart + rankPadded + colorEnd + " " * rankRemaining + "|"
 
     val symbolLeft = (inner - 1) / 2
     val symbolRight = inner - 1 - symbolLeft
     val suitField =
-      "|" + " ".repeat(symbolLeft) + colorStart + symbol + colorEnd + " "
-        .repeat(symbolRight) + "|"
+      "|" + " " * symbolLeft + colorStart + symbol + colorEnd + " " * symbolRight + "|"
 
-    val emptyLine = "|" + " ".repeat(inner) + "|"
+    val emptyLine = "|" + " " * inner + "|"
 
     List(top, rankField, suitField, emptyLine, top)
   }
 
-  private[aview] def combineCardLines(cards: List[List[String]]): String = {
+  private[aview] def combineCardLines(cards: List[List[String]]): String =
     if (cards.isEmpty) ""
     else cards.transpose.map(_.mkString(" ")).mkString("\n")
-  }
 
-  def renderHandWithIndices(hand: List[Card]): String = {
+  def renderHandWithIndices(hand: List[Card]): String =
     if (hand.isEmpty) "Leere Hand"
     else {
       val cardLines = hand.map(renderCard)
       val cardsBlock = combineCardLines(cardLines)
-      val indexCells = hand.indices.map { i =>
+      val indexLine = hand.indices.map { i =>
         val s = i.toString
         val total = cardWidth
         val left = (total - s.length) / 2
         val right = total - s.length - left
         " " * left + s + " " * right
-      }
-      val indexLine = indexCells.mkString(" ")
+      }.mkString(" ")
       s"$cardsBlock\n$indexLine"
     }
-  }
 
   def renderTable(game: GameState): String = {
     val attackingCards = game.table.keys.toList
@@ -251,11 +202,10 @@ class TUI(controller: Controller) extends Observer {
     }
 
     val playersStr = game.players
-      .map {
-        p =>
-          val playerName =
-            if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
-          s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
+      .map { p =>
+        val playerName =
+          if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
+        s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
       }
       .mkString("\n\n")
 
@@ -272,17 +222,16 @@ $statusLine
 """.trim
   }
 
-  def buildStatusString(game: GameState): String = {
+  def buildStatusString(game: GameState): String =
     game.lastEvent
       .map {
         case GameEvent.InvalidMove  => s"${RED}Ungültiger Zug!$RESET"
         case GameEvent.NotYourTurn  => s"${RED}Du bist nicht am Zug!$RESET"
         case GameEvent.Attack(card) => s"Angriff mit ${card.rank} ${card.suit}."
-        case GameEvent.Defend(card) =>
-          s"Verteidigung mit ${card.rank} ${card.suit}."
-        case GameEvent.Pass => "Passen."
-        case GameEvent.Take => "Karten aufgenommen."
-        case GameEvent.Draw => "Karten werden gezogen."
+        case GameEvent.Defend(card) => s"Verteidigung mit ${card.rank} ${card.suit}."
+        case GameEvent.Pass         => "Passen."
+        case GameEvent.Take         => "Karten aufgenommen."
+        case GameEvent.Draw         => "Karten werden gezogen."
         case GameEvent.RoundEnd(cleared) =>
           if (cleared) "Runde vorbei, Tisch geleert."
           else "Runde vorbei, Karten aufgenommen."
@@ -298,17 +247,19 @@ $statusLine
           s"${RED}Setup-Fehler: ${description(game)}$RESET"
         case GameEvent.GameSetupComplete =>
           s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
-        case GameEvent.AskPlayerCount => ""
-        case GameEvent.AskPlayerNames => ""
-        case GameEvent.AskDeckSize    => ""
+        case GameEvent.AskPlayerCount | GameEvent.AskPlayerNames | GameEvent.AskDeckSize => ""
       }
       .getOrElse(
         game.gamePhase match {
-          case SetupPhase |
-              AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
-            ""
+          case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase => ""
           case _ => game.gamePhase.toString
         }
       )
-  }
+}
+
+object TUI {
+  val cardWidth = 7
+  val RED = "\u001b[31m"
+  val GREEN = "\u001b[32m"
+  val RESET = "\u001b[0m"
 }
