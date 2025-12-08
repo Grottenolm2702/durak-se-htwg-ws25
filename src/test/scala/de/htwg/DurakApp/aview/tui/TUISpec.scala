@@ -445,6 +445,36 @@ class TUISpec extends AnyWordSpec with Matchers {
         val action = tui.parseTuiInput("  PLaY 0  ", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
       }
+
+      "handle non-numeric input in SetupPhase resulting in InvalidAction" in {
+        val initialGame =
+          createGameState(players = List.empty, gamePhase = SetupPhase)
+        val controller = new Controller(initialGame, UndoRedoManager())
+        val tui = new TUI(controller)
+
+        val action = tui.parseTuiInput("not_a_number", controller.gameState)
+        action should be(de.htwg.DurakApp.controller.InvalidAction)
+      }
+
+      "handle non-numeric input in AskDeckSizePhase resulting in InvalidAction" in {
+        val initialGame =
+          createGameState(players = List.empty, gamePhase = AskDeckSizePhase)
+        val controller = new Controller(initialGame, UndoRedoManager())
+        val tui = new TUI(controller)
+
+        val action = tui.parseTuiInput("not_a_number", controller.gameState)
+        action should be(de.htwg.DurakApp.controller.InvalidAction)
+      }
+
+      "handle non-numeric input in AskPlayerCountPhase resulting in InvalidAction" in {
+        val initialGame =
+          createGameState(players = List.empty, gamePhase = AskPlayerCountPhase)
+        val controller = new Controller(initialGame, UndoRedoManager())
+        val tui = new TUI(controller)
+
+        val action = tui.parseTuiInput("not_a_number", controller.gameState)
+        action should be(de.htwg.DurakApp.controller.InvalidAction)
+      }
     }
 
     "terminate on 'quit' input" in {
@@ -457,6 +487,28 @@ class TUISpec extends AnyWordSpec with Matchers {
         new Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       val input = "quit\n"
+      val inStream = new ByteArrayInputStream(input.getBytes)
+      val outStream = new ByteArrayOutputStream()
+
+      Console.withIn(inStream) {
+        Console.withOut(outStream) {
+          tui.run()
+        }
+      }
+
+      val output = outStream.toString()
+      output should include("Spiel beendet.")
+    }
+
+    "gameLoop terminates when GameEvent.ExitApplication is set in AskPlayAgainPhase" in {
+      val game = createGameState(
+        players = List(Player("Alice", List.empty)),
+        gamePhase = AskPlayAgainPhase
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+
+      val input = "no\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
       val outStream = new ByteArrayOutputStream()
 
@@ -602,7 +654,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       rEight should include("\u2660")
     }
 
-    "gameLoop continues when no GameOver (case _ => gameLoop())" in {
+    "gameLoop continues when no GameOver (case _ => gameLoop()) and handles Undo/Redo without calling processPlayerAction" in {
       val attacker = Player("A", List(spadeSix))
       val defender = Player("D", List(heartAce))
       val initial = createGameState(
@@ -630,7 +682,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val tui = new TUI(controller)
 
       val input =
-        "pass\nq\n"
+        "pass\nundo\nq\n"
 
       val inStream = new ByteArrayInputStream(input.getBytes)
 
@@ -756,6 +808,193 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       val action = tui.parseTuiInput("yes", game)
       action should be(de.htwg.DurakApp.controller.PlayAgainAction)
+    }
+
+    "handle invalid input in AskPlayAgainPhase resulting in InvalidAction" in {
+      val game = createGameState(
+        players = List.empty,
+        gamePhase = AskPlayAgainPhase
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+
+      val action = tui.parseTuiInput("maybe", game)
+      action should be(de.htwg.DurakApp.controller.InvalidAction)
+    }
+  }
+
+  "update method should print correct prompt for AskDeckSizePhase" in {
+    val game = createGameState(
+      players = List.empty,
+      gamePhase = AskDeckSizePhase,
+      lastEvent = None
+    )
+    val controller = new Controller(game, UndoRedoManager())
+    val tui = new TUI(controller)
+    controller.add(tui)
+
+    val stream = new ByteArrayOutputStream()
+    Console.withOut(stream) {
+      controller.notifyObservers
+    }
+    val output = stream.toString()
+    output should include("Deckgröße eingeben (2-36):")
+  }
+
+  "TUI buildStatusString specific cases" should {
+    val RED = "\u001b[31m"
+    val GREEN = "\u001b[32m"
+    val RESET = "\u001b[0m"
+
+    "buildStatusString - GameEvent.SetupError path" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.SetupError),
+        gamePhase = SetupPhase
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.buildStatusString(
+        game
+      ) shouldBe s"${RED}Setup-Fehler: Spieleranzahl eingeben (2-6):$RESET"
+    }
+
+    "buildStatusString - GameEvent.GameSetupComplete path" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.GameSetupComplete)
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.buildStatusString(game) should include(
+        s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
+      )
+    }
+
+    "buildStatusString - GameEvent.AskPlayAgain path" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.AskPlayAgain)
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.buildStatusString(game) should include(
+        s"${GREEN}Möchten Sie eine neue Runde spielen? (yes/no)$RESET"
+      )
+    }
+
+    "buildStatusString - GameEvent.ExitApplication path" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.ExitApplication)
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.buildStatusString(game) should include(
+        s"${GREEN}Anwendung wird beendet...$RESET"
+      )
+    }
+
+    "buildStatusString - GameEvent.AskPlayerCount path returns empty" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.AskPlayerCount)
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.buildStatusString(game) shouldBe ""
+    }
+
+    "buildStatusString - GameEvent.AskPlayerNames path returns empty" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.AskPlayerNames)
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.buildStatusString(game) shouldBe ""
+    }
+
+    "buildStatusString - GameEvent.AskDeckSize path returns empty" in {
+      val game = createGameState(
+        players = List.empty,
+        lastEvent = Some(GameEvent.AskDeckSize)
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.buildStatusString(game) shouldBe ""
+    }
+
+    "buildStatusString - empty string for setup phases when lastEvent is None" in {
+      val phases = List(
+        SetupPhase,
+        AskPlayerCountPhase,
+        AskPlayerNamesPhase,
+        AskDeckSizePhase
+      )
+      phases.foreach { phase =>
+        val game = createGameState(
+          players = List.empty,
+          gamePhase = phase,
+          lastEvent = None
+        )
+        val controller = new Controller(game, UndoRedoManager())
+        val tui = new TUI(controller)
+        tui.buildStatusString(game) shouldBe ""
+      }
+    }
+  }
+
+  "TUI description(game) method" should {
+    "return correct string for SetupPhase" in {
+      val game = createGameState(players = List.empty, gamePhase = SetupPhase)
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.description(game) shouldBe "Spieleranzahl eingeben (2-6):"
+    }
+
+    "return correct string for AskPlayerCountPhase" in {
+      val game =
+        createGameState(players = List.empty, gamePhase = AskPlayerCountPhase)
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.description(game) shouldBe "Spieleranzahl eingeben (2-6):"
+    }
+
+    "return correct string for AskPlayerNamesPhase" in {
+      val game = createGameState(
+        players = List.empty,
+        gamePhase = AskPlayerNamesPhase,
+        setupPlayerNames = List("Alice")
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.description(game) shouldBe "Spielername 2:"
+    }
+
+    "return correct string for AskDeckSizePhase" in {
+      val game =
+        createGameState(players = List.empty, gamePhase = AskDeckSizePhase)
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.description(game) shouldBe "Deckgröße eingeben (2-36):"
+    }
+
+    "return correct string for AskPlayAgainPhase" in {
+      val game =
+        createGameState(players = List.empty, gamePhase = AskPlayAgainPhase)
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.description(
+        game
+      ) shouldBe "Möchten Sie eine neue Runde spielen? (yes/no):"
+    }
+
+    "return gamePhase.toString for other phases" in {
+      val game = createGameState(players = List.empty, gamePhase = AttackPhase)
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+      tui.description(game) shouldBe "AttackPhase"
     }
   }
 }

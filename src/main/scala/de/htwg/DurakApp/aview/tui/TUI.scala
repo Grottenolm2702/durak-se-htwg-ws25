@@ -85,7 +85,7 @@ class TUI(controller: Controller) extends Observer {
     printPrompt(controller.gameState)
   }
 
-  private def description(game: GameState): String = game.gamePhase match {
+  def description(game: GameState): String = game.gamePhase match {
     case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
     case AskPlayerNamesPhase =>
       s"Spielername ${game.setupPlayerNames.length + 1}:"
