@@ -14,7 +14,7 @@ case object EndPhase extends GamePhase {
         val winner = playersWithoutCards.head
 
         gameState.copy(
-          gamePhase = this,
+          gamePhase = AskPlayAgainPhase,
           lastEvent = Some(GameEvent.GameOver(winner, Some(loser)))
         )
 
@@ -22,7 +22,7 @@ case object EndPhase extends GamePhase {
         val representativeWinner = gameState.players.head
 
         gameState.copy(
-          gamePhase = this,
+          gamePhase = AskPlayAgainPhase,
           lastEvent = Some(GameEvent.GameOver(representativeWinner, None))
         )
     }

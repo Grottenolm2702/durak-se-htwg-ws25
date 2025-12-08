@@ -37,7 +37,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       gamePhase: GamePhase = defaultGamePhase,
       lastEvent: Option[GameEvent] = defaultLastEvent,
       passedPlayers: Set[Int] = defaultPassedPlayers,
-      roundWinner: Option[Int] = defaultRoundWinner
+      roundWinner: Option[Int] = defaultRoundWinner,
+      setupPlayerCount: Option[Int] = None,
+      setupPlayerNames: List[String] = List.empty,
+      setupDeckSize: Option[Int] = None
   ): GameState = {
     GameState(
       players,
@@ -50,7 +53,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       gamePhase,
       lastEvent,
       passedPlayers,
-      roundWinner
+      roundWinner,
+      setupPlayerCount,
+      setupPlayerNames,
+      setupDeckSize
     )
   }
 
@@ -58,7 +64,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
     "be initialized with a given GameState" in {
       val initialPlayers = List(Player("TestPlayer", List.empty))
-      val initialGameState = createGameState(players = initialPlayers)
+      val initialGameState = createGameState(players = initialPlayers, roundWinner = defaultRoundWinner)
       val controller = new Controller(
         initialGameState,
         UndoRedoManager()
@@ -252,6 +258,54 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       controller.gameState shouldBe gameStateBeforeRedo.copy(lastEvent =
         Some(GameEvent.CannotRedo)
       )
+    }
+
+    "handle PlayAgainAction by resetting the game state" in {
+      val player1 = Player("P1", List.empty, isDone = true)
+      val player2 = Player("P2", List.empty, isDone = true)
+      val initialGameState = createGameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = AskPlayAgainPhase,
+        setupPlayerNames = List("P1", "P2"),
+        setupDeckSize = Some(36)
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+
+      controller.processPlayerAction(PlayAgainAction)
+      val updatedGameState = controller.gameState
+
+      updatedGameState.gamePhase should not be AskPlayAgainPhase
+      updatedGameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+      updatedGameState.players.size shouldBe 2
+      updatedGameState.players.forall(_.hand.nonEmpty) shouldBe true
+      updatedGameState.deck.nonEmpty shouldBe true
+      updatedGameState.table shouldBe Map.empty
+      updatedGameState.discardPile shouldBe List.empty
+    }
+
+    "handle ExitGameAction by setting GameEvent.ExitApplication" in {
+      val initialGameState = createGameState(
+        players = List(Player("P1", List.empty)),
+        gamePhase = AskPlayAgainPhase
+      )
+      val controller = new Controller(
+        initialGameState,
+        UndoRedoManager()
+      )
+
+      controller.processPlayerAction(ExitGameAction)
+      val updatedGameState = controller.gameState
+
+      updatedGameState.lastEvent shouldBe Some(GameEvent.ExitApplication)
     }
   }
 }

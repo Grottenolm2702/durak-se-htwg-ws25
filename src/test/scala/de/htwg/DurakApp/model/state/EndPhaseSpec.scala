@@ -33,7 +33,7 @@ class EndPhaseSpec extends AnyWordSpec with Matchers {
         .loser
         .get
         .shouldBe(loser)
-      resultState.gamePhase.shouldBe(EndPhase)
+      resultState.gamePhase.shouldBe(AskPlayAgainPhase)
     }
 
     "handle a game with no clear loser (draw)" in {
@@ -57,7 +57,7 @@ class EndPhaseSpec extends AnyWordSpec with Matchers {
         .asInstanceOf[GameEvent.GameOver]
         .loser
         .shouldBe(None)
-      resultState.gamePhase.shouldBe(EndPhase)
+      resultState.gamePhase.shouldBe(AskPlayAgainPhase)
     }
   }
 }

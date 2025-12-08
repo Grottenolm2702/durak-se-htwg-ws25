@@ -21,6 +21,7 @@ import de.htwg.DurakApp.controller.{
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 import de.htwg.DurakApp.model.{Card, Player, Rank, Suit}
 import de.htwg.DurakApp.model.state.*
+import de.htwg.DurakApp.model.state.AskPlayAgainPhase
 import scala.util.Random
 
 class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
@@ -86,6 +87,33 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
             }
           case _ =>
             gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+        }
+        notifyObservers
+        this.gameState
+
+      case AskPlayAgainPhase =>
+        action match {
+          case PlayAgainAction =>
+            val newPlayerNames = gameState.setupPlayerNames
+            val newDeckSize = gameState.setupDeckSize.getOrElse(36) // Default to 36 if not set
+
+            Setup.setupGame(newPlayerNames, newDeckSize) match {
+              case Some(newGameState) =>
+                gameState = newGameState.copy(
+                  setupPlayerCount = Some(newPlayerNames.size),
+                  setupPlayerNames = newPlayerNames,
+                  setupDeckSize = Some(newDeckSize),
+                  lastEvent = Some(GameEvent.GameSetupComplete) // Signal a new game has started
+                )
+                undoRedoManager = new UndoRedoManager(List.empty, List.empty) // Reset undo/redo for a new game
+              case None =>
+                // Should not happen if setupGame is robust, but handle defensively
+                gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+            }
+          case ExitGameAction =>
+            gameState = gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
+          case _ =>
+            gameState = gameState.copy(lastEvent = Some(GameEvent.InvalidMove)) // Or a more specific error
         }
         notifyObservers
         this.gameState
