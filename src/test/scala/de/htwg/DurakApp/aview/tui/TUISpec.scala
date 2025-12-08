@@ -674,13 +674,13 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(gameAfterPlayerCount, UndoRedoManager())
       val tui = new TUI(controller)
 
-      var action = tui.parseTuiInput("Alice", controller.gameState)
+      val action = tui.parseTuiInput("Alice", controller.gameState)
       controller.processPlayerAction(action)
       controller.gameState.setupPlayerNames should be(List("Alice"))
       controller.gameState.lastEvent should be(Some(GameEvent.AskPlayerNames))
 
-      action = tui.parseTuiInput("Bob", controller.gameState)
-      controller.processPlayerAction(action)
+      val action2 = tui.parseTuiInput("Bob", controller.gameState)
+      controller.processPlayerAction(action2)
       controller.gameState.setupPlayerNames should be(List("Alice", "Bob"))
       controller.gameState.gamePhase should be(AskDeckSizePhase)
       controller.gameState.lastEvent should be(Some(GameEvent.AskDeckSize))
