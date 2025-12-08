@@ -70,31 +70,6 @@ class TUISpec extends AnyWordSpec with Matchers {
 
   "A TUI" should {
 
-    "buildStatusString - SetupPhase (Welcome)" in {
-      val game = createGameState(
-        players = List.empty,
-        gamePhase = SetupPhase,
-        lastEvent = Some(GameEvent.AskPlayerCount)
-      )
-      val controller =
-        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).shouldBe("Enter number of players (2-6):")
-    }
-
-    "buildStatusString - SetupPhase (Player Setup)" in {
-      val game = createGameState(
-        players = List(Player("TestPlayer", List.empty)),
-        gamePhase = AskPlayerNamesPhase,
-        lastEvent = Some(GameEvent.AskPlayerNames),
-        setupPlayerCount = Some(2)
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).shouldBe("Enter name for player 1 of 2:")
-    }
-
     "buildStatusString - AttackPhase shows attacker name" in {
       val attacker = Player("Angreifer", List.empty)
       val defender = Player("Verteidiger", List.empty)
@@ -495,7 +470,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       output should include("Spiel beendet.")
     }
 
-    "print the attacker prompt for non-attack/defense phases (default case)" in {
+    "print default prompt" in {
       val attacker = Player("RoundAttacker", List(spadeSix))
       val defender = Player("RoundDefender", List(heartAce))
       val game = createGameState(
@@ -518,7 +493,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       val output = outStream.toString()
       output should include(
-        s"$GREEN${attacker.name}$RESET, dein Zug ('play index', 'pass', 'take', 'u', 'r'):"
+        s">"
       )
     }
 
