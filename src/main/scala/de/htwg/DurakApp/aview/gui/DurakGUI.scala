@@ -210,6 +210,16 @@ class DurakGUI(controller: Controller) extends Observer {
     children = Seq(gameDisplayPane, setupInputPane, winnerDisplayPane)
   }
 
+  private def description(gameState: GameState): String = {
+    import de.htwg.DurakApp.model.state.*
+    gameState.gamePhase match {
+      case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-4):"
+      case AskPlayerNamesPhase => s"Spielername ${gameState.setupPlayerNames.length + 1}:"
+      case AskDeckSizePhase    => "Deckgröße eingeben (2-36):"
+      case _                   => gameState.gamePhase.toString
+    }
+  }
+
   override def update: Unit = {
     Platform.runLater {
       val gameState = controller.gameState
@@ -225,7 +235,7 @@ class DurakGUI(controller: Controller) extends Observer {
       gameDisplayPane.visible = !isSetupPhase
 
       if (isSetupPhase) {
-        setupStatusLabel.text = gameState.description
+        setupStatusLabel.text = description(gameState)
         if (gameState.lastEvent.contains(GameEvent.SetupError)) {
           setupStatusLabel.style = "-fx-text-fill: red;"
         } else {
@@ -246,7 +256,7 @@ class DurakGUI(controller: Controller) extends Observer {
             playerCountInput.text =
               gameState.setupPlayerCount.map(_.toString).getOrElse("")
             if (gameState.lastEvent.contains(GameEvent.SetupError)) {
-              setupStatusLabel.text = gameState.description
+              setupStatusLabel.text = description(gameState)
             } else {
               setupStatusLabel.text = "Enter number of players (2-6):"
             }
@@ -257,7 +267,7 @@ class DurakGUI(controller: Controller) extends Observer {
             playerNameInput.visible = true
             submitPlayerNameButton.visible = true
             if (gameState.lastEvent.contains(GameEvent.SetupError)) {
-              setupStatusLabel.text = gameState.description
+              setupStatusLabel.text = description(gameState)
             } else {
               setupStatusLabel.text =
                 s"Enter name for player ${currentNames + 1} of ${expectedCount}:"
@@ -268,7 +278,7 @@ class DurakGUI(controller: Controller) extends Observer {
             submitDeckSizeButton.visible = true
             deckSizeChoiceBox.value = gameState.setupDeckSize.getOrElse(36)
             if (gameState.lastEvent.contains(GameEvent.SetupError)) {
-              setupStatusLabel.text = gameState.description
+              setupStatusLabel.text = description(gameState)
             } else {
               setupStatusLabel.text = "Select deck size (2-36):"
             }
@@ -337,12 +347,12 @@ class DurakGUI(controller: Controller) extends Observer {
       activePlayerIndex match {
         case Some(i) =>
           val player = gameState.players(i)
-          statusLabel.text = s"${player.name}'s turn (${gameState.description})"
+          statusLabel.text = s"${player.name}'s turn (${description(gameState)})"
         case None =>
-          statusLabel.text = gameState.description
+          statusLabel.text = description(gameState)
       }
     } else {
-      statusLabel.text = gameState.description
+      statusLabel.text = description(gameState)
     }
   }
 
