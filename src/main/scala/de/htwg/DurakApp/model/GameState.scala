@@ -14,7 +14,10 @@ case class GameState(
     gamePhase: GamePhase,
     lastEvent: Option[GameEvent] = None,
     passedPlayers: Set[Int] = Set.empty,
-    roundWinner: Option[Int] = None
+    roundWinner: Option[Int] = None,
+    setupPlayerCount: Option[Int] = None,
+    setupPlayerNames: List[String] = List.empty,
+    setupDeckSize: Option[Int] = None
 ) {
 
   def description: String = gamePhase.toString
@@ -32,5 +35,8 @@ case class GameState(
       .withLastEvent(lastEvent)
       .withPassedPlayers(passedPlayers)
       .withRoundWinner(roundWinner)
+      .withSetupPlayerCount(setupPlayerCount)
+      .withSetupPlayerNames(setupPlayerNames)
+      .withSetupDeckSize(setupDeckSize)
   }
 }

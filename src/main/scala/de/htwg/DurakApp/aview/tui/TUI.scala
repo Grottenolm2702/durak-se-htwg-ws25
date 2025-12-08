@@ -20,7 +20,10 @@ import de.htwg.DurakApp.controller.{
   TakeCardsAction,
   InvalidAction,
   UndoAction,
-  RedoAction
+  RedoAction,
+  SetPlayerCountAction,
+  AddPlayerNameAction,
+  SetDeckSizeAction
 }
 
 import scala.io.StdIn.readLine
@@ -53,7 +56,24 @@ class TUI(controller: Controller) extends Observer {
   }
 
   def parseTuiInput(input: String, game: GameState): PlayerAction = {
-    inputHandler.handleRequest(input, game)
+    game.gamePhase match {
+      case SetupPhase | AskPlayerCountPhase =>
+        Try(input.trim.toInt) match {
+          case Success(count) => SetPlayerCountAction(count)
+          case Failure(_) =>
+            InvalidAction // Controller will handle invalid count message
+        }
+      case AskPlayerNamesPhase =>
+        AddPlayerNameAction(input.trim)
+      case AskDeckSizePhase =>
+        Try(input.trim.toInt) match {
+          case Success(size) => SetDeckSizeAction(size)
+          case Failure(_) =>
+            InvalidAction // Controller will handle invalid size message
+        }
+      case _ => // Default to existing game input handling
+        inputHandler.handleRequest(input, game)
+    }
   }
 
   @scala.annotation.tailrec
@@ -79,60 +99,46 @@ class TUI(controller: Controller) extends Observer {
   override def update: Unit = {
     println(clearScreen())
     val game = controller.gameState
-    val render = renderScreen(game, buildStatusString(game))
+    // During setup, only show the status string, not the full game screen
+    val render = game.gamePhase match {
+      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
+          AskDeckSizePhase | GameStartPhase =>
+        buildStatusString(game)
+      case _ =>
+        renderScreen(game, buildStatusString(game))
+    }
     println(render)
   }
 
-  def askForDeckSize(inputReader: () => String = readLine): Int = {
-    println("Anzahl Karten im Deck (z.B. 36 für Standard): ")
-    Try(inputReader().trim.toInt) match {
-      case Success(value) => value.max(2)
-      case Failure(e) =>
-        println(
-          s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 36."
-        )
-        36
-    }
-  }
-
-  def askForPlayerCount(inputReader: () => String = readLine): Int = {
-    println("Spieleranzahl?")
-    Try(inputReader().trim.toInt) match {
-      case Success(value) => value.max(2)
-      case Failure(e) =>
-        println(
-          s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 2."
-        )
-        2
-    }
-  }
-
-  def askForPlayerNames(
-      count: Int,
-      inputReader: () => String = readLine
-  ): List[String] = {
-    (1 to count).map { i =>
-      println(s"Enter name of player $i: ")
-      inputReader().trim() match {
-        case "" => s"Player$i"
-        case n  => n
-      }
-    }.toList
-  }
-
   private def printPrompt(game: GameState): Unit = {
-    val activePlayer = game.gamePhase match {
-      case AttackPhase  => game.players(game.attackerIndex)
-      case DefensePhase => game.players(game.defenderIndex)
-      case _            => game.players(game.attackerIndex)
+    game.gamePhase match {
+      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
+          AskDeckSizePhase | GameStartPhase =>
+        println(
+          game.description
+        ) // Description is updated by controller based on phase
+        print("> ")
+      case _ => // Regular game phases
+        val activePlayer = game.gamePhase match {
+          case AttackPhase  => game.players(game.attackerIndex)
+          case DefensePhase => game.players(game.defenderIndex)
+          case _ =>
+            null // For phases like DrawPhase or RoundPhase, no specific active player for moves prompt
+        }
+        val moves = game.gamePhase match {
+          case AttackPhase  => "('play index', 'pass', 'u', 'r')"
+          case DefensePhase => "('play index', 'take', 'u', 'r')"
+          case _            => "" // No specific moves prompt for other phases
+        }
+        if (activePlayer != null) {
+          println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
+        } else {
+          println(
+            s"${game.description}"
+          ) // Use game description for other phases
+        }
+        print("> ")
     }
-    val moves = game.gamePhase match {
-      case AttackPhase  => "('play index', 'pass', 'u', 'r')"
-      case DefensePhase => "('play index', 'take', 'u', 'r')"
-      case _            => "('play index', 'pass', 'take', 'u', 'r')"
-    }
-    println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
-    print("> ")
   }
 
   def clearScreen(): String = "\u001b[2J\u001b[H"
@@ -278,12 +284,20 @@ $statusLine
           s"Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!"
         case GameEvent.CannotUndo => s"${RED}Nichts zum Rückgängigmachen!$RESET"
         case GameEvent.CannotRedo => s"${RED}Nichts zum Wiederherstellen!$RESET"
+        case GameEvent.SetupError =>
+          s"${RED}Setup-Fehler: ${game.description}$RESET" // Show description for setup errors
+        case GameEvent.GameSetupComplete =>
+          s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
+        // Add new cases for setup events
+        case GameEvent.AskPlayerCount => game.description
+        case GameEvent.AskPlayerNames => game.description
+        case GameEvent.AskDeckSize    => game.description
       }
       .getOrElse(
         game.gamePhase match {
-          case SetupPhase =>
-            if (game.players.isEmpty) "Willkommen bei Durak!"
-            else "Spieler werden eingerichtet."
+          case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
+              AskDeckSizePhase | GameStartPhase =>
+            game.description // The controller updates game.description for these phases
           case _ => game.gamePhase.toString
         }
       )
