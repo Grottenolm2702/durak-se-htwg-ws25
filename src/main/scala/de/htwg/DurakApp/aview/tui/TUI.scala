@@ -101,7 +101,7 @@ class TUI(controller: Controller) extends Observer {
     val game = controller.gameState
     val render = game.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase | GameStartPhase =>
+          AskDeckSizePhase =>
         buildStatusString(game)
       case _ =>
         renderScreen(game, buildStatusString(game))
@@ -112,7 +112,7 @@ class TUI(controller: Controller) extends Observer {
   private def printPrompt(game: GameState): Unit = {
     game.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase | GameStartPhase =>
+          AskDeckSizePhase =>
         println(
           game.description
         )
@@ -293,8 +293,8 @@ $statusLine
       }
       .getOrElse(
         game.gamePhase match {
-          case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-              AskDeckSizePhase | GameStartPhase =>
+          case SetupPhase |
+              AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
             game.description
           case _ => game.gamePhase.toString
         }

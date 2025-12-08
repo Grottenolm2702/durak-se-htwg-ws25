@@ -87,16 +87,20 @@ class DurakGUI(controller: Controller) extends Observer {
     }
   }
 
-  private val deckSizeChoiceBox = new ChoiceBox[Int](
-    scalafx.collections.ObservableBuffer.from(List(20, 36, 52))
+  private val deckSizeChoiceBox = new ComboBox[Int](
+    (2 to 36).toVector
   ) {
     value = 36
+    editable = true
   }
   private val submitDeckSizeButton = new Button("Set Deck Size") {
     onAction = _ => {
-      controller.processPlayerAction(
-        SetDeckSizeAction(deckSizeChoiceBox.value.value)
-      )
+      Try(deckSizeChoiceBox.getEditor.getText.toInt) match {
+        case Success(size) =>
+          controller.processPlayerAction(SetDeckSizeAction(size))
+        case Failure(_) =>
+          controller.processPlayerAction(InvalidAction)
+      }
     }
   }
 
@@ -215,7 +219,7 @@ class DurakGUI(controller: Controller) extends Observer {
             if (gameState.lastEvent.contains(GameEvent.SetupError)) {
               setupStatusLabel.text = gameState.description
             } else {
-              setupStatusLabel.text = "Select deck size (20, 36, or 52):"
+              setupStatusLabel.text = "Select deck size (2-36):"
             }
 
           case GameStartPhase =>
