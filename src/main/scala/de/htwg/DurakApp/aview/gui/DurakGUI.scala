@@ -64,7 +64,7 @@ class DurakGUI(controller: Controller) extends Observer {
     )
   }
   private val playCardButton = new Button("Play Card") {
-    onAction = handle {
+    onAction = () => {
       selectedCard.value.foreach { card =>
         controller.processPlayerAction(PlayCardAction(card))
         selectedCard.value = None
@@ -73,13 +73,13 @@ class DurakGUI(controller: Controller) extends Observer {
     prefWidth = 120
   }
   private val passButton = new Button("Pass") {
-    onAction = handle {
+    onAction = () => {
       controller.processPlayerAction(PassAction)
     }
     prefWidth = 120
   }
   private val takeCardsButton = new Button("Take Cards") {
-    onAction = handle {
+    onAction = () => {
       controller.processPlayerAction(TakeCardsAction)
     }
     prefWidth = 120
@@ -94,7 +94,7 @@ class DurakGUI(controller: Controller) extends Observer {
     promptText = "Number of players (2-6)"
   }
   private val submitPlayerCountButton = new Button("Set Player Count") {
-    onAction = handle {
+    onAction = () => {
       Try(playerCountInput.text.value.trim.toInt) match {
         case Success(count) =>
           controller.processPlayerAction(SetPlayerCountAction(count))
@@ -107,7 +107,7 @@ class DurakGUI(controller: Controller) extends Observer {
     promptText = "Player Name"
   }
   private val submitPlayerNameButton = new Button("Add Player") {
-    onAction = handle {
+    onAction = () => {
       controller.processPlayerAction(
         AddPlayerNameAction(playerNameInput.text.value)
       )
@@ -121,7 +121,7 @@ class DurakGUI(controller: Controller) extends Observer {
     editable = true
   }
   private val submitDeckSizeButton = new Button("Set Deck Size") {
-    onAction = handle {
+    onAction = () => {
       Try(deckSizeChoiceBox.getEditor.getText.toInt) match {
         case Success(size) =>
           controller.processPlayerAction(SetDeckSizeAction(size))
@@ -170,12 +170,12 @@ class DurakGUI(controller: Controller) extends Observer {
     style = "-fx-font-size: 48pt; -fx-font-weight: bold; -fx-text-fill: gold;"
   }
   private val playAgainButton = new Button("Play Again") {
-    onAction = handle {
+    onAction = () => {
       controller.processPlayerAction(PlayAgainAction)
     }
   }
   private val exitButton = new Button("Exit Game") {
-    onAction = handle {
+    onAction = () => {
       controller.processPlayerAction(ExitGameAction)
     }
   }
@@ -422,7 +422,7 @@ class DurakGUI(controller: Controller) extends Observer {
             "-fx-border-color: transparent; -fx-border-width: 3; -fx-background-color: transparent; -fx-padding: 0;",
         selectedCard
       )
-      onAction = handle {
+      onAction = () => {
         selectedCard.value = Some(card)
       }
     }
