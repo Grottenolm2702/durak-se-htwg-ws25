@@ -20,16 +20,6 @@ case class GameState(
     setupDeckSize: Option[Int] = None
 ) {
 
-  def description: String = {
-    import de.htwg.DurakApp.model.state.*
-    gamePhase match {
-      case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-4):"
-      case AskPlayerNamesPhase => s"Spielername ${setupPlayerNames.length + 1}:"
-      case AskDeckSizePhase    => "Deckgröße eingeben (2-36):"
-      case _                   => gamePhase.toString
-    }
-  }
-
   def toBuilder: GameStateBuilder = {
     GameStateBuilder()
       .withPlayers(players)

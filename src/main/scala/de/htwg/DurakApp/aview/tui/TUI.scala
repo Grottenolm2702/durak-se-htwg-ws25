@@ -13,7 +13,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
-import de.htwg.DurakApp.controller.{
+import de.htwg.DurakApp.controller.{ 
   PlayerAction,
   PlayCardAction,
   PassAction,
@@ -109,12 +109,22 @@ class TUI(controller: Controller) extends Observer {
     println(render)
   }
 
+  private def description(game: GameState): String = {
+    import de.htwg.DurakApp.model.state.*
+    game.gamePhase match {
+      case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-4):"
+      case AskPlayerNamesPhase => s"Spielername ${game.setupPlayerNames.length + 1}:"
+      case AskDeckSizePhase    => "Deckgröße eingeben (2-36):"
+      case _                   => game.gamePhase.toString
+    }
+  }
+
   private def printPrompt(game: GameState): Unit = {
     game.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
           AskDeckSizePhase =>
         println(
-          game.description
+          description(game)
         )
         print("> ")
       case _ =>
@@ -133,7 +143,7 @@ class TUI(controller: Controller) extends Observer {
           println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
         } else {
           println(
-            s"${game.description}"
+            s"${description(game)}"
           )
         }
         print("> ")
@@ -241,10 +251,11 @@ class TUI(controller: Controller) extends Observer {
     }
 
     val playersStr = game.players
-      .map { p =>
-        val playerName =
-          if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
-        s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
+      .map {
+        p =>
+          val playerName =
+            if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
+          s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
       }
       .mkString("\n\n")
 
@@ -284,7 +295,7 @@ $statusLine
         case GameEvent.CannotUndo => s"${RED}Nichts zum Rückgängigmachen!$RESET"
         case GameEvent.CannotRedo => s"${RED}Nichts zum Wiederherstellen!$RESET"
         case GameEvent.SetupError =>
-          s"${RED}Setup-Fehler: ${game.description}$RESET"
+          s"${RED}Setup-Fehler: ${description(game)}$RESET"
         case GameEvent.GameSetupComplete =>
           s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
         case GameEvent.AskPlayerCount => ""
