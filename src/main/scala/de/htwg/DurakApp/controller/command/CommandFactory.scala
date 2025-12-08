@@ -10,7 +10,12 @@ import de.htwg.DurakApp.controller.{
   TakeCardsAction,
   InvalidAction,
   UndoAction,
-  RedoAction
+  RedoAction,
+  SetPlayerCountAction,
+  AddPlayerNameAction,
+  SetDeckSizeAction,
+  PlayAgainAction,
+  ExitGameAction
 }
 
 object CommandFactory {
@@ -30,6 +35,11 @@ object CommandFactory {
 
       case InvalidAction | UndoAction | RedoAction =>
         Left(GameEvent.InvalidMove)
+      case SetPlayerCountAction(_) => Left(GameEvent.InvalidMove)
+      case AddPlayerNameAction(_)  => Left(GameEvent.InvalidMove)
+      case SetDeckSizeAction(_)    => Left(GameEvent.InvalidMove)
+      case PlayAgainAction         => Left(GameEvent.InvalidMove)
+      case ExitGameAction          => Left(GameEvent.InvalidMove)
     }
   }
 }
