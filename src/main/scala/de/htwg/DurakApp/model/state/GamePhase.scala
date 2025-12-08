@@ -15,6 +15,11 @@ object GameEvent {
   case class GameOver(winner: Player, loser: Option[Player]) extends GameEvent
   case object CannotUndo extends GameEvent
   case object CannotRedo extends GameEvent
+  case object AskPlayerCount extends GameEvent
+  case object AskPlayerNames extends GameEvent
+  case object AskDeckSize extends GameEvent
+  case object GameSetupComplete extends GameEvent
+  case object SetupError extends GameEvent
 }
 
 trait GamePhase {

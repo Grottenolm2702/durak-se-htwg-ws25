@@ -18,7 +18,10 @@ case class GameStateBuilder(
     gamePhase: GamePhase = SetupPhase,
     lastEvent: Option[GameEvent] = None,
     passedPlayers: Set[Int] = Set.empty,
-    roundWinner: Option[Int] = None
+    roundWinner: Option[Int] = None,
+    setupPlayerCount: Option[Int] = None,
+    setupPlayerNames: List[String] = List.empty,
+    setupDeckSize: Option[Int] = None
 ) {
 
   def withPlayers(newPlayers: List[Player]): GameStateBuilder =
@@ -54,6 +57,15 @@ case class GameStateBuilder(
   def withRoundWinner(newRoundWinner: Option[Int]): GameStateBuilder =
     copy(roundWinner = newRoundWinner)
 
+  def withSetupPlayerCount(count: Option[Int]): GameStateBuilder =
+    copy(setupPlayerCount = count)
+
+  def withSetupPlayerNames(names: List[String]): GameStateBuilder =
+    copy(setupPlayerNames = names)
+
+  def withSetupDeckSize(size: Option[Int]): GameStateBuilder =
+    copy(setupDeckSize = size)
+
   def build(): GameState = {
     GameState(
       players = players,
@@ -66,7 +78,10 @@ case class GameStateBuilder(
       gamePhase = gamePhase,
       lastEvent = lastEvent,
       passedPlayers = passedPlayers,
-      roundWinner = roundWinner
+      roundWinner = roundWinner,
+      setupPlayerCount = setupPlayerCount,
+      setupPlayerNames = setupPlayerNames,
+      setupDeckSize = setupDeckSize
     )
   }
 }
