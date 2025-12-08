@@ -61,7 +61,7 @@ class TUI(controller: Controller) extends Observer {
         Try(input.trim.toInt) match {
           case Success(count) => SetPlayerCountAction(count)
           case Failure(_) =>
-            InvalidAction // Controller will handle invalid count message
+            InvalidAction
         }
       case AskPlayerNamesPhase =>
         AddPlayerNameAction(input.trim)
@@ -69,9 +69,9 @@ class TUI(controller: Controller) extends Observer {
         Try(input.trim.toInt) match {
           case Success(size) => SetDeckSizeAction(size)
           case Failure(_) =>
-            InvalidAction // Controller will handle invalid size message
+            InvalidAction
         }
-      case _ => // Default to existing game input handling
+      case _ =>
         inputHandler.handleRequest(input, game)
     }
   }
@@ -99,7 +99,6 @@ class TUI(controller: Controller) extends Observer {
   override def update: Unit = {
     println(clearScreen())
     val game = controller.gameState
-    // During setup, only show the status string, not the full game screen
     val render = game.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
           AskDeckSizePhase | GameStartPhase =>
@@ -116,26 +115,26 @@ class TUI(controller: Controller) extends Observer {
           AskDeckSizePhase | GameStartPhase =>
         println(
           game.description
-        ) // Description is updated by controller based on phase
+        )
         print("> ")
-      case _ => // Regular game phases
+      case _ =>
         val activePlayer = game.gamePhase match {
           case AttackPhase  => game.players(game.attackerIndex)
           case DefensePhase => game.players(game.defenderIndex)
           case _ =>
-            null // For phases like DrawPhase or RoundPhase, no specific active player for moves prompt
+            null
         }
         val moves = game.gamePhase match {
           case AttackPhase  => "('play index', 'pass', 'u', 'r')"
           case DefensePhase => "('play index', 'take', 'u', 'r')"
-          case _            => "" // No specific moves prompt for other phases
+          case _            => ""
         }
         if (activePlayer != null) {
           println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
         } else {
           println(
             s"${game.description}"
-          ) // Use game description for other phases
+          )
         }
         print("> ")
     }
@@ -285,10 +284,9 @@ $statusLine
         case GameEvent.CannotUndo => s"${RED}Nichts zum Rückgängigmachen!$RESET"
         case GameEvent.CannotRedo => s"${RED}Nichts zum Wiederherstellen!$RESET"
         case GameEvent.SetupError =>
-          s"${RED}Setup-Fehler: ${game.description}$RESET" // Show description for setup errors
+          s"${RED}Setup-Fehler: ${game.description}$RESET"
         case GameEvent.GameSetupComplete =>
           s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
-        // Add new cases for setup events
         case GameEvent.AskPlayerCount => game.description
         case GameEvent.AskPlayerNames => game.description
         case GameEvent.AskDeckSize    => game.description
@@ -297,7 +295,7 @@ $statusLine
         game.gamePhase match {
           case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
               AskDeckSizePhase | GameStartPhase =>
-            game.description // The controller updates game.description for these phases
+            game.description
           case _ => game.gamePhase.toString
         }
       )

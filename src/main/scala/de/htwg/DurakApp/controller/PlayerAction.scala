@@ -9,7 +9,6 @@ case object TakeCardsAction extends PlayerAction
 case object InvalidAction extends PlayerAction
 case object UndoAction extends PlayerAction
 case object RedoAction extends PlayerAction
-// New Setup Actions
 case class SetPlayerCountAction(count: Int) extends PlayerAction
 case class AddPlayerNameAction(name: String) extends PlayerAction
 case class SetDeckSizeAction(size: Int) extends PlayerAction
