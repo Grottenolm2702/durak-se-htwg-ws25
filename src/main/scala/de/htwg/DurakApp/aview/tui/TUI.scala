@@ -31,16 +31,21 @@ class TUI(controller: Controller) extends Observer {
     println("Spiel beendet.")
   }
 
-  def parseTuiInput(input: String, game: GameState): PlayerAction = game.gamePhase match {
-    case SetupPhase | AskPlayerCountPhase =>
-      Try(input.trim.toInt).map(SetPlayerCountAction.apply).getOrElse(InvalidAction)
-    case AskPlayerNamesPhase =>
-      AddPlayerNameAction(input.trim)
-    case AskDeckSizePhase =>
-      Try(input.trim.toInt).map(SetDeckSizeAction.apply).getOrElse(InvalidAction)
-    case _ =>
-      inputHandler.handleRequest(input, game)
-  }
+  def parseTuiInput(input: String, game: GameState): PlayerAction =
+    game.gamePhase match {
+      case SetupPhase | AskPlayerCountPhase =>
+        Try(input.trim.toInt)
+          .map(SetPlayerCountAction.apply)
+          .getOrElse(InvalidAction)
+      case AskPlayerNamesPhase =>
+        AddPlayerNameAction(input.trim)
+      case AskDeckSizePhase =>
+        Try(input.trim.toInt)
+          .map(SetDeckSizeAction.apply)
+          .getOrElse(InvalidAction)
+      case _ =>
+        inputHandler.handleRequest(input, game)
+    }
 
   @scala.annotation.tailrec
   private def gameLoop(): Unit = {
@@ -51,11 +56,11 @@ class TUI(controller: Controller) extends Observer {
       val action = parseTuiInput(input, controller.gameState)
       action match {
         case UndoAction | RedoAction =>
-        case _ => controller.processPlayerAction(action)
+        case _                       => controller.processPlayerAction(action)
       }
       controller.gameState.lastEvent match {
         case Some(GameEvent.GameOver(_, _)) =>
-        case _ => gameLoop()
+        case _                              => gameLoop()
       }
     }
   }
@@ -64,7 +69,8 @@ class TUI(controller: Controller) extends Observer {
     println(clearScreen())
     val game = controller.gameState
     val render = game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
+      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
+          AskDeckSizePhase =>
         buildStatusString(game)
       case _ =>
         renderScreen(game, buildStatusString(game))
@@ -74,21 +80,23 @@ class TUI(controller: Controller) extends Observer {
 
   private def description(game: GameState): String = game.gamePhase match {
     case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
-    case AskPlayerNamesPhase => s"Spielername ${game.setupPlayerNames.length + 1}:"
-    case AskDeckSizePhase    => "Deckgröße eingeben (2-36):"
-    case _                   => game.gamePhase.toString
+    case AskPlayerNamesPhase =>
+      s"Spielername ${game.setupPlayerNames.length + 1}:"
+    case AskDeckSizePhase => "Deckgröße eingeben (2-36):"
+    case _                => game.gamePhase.toString
   }
 
   private def printPrompt(game: GameState): Unit = {
     game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
+      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
+          AskDeckSizePhase =>
         println(description(game))
         print("> ")
       case _ =>
         val activePlayer = game.gamePhase match {
           case AttackPhase  => game.players(game.attackerIndex)
           case DefensePhase => game.players(game.defenderIndex)
-          case _ => null
+          case _            => null
         }
         val moves = game.gamePhase match {
           case AttackPhase  => "('play index', 'pass', 'u', 'r')"
@@ -162,13 +170,15 @@ class TUI(controller: Controller) extends Observer {
     else {
       val cardLines = hand.map(renderCard)
       val cardsBlock = combineCardLines(cardLines)
-      val indexLine = hand.indices.map { i =>
-        val s = i.toString
-        val total = cardWidth
-        val left = (total - s.length) / 2
-        val right = total - s.length - left
-        " " * left + s + " " * right
-      }.mkString(" ")
+      val indexLine = hand.indices
+        .map { i =>
+          val s = i.toString
+          val total = cardWidth
+          val left = (total - s.length) / 2
+          val right = total - s.length - left
+          " " * left + s + " " * right
+        }
+        .mkString(" ")
       s"$cardsBlock\n$indexLine"
     }
 
@@ -228,10 +238,11 @@ $statusLine
         case GameEvent.InvalidMove  => s"${RED}Ungültiger Zug!$RESET"
         case GameEvent.NotYourTurn  => s"${RED}Du bist nicht am Zug!$RESET"
         case GameEvent.Attack(card) => s"Angriff mit ${card.rank} ${card.suit}."
-        case GameEvent.Defend(card) => s"Verteidigung mit ${card.rank} ${card.suit}."
-        case GameEvent.Pass         => "Passen."
-        case GameEvent.Take         => "Karten aufgenommen."
-        case GameEvent.Draw         => "Karten werden gezogen."
+        case GameEvent.Defend(card) =>
+          s"Verteidigung mit ${card.rank} ${card.suit}."
+        case GameEvent.Pass => "Passen."
+        case GameEvent.Take => "Karten aufgenommen."
+        case GameEvent.Draw => "Karten werden gezogen."
         case GameEvent.RoundEnd(cleared) =>
           if (cleared) "Runde vorbei, Tisch geleert."
           else "Runde vorbei, Karten aufgenommen."
@@ -247,11 +258,15 @@ $statusLine
           s"${RED}Setup-Fehler: ${description(game)}$RESET"
         case GameEvent.GameSetupComplete =>
           s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
-        case GameEvent.AskPlayerCount | GameEvent.AskPlayerNames | GameEvent.AskDeckSize => ""
+        case GameEvent.AskPlayerCount | GameEvent.AskPlayerNames |
+            GameEvent.AskDeckSize =>
+          ""
       }
       .getOrElse(
         game.gamePhase match {
-          case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase => ""
+          case SetupPhase |
+              AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
+            ""
           case _ => game.gamePhase.toString
         }
       )
