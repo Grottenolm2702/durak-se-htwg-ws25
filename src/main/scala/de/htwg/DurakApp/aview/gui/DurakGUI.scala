@@ -14,39 +14,49 @@ import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.*
 import scalafx.scene.effect.GaussianBlur
 import scalafx.stage.Stage
+import scalafx.Includes.*
 import scala.util.{Try, Success, Failure}
 
 class DurakGUI(controller: Controller) extends Observer {
-
   controller.add(this)
 
   private val selectedCard = ObjectProperty[Option[Card]](None)
+
   private val statusLabel = new Label("Welcome to Durak!")
+
   private val trumpCardView = new ImageView {
     fitWidth = 56
     fitHeight = 80
     preserveRatio = true
   }
+
   private val trumpDisplay = new HBox {
     spacing = 10
     alignment = Pos.Center
-    children = Seq(new Label("Trump:"), trumpCardView)
+    children = Seq(
+      new Label("Trump:"),
+      trumpCardView
+    )
   }
+
   private val playerHandBox = new HBox {
     spacing = 10
     alignment = Pos.Center
     padding = Insets(10)
   }
+
   private val attackerTable = new HBox {
     spacing = 10
     alignment = Pos.Center
     minHeight = 110
   }
+
   private val defenderTable = new HBox {
     spacing = 10
     alignment = Pos.Center
     minHeight = 110
   }
+
   private val tableDisplay = new VBox {
     spacing = 5
     alignment = Pos.Center
@@ -59,46 +69,59 @@ class DurakGUI(controller: Controller) extends Observer {
       defenderTable
     )
   }
+
   private val playCardButton = new Button("Play Card") {
-    onAction = _ =>
+    onAction = handle {
       selectedCard.value.foreach { card =>
         controller.processPlayerAction(PlayCardAction(card))
         selectedCard.value = None
       }
+    }
     prefWidth = 120
   }
+
   private val passButton = new Button("Pass") {
-    onAction = _ => controller.processPlayerAction(PassAction)
+    onAction = handle {
+      controller.processPlayerAction(PassAction)
+    }
     prefWidth = 120
   }
+
   private val takeCardsButton = new Button("Take Cards") {
-    onAction = _ => controller.processPlayerAction(TakeCardsAction)
+    onAction = handle {
+      controller.processPlayerAction(TakeCardsAction)
+    }
     prefWidth = 120
   }
+
   private val actionButtons = new VBox {
     alignment = Pos.Center
     spacing = 10
     padding = Insets(10)
     children = Seq(playCardButton, passButton, takeCardsButton)
   }
+
   private val playerCountInput = new TextField {
     promptText = "Number of players (2-6)"
   }
+
   private val submitPlayerCountButton = new Button("Set Player Count") {
-    onAction = _ => {
+    onAction = handle {
       Try(playerCountInput.text.value.trim.toInt) match {
         case Success(count) =>
-          controller.processPlayerAction(SetPlayerCountAction(count))
+          controller.processPlayerAction(SetPlayerCountAction.apply(count))
         case Failure(_) =>
           controller.processPlayerAction(InvalidAction)
       }
     }
   }
+
   private val playerNameInput = new TextField {
     promptText = "Player Name"
   }
+
   private val submitPlayerNameButton = new Button("Add Player") {
-    onAction = _ => {
+    onAction = handle {
       controller.processPlayerAction(
         AddPlayerNameAction(playerNameInput.text.value)
       )
@@ -107,36 +130,42 @@ class DurakGUI(controller: Controller) extends Observer {
       }
     }
   }
+
   private val deckSizeChoiceBox = new ComboBox[Int]((2 to 36).toVector) {
     value = 36
     editable = true
   }
+
   private val submitDeckSizeButton = new Button("Set Deck Size") {
-    onAction = _ => {
+    onAction = handle {
       Try(deckSizeChoiceBox.getEditor.getText.toInt) match {
         case Success(size) =>
-          controller.processPlayerAction(SetDeckSizeAction(size))
+          controller.processPlayerAction(SetDeckSizeAction.apply(size))
         case Failure(_) =>
           controller.processPlayerAction(InvalidAction)
       }
     }
   }
+
   private val setupStatusLabel = new Label("Ready for setup.") {
     style = "-fx-text-fill: black;"
   }
-  private val setupInputPane = new VBox(
-    10,
-    playerCountInput,
-    submitPlayerCountButton,
-    playerNameInput,
-    submitPlayerNameButton,
-    deckSizeChoiceBox,
-    submitDeckSizeButton,
-    setupStatusLabel
-  ) {
+
+  private val setupInputPane = new VBox {
+    spacing = 10
     alignment = Pos.Center
     padding = Insets(20)
+    children = Seq(
+      playerCountInput,
+      submitPlayerCountButton,
+      playerNameInput,
+      submitPlayerNameButton,
+      deckSizeChoiceBox,
+      submitDeckSizeButton,
+      setupStatusLabel
+    )
   }
+
   private val gameDisplayPane = new BorderPane {
     padding = Insets(10)
     top = new VBox {
@@ -156,9 +185,11 @@ class DurakGUI(controller: Controller) extends Observer {
     }
     right = actionButtons
   }
+
   private val winnerLabel = new Label {
     style = "-fx-font-size: 48pt; -fx-font-weight: bold; -fx-text-fill: gold;"
   }
+
   private val winnerDisplayPane = new VBox {
     spacing = 20
     children = Seq(winnerLabel)
@@ -182,7 +213,7 @@ class DurakGUI(controller: Controller) extends Observer {
     children = Seq(gameDisplayPane, setupInputPane, winnerDisplayPane)
   }
 
-  private def description(gameState: GameState): String = {
+  private def description(gameState: GameState): String =
     gameState.gamePhase match {
       case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-4):"
       case AskPlayerNamesPhase =>
@@ -190,12 +221,10 @@ class DurakGUI(controller: Controller) extends Observer {
       case AskDeckSizePhase => "Deckgröße eingeben (2-36):"
       case _                => gameState.gamePhase.toString
     }
-  }
 
   override def update: Unit = Platform.runLater {
     val gameState = controller.gameState
     updateWinnerDisplay(gameState)
-
     val isSetupPhase = gameState.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
           AskDeckSizePhase | GameStartPhase =>
@@ -204,7 +233,6 @@ class DurakGUI(controller: Controller) extends Observer {
     }
     setupInputPane.visible = isSetupPhase
     gameDisplayPane.visible = !isSetupPhase
-
     if (isSetupPhase) {
       updateSetupInputs(gameState)
     } else {
@@ -221,14 +249,12 @@ class DurakGUI(controller: Controller) extends Observer {
     setupStatusLabel.text = description(gameState)
     setupStatusLabel.style =
       if (setupError) "-fx-text-fill: red;" else "-fx-text-fill: black;"
-
     playerCountInput.visible = false
     submitPlayerCountButton.visible = false
     playerNameInput.visible = false
     submitPlayerNameButton.visible = false
     deckSizeChoiceBox.visible = false
     submitDeckSizeButton.visible = false
-
     gameState.gamePhase match {
       case SetupPhase | AskPlayerCountPhase =>
         playerCountInput.visible = true
@@ -261,13 +287,12 @@ class DurakGUI(controller: Controller) extends Observer {
   private def updateWinnerDisplay(gameState: GameState): Unit = {
     winnerDisplayPane.visible = false
     gameDisplayPane.effect = null
-
     gameState.gamePhase match {
       case EndPhase =>
         gameState.lastEvent match {
           case Some(GameEvent.GameOver(winner, loserOpt)) =>
             val loserText =
-              loserOpt.map(l => s" (${l.name} is the Durak!)").getOrElse("")
+              loserOpt.fold("")(l => s" (${l.name} is the Durak!)")
             winnerLabel.text = s"${winner.name} Wins!$loserText"
             winnerDisplayPane.visible = true
             gameDisplayPane.effect = new GaussianBlur(10)
@@ -278,19 +303,14 @@ class DurakGUI(controller: Controller) extends Observer {
   }
 
   private def updateActionButtons(gameState: GameState): Unit = {
-    playCardButton.visible = false
-    passButton.visible = false
-    takeCardsButton.visible = false
-
-    gameState.gamePhase match {
-      case AttackPhase =>
-        playCardButton.visible = true
-        passButton.visible = true
-      case DefensePhase =>
-        playCardButton.visible = true
-        takeCardsButton.visible = true
-      case _ =>
+    val (playVisible, passVisible, takeVisible) = gameState.gamePhase match {
+      case AttackPhase  => (true, true, false)
+      case DefensePhase => (true, false, true)
+      case _            => (false, false, false)
     }
+    playCardButton.visible = playVisible
+    passButton.visible = passVisible
+    takeCardsButton.visible = takeVisible
   }
 
   private def activePlayerIndex(gameState: GameState): Option[Int] =
@@ -301,45 +321,40 @@ class DurakGUI(controller: Controller) extends Observer {
     }
 
   private def updateActivePlayer(gameState: GameState): Unit = {
-    if (gameState.players.nonEmpty) {
-      activePlayerIndex(gameState) match {
-        case Some(i) =>
-          val player = gameState.players(i)
-          statusLabel.text =
-            s"${player.name}'s turn (${description(gameState)})"
-        case None =>
-          statusLabel.text = description(gameState)
-      }
-    } else {
-      statusLabel.text = description(gameState)
-    }
+    statusLabel.text =
+      if (gameState.players.nonEmpty)
+        activePlayerIndex(gameState)
+          .map(i =>
+            s"${gameState.players(i).name}'s turn (${description(gameState)})"
+          )
+          .getOrElse(description(gameState))
+      else
+        description(gameState)
   }
 
   private def updateTrump(gameState: GameState): Unit = {
-    if (gameState.deck.nonEmpty || gameState.players.nonEmpty) {
-      trumpCardView.image = loadCardImage(gameState.trumpCard)
-    } else {
-      trumpCardView.image = null
-    }
+    trumpCardView.image =
+      if (gameState.deck.nonEmpty || gameState.players.nonEmpty)
+        loadCardImage(gameState.trumpCard)
+      else
+        null
   }
 
   private def loadCardImage(card: Card): Image = {
     val imagePath = cardToImagePath(card)
-    val resourceStream = getClass.getResourceAsStream(s"/$imagePath")
-    if (resourceStream != null)
-      new Image(resourceStream, 70, 100, true, true)
-    else
-      null
+    Option(getClass.getResourceAsStream(s"/$imagePath"))
+      .map(new Image(_, 70, 100, true, true))
+      .orNull
   }
 
   private def updateHand(gameState: GameState): Unit = {
-    if (gameState.players.nonEmpty) {
-      playerHandBox.children = activePlayerIndex(gameState)
-        .map(i => gameState.players(i).hand.map(createCardButton))
-        .getOrElse(Seq.empty)
-    } else {
-      playerHandBox.children = Seq.empty
-    }
+    playerHandBox.children =
+      if (gameState.players.nonEmpty)
+        activePlayerIndex(gameState)
+          .map(i => gameState.players(i).hand.map(createCardButton))
+          .getOrElse(Seq.empty)
+      else
+        Seq.empty
   }
 
   private def updateTable(gameState: GameState): Unit = {
@@ -400,7 +415,9 @@ class DurakGUI(controller: Controller) extends Observer {
             "-fx-border-color: transparent; -fx-border-width: 3; -fx-background-color: transparent; -fx-padding: 0;",
         selectedCard
       )
-      onAction = _ => selectedCard.value = Some(card)
+      onAction = handle {
+        selectedCard.value = Some(card)
+      }
     }
   }
 }
