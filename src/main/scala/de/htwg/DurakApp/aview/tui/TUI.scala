@@ -112,7 +112,7 @@ class TUI(controller: Controller) extends Observer {
   private def description(game: GameState): String = {
     import de.htwg.DurakApp.model.state.*
     game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-4):"
+      case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
       case AskPlayerNamesPhase => s"Spielername ${game.setupPlayerNames.length + 1}:"
       case AskDeckSizePhase    => "Deckgröße eingeben (2-36):"
       case _                   => game.gamePhase.toString
