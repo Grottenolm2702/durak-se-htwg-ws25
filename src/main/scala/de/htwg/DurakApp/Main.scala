@@ -15,10 +15,10 @@ import de.htwg.DurakApp.model.state.SetupPhase
   val tui = new TUI(controller)
   controller.add(tui)
 
-  Platform.startup(() => {
-    val gui = new DurakGUI(controller)
-    gui.start()
-  })
+    Platform.startup(() => {
+      val gui = new DurakGUI(controller)
+      gui.start()
+    })
 
   tui.run()
 }
