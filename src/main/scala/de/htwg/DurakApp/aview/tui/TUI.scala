@@ -33,11 +33,11 @@ class TUI(controller: Controller) extends Observer {
 
   def parseTuiInput(input: String, game: GameState): PlayerAction = game.gamePhase match {
     case SetupPhase | AskPlayerCountPhase =>
-      Try(input.trim.toInt).map(SetPlayerCountAction).getOrElse(InvalidAction)
+      Try(input.trim.toInt).map(SetPlayerCountAction.apply).getOrElse(InvalidAction)
     case AskPlayerNamesPhase =>
       AddPlayerNameAction(input.trim)
     case AskDeckSizePhase =>
-      Try(input.trim.toInt).map(SetDeckSizeAction).getOrElse(InvalidAction)
+      Try(input.trim.toInt).map(SetDeckSizeAction.apply).getOrElse(InvalidAction)
     case _ =>
       inputHandler.handleRequest(input, game)
   }
