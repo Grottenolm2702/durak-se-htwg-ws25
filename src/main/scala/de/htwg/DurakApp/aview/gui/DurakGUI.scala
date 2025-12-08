@@ -2,19 +2,19 @@ package de.htwg.DurakApp.aview.gui
 
 import de.htwg.DurakApp.controller.*
 import de.htwg.DurakApp.model.{Card, GameState, Rank}
-import de.htwg.DurakApp.model.state.* // Import all members of the state package
+import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
 import scalafx.application.Platform
 import scalafx.beans.binding.Bindings
 import scalafx.beans.property.ObjectProperty
 import scalafx.event.EventIncludes.*
-import scalafx.geometry.{Insets, Pos} // Added Insets
+import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
 import scalafx.scene.control.*
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.*
 import scalafx.stage.Stage
-import scala.util.{Try, Success, Failure} // Added Try, Success, Failure
+import scala.util.{Try, Success, Failure}
 
 class DurakGUI(controller: Controller) extends Observer {
 
@@ -22,9 +22,6 @@ class DurakGUI(controller: Controller) extends Observer {
 
   private val selectedCard = ObjectProperty[Option[Card]](None)
 
-  // ======== UI NODES ========
-
-  // Main game UI elements
   private val statusLabel = new Label("Welcome to Durak!")
   private val trumpLabel = new Label("Trump: ?")
 
@@ -60,7 +57,6 @@ class DurakGUI(controller: Controller) extends Observer {
   }
   private val actionButtons = createActionButtons()
 
-  // Setup UI elements
   private val playerCountInput = new TextField {
     promptText = "Number of players (2-6)"
   }
@@ -72,7 +68,7 @@ class DurakGUI(controller: Controller) extends Observer {
         case Failure(_) =>
           controller.processPlayerAction(
             InvalidAction
-          ) // Controller will handle error msg
+          )
       }
     }
   }
@@ -85,7 +81,6 @@ class DurakGUI(controller: Controller) extends Observer {
       controller.processPlayerAction(
         AddPlayerNameAction(playerNameInput.text.value)
       )
-      // Clear input field, but don't reset if there was an error in controller
       if (!controller.gameState.lastEvent.contains(GameEvent.SetupError)) {
         playerNameInput.text = ""
       }
@@ -95,7 +90,7 @@ class DurakGUI(controller: Controller) extends Observer {
   private val deckSizeChoiceBox = new ChoiceBox[Int](
     scalafx.collections.ObservableBuffer.from(List(20, 36, 52))
   ) {
-    value = 36 // Default value
+    value = 36
   }
   private val submitDeckSizeButton = new Button("Set Deck Size") {
     onAction = _ => {
@@ -123,7 +118,6 @@ class DurakGUI(controller: Controller) extends Observer {
     padding = Insets(20)
   }
 
-  // Wrapper for the main game UI elements
   private val gameDisplayPane = new BorderPane {
     top = new VBox {
       alignment = Pos.Center
@@ -146,8 +140,6 @@ class DurakGUI(controller: Controller) extends Observer {
     right = actionButtons
   }
 
-  // ======== INIT ========
-
   def start(): Unit = {
     val stage = new Stage {
       title = "Durak - GUI"
@@ -160,19 +152,14 @@ class DurakGUI(controller: Controller) extends Observer {
     update
   }
 
-  // ======== LAYOUT ========
-
   private def createRootPane(): StackPane = new StackPane {
     children = Seq(gameDisplayPane, setupInputPane)
   }
-
-  // ======== RENDERING ========
 
   override def update: Unit = {
     Platform.runLater {
       val gameState = controller.gameState
 
-      // Update visibility of setup vs game UI
       val isSetupPhase = gameState.gamePhase match {
         case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
             AskDeckSizePhase | GameStartPhase =>
@@ -183,7 +170,6 @@ class DurakGUI(controller: Controller) extends Observer {
       gameDisplayPane.visible = !isSetupPhase
 
       if (isSetupPhase) {
-        // Handle specific setup phase UI updates
         setupStatusLabel.text = gameState.description
         if (gameState.lastEvent.contains(GameEvent.SetupError)) {
           setupStatusLabel.style = "-fx-text-fill: red;"
@@ -204,10 +190,8 @@ class DurakGUI(controller: Controller) extends Observer {
             submitPlayerCountButton.visible = true
             playerCountInput.text =
               gameState.setupPlayerCount.map(_.toString).getOrElse("")
-            // The controller sets the description for specific prompts/errors
             if (gameState.lastEvent.contains(GameEvent.SetupError)) {
-              setupStatusLabel.text =
-                gameState.description // Use controller's description for error
+              setupStatusLabel.text = gameState.description
             } else {
               setupStatusLabel.text = "Enter number of players (2-6):"
             }
@@ -217,10 +201,8 @@ class DurakGUI(controller: Controller) extends Observer {
             val currentNames = gameState.setupPlayerNames.size
             playerNameInput.visible = true
             submitPlayerNameButton.visible = true
-            // playerNameInput.text is cleared by the button action, no need to clear here
             if (gameState.lastEvent.contains(GameEvent.SetupError)) {
-              setupStatusLabel.text =
-                gameState.description // Use controller's description for error
+              setupStatusLabel.text = gameState.description
             } else {
               setupStatusLabel.text =
                 s"Enter name for player ${currentNames + 1} of ${expectedCount}:"
@@ -231,19 +213,17 @@ class DurakGUI(controller: Controller) extends Observer {
             submitDeckSizeButton.visible = true
             deckSizeChoiceBox.value = gameState.setupDeckSize.getOrElse(36)
             if (gameState.lastEvent.contains(GameEvent.SetupError)) {
-              setupStatusLabel.text =
-                gameState.description // Use controller's description for error
+              setupStatusLabel.text = gameState.description
             } else {
               setupStatusLabel.text = "Select deck size (20, 36, or 52):"
             }
 
           case GameStartPhase =>
             setupStatusLabel.text = "Initializing game..."
-          case _ => // Should not happen
+          case _ =>
         }
 
       } else {
-        // Update regular game UI elements
         updateActivePlayer(gameState)
         updateTrump(gameState)
         updateHand(gameState)
@@ -253,7 +233,6 @@ class DurakGUI(controller: Controller) extends Observer {
   }
 
   private def updateActivePlayer(gameState: GameState): Unit = {
-    // Only update if players are initialized
     if (gameState.players.nonEmpty) {
       val activePlayerIndex: Option[Int] =
         gameState.gamePhase match {
@@ -270,13 +249,11 @@ class DurakGUI(controller: Controller) extends Observer {
           statusLabel.text = gameState.description
       }
     } else {
-      statusLabel.text =
-        gameState.description // During setup, just show description
+      statusLabel.text = gameState.description
     }
   }
 
   private def updateTrump(gameState: GameState): Unit = {
-    // Only update if trump card is initialized
     if (gameState.deck.nonEmpty || gameState.players.nonEmpty) {
       trumpLabel.text = s"Trump: ${gameState.trumpCard}"
     } else {
@@ -285,7 +262,6 @@ class DurakGUI(controller: Controller) extends Observer {
   }
 
   private def updateHand(gameState: GameState): Unit = {
-    // Only update if players are initialized
     if (gameState.players.nonEmpty) {
       val activePlayerIndex: Option[Int] =
         gameState.gamePhase match {
@@ -298,18 +274,17 @@ class DurakGUI(controller: Controller) extends Observer {
         .map(i => gameState.players(i).hand.map(createCardButton))
         .getOrElse(Seq.empty)
     } else {
-      playerHandBox.children = Seq.empty // Clear hand during setup
+      playerHandBox.children = Seq.empty
     }
   }
 
   private def updateTable(gameState: GameState): Unit = {
-    // Only update if game is initialized
     if (gameState.players.nonEmpty) {
       tableBox.children = gameState.table.flatMap { case (attack, defense) =>
         Seq(createCardView(attack)) ++ defense.map(createCardView)
       }.toList
     } else {
-      tableBox.children = Seq.empty // Clear table during setup
+      tableBox.children = Seq.empty
     }
   }
 

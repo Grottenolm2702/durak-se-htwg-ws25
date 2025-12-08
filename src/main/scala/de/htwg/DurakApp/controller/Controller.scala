@@ -95,9 +95,7 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
                 lastEvent = Some(GameEvent.AskPlayerNames)
               )
             } else {
-              gameState = gameState.copy(lastEvent =
-                Some(GameEvent.SetupError)
-              )
+              gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
             }
           case AddPlayerNameAction(name) =>
             val currentNames = gameState.setupPlayerNames
@@ -116,14 +114,11 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
                   lastEvent = Some(GameEvent.AskDeckSize)
                 )
               } else {
-                gameState = gameState.copy(lastEvent =
-                  Some(GameEvent.SetupError)
-                )
+                gameState =
+                  gameState.copy(lastEvent = Some(GameEvent.SetupError))
               }
             } else {
-              gameState = gameState.copy(lastEvent =
-                Some(GameEvent.SetupError)
-              )
+              gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
             }
           case SetDeckSizeAction(size) =>
             if (List(20, 36, 52).contains(size)) {
@@ -139,14 +134,10 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
                 Some(GameEvent.GameSetupComplete)
               )
             } else {
-              gameState = gameState.copy(lastEvent =
-                Some(GameEvent.SetupError)
-              )
+              gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
             }
           case _ =>
-            gameState = gameState.copy(lastEvent =
-              Some(GameEvent.SetupError)
-            )
+            gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
         }
         notifyObservers
         this.gameState
