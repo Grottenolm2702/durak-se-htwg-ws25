@@ -64,7 +64,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
     "be initialized with a given GameState" in {
       val initialPlayers = List(Player("TestPlayer", List.empty))
-      val initialGameState = createGameState(players = initialPlayers, roundWinner = defaultRoundWinner)
+      val initialGameState = createGameState(
+        players = initialPlayers,
+        roundWinner = defaultRoundWinner
+      )
       val controller = new Controller(
         initialGameState,
         UndoRedoManager()

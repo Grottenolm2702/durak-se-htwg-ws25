@@ -704,58 +704,58 @@ class TUISpec extends AnyWordSpec with Matchers {
       controller.gameState.deck.size should be > 0
     }
 
-          "parseTuiInput handles invalid player count" in {
-            val initialGame =
-              createGameState(players = List.empty, gamePhase = SetupPhase)
-            val controller = new Controller(initialGame, UndoRedoManager())
-            val tui = new TUI(controller)
-    
-            val action = tui.parseTuiInput("1", controller.gameState)
-            controller.processPlayerAction(action)
-            controller.gameState.setupPlayerCount should be(None)
-            controller.gameState.gamePhase should be(SetupPhase)
-            controller.gameState.lastEvent should be(Some(GameEvent.SetupError))
-          }
-    
-          "parseTuiInput handles invalid deck size" in {
-            val gameAfterPlayerNames = createGameState(
-              players = List.empty,
-              gamePhase = AskDeckSizePhase,
-              setupPlayerCount = Some(2),
-              setupPlayerNames = List("Alice", "Bob")
-            )
-            val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
-            val tui = new TUI(controller)
-    
-            val action = tui.parseTuiInput("37", controller.gameState)
-            controller.processPlayerAction(action)
-            controller.gameState.setupDeckSize should be(None)
-            controller.gameState.gamePhase should be(AskDeckSizePhase)
-            controller.gameState.lastEvent should be(Some(GameEvent.SetupError))
-          }
-    
-          "parseTuiInput handles ExitGameAction in AskPlayAgainPhase" in {
-            val game = createGameState(
-              players = List.empty,
-              gamePhase = AskPlayAgainPhase
-            )
-            val controller = new Controller(game, UndoRedoManager())
-            val tui = new TUI(controller)
-    
-            val action = tui.parseTuiInput("no", game) // Pass 'game' directly
-            action should be(de.htwg.DurakApp.controller.ExitGameAction)
-          }
-    
-          "parseTuiInput handles PlayAgainAction in AskPlayAgainPhase" in {
-            val game = createGameState(
-              players = List.empty,
-              gamePhase = AskPlayAgainPhase
-            )
-            val controller = new Controller(game, UndoRedoManager())
-            val tui = new TUI(controller)
-    
-            val action = tui.parseTuiInput("yes", game) // Pass 'game' directly
-            action should be(de.htwg.DurakApp.controller.PlayAgainAction)
-          }
-        }
-      }
+    "parseTuiInput handles invalid player count" in {
+      val initialGame =
+        createGameState(players = List.empty, gamePhase = SetupPhase)
+      val controller = new Controller(initialGame, UndoRedoManager())
+      val tui = new TUI(controller)
+
+      val action = tui.parseTuiInput("1", controller.gameState)
+      controller.processPlayerAction(action)
+      controller.gameState.setupPlayerCount should be(None)
+      controller.gameState.gamePhase should be(SetupPhase)
+      controller.gameState.lastEvent should be(Some(GameEvent.SetupError))
+    }
+
+    "parseTuiInput handles invalid deck size" in {
+      val gameAfterPlayerNames = createGameState(
+        players = List.empty,
+        gamePhase = AskDeckSizePhase,
+        setupPlayerCount = Some(2),
+        setupPlayerNames = List("Alice", "Bob")
+      )
+      val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
+      val tui = new TUI(controller)
+
+      val action = tui.parseTuiInput("37", controller.gameState)
+      controller.processPlayerAction(action)
+      controller.gameState.setupDeckSize should be(None)
+      controller.gameState.gamePhase should be(AskDeckSizePhase)
+      controller.gameState.lastEvent should be(Some(GameEvent.SetupError))
+    }
+
+    "parseTuiInput handles ExitGameAction in AskPlayAgainPhase" in {
+      val game = createGameState(
+        players = List.empty,
+        gamePhase = AskPlayAgainPhase
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+
+      val action = tui.parseTuiInput("no", game)
+      action should be(de.htwg.DurakApp.controller.ExitGameAction)
+    }
+
+    "parseTuiInput handles PlayAgainAction in AskPlayAgainPhase" in {
+      val game = createGameState(
+        players = List.empty,
+        gamePhase = AskPlayAgainPhase
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+
+      val action = tui.parseTuiInput("yes", game)
+      action should be(de.htwg.DurakApp.controller.PlayAgainAction)
+    }
+  }
+}

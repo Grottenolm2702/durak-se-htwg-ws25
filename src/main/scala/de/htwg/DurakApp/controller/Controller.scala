@@ -95,7 +95,7 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
         action match {
           case PlayAgainAction =>
             val newPlayerNames = gameState.setupPlayerNames
-            val newDeckSize = gameState.setupDeckSize.getOrElse(36) // Default to 36 if not set
+            val newDeckSize = gameState.setupDeckSize.getOrElse(36)
 
             Setup.setupGame(newPlayerNames, newDeckSize) match {
               case Some(newGameState) =>
@@ -103,17 +103,18 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
                   setupPlayerCount = Some(newPlayerNames.size),
                   setupPlayerNames = newPlayerNames,
                   setupDeckSize = Some(newDeckSize),
-                  lastEvent = Some(GameEvent.GameSetupComplete) // Signal a new game has started
+                  lastEvent = Some(GameEvent.GameSetupComplete)
                 )
-                undoRedoManager = new UndoRedoManager(List.empty, List.empty) // Reset undo/redo for a new game
+                undoRedoManager = new UndoRedoManager(List.empty, List.empty)
               case None =>
-                // Should not happen if setupGame is robust, but handle defensively
-                gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+                gameState =
+                  gameState.copy(lastEvent = Some(GameEvent.SetupError))
             }
           case ExitGameAction =>
-            gameState = gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
+            gameState =
+              gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
           case _ =>
-            gameState = gameState.copy(lastEvent = Some(GameEvent.InvalidMove)) // Or a more specific error
+            gameState = gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
         }
         notifyObservers
         this.gameState
