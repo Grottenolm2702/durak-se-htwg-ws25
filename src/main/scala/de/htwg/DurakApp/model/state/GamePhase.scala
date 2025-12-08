@@ -20,6 +20,8 @@ object GameEvent {
   case object AskDeckSize extends GameEvent
   case object GameSetupComplete extends GameEvent
   case object SetupError extends GameEvent
+  case object AskPlayAgain extends GameEvent
+  case object ExitApplication extends GameEvent
 }
 
 trait GamePhase {

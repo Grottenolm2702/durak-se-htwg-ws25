@@ -190,9 +190,26 @@ class DurakGUI(controller: Controller) extends Observer {
     style = "-fx-font-size: 48pt; -fx-font-weight: bold; -fx-text-fill: gold;"
   }
 
+  private val playAgainButton = new Button("Play Again") {
+    onAction = handle {
+      controller.processPlayerAction(PlayAgainAction)
+    }
+  }
+
+  private val exitButton = new Button("Exit Game") {
+    onAction = handle {
+      controller.processPlayerAction(ExitGameAction)
+    }
+  }
+
+  private val endRoundButtons = new HBox(10) {
+    alignment = Pos.Center
+    children = Seq(playAgainButton, exitButton)
+  }
+
   private val winnerDisplayPane = new VBox {
     spacing = 20
-    children = Seq(winnerLabel)
+    children = Seq(winnerLabel, endRoundButtons)
     alignment = Pos.Center
     style = "-fx-background-color: rgba(0, 0, 0, 0.75);"
     visible = false
@@ -288,7 +305,7 @@ class DurakGUI(controller: Controller) extends Observer {
     winnerDisplayPane.visible = false
     gameDisplayPane.effect = null
     gameState.gamePhase match {
-      case EndPhase =>
+      case AskPlayAgainPhase =>
         gameState.lastEvent match {
           case Some(GameEvent.GameOver(winner, loserOpt)) =>
             val loserText =
@@ -296,6 +313,8 @@ class DurakGUI(controller: Controller) extends Observer {
             winnerLabel.text = s"${winner.name} Wins!$loserText"
             winnerDisplayPane.visible = true
             gameDisplayPane.effect = new GaussianBlur(10)
+          case Some(GameEvent.ExitApplication) =>
+            Platform.exit() // Exit the JavaFX application
           case _ =>
         }
       case _ =>

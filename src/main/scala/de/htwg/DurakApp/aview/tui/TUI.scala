@@ -43,6 +43,12 @@ class TUI(controller: Controller) extends Observer {
         Try(input.trim.toInt)
           .map(SetDeckSizeAction.apply)
           .getOrElse(InvalidAction)
+      case AskPlayAgainPhase =>
+        input.trim.toLowerCase match {
+          case "yes" => PlayAgainAction
+          case "no"  => ExitGameAction
+          case _     => InvalidAction
+        }
       case _ =>
         inputHandler.handleRequest(input, game)
     }
@@ -58,9 +64,11 @@ class TUI(controller: Controller) extends Observer {
         case UndoAction | RedoAction =>
         case _                       => controller.processPlayerAction(action)
       }
+      println(s"DEBUG: Last event after action: ${controller.gameState.lastEvent}") // DEBUG PRINT
+      // After processing the action, check the current game state for termination or continuation
       controller.gameState.lastEvent match {
-        case Some(GameEvent.GameOver(_, _)) =>
-        case _                              => gameLoop()
+        case Some(GameEvent.ExitApplication) => () // Terminate loop
+        case _                               => gameLoop() // Continue loop for all other events
       }
     }
   }
@@ -83,6 +91,7 @@ class TUI(controller: Controller) extends Observer {
     case AskPlayerNamesPhase =>
       s"Spielername ${game.setupPlayerNames.length + 1}:"
     case AskDeckSizePhase => "Deckgröße eingeben (2-36):"
+    case AskPlayAgainPhase => "Möchten Sie eine neue Runde spielen? (yes/no):"
     case _                => game.gamePhase.toString
   }
 
@@ -258,6 +267,10 @@ $statusLine
           s"${RED}Setup-Fehler: ${description(game)}$RESET"
         case GameEvent.GameSetupComplete =>
           s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
+        case GameEvent.AskPlayAgain =>
+          s"${GREEN}Möchten Sie eine neue Runde spielen? (yes/no)$RESET"
+        case GameEvent.ExitApplication =>
+          s"${GREEN}Anwendung wird beendet...$RESET"
         case GameEvent.AskPlayerCount | GameEvent.AskPlayerNames |
             GameEvent.AskDeckSize =>
           ""

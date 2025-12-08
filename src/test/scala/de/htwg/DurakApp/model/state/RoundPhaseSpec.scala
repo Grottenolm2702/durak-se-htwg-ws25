@@ -79,7 +79,7 @@ class RoundPhaseSpec extends AnyWordSpec with Matchers {
       )
 
       val resultState = RoundPhase.handle(initialGameState)
-      resultState.gamePhase shouldBe EndPhase
+      resultState.gamePhase shouldBe AskPlayAgainPhase
       resultState.lastEvent.get shouldBe a[GameEvent.GameOver]
     }
   }

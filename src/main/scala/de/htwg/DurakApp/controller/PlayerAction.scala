@@ -12,3 +12,5 @@ case object RedoAction extends PlayerAction
 case class SetPlayerCountAction(count: Int) extends PlayerAction
 case class AddPlayerNameAction(name: String) extends PlayerAction
 case class SetDeckSizeAction(size: Int) extends PlayerAction
+case object PlayAgainAction extends PlayerAction
+case object ExitGameAction extends PlayerAction
