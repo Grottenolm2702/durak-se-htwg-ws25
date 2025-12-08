@@ -382,67 +382,67 @@ class TUISpec extends AnyWordSpec with Matchers {
       val tui = new TUI(controller)
 
       "handle 'play 0' during AttackPhase" in {
-        val action = tui.parseTuiInput("play 0", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("play 0", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
       }
 
       "handle 'play 0' during DefensePhase" in {
-        val action = tui.parseTuiInput("play 0", gameDefensePhase)
+        val action = tui.inputHandler.handleRequest("play 0", gameDefensePhase)
         action should be(de.htwg.DurakApp.controller.PlayCardAction(heartAce))
       }
 
       "handle 'pass'" in {
-        val action = tui.parseTuiInput("pass", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("pass", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.PassAction)
       }
 
       "handle 'take'" in {
-        val action = tui.parseTuiInput("take", gameDefensePhase)
+        val action = tui.inputHandler.handleRequest("take", gameDefensePhase)
         action should be(de.htwg.DurakApp.controller.TakeCardsAction)
       }
 
       "handle 'undo'" in {
-        val action = tui.parseTuiInput("undo", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("undo", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.UndoAction)
       }
 
       "handle 'z' as undo" in {
-        val action = tui.parseTuiInput("z", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("z", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.UndoAction)
       }
 
       "handle 'redo'" in {
-        val action = tui.parseTuiInput("redo", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("redo", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.RedoAction)
       }
 
       "handle 'y' as redo" in {
-        val action = tui.parseTuiInput("y", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("y", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.RedoAction)
       }
 
       "handle invalid command" in {
-        val action = tui.parseTuiInput("foo", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("foo", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
       "handle 'play' without index" in {
-        val action = tui.parseTuiInput("play", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("play", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
       "handle 'play' with non-numeric index" in {
-        val action = tui.parseTuiInput("play foo", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("play foo", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
       "handle 'play' with out-of-bounds index" in {
-        val action = tui.parseTuiInput("play 5", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("play 5", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
       "handle case-insensitivity and whitespace" in {
-        val action = tui.parseTuiInput("  PLaY 0  ", gameAttackPhase)
+        val action = tui.inputHandler.handleRequest("  PLaY 0  ", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
       }
 
@@ -452,7 +452,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val controller = new Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
-        val action = tui.parseTuiInput("not_a_number", controller.gameState)
+        val action = tui.inputHandler.handleRequest("not_a_number", controller.gameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
@@ -462,7 +462,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val controller = new Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
-        val action = tui.parseTuiInput("not_a_number", controller.gameState)
+        val action = tui.inputHandler.handleRequest("not_a_number", controller.gameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
@@ -472,7 +472,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val controller = new Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
-        val action = tui.parseTuiInput("not_a_number", controller.gameState)
+        val action = tui.inputHandler.handleRequest("not_a_number", controller.gameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
     }
@@ -710,7 +710,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(initialGame, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("2", controller.gameState)
+      val action = tui.inputHandler.handleRequest("2", controller.gameState)
       controller.processPlayerAction(action)
       controller.gameState.setupPlayerCount should be(Some(2))
       controller.gameState.gamePhase should be(AskPlayerNamesPhase)
@@ -726,12 +726,12 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(gameAfterPlayerCount, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("Alice", controller.gameState)
+      val action = tui.inputHandler.handleRequest("Alice", controller.gameState)
       controller.processPlayerAction(action)
       controller.gameState.setupPlayerNames should be(List("Alice"))
       controller.gameState.lastEvent should be(Some(GameEvent.AskPlayerNames))
 
-      val action2 = tui.parseTuiInput("Bob", controller.gameState)
+      val action2 = tui.inputHandler.handleRequest("Bob", controller.gameState)
       controller.processPlayerAction(action2)
       controller.gameState.setupPlayerNames should be(List("Alice", "Bob"))
       controller.gameState.gamePhase should be(AskDeckSizePhase)
@@ -748,7 +748,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("36", controller.gameState)
+      val action = tui.inputHandler.handleRequest("36", controller.gameState)
       controller.processPlayerAction(action)
       controller.gameState.setupDeckSize should be(Some(36))
       controller.gameState.gamePhase should be(AttackPhase)
@@ -762,7 +762,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(initialGame, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("1", controller.gameState)
+      val action = tui.inputHandler.handleRequest("1", controller.gameState)
       controller.processPlayerAction(action)
       controller.gameState.setupPlayerCount should be(None)
       controller.gameState.gamePhase should be(SetupPhase)
@@ -779,7 +779,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("37", controller.gameState)
+      val action = tui.inputHandler.handleRequest("37", controller.gameState)
       controller.processPlayerAction(action)
       controller.gameState.setupDeckSize should be(None)
       controller.gameState.gamePhase should be(AskDeckSizePhase)
@@ -794,7 +794,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("no", game)
+      val action = tui.inputHandler.handleRequest("no", game)
       action should be(de.htwg.DurakApp.controller.ExitGameAction)
     }
 
@@ -806,7 +806,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("yes", game)
+      val action = tui.inputHandler.handleRequest("yes", game)
       action should be(de.htwg.DurakApp.controller.PlayAgainAction)
     }
 
@@ -818,7 +818,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.parseTuiInput("maybe", game)
+      val action = tui.inputHandler.handleRequest("maybe", game)
       action should be(de.htwg.DurakApp.controller.InvalidAction)
     }
   }
