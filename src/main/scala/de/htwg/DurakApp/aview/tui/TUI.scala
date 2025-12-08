@@ -64,7 +64,7 @@ class TUI(controller: Controller) extends Observer {
         case UndoAction | RedoAction =>
         case _                       => controller.processPlayerAction(action)
       }
-      println(s"DEBUG: Last event after action: ${controller.gameState.lastEvent}") // DEBUG PRINT
+
       // After processing the action, check the current game state for termination or continuation
       controller.gameState.lastEvent match {
         case Some(GameEvent.ExitApplication) => () // Terminate loop
