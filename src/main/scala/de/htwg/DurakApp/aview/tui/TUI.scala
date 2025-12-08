@@ -64,10 +64,9 @@ class TUI(controller: Controller) extends Observer {
         case _                       => controller.processPlayerAction(action)
       }
 
-      // After processing the action, check the current game state for termination or continuation
       controller.gameState.lastEvent match {
-        case Some(GameEvent.ExitApplication) => () // Terminate loop
-        case _                               => gameLoop() // Continue loop for all other events
+        case Some(GameEvent.ExitApplication) => ()
+        case _                               => gameLoop()
       }
     }
   }
@@ -90,9 +89,9 @@ class TUI(controller: Controller) extends Observer {
     case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
     case AskPlayerNamesPhase =>
       s"Spielername ${game.setupPlayerNames.length + 1}:"
-    case AskDeckSizePhase => "Deckgröße eingeben (2-36):"
+    case AskDeckSizePhase  => "Deckgröße eingeben (2-36):"
     case AskPlayAgainPhase => "Möchten Sie eine neue Runde spielen? (yes/no):"
-    case _                => game.gamePhase.toString
+    case _                 => game.gamePhase.toString
   }
 
   private def printPrompt(game: GameState): Unit = {

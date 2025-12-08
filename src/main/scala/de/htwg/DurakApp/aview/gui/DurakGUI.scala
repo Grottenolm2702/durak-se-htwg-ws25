@@ -191,7 +191,6 @@ class DurakGUI(controller: Controller) extends Observer {
     visible = false
   }
 
-  // --- Event Handlers for Enter Key Confirmation ---
   playerCountInput.onKeyReleased = event => {
     if (event.code == KeyCode.Enter) submitPlayerCountButton.fire()
   }
@@ -201,7 +200,6 @@ class DurakGUI(controller: Controller) extends Observer {
   deckSizeChoiceBox.editor.value.onKeyReleased = event => {
     if (event.code == KeyCode.Enter) submitDeckSizeButton.fire()
   }
-  // --- End Event Handlers ---
 
   def start(): Unit = {
     val stage = new Stage {
@@ -340,13 +338,14 @@ class DurakGUI(controller: Controller) extends Observer {
   }
 
   private def updateTrump(gameState: GameState): Unit = {
-        trumpCardView.image = {
-          if (gameState.deck.nonEmpty || gameState.players.nonEmpty)
-            loadCardImage(gameState.trumpCard)
-          else
-            null
-        }
-        deckSizeLabel.text.value = s"Deck: ${gameState.deck.size}"  }
+    trumpCardView.image = {
+      if (gameState.deck.nonEmpty || gameState.players.nonEmpty)
+        loadCardImage(gameState.trumpCard)
+      else
+        null
+    }
+    deckSizeLabel.text.value = s"Deck: ${gameState.deck.size}"
+  }
 
   private def loadCardImage(card: Card): Image = {
     val imagePath = cardToImagePath(card)
