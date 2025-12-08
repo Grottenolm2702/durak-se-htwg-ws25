@@ -287,15 +287,15 @@ $statusLine
           s"${RED}Setup-Fehler: ${game.description}$RESET"
         case GameEvent.GameSetupComplete =>
           s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
-        case GameEvent.AskPlayerCount => game.description
-        case GameEvent.AskPlayerNames => game.description
-        case GameEvent.AskDeckSize    => game.description
+        case GameEvent.AskPlayerCount => ""
+        case GameEvent.AskPlayerNames => ""
+        case GameEvent.AskDeckSize    => ""
       }
       .getOrElse(
         game.gamePhase match {
           case SetupPhase |
               AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
-            game.description
+            ""
           case _ => game.gamePhase.toString
         }
       )
