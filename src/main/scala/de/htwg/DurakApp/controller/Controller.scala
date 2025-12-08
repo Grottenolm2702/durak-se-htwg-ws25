@@ -26,62 +26,6 @@ import scala.util.Random
 class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
     extends Observable {
 
-  private def initializeGame(
-      playerNames: List[String],
-      deckSize: Option[Int]
-  ): GameState = {
-    val finalDeckSize =
-      deckSize.getOrElse(36)
-
-    val ranks =
-      Rank.values.filter(_.value >= Rank.Six.value).toList.sortBy(_.value)
-    val suits = Suit.values.toList
-
-    val allCardsForDurak = for {
-      suit <- suits
-      rank <- ranks
-    } yield Card(suit, rank)
-
-    val shuffledCards = Random.shuffle(allCardsForDurak).take(finalDeckSize)
-
-    val trumpCard = shuffledCards.last
-
-    val players = playerNames.map(name => Player(name, List.empty))
-
-    val (dealtPlayers, remainingDeck) =
-      players.foldLeft((List.empty[Player], shuffledCards.dropRight(1))) {
-        case ((currentPlayers, currentDeck), player) =>
-          val (playerCards, newDeck) = currentDeck.splitAt(6)
-          (currentPlayers :+ player.copy(hand = playerCards), newDeck)
-      }
-
-    val playersWithTrump = dealtPlayers.map(p =>
-      p.copy(hand = p.hand.map(c => c.copy(isTrump = c.suit == trumpCard.suit)))
-    )
-    val remainingDeckWithTrump =
-      remainingDeck.map(c => c.copy(isTrump = c.suit == trumpCard.suit))
-
-    val attackerIndex = Random.nextInt(players.size)
-    val defenderIndex = (attackerIndex + 1) % players.size
-
-    GameStateBuilder()
-      .withPlayers(playersWithTrump)
-      .withDeck(remainingDeckWithTrump)
-      .withTable(Map.empty)
-      .withDiscardPile(List.empty)
-      .withTrumpCard(trumpCard)
-      .withAttackerIndex(attackerIndex)
-      .withDefenderIndex(defenderIndex)
-      .withGamePhase(AttackPhase)
-      .withLastEvent(
-        Some(GameEvent.GameSetupComplete)
-      )
-      .withSetupPlayerCount(gameState.setupPlayerCount)
-      .withSetupPlayerNames(gameState.setupPlayerNames)
-      .withSetupDeckSize(gameState.setupDeckSize)
-      .build()
-  }
-
   def processPlayerAction(action: PlayerAction): GameState = {
     gameState.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
@@ -121,18 +65,22 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
               gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
             }
           case SetDeckSizeAction(size) =>
-            if (List(20, 36, 52).contains(size)) {
-              gameState = gameState.copy(
-                setupDeckSize = Some(size),
-                gamePhase = GameStartPhase
-              )
-              val initializedGameState = initializeGame(
-                gameState.setupPlayerNames,
-                gameState.setupDeckSize
-              )
-              gameState = initializedGameState.copy(lastEvent =
-                Some(GameEvent.GameSetupComplete)
-              )
+            if (size >= 2 && size <= 36) {
+              val initializedGameState =
+                Setup.setupGame(gameState.setupPlayerNames, size)
+
+              initializedGameState match {
+                case Some(newGameState) =>
+                  gameState = newGameState.copy(
+                    lastEvent = Some(GameEvent.GameSetupComplete),
+                    setupPlayerCount = gameState.setupPlayerCount,
+                    setupPlayerNames = gameState.setupPlayerNames,
+                    setupDeckSize = Some(size)
+                  )
+                case None =>
+                  gameState =
+                    gameState.copy(lastEvent = Some(GameEvent.SetupError))
+              }
             } else {
               gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
             }
