@@ -28,13 +28,11 @@ class DurakGUI(controller: Controller) extends Observer {
     fitHeight = 80
     preserveRatio = true
   }
-  private val deckSizeLabel = new Label("Deck: 0") {
-    style = "-fx-font-size: 14pt; -fx-text-fill: #333;"
-  }
+  private val deckSizeLabel = new Label("Deck: 0") {}
   private val trumpDisplay = new HBox {
     spacing = 10
     alignment = Pos.Center
-    children = Seq(new Label("Trump:"), trumpCardView)
+    children = Seq(new Label("Trump:"), trumpCardView, deckSizeLabel)
   }
   private val playerHandBox = new HBox {
     spacing = 10
