@@ -1000,5 +1000,24 @@ class TUISpec extends AnyWordSpec with Matchers {
       val tui = new TUI(controller)
       tui.description(game) shouldBe "AttackPhase"
     }
+
+    "cover printPrompt corner cases" in {
+      val player = Player("TestPlayer", List(heartAce))
+      val game = createGameState(
+        players = List(player),
+        gamePhase = DrawPhase
+      )
+      val controller = new Controller(game, UndoRedoManager())
+      val tui = new TUI(controller)
+
+      val stream = new ByteArrayOutputStream()
+      Console.withOut(stream) {
+        tui.update
+      }
+
+      val output = stream.toString()
+
+      output should include("Error: No active player. DrawPhase")
+    }
   }
 }

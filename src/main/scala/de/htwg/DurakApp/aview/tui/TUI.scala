@@ -7,7 +7,6 @@ import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
 
 import scala.io.StdIn.readLine
-import scala.util.{Failure, Success, Try}
 
 class TUI(controller: Controller) extends Observer {
 
@@ -35,18 +34,15 @@ class TUI(controller: Controller) extends Observer {
   @scala.annotation.tailrec
   private def gameLoop(): Unit = {
     val input = readLine()
-    if (input == "q" || input == "quit") ()
-    else {
-      val action = inputHandler.handleRequest(input, controller.gameState)
-      action match {
-        case UndoAction | RedoAction =>
-        case _                       => controller.processPlayerAction(action)
-      }
-
-      controller.gameState.lastEvent match {
-        case Some(GameEvent.ExitApplication) => ()
-        case _                               => gameLoop()
-      }
+    if (input == "q" || input == "quit") return
+    val action = inputHandler.handleRequest(input, controller.gameState)
+    action match {
+      case UndoAction | RedoAction =>
+      case _                       => controller.processPlayerAction(action)
+    }
+    controller.gameState.lastEvent match {
+      case Some(GameEvent.ExitApplication) => ()
+      case _                               => gameLoop()
     }
   }
 
@@ -61,7 +57,7 @@ class TUI(controller: Controller) extends Observer {
         renderScreen(game, buildStatusString(game))
     }
     println(render)
-    printPrompt(controller.gameState)
+    printPrompt(game)
   }
 
   def description(game: GameState): String = game.gamePhase match {
@@ -79,69 +75,70 @@ class TUI(controller: Controller) extends Observer {
           AskDeckSizePhase =>
         println(description(game))
         print("> ")
-      case _ =>
+      case AttackPhase | DefensePhase | DrawPhase =>
         val activePlayer = game.gamePhase match {
-          case AttackPhase  => game.players(game.attackerIndex)
-          case DefensePhase => game.players(game.defenderIndex)
-          case _            => null
+          case AttackPhase  => Some(game.players(game.attackerIndex))
+          case DefensePhase => Some(game.players(game.defenderIndex))
+          case _            => None
         }
         val moves = game.gamePhase match {
           case AttackPhase  => "('play index', 'pass', 'u', 'r')"
           case DefensePhase => "('play index', 'take', 'u', 'r')"
           case _            => ""
         }
-        if (activePlayer != null)
-          println(s"$GREEN${activePlayer.name}$RESET, dein Zug $moves:")
-        else
-          println(description(game))
+        activePlayer match {
+          case Some(player) =>
+            println(s"$GREEN${player.name}$RESET, dein Zug $moves:")
+          case None => println("Error: No active player. " + description(game))
+        }
+        print("> ")
+      case _ =>
+        println(description(game))
         print("> ")
     }
   }
 
   def clearScreen(): String = "\u001b[2J\u001b[H"
 
+  private def cardColor(suit: Suit): String = suit match {
+    case Suit.Hearts | Suit.Diamonds => RED
+    case Suit.Clubs | Suit.Spades    => GREEN
+  }
+  private def cardSymbol(suit: Suit): String = suit match {
+    case Suit.Hearts   => "\u2665"
+    case Suit.Diamonds => "\u2666"
+    case Suit.Clubs    => "\u2663"
+    case Suit.Spades   => "\u2660"
+  }
+  private def cardRankStr(rank: Rank): String = rank match {
+    case Rank.Six   => "6"
+    case Rank.Seven => "7"
+    case Rank.Eight => "8"
+    case Rank.Nine  => "9"
+    case Rank.Ten   => "10"
+    case Rank.Jack  => "J"
+    case Rank.Queen => "Q"
+    case Rank.King  => "K"
+    case Rank.Ace   => "A"
+  }
+
   def renderCard(card: Card): List[String] = {
     val w = cardWidth
     val inner = w - 2
-
-    val (colorStart, colorEnd) = card.suit match {
-      case Suit.Hearts | Suit.Diamonds => (RED, RESET)
-      case Suit.Clubs | Suit.Spades    => (GREEN, RESET)
-    }
-
-    val symbol = card.suit match {
-      case Suit.Hearts   => "\u2665"
-      case Suit.Diamonds => "\u2666"
-      case Suit.Clubs    => "\u2663"
-      case Suit.Spades   => "\u2660"
-    }
-
-    val rankStr = card.rank match {
-      case Rank.Six   => "6"
-      case Rank.Seven => "7"
-      case Rank.Eight => "8"
-      case Rank.Nine  => "9"
-      case Rank.Ten   => "10"
-      case Rank.Jack  => "J"
-      case Rank.Queen => "Q"
-      case Rank.King  => "K"
-      case Rank.Ace   => "A"
-    }
-
+    val color = cardColor(card.suit)
+    val symbol = cardSymbol(card.suit)
+    val rankStr = cardRankStr(card.rank)
     val top = "+" + "-" * inner + "+"
 
     val rankFieldWidth = math.min(2, inner)
-    val rankPadded =
-      if (rankStr.length >= rankFieldWidth) rankStr.take(rankFieldWidth)
-      else rankStr + " " * (rankFieldWidth - rankStr.length)
+    val rankPadded = rankStr.padTo(rankFieldWidth, ' ').take(rankFieldWidth)
     val rankRemaining = inner - rankFieldWidth
-    val rankField =
-      "|" + colorStart + rankPadded + colorEnd + " " * rankRemaining + "|"
+    val rankField = "|" + color + rankPadded + RESET + " " * rankRemaining + "|"
 
     val symbolLeft = (inner - 1) / 2
     val symbolRight = inner - 1 - symbolLeft
     val suitField =
-      "|" + " " * symbolLeft + colorStart + symbol + colorEnd + " " * symbolRight + "|"
+      "|" + " " * symbolLeft + color + symbol + RESET + " " * symbolRight + "|"
 
     val emptyLine = "|" + " " * inner + "|"
 
