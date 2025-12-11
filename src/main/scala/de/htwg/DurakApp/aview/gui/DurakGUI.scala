@@ -335,12 +335,12 @@ class DurakGUI(controller: Controller) extends Observer {
   }
 
   private def updateTrump(gameState: GameState): Unit = {
-    trumpCardView.image = {
+    trumpCardView.image = (
       if (gameState.deck.nonEmpty || gameState.players.nonEmpty)
-        loadCardImage(gameState.trumpCard)
+        Option(loadCardImage(gameState.trumpCard))
       else
-        null
-    }
+        None
+    ).orNull
     deckSizeLabel.text.value = s"Deck: ${gameState.deck.size}"
   }
 
@@ -391,19 +391,19 @@ class DurakGUI(controller: Controller) extends Observer {
   }
 
   private def createCardView(card: Card): ImageView = {
-    val image = loadCardImage(card)
-    if (image == null)
-      new ImageView(
-        new Image(
-          "https://via.placeholder.com/70x100.png?text=Not+Found",
-          70,
-          100,
-          false,
-          false
+    Option(loadCardImage(card))
+      .map(new ImageView(_))
+      .getOrElse(
+        new ImageView(
+          new Image(
+            "https://via.placeholder.com/70x100.png?text=Not+Found",
+            70,
+            100,
+            false,
+            false
+          )
         )
       )
-    else
-      new ImageView(image)
   }
 
   private def createCardButton(card: Card): Button = {
