@@ -442,7 +442,8 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       "handle case-insensitivity and whitespace" in {
-        val action = tui.inputHandler.handleRequest("  PLaY 0  ", gameAttackPhase)
+        val action =
+          tui.inputHandler.handleRequest("  PLaY 0  ", gameAttackPhase)
         action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
       }
 
@@ -452,7 +453,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         val controller = new Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
-        val action = tui.inputHandler.handleRequest("not_a_number", controller.gameState)
+        val action =
+          tui.inputHandler.handleRequest("not_a_number", controller.gameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
@@ -462,7 +464,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         val controller = new Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
-        val action = tui.inputHandler.handleRequest("not_a_number", controller.gameState)
+        val action =
+          tui.inputHandler.handleRequest("not_a_number", controller.gameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
@@ -472,7 +475,8 @@ class TUISpec extends AnyWordSpec with Matchers {
         val controller = new Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
-        val action = tui.inputHandler.handleRequest("not_a_number", controller.gameState)
+        val action =
+          tui.inputHandler.handleRequest("not_a_number", controller.gameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
     }

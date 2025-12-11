@@ -6,7 +6,8 @@ import de.htwg.DurakApp.model.state.*
 
 import scala.util.Try
 
-class GamePhaseInputHandler(override val next: Option[InputHandler]) extends InputHandler {
+class GamePhaseInputHandler(override val next: Option[InputHandler])
+    extends InputHandler {
   override def handleRequest(input: String, game: GameState): PlayerAction = {
     game.gamePhase match {
       case SetupPhase | AskPlayerCountPhase =>
@@ -22,8 +23,8 @@ class GamePhaseInputHandler(override val next: Option[InputHandler]) extends Inp
       case AskPlayAgainPhase =>
         input.trim.toLowerCase match {
           case "yes" => PlayAgainAction
-          case "no" => ExitGameAction
-          case _ => InvalidAction
+          case "no"  => ExitGameAction
+          case _     => InvalidAction
         }
       case _ =>
         super.handleRequest(input, game)
