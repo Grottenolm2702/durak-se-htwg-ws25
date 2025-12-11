@@ -35,7 +35,7 @@ class TUI(controller: Controller) extends Observer {
   @scala.annotation.tailrec
   private def gameLoop(): Unit = {
     val input = readLine()
-    if (input == "q" || input == "quit") () 
+    if (input == "q" || input == "quit") ()
     else {
       val action = inputHandler.handleRequest(input, controller.gameState)
       action match {
@@ -149,7 +149,7 @@ class TUI(controller: Controller) extends Observer {
   }
 
   private[aview] def combineCardLines(cards: List[List[String]]): String =
-    if (cards.isEmpty) "" 
+    if (cards.isEmpty) ""
     else cards.transpose.map(_.mkString(" ")).mkString("\n")
 
   def renderHandWithIndices(hand: List[Card]): String =
@@ -158,13 +158,12 @@ class TUI(controller: Controller) extends Observer {
       val cardLines = hand.map(renderCard)
       val cardsBlock = combineCardLines(cardLines)
       val indexLine = hand.indices
-        .map {
-          i =>
-            val s = i.toString
-            val total = cardWidth
-            val left = (total - s.length) / 2
-            val right = total - s.length - left
-            " " * left + s + " " * right
+        .map { i =>
+          val s = i.toString
+          val total = cardWidth
+          val left = (total - s.length) / 2
+          val right = total - s.length - left
+          " " * left + s + " " * right
         }
         .mkString(" ")
       s"$cardsBlock\n$indexLine"
@@ -200,11 +199,10 @@ class TUI(controller: Controller) extends Observer {
     }
 
     val playersStr = game.players
-      .map {
-        p =>
-          val playerName =
-            if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
-          s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
+      .map { p =>
+        val playerName =
+          if (p == activePlayer) s"$GREEN${p.name}$RESET" else p.name
+        s"$playerName (Karten: ${p.hand.length})\n${renderHandWithIndices(p.hand)}"
       }
       .mkString("\n\n")
 

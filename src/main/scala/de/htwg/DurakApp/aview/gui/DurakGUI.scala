@@ -169,23 +169,22 @@ class DurakGUI(controller: Controller) extends Observer {
   private val winnerLabel = new Label {
     style = "-fx-font-size: 48pt; -fx-font-weight: bold; -fx-text-fill: gold;"
   }
-  private val playAgainButton = new Button("Play Again") {
-    onAction = () => {
-      controller.processPlayerAction(PlayAgainAction)
-    }
-  }
-  private val exitButton = new Button("Exit Game") {
-    onAction = () => {
-      controller.processPlayerAction(ExitGameAction)
-    }
-  }
-  private val endRoundButtons = new HBox(10) {
-    alignment = Pos.Center
-    children = Seq(playAgainButton, exitButton)
-  }
   private val winnerDisplayPane = new VBox {
     spacing = 20
-    children = Seq(winnerLabel, endRoundButtons)
+    children = Seq(
+      winnerLabel,
+      new HBox(10) {
+        alignment = Pos.Center
+        children = Seq(
+          new Button("Play Again") {
+            onAction = () => controller.processPlayerAction(PlayAgainAction)
+          },
+          new Button("Exit Game") {
+            onAction = () => controller.processPlayerAction(ExitGameAction)
+          }
+        )
+      }
+    )
     alignment = Pos.Center
     style = "-fx-background-color: rgba(0, 0, 0, 0.75);"
     visible = false
@@ -205,15 +204,13 @@ class DurakGUI(controller: Controller) extends Observer {
     val stage = new Stage {
       title = "Durak - GUI"
       scene = new Scene(900, 600) {
-        root = createRootPane()
+        root = new StackPane {
+          children = Seq(gameDisplayPane, setupInputPane, winnerDisplayPane)
+        }
       }
     }
     stage.show()
     update
-  }
-
-  private def createRootPane(): StackPane = new StackPane {
-    children = Seq(gameDisplayPane, setupInputPane, winnerDisplayPane)
   }
 
   private def description(gameState: GameState): String =
