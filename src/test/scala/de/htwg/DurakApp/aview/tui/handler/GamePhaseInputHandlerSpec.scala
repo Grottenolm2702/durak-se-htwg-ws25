@@ -12,7 +12,6 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
 
   "A GamePhaseInputHandler" when {
 
-    // Helper to create a GameState with a specific phase
     def gameStateWithPhase(phase: GamePhase): GameState =
       GameStateBuilder().withGamePhase(phase).build()
 
@@ -23,7 +22,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
           gameState: GameState
       ): PlayerAction = {
         if (input == "fallback")
-          PlayCardAction(null) // Mock action for testing fallback
+          PlayCardAction(null)
         else InvalidAction
       }
     }
@@ -146,7 +145,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         handler.handleRequest(
           "fallback",
           gameStateWithPhase(AttackPhase)
-        ) should be(PlayCardAction(null)) // Our mock action
+        ) should be(PlayCardAction(null))
       }
 
       "return InvalidAction if no next handler is present" in {
