@@ -394,7 +394,7 @@ class DurakGUI(controller: Controller) extends Observer {
       .getOrElse(
         new ImageView(
           new Image(
-            "https://via.placeholder.com/70x100.png?text=Not+Found",
+            getClass.getResourceAsStream("/cards/placeholder.png"),
             70,
             100,
             false,
