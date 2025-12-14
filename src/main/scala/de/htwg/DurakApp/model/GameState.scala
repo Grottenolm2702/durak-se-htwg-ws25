@@ -18,7 +18,7 @@ case class GameState(
     setupPlayerCount: Option[Int] = None,
     setupPlayerNames: List[String] = List.empty,
     setupDeckSize: Option[Int] = None
-) {
+) extends GameStateInterface {
 
   def toBuilder: GameStateBuilder = {
     GameStateBuilder()

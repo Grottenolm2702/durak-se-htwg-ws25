@@ -1,11 +1,12 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.{
+import de.htwg.DurakApp.controller.ControllerInterface.{
   TakeCardsAction,
   PlayerAction,
-  InvalidAction
+  InvalidAction,
+  Controller
 }
-import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.ModelInterface.GameState
 
 class TakeCardsHandler(override val next: Option[InputHandler] = None)
     extends InputHandler {

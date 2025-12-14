@@ -1,14 +1,13 @@
 package de.htwg.DurakApp.aview.tui
 
+import de.htwg.DurakApp.aview.ViewInterface
 import de.htwg.DurakApp.aview.tui.handler._
-import de.htwg.DurakApp.controller._
-import de.htwg.DurakApp.model.*
-import de.htwg.DurakApp.model.state.*
-import de.htwg.DurakApp.util.Observer
+import de.htwg.DurakApp.controller.ControllerInterface.*
+import de.htwg.DurakApp.model.ModelInterface.*
 
 import scala.io.StdIn.readLine
 
-class TUI(controller: Controller) extends Observer {
+class TUI(controller: Controller) extends ViewInterface {
 
   import TUI._
 

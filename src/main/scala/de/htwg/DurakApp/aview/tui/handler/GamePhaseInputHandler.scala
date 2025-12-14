@@ -1,8 +1,7 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.*
-import de.htwg.DurakApp.model.GameState
-import de.htwg.DurakApp.model.state.*
+import de.htwg.DurakApp.controller.ControllerInterface.*
+import de.htwg.DurakApp.model.ModelInterface.*
 
 import scala.util.Try
 

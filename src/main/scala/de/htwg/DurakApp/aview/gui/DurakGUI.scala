@@ -1,9 +1,8 @@
 package de.htwg.DurakApp.aview.gui
 
-import de.htwg.DurakApp.controller.*
-import de.htwg.DurakApp.model.{Card, GameState, Rank}
-import de.htwg.DurakApp.model.state.*
-import de.htwg.DurakApp.util.Observer
+import de.htwg.DurakApp.aview.ViewInterface
+import de.htwg.DurakApp.controller.ControllerInterface.*
+import de.htwg.DurakApp.model.ModelInterface.*
 import scalafx.application.Platform
 import scalafx.beans.binding.Bindings
 import scalafx.beans.property.ObjectProperty
@@ -18,7 +17,7 @@ import scalafx.stage.Stage
 import scalafx.Includes.*
 import scala.util.{Try, Success, Failure}
 
-class DurakGUI(controller: Controller) extends Observer {
+class DurakGUI(controller: Controller) extends ViewInterface {
   controller.add(this)
 
   private val selectedCard = ObjectProperty[Option[Card]](None)

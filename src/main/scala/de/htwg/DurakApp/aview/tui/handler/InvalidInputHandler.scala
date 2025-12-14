@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.{InvalidAction, PlayerAction}
-import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.controller.ControllerInterface.{InvalidAction, PlayerAction}
+import de.htwg.DurakApp.model.ModelInterface.GameState
 
 class InvalidInputHandler(override val next: Option[InputHandler] = None)
     extends InputHandler {
