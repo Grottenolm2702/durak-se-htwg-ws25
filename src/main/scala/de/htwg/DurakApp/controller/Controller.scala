@@ -25,7 +25,9 @@ import de.htwg.DurakApp.model.state.AskPlayAgainPhase
 import scala.util.Random
 
 class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
-    extends Observable {
+    extends ControllerInterface {
+  
+  override def getGameState: GameState = gameState
 
   def processPlayerAction(action: PlayerAction): GameState = {
     gameState.gamePhase match {

@@ -1,5 +1,6 @@
 package de.htwg.DurakApp.aview.gui
 
+import de.htwg.DurakApp.aview.ViewInterface
 import de.htwg.DurakApp.controller.*
 import de.htwg.DurakApp.model.{Card, GameState, Rank}
 import de.htwg.DurakApp.model.state.*
@@ -18,8 +19,10 @@ import scalafx.stage.Stage
 import scalafx.Includes.*
 import scala.util.{Try, Success, Failure}
 
-class DurakGUI(controller: Controller) extends Observer {
+class DurakGUI(controller: ControllerInterface) extends ViewInterface {
   controller.add(this)
+  
+  override def run(): Unit = start()
 
   private val selectedCard = ObjectProperty[Option[Card]](None)
   private val statusLabel = new Label("Welcome to Durak!")
@@ -109,7 +112,7 @@ class DurakGUI(controller: Controller) extends Observer {
       controller.processPlayerAction(
         AddPlayerNameAction(playerNameInput.text.value)
       )
-      if (!controller.gameState.lastEvent.contains(GameEvent.SetupError)) {
+      if (!controller.getGameState.lastEvent.contains(GameEvent.SetupError)) {
         playerNameInput.text = ""
       }
     }
@@ -221,7 +224,7 @@ class DurakGUI(controller: Controller) extends Observer {
     }
 
   override def update: Unit = Platform.runLater {
-    val gameState = controller.gameState
+    val gameState = controller.getGameState
     updateWinnerDisplay(gameState)
     val isSetupPhase = gameState.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |

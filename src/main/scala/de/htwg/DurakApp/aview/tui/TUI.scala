@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.aview.tui
 
 import de.htwg.DurakApp.aview.tui.handler._
+import de.htwg.DurakApp.aview.ViewInterface
 import de.htwg.DurakApp.controller._
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.*
@@ -8,7 +9,7 @@ import de.htwg.DurakApp.util.Observer
 
 import scala.io.StdIn.readLine
 
-class TUI(controller: Controller) extends Observer {
+class TUI(controller: ControllerInterface) extends ViewInterface {
 
   import TUI._
 
@@ -35,12 +36,12 @@ class TUI(controller: Controller) extends Observer {
   private def gameLoop(): Unit = {
     val input = readLine()
     if (input == "q" || input == "quit") return
-    val action = inputHandler.handleRequest(input, controller.gameState)
+    val action = inputHandler.handleRequest(input, controller.getGameState)
     action match {
       case UndoAction | RedoAction =>
       case _                       => controller.processPlayerAction(action)
     }
-    controller.gameState.lastEvent match {
+    controller.getGameState.lastEvent match {
       case Some(GameEvent.ExitApplication) => ()
       case _                               => gameLoop()
     }
@@ -48,7 +49,7 @@ class TUI(controller: Controller) extends Observer {
 
   override def update: Unit = {
     println(clearScreen())
-    val game = controller.gameState
+    val game = controller.getGameState
     val render = game.gamePhase match {
       case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
           AskDeckSizePhase =>

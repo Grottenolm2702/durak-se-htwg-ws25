@@ -73,7 +73,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
 
-      controller.gameState.players.head.name.shouldBe("TestPlayer")
+      controller.getGameState.players.head.name.shouldBe("TestPlayer")
     }
 
     "process player action for playing a card" in {
@@ -93,7 +93,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
       controller.processPlayerAction(PlayCardAction(spadeSix))
 
-      val updatedGameState = controller.gameState
+      val updatedGameState = controller.getGameState
       updatedGameState.players.head.hand.size.shouldBe(1)
       updatedGameState.table.keys.head.shouldBe(spadeSix)
     }
@@ -116,7 +116,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
       controller.processPlayerAction(PassAction)
 
-      val updatedGameState = controller.gameState
+      val updatedGameState = controller.getGameState
 
       updatedGameState.gamePhase.shouldBe(AttackPhase)
       updatedGameState.roundWinner.isDefined.shouldBe(false)
@@ -140,7 +140,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
       controller.processPlayerAction(TakeCardsAction)
 
-      val updatedGameState = controller.gameState
+      val updatedGameState = controller.getGameState
       updatedGameState.players(1).hand.should(contain(clubKing))
       updatedGameState.gamePhase.shouldBe(AttackPhase)
     }
@@ -170,7 +170,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
       controller.processPlayerAction(InvalidAction)
 
-      controller.gameState.lastEvent should be(Some(GameEvent.InvalidMove))
+      controller.getGameState.lastEvent should be(Some(GameEvent.InvalidMove))
     }
 
     "handle undo correctly" in {
@@ -189,10 +189,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
 
       controller.processPlayerAction(PlayCardAction(spadeSix))
-      val gameStateAfterPlay = controller.gameState
+      val gameStateAfterPlay = controller.getGameState
 
       controller.undo()
-      val gameStateAfterUndo = controller.gameState
+      val gameStateAfterUndo = controller.getGameState
 
       gameStateAfterUndo shouldBe initialGameState
     }
@@ -213,14 +213,14 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
 
       controller.processPlayerAction(PlayCardAction(spadeSix))
-      val gameStateAfterPlay = controller.gameState
+      val gameStateAfterPlay = controller.getGameState
 
       controller.undo()
-      val gameStateAfterUndo = controller.gameState
+      val gameStateAfterUndo = controller.getGameState
       gameStateAfterUndo shouldBe initialGameState
 
       controller.redo()
-      val gameStateAfterRedo = controller.gameState
+      val gameStateAfterRedo = controller.getGameState
 
       gameStateAfterRedo shouldBe gameStateAfterPlay
     }
@@ -237,9 +237,9 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
 
-      val gameStateBeforeUndo = controller.gameState
+      val gameStateBeforeUndo = controller.getGameState
       controller.undo()
-      controller.gameState shouldBe gameStateBeforeUndo.copy(lastEvent =
+      controller.getGameState shouldBe gameStateBeforeUndo.copy(lastEvent =
         Some(GameEvent.CannotUndo)
       )
     }
@@ -256,9 +256,9 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
 
-      val gameStateBeforeRedo = controller.gameState
+      val gameStateBeforeRedo = controller.getGameState
       controller.redo()
-      controller.gameState shouldBe gameStateBeforeRedo.copy(lastEvent =
+      controller.getGameState shouldBe gameStateBeforeRedo.copy(lastEvent =
         Some(GameEvent.CannotRedo)
       )
     }
@@ -284,7 +284,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
 
       controller.processPlayerAction(PlayAgainAction)
-      val updatedGameState = controller.gameState
+      val updatedGameState = controller.getGameState
 
       updatedGameState.gamePhase should not be AskPlayAgainPhase
       updatedGameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
@@ -306,7 +306,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
 
       controller.processPlayerAction(ExitGameAction)
-      val updatedGameState = controller.gameState
+      val updatedGameState = controller.getGameState
 
       updatedGameState.lastEvent shouldBe Some(GameEvent.ExitApplication)
     }
@@ -323,7 +323,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(SetPlayerCountAction(1))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set SetupError for invalid player count (more than 6)" in {
@@ -336,7 +336,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(SetPlayerCountAction(7))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set SetupError when adding too many player names" in {
@@ -351,7 +351,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(AddPlayerNameAction("Player3"))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set SetupError when adding an empty player name" in {
@@ -365,7 +365,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(AddPlayerNameAction(""))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set SetupError when SetDeckSizeAction results in None from Setup.setupGame" in {
@@ -379,7 +379,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(SetDeckSizeAction(5))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set SetupError for invalid deck size (less than 2)" in {
@@ -392,7 +392,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(SetDeckSizeAction(1))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set SetupError for invalid deck size (more than 36)" in {
@@ -405,7 +405,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(SetDeckSizeAction(37))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set SetupError when PlayAgainAction results in None from Setup.setupGame" in {
@@ -420,7 +420,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(PlayAgainAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for unhandled action in AskPlayAgainPhase" in {
@@ -433,7 +433,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       controller.processPlayerAction(PassAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.InvalidMove)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.InvalidMove)
     }
   }
 
@@ -447,7 +447,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = AskDeckSizePhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PlayCardAction(testCard))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for pass in AskDeckSizePhase" in {
@@ -455,7 +455,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = AskDeckSizePhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PassAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for takeCards in AskDeckSizePhase" in {
@@ -463,7 +463,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = AskDeckSizePhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(TakeCardsAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for playCard in AskPlayerCountPhase" in {
@@ -473,7 +473,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PlayCardAction(testCard))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for pass in AskPlayerCountPhase" in {
@@ -483,7 +483,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PassAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for takeCards in AskPlayerCountPhase" in {
@@ -493,7 +493,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(TakeCardsAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for playCard in AskPlayerNamesPhase" in {
@@ -503,7 +503,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PlayCardAction(testCard))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for pass in AskPlayerNamesPhase" in {
@@ -513,7 +513,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PassAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set InvalidMove for takeCards in AskPlayerNamesPhase" in {
@@ -523,7 +523,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       )
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(TakeCardsAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
 
     "set GameSetupComplete for playCard in GameStartPhase" in {
@@ -531,7 +531,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = GameStartPhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PlayCardAction(testCard))
-      controller.gameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
     }
 
     "set GameSetupComplete for pass in GameStartPhase" in {
@@ -539,7 +539,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = GameStartPhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PassAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
     }
 
     "set GameSetupComplete for takeCards in GameStartPhase" in {
@@ -547,7 +547,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = GameStartPhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(TakeCardsAction)
-      controller.gameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+      controller.getGameState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
     }
 
     "set GameOver for playCard in EndPhase" in {
@@ -555,7 +555,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = EndPhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PlayCardAction(testCard))
-      controller.gameState.lastEvent shouldBe Some(
+      controller.getGameState.lastEvent shouldBe Some(
         GameEvent.GameOver(Player("TestPlayer", List(), false), None)
       )
     }
@@ -565,7 +565,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = EndPhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(PassAction)
-      controller.gameState.lastEvent shouldBe Some(
+      controller.getGameState.lastEvent shouldBe Some(
         GameEvent.GameOver(Player("TestPlayer", List(), false), None)
       )
     }
@@ -575,7 +575,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
         createGameState(players = initialPlayers, gamePhase = EndPhase)
       val controller = new Controller(initialGameState, UndoRedoManager())
       controller.processPlayerAction(TakeCardsAction)
-      controller.gameState.lastEvent shouldBe Some(
+      controller.getGameState.lastEvent shouldBe Some(
         GameEvent.GameOver(Player("TestPlayer", List(), false), None)
       )
     }

@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.aview.tui.handler
 
 import de.htwg.DurakApp.controller.{
-  Controller,
+  ControllerInterface,
   PlayerAction,
   RedoAction,
   InvalidAction
@@ -9,7 +9,7 @@ import de.htwg.DurakApp.controller.{
 import de.htwg.DurakApp.model.GameState
 
 class RedoHandler(
-    controller: Controller,
+    controller: ControllerInterface,
     override val next: Option[InputHandler] = None
 ) extends InputHandler {
   override def handleRequest(

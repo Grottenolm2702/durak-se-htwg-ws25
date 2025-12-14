@@ -454,7 +454,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller)
 
         val action =
-          tui.inputHandler.handleRequest("not_a_number", controller.gameState)
+          tui.inputHandler.handleRequest("not_a_number", controller.getGameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
@@ -465,7 +465,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller)
 
         val action =
-          tui.inputHandler.handleRequest("not_a_number", controller.gameState)
+          tui.inputHandler.handleRequest("not_a_number", controller.getGameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
 
@@ -476,7 +476,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller)
 
         val action =
-          tui.inputHandler.handleRequest("not_a_number", controller.gameState)
+          tui.inputHandler.handleRequest("not_a_number", controller.getGameState)
         action should be(de.htwg.DurakApp.controller.InvalidAction)
       }
     }
@@ -714,11 +714,11 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(initialGame, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.inputHandler.handleRequest("2", controller.gameState)
+      val action = tui.inputHandler.handleRequest("2", controller.getGameState)
       controller.processPlayerAction(action)
-      controller.gameState.setupPlayerCount should be(Some(2))
-      controller.gameState.gamePhase should be(AskPlayerNamesPhase)
-      controller.gameState.lastEvent should be(Some(GameEvent.AskPlayerNames))
+      controller.getGameState.setupPlayerCount should be(Some(2))
+      controller.getGameState.gamePhase should be(AskPlayerNamesPhase)
+      controller.getGameState.lastEvent should be(Some(GameEvent.AskPlayerNames))
     }
 
     "parseTuiInput handles AddPlayerNameAction" in {
@@ -730,16 +730,16 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(gameAfterPlayerCount, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.inputHandler.handleRequest("Alice", controller.gameState)
+      val action = tui.inputHandler.handleRequest("Alice", controller.getGameState)
       controller.processPlayerAction(action)
-      controller.gameState.setupPlayerNames should be(List("Alice"))
-      controller.gameState.lastEvent should be(Some(GameEvent.AskPlayerNames))
+      controller.getGameState.setupPlayerNames should be(List("Alice"))
+      controller.getGameState.lastEvent should be(Some(GameEvent.AskPlayerNames))
 
-      val action2 = tui.inputHandler.handleRequest("Bob", controller.gameState)
+      val action2 = tui.inputHandler.handleRequest("Bob", controller.getGameState)
       controller.processPlayerAction(action2)
-      controller.gameState.setupPlayerNames should be(List("Alice", "Bob"))
-      controller.gameState.gamePhase should be(AskDeckSizePhase)
-      controller.gameState.lastEvent should be(Some(GameEvent.AskDeckSize))
+      controller.getGameState.setupPlayerNames should be(List("Alice", "Bob"))
+      controller.getGameState.gamePhase should be(AskDeckSizePhase)
+      controller.getGameState.lastEvent should be(Some(GameEvent.AskDeckSize))
     }
 
     "parseTuiInput handles SetDeckSizeAction" in {
@@ -752,12 +752,12 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.inputHandler.handleRequest("36", controller.gameState)
+      val action = tui.inputHandler.handleRequest("36", controller.getGameState)
       controller.processPlayerAction(action)
-      controller.gameState.setupDeckSize should be(Some(36))
-      controller.gameState.gamePhase should be(AttackPhase)
-      controller.gameState.players.head.hand.size should be > 0
-      controller.gameState.deck.size should be > 0
+      controller.getGameState.setupDeckSize should be(Some(36))
+      controller.getGameState.gamePhase should be(AttackPhase)
+      controller.getGameState.players.head.hand.size should be > 0
+      controller.getGameState.deck.size should be > 0
     }
 
     "parseTuiInput handles invalid player count" in {
@@ -766,11 +766,11 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(initialGame, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.inputHandler.handleRequest("1", controller.gameState)
+      val action = tui.inputHandler.handleRequest("1", controller.getGameState)
       controller.processPlayerAction(action)
-      controller.gameState.setupPlayerCount should be(None)
-      controller.gameState.gamePhase should be(SetupPhase)
-      controller.gameState.lastEvent should be(Some(GameEvent.SetupError))
+      controller.getGameState.setupPlayerCount should be(None)
+      controller.getGameState.gamePhase should be(SetupPhase)
+      controller.getGameState.lastEvent should be(Some(GameEvent.SetupError))
     }
 
     "parseTuiInput handles invalid deck size" in {
@@ -783,11 +783,11 @@ class TUISpec extends AnyWordSpec with Matchers {
       val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
       val tui = new TUI(controller)
 
-      val action = tui.inputHandler.handleRequest("37", controller.gameState)
+      val action = tui.inputHandler.handleRequest("37", controller.getGameState)
       controller.processPlayerAction(action)
-      controller.gameState.setupDeckSize should be(None)
-      controller.gameState.gamePhase should be(AskDeckSizePhase)
-      controller.gameState.lastEvent should be(Some(GameEvent.SetupError))
+      controller.getGameState.setupDeckSize should be(None)
+      controller.getGameState.gamePhase should be(AskDeckSizePhase)
+      controller.getGameState.lastEvent should be(Some(GameEvent.SetupError))
     }
 
     "parseTuiInput handles ExitGameAction in AskPlayAgainPhase" in {
