@@ -6,7 +6,7 @@ import de.htwg.DurakApp.model._
 
 class AttackPhaseSpec extends AnyWordSpec with Matchers {
   "An AttackPhase" should {
-    "handle the game state without changing it by default" in {
+    "set currentAttackerIndex on handle" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
       val player2 = Player("P2", List.empty)
       val initialGameState = GameState(
@@ -20,7 +20,7 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase
       )
       val resultState = AttackPhase.handle(initialGameState)
-      resultState shouldBe initialGameState
+      resultState.currentAttackerIndex shouldBe Some(0)
     }
 
     "allow an attacker to play a card" in {
@@ -148,12 +148,35 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       result shouldBe state.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    "not allow non-attacker to play (NotYourTurn)" in {
+    "allow non-primary attacker to play when it's their turn" in {
       val card = Card(Suit.Clubs, Rank.Seven)
       val attacker = Player("A", List(card))
-      val nonAttacker = Player("B", List(card))
+      val otherAttacker = Player("B", List(card))
+      val defender = Player("D", List(Card(Suit.Hearts, Rank.Ace)))
       val state = GameState(
-        players = List(attacker, nonAttacker),
+        players = List(attacker, otherAttacker, defender),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 2,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(1)
+      )
+
+      val result = AttackPhase.playCard(card, 1, state)
+      result.players(1).hand.shouldNot(contain(card))
+      result.table.keys.should(contain(card))
+      result.gamePhase shouldBe DefensePhase
+    }
+
+    "not allow defender to attack (NotYourTurn)" in {
+      val card = Card(Suit.Clubs, Rank.Seven)
+      val attacker = Player("A", List(card))
+      val defender = Player("D", List(card))
+      val state = GameState(
+        players = List(attacker, defender),
         deck = List.empty,
         table = Map.empty,
         discardPile = List.empty,
@@ -204,7 +227,7 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       result shouldBe state.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    "not allow non-attacker to pass when they are not in passedPlayers (NotYourTurn)" in {
+    "not allow defender to pass (NotYourTurn)" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
       val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Ace)))
       val state = GameState(
@@ -222,26 +245,24 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       result shouldBe state.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 
-    "record a non-attacker in passedPlayers when they are already present (idempotent add)" in {
+    "allow non-primary attacker to pass and record in passedPlayers" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
-      val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Ace)))
+      val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Seven)))
+      val player3 = Player("P3", List(Card(Suit.Hearts, Rank.Ace)))
       val baseState = GameState(
-        players = List(player1, player2),
+        players = List(player1, player2, player3),
         deck = List.empty,
         table = Map(Card(Suit.Spades, Rank.Seven) -> None),
         discardPile = List.empty,
         trumpCard = Card(Suit.Diamonds, Rank.Ace),
         attackerIndex = 0,
-        defenderIndex = 1,
-        gamePhase = AttackPhase
+        defenderIndex = 2,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(1)
       )
 
-      val alreadyPassed =
-        baseState.copy(passedPlayers = baseState.passedPlayers + 1)
-
-      val result = AttackPhase.pass(1, alreadyPassed)
+      val result = AttackPhase.pass(1, baseState)
       result.passedPlayers should contain(1)
-      result.passedPlayers shouldBe alreadyPassed.passedPlayers
     }
   }
 }

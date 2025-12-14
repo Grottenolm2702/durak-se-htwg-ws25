@@ -76,7 +76,9 @@ class TUI(controller: Controller) extends ViewInterface {
         print("> ")
       case AttackPhase | DefensePhase | DrawPhase =>
         val activePlayer = game.gamePhase match {
-          case AttackPhase  => Some(game.players(game.attackerIndex))
+          case AttackPhase =>
+            val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
+            Some(game.players(idx))
           case DefensePhase => Some(game.players(game.defenderIndex))
           case _            => None
         }
@@ -189,7 +191,9 @@ class TUI(controller: Controller) extends ViewInterface {
     val table = renderTable(game)
 
     val activePlayer = game.gamePhase match {
-      case AttackPhase  => game.players(game.attackerIndex)
+      case AttackPhase =>
+        val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
+        game.players(idx)
       case DefensePhase => game.players(game.defenderIndex)
       case _            => game.players(game.attackerIndex)
     }

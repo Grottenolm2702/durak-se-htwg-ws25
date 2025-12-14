@@ -11,7 +11,8 @@ case class PlayCardCommand(card: Card) extends GameCommand {
     val playerIdx =
       gameState.gamePhase match {
         case DefensePhase => gameState.defenderIndex
-        case _            => gameState.attackerIndex
+        case _ =>
+          gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
       }
 
     val player = gameState.players(playerIdx)

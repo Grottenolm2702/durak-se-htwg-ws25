@@ -43,12 +43,48 @@ case object DefensePhase extends GamePhase {
     val allDefended = newTable.values.forall(_.isDefined)
     val nextPhase = if (allDefended) AttackPhase else DefensePhase
 
+    val nextAttackerIndex = if (allDefended) {
+      val prevAttacker =
+        gameState.lastAttackerIndex.getOrElse(gameState.attackerIndex)
+      getNextAttacker(gameState, prevAttacker)
+    } else None
+
     gameState.copy(
       players = newPlayers,
       table = newTable,
       gamePhase = nextPhase,
-      lastEvent = Some(GameEvent.Defend(card))
+      lastEvent = Some(GameEvent.Defend(card)),
+      currentAttackerIndex = nextAttackerIndex
     )
+  }
+
+  private def getNextAttacker(
+      gameState: GameState,
+      currentIdx: Int
+  ): Option[Int] = {
+    val numPlayers = gameState.players.size
+    val mainAttacker = gameState.attackerIndex
+    val defender = gameState.defenderIndex
+
+    val nextPlayer = (1 until numPlayers)
+      .map { offset =>
+        (currentIdx + offset) % numPlayers
+      }
+      .find { idx =>
+        idx != defender && !gameState.passedPlayers.contains(idx)
+      }
+
+    nextPlayer.orElse {
+      if (
+        !gameState.passedPlayers.contains(
+          mainAttacker
+        ) && mainAttacker != defender
+      ) {
+        Some(mainAttacker)
+      } else {
+        None
+      }
+    }
   }
 
   override def takeCards(playerIdx: Int, gameState: GameState): GameState = {

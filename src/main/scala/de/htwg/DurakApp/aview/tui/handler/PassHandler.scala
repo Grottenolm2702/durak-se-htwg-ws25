@@ -1,6 +1,10 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.ControllerInterface.{PassAction, PlayerAction, InvalidAction}
+import de.htwg.DurakApp.controller.ControllerInterface.{
+  PassAction,
+  PlayerAction,
+  InvalidAction
+}
 import de.htwg.DurakApp.model.ModelInterface.GameState
 
 class PassHandler(override val next: Option[InputHandler] = None)

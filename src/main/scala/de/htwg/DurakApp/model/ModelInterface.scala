@@ -1,17 +1,16 @@
 package de.htwg.DurakApp.model
 
-/**
- * Model Component Interface
- * 
- * This is the public port to the Model component. All external access
- * to model types must go through this interface.
- * 
- * Exports:
- * - Basic types: Card, Player, Rank, Suit, GameState
- * - Builder: GameStateBuilder
- * - Game phases: All phase implementations
- * - Events: GameEvent
- */
+/** Model Component Interface
+  *
+  * This is the public port to the Model component. All external access to model
+  * types must go through this interface.
+  *
+  * Exports:
+  *   - Basic types: Card, Player, Rank, Suit, GameState
+  *   - Builder: GameStateBuilder
+  *   - Game phases: All phase implementations
+  *   - Events: GameEvent
+  */
 object ModelInterface:
   export de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameState}
   export de.htwg.DurakApp.model.builder.GameStateBuilder
@@ -31,12 +30,11 @@ object ModelInterface:
     EndPhase
   }
 
-/**
- * GameState Interface
- * 
- * Defines the external contract for accessing game state.
- * All implementations must provide these methods.
- */
+/** GameState Interface
+  *
+  * Defines the external contract for accessing game state. All implementations
+  * must provide these methods.
+  */
 trait GameStateInterface:
   def players: List[Player]
   def deck: List[Card]

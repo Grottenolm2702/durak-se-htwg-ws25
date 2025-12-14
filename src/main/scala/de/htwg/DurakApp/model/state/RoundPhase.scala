@@ -24,7 +24,9 @@ case object RoundPhase extends GamePhase {
       lastEvent =
         Some(GameEvent.RoundEnd(cleared = gameState.roundWinner.isDefined)),
       roundWinner = None,
-      gamePhase = AttackPhase
+      gamePhase = AttackPhase,
+      currentAttackerIndex = None,
+      lastAttackerIndex = None
     )
 
     stateForNewRound.gamePhase.handle(stateForNewRound)

@@ -17,7 +17,9 @@ case class GameState(
     roundWinner: Option[Int] = None,
     setupPlayerCount: Option[Int] = None,
     setupPlayerNames: List[String] = List.empty,
-    setupDeckSize: Option[Int] = None
+    setupDeckSize: Option[Int] = None,
+    currentAttackerIndex: Option[Int] = None,
+    lastAttackerIndex: Option[Int] = None
 ) extends GameStateInterface {
 
   def toBuilder: GameStateBuilder = {
@@ -36,5 +38,7 @@ case class GameState(
       .withSetupPlayerCount(setupPlayerCount)
       .withSetupPlayerNames(setupPlayerNames)
       .withSetupDeckSize(setupDeckSize)
+      .withCurrentAttackerIndex(currentAttackerIndex)
+      .withLastAttackerIndex(lastAttackerIndex)
   }
 }

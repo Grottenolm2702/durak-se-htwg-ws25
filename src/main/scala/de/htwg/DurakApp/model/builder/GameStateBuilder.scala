@@ -21,7 +21,9 @@ case class GameStateBuilder(
     roundWinner: Option[Int] = None,
     setupPlayerCount: Option[Int] = None,
     setupPlayerNames: List[String] = List.empty,
-    setupDeckSize: Option[Int] = None
+    setupDeckSize: Option[Int] = None,
+    currentAttackerIndex: Option[Int] = None,
+    lastAttackerIndex: Option[Int] = None
 ) {
 
   def withPlayers(newPlayers: List[Player]): GameStateBuilder =
@@ -66,6 +68,12 @@ case class GameStateBuilder(
   def withSetupDeckSize(size: Option[Int]): GameStateBuilder =
     copy(setupDeckSize = size)
 
+  def withCurrentAttackerIndex(index: Option[Int]): GameStateBuilder =
+    copy(currentAttackerIndex = index)
+
+  def withLastAttackerIndex(index: Option[Int]): GameStateBuilder =
+    copy(lastAttackerIndex = index)
+
   def build(): GameState = {
     GameState(
       players = players,
@@ -81,7 +89,9 @@ case class GameStateBuilder(
       roundWinner = roundWinner,
       setupPlayerCount = setupPlayerCount,
       setupPlayerNames = setupPlayerNames,
-      setupDeckSize = setupDeckSize
+      setupDeckSize = setupDeckSize,
+      currentAttackerIndex = currentAttackerIndex,
+      lastAttackerIndex = lastAttackerIndex
     )
   }
 }
