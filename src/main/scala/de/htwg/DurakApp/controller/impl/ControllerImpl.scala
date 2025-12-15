@@ -19,8 +19,7 @@ import de.htwg.DurakApp.controller.{
   AddPlayerNameAction,
   SetDeckSizeAction
 }
-import de.htwg.DurakApp.model.state.*
-import de.htwg.DurakApp.model.state.AskPlayAgainPhase
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 import scala.util.Random
 
 private[controller] class ControllerImpl(

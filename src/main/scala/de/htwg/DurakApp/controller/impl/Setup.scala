@@ -8,7 +8,7 @@ import de.htwg.DurakApp.model.ModelInterface.{
   Suit,
   GameStateBuilder
 }
-import de.htwg.DurakApp.model.state.SetupPhase
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.SetupPhase
 
 import scala.util.Random
 

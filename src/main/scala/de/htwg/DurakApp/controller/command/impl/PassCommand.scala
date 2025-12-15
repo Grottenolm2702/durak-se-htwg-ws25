@@ -1,8 +1,8 @@
 package de.htwg.DurakApp.controller.command.impl
 
 import de.htwg.DurakApp.controller.command.GameCommand
-import de.htwg.DurakApp.model.ModelInterface.GameState
-import de.htwg.DurakApp.model.state.DefensePhase
+import de.htwg.DurakApp.model.ModelInterface.{GameState, StateInterface}
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.DefensePhase
 
 case class PassCommand() extends GameCommand {
   override def execute(gameState: GameState): GameState = {
