@@ -23,7 +23,7 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       player.hand.shouldBe(List())
       player.isDone.shouldBe(false)
     }
-    
+
     "support copy with default isDone" in {
       val hand = List(Card(Suit.Hearts, Rank.Six))
       val player = Player("Gabriel", hand, isDone = true)
@@ -32,14 +32,14 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.hand shouldBe hand
       copied.isDone shouldBe true
     }
-    
+
     "use default parameter for hand when creating with only name" in {
       val player = Player("Solo")
       player.name shouldBe "Solo"
       player.hand shouldBe List.empty
       player.isDone shouldBe false
     }
-    
+
     "use default parameter for isDone when creating with name and hand" in {
       val hand = List(Card(Suit.Hearts, Rank.Six))
       val player = Player("Hero", hand)

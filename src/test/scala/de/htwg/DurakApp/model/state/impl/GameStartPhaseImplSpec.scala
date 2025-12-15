@@ -18,12 +18,12 @@ class GameStartPhaseImplSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = GameStartPhase
       )
-      
+
       val resultState = GameStartPhase.handle(initialGameState)
-      
+
       resultState.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
     }
-    
+
     "have a string representation" in {
       GameStartPhase.toString should not be empty
     }

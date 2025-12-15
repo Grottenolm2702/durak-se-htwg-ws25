@@ -11,10 +11,10 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     "be created with a Card parameter" in {
       val card = Card(Suit.Hearts, Rank.Ace)
       val command = PlayCardCommand(card)
-      
+
       command shouldBe a[GameCommand]
     }
-    
+
     "execute on GameState" in {
       val card = Card(Suit.Hearts, Rank.Ace)
       val command = PlayCardCommand(card)
@@ -29,18 +29,18 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = AttackPhase
       )
-      
+
       noException should be thrownBy command.execute(gameState)
     }
   }
-  
+
   "GameCommand PassCommand" should {
     "be created without parameters" in {
       val command = PassCommand()
-      
+
       command shouldBe a[GameCommand]
     }
-    
+
     "execute on GameState" in {
       val command = PassCommand()
       val gameState = GameState(
@@ -53,18 +53,18 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = AttackPhase
       )
-      
+
       noException should be thrownBy command.execute(gameState)
     }
   }
-  
+
   "GameCommand TakeCardsCommand" should {
     "be created without parameters" in {
       val command = TakeCardsCommand()
-      
+
       command shouldBe a[GameCommand]
     }
-    
+
     "execute on GameState" in {
       val command = TakeCardsCommand()
       val gameState = GameState(
@@ -77,18 +77,18 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = DefensePhase
       )
-      
+
       noException should be thrownBy command.execute(gameState)
     }
   }
-  
+
   "GameCommand PhaseChangeCommand" should {
     "be created without parameters" in {
       val command = PhaseChangeCommand()
-      
+
       command shouldBe a[GameCommand]
     }
-    
+
     "execute on GameState" in {
       val command = PhaseChangeCommand()
       val gameState = GameState(
@@ -101,7 +101,7 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = DrawPhase
       )
-      
+
       noException should be thrownBy command.execute(gameState)
     }
   }

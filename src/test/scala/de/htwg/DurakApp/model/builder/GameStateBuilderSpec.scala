@@ -9,7 +9,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
   "GameStateBuilder" should {
     "build a default game state" in {
       val gameState = GameStateBuilder().build()
-      
+
       gameState.players shouldBe empty
       gameState.deck shouldBe empty
       gameState.gamePhase shouldBe SetupPhase

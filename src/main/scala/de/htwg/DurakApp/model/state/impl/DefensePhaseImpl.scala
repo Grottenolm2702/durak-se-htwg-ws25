@@ -48,7 +48,8 @@ private[state] case object DefensePhaseImpl extends GamePhase {
     val updatedTable = gameState.table.updated(attackingCard, Some(card))
 
     val allAttacksDefended = updatedTable.values.forall(_.isDefined)
-    val nextPhase = if (allAttacksDefended) AttackPhaseImpl else DefensePhaseImpl
+    val nextPhase =
+      if (allAttacksDefended) AttackPhaseImpl else DefensePhaseImpl
 
     val nextAttackerIndex = if (allAttacksDefended) {
       val previousAttackerIndex =

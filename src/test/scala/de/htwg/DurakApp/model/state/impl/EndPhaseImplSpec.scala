@@ -60,7 +60,7 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
         .shouldBe(None)
       resultState.gamePhase.shouldBe(AskPlayAgainPhase)
     }
-    
+
     "have a string representation" in {
       EndPhase.toString should not be empty
     }

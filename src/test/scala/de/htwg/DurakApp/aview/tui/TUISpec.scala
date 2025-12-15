@@ -671,7 +671,8 @@ class TUISpec extends AnyWordSpec with Matchers {
       ) extends Observable
           with de.htwg.DurakApp.controller.Controller {
         val calls = new java.util.concurrent.atomic.AtomicInteger(0)
-        private val gsRef = new java.util.concurrent.atomic.AtomicReference[GameState](initialGs)
+        private val gsRef =
+          new java.util.concurrent.atomic.AtomicReference[GameState](initialGs)
 
         def gameState: GameState = gsRef.get()
 

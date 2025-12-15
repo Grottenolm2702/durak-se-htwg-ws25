@@ -8,7 +8,7 @@ class PlayerImplSpec extends AnyWordSpec with Matchers {
   "PlayerImpl" should {
     "be created through Player factory" in {
       val player = Player("Alice", List(Card(Suit.Hearts, Rank.Ace)))
-      
+
       player.name shouldBe "Alice"
       player.hand should have size 1
     }

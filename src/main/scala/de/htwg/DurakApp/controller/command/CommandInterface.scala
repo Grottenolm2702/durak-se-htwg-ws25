@@ -16,36 +16,39 @@ import de.htwg.DurakApp.controller.command.{
   * and knows how to execute and reverse itself.
   *
   * @example
-  * {{{
+  *   {{{
   * import de.htwg.DurakApp.controller.command.CommandInterface.*
-  * 
+  *
   * val command = PlayCardCommand(card)
   * val newState = command.execute(currentState)
   * val undoneState = command.undo(newState)
-  * }}}
+  *   }}}
   */
 object CommandInterface:
-  
+
   // Type Aliases
-  
-  /** Type alias for GameCommand.
-    * Base trait for all executable game commands that support undo/redo.
+
+  /** Type alias for GameCommand. Base trait for all executable game commands
+    * that support undo/redo.
     */
   type GameCommand = InternalGameCommand
 
   // Factory Objects
-  
+
   /** Factory for creating commands from player actions.
     *
-    * Converts a PlayerAction into an executable GameCommand, validating
-    * the action against the current game state.
+    * Converts a PlayerAction into an executable GameCommand, validating the
+    * action against the current game state.
     */
   object CommandFactory:
     /** Creates a command from a player action.
       *
-      * @param action The player action to convert
-      * @param gameState The current game state for validation
-      * @return Either a validation error or the created command
+      * @param action
+      *   The player action to convert
+      * @param gameState
+      *   The current game state for validation
+      * @return
+      *   Either a validation error or the created command
       */
     def createCommand(
         action: de.htwg.DurakApp.controller.PlayerAction,
@@ -60,8 +63,10 @@ object CommandInterface:
   object PlayCardCommand:
     /** Creates a command to play a card.
       *
-      * @param card The card to play
-      * @return A new PlayCardCommand instance
+      * @param card
+      *   The card to play
+      * @return
+      *   A new PlayCardCommand instance
       */
     def apply(card: Card): GameCommand =
       impl.PlayCardCommand(card)
@@ -73,7 +78,8 @@ object CommandInterface:
   object PassCommand:
     /** Creates a command to pass.
       *
-      * @return A new PassCommand instance
+      * @return
+      *   A new PassCommand instance
       */
     def apply(): GameCommand =
       impl.PassCommand()
@@ -85,7 +91,8 @@ object CommandInterface:
   object TakeCardsCommand:
     /** Creates a command to take cards.
       *
-      * @return A new TakeCardsCommand instance
+      * @return
+      *   A new TakeCardsCommand instance
       */
     def apply(): GameCommand =
       impl.TakeCardsCommand()
@@ -97,7 +104,8 @@ object CommandInterface:
   object PhaseChangeCommand:
     /** Creates a command to change phase.
       *
-      * @return A new PhaseChangeCommand instance
+      * @return
+      *   A new PhaseChangeCommand instance
       */
     def apply(): GameCommand =
       impl.PhaseChangeCommand()

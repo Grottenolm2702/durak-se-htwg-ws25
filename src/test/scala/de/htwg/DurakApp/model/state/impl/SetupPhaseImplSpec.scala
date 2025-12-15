@@ -99,7 +99,7 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
       resultState.defenderIndex should (be < resultState.players.size)
       resultState.defenderIndex shouldNot (equal(resultState.attackerIndex))
     }
-    
+
     "have a string representation" in {
       SetupPhase.toString should not be empty
     }

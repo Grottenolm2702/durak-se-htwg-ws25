@@ -1,7 +1,12 @@
 package de.htwg.DurakApp.controller.command.impl
 
 import de.htwg.DurakApp.controller.command.GameCommand
-import de.htwg.DurakApp.model.ModelInterface.{Card, GameState, GameEvent, StateInterface}
+import de.htwg.DurakApp.model.ModelInterface.{
+  Card,
+  GameState,
+  GameEvent,
+  StateInterface
+}
 
 case class PlayCardCommand(card: Card) extends GameCommand {
   override def execute(gameState: GameState): GameState = {

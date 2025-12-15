@@ -241,7 +241,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
       res.table.values.count(_.isEmpty) shouldBe 1
       res.lastEvent.get.should(be(a[GameEvent.Defend]))
     }
-    
+
     "switch to next available attacker when all attacks defended" in {
       val attackCard = Card(Suit.Clubs, Rank.Six)
       val defenseCard = Card(Suit.Clubs, Rank.Seven)
@@ -259,12 +259,12 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         gamePhase = DefensePhase,
         lastAttackerIndex = Some(0)
       )
-      
+
       val res = DefensePhase.playCard(defenseCard, 1, initial)
       res.gamePhase shouldBe AttackPhase
       res.currentAttackerIndex shouldBe Some(2)
     }
-    
+
     "return to main attacker when no other attackers available" in {
       val attackCard = Card(Suit.Clubs, Rank.Six)
       val defenseCard = Card(Suit.Clubs, Rank.Seven)
@@ -281,12 +281,12 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         gamePhase = DefensePhase,
         lastAttackerIndex = Some(0)
       )
-      
+
       val res = DefensePhase.playCard(defenseCard, 1, initial)
       res.gamePhase shouldBe AttackPhase
       res.currentAttackerIndex shouldBe Some(0)
     }
-    
+
     "handle getNextAttacker when main attacker has passed" in {
       val attackCard = Card(Suit.Clubs, Rank.Six)
       val defenseCard = Card(Suit.Clubs, Rank.Seven)
@@ -305,12 +305,12 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = Some(0),
         passedPlayers = Set(0)
       )
-      
+
       val res = DefensePhase.playCard(defenseCard, 1, initial)
       res.gamePhase shouldBe AttackPhase
       res.currentAttackerIndex shouldBe Some(2)
     }
-    
+
     "not set currentAttackerIndex when not all attacks defended" in {
       val attack1 = Card(Suit.Clubs, Rank.Six)
       val attack2 = Card(Suit.Clubs, Rank.Seven)
@@ -327,12 +327,12 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = DefensePhase
       )
-      
+
       val res = DefensePhase.playCard(defenseCard, 1, initial)
       res.gamePhase shouldBe DefensePhase
       res.currentAttackerIndex shouldBe None
     }
-    
+
     "collect defended cards when defender takes" in {
       val attackCard = Card(Suit.Clubs, Rank.Six)
       val defenseCard = Card(Suit.Clubs, Rank.Seven)
@@ -348,14 +348,14 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = DefensePhase
       )
-      
+
       val res = DefensePhase.takeCards(1, initial)
       res.players(1).hand should contain(attackCard)
       res.players(1).hand should contain(defenseCard)
       res.table shouldBe empty
       res.gamePhase shouldBe DrawPhase
     }
-    
+
     "return None for getNextAttacker when all players passed including main attacker" in {
       val attackCard = Card(Suit.Clubs, Rank.Six)
       val defenseCard = Card(Suit.Clubs, Rank.Seven)
@@ -374,12 +374,12 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = Some(2),
         passedPlayers = Set(0, 2)
       )
-      
+
       val res = DefensePhase.playCard(defenseCard, 1, initial)
       res.gamePhase shouldBe AttackPhase
       res.currentAttackerIndex shouldBe None
     }
-    
+
     "return None for getNextAttacker when main attacker is defender" in {
       val attackCard = Card(Suit.Clubs, Rank.Six)
       val defenseCard = Card(Suit.Clubs, Rank.Seven)
@@ -398,7 +398,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = Some(2),
         passedPlayers = Set(0, 2)
       )
-      
+
       val res = DefensePhase.playCard(defenseCard, 1, initial)
       res.gamePhase shouldBe AttackPhase
       res.currentAttackerIndex shouldBe None

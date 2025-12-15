@@ -12,7 +12,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     "be created through Controller factory" in {
       val gameState = GameStateBuilder().withGamePhase(SetupPhase).build()
       val controller = Controller(gameState, UndoRedoManager())
-      
+
       controller.gameState shouldBe gameState
     }
   }

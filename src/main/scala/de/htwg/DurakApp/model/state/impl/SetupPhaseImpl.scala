@@ -8,7 +8,7 @@ import scala.util.Random
 
 private[state] case object SetupPhaseImpl extends GamePhase {
   override def toString: String = "SetupPhase"
-  
+
   override def handle(gameState: GameState): GameState = {
     val deckToUse = gameState.deck
 

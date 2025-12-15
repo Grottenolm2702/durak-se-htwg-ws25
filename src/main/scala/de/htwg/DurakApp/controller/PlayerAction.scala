@@ -4,9 +4,9 @@ import de.htwg.DurakApp.model.ModelInterface.Card
 
 /** Sealed trait representing all possible player actions in the game.
   *
-  * Player actions are processed by the Controller and transformed into
-  * game state changes. The sealed nature ensures all action types are
-  * known at compile time for exhaustive pattern matching.
+  * Player actions are processed by the Controller and transformed into game
+  * state changes. The sealed nature ensures all action types are known at
+  * compile time for exhaustive pattern matching.
   */
 sealed trait PlayerAction
 
@@ -14,7 +14,8 @@ sealed trait PlayerAction
 
 /** Action to play a card from the player's hand.
   *
-  * @param card The card to play
+  * @param card
+  *   The card to play
   */
 case class PlayCardAction(card: Card) extends PlayerAction
 
@@ -39,19 +40,22 @@ case object RedoAction extends PlayerAction
 
 /** Action to set the number of players during game setup.
   *
-  * @param count The number of players (typically 2-6)
+  * @param count
+  *   The number of players (typically 2-6)
   */
 case class SetPlayerCountAction(count: Int) extends PlayerAction
 
 /** Action to add a player name during game setup.
   *
-  * @param name The name of the player to add
+  * @param name
+  *   The name of the player to add
   */
 case class AddPlayerNameAction(name: String) extends PlayerAction
 
 /** Action to set the deck size during game setup.
   *
-  * @param size The number of cards in the deck (typically up to 36)
+  * @param size
+  *   The number of cards in the deck (typically up to 36)
   */
 case class SetDeckSizeAction(size: Int) extends PlayerAction
 

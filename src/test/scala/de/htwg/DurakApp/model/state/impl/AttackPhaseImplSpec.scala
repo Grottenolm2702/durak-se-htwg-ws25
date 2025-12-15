@@ -265,11 +265,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
       val result = AttackPhase.pass(1, baseState)
       result.passedPlayers should contain(1)
     }
-    
+
     "not allow playCard when table size >= 6" in {
       val playCard = Card(Suit.Clubs, Rank.Six)
       val attacker = Player("A", List(playCard))
-      val defender = Player("D", List(Card(Suit.Hearts, Rank.Ace), Card(Suit.Hearts, Rank.King)))
+      val defender = Player(
+        "D",
+        List(Card(Suit.Hearts, Rank.Ace), Card(Suit.Hearts, Rank.King))
+      )
       val table = Map(
         Card(Suit.Spades, Rank.Six) -> None,
         Card(Suit.Hearts, Rank.Six) -> None,
@@ -288,11 +291,11 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         defenderIndex = 1,
         gamePhase = AttackPhase
       )
-      
+
       val result = AttackPhase.playCard(playCard, 0, state)
       result shouldBe state.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
-    
+
     "allow pass and switch to next attacker when multiple attackers available" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
       val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Seven)))
@@ -309,13 +312,13 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         currentAttackerIndex = Some(0)
       )
-      
+
       val result = AttackPhase.pass(0, state)
       result.passedPlayers should contain(0)
       result.currentAttackerIndex shouldBe Some(1)
       result.lastEvent shouldBe Some(GameEvent.Pass)
     }
-    
+
     "return to main attacker when other attackers have passed" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
       val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Seven)))
@@ -332,12 +335,12 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = Some(1),
         passedPlayers = Set.empty
       )
-      
+
       val result = AttackPhase.pass(1, state)
       result.passedPlayers should contain(1)
       result.currentAttackerIndex shouldBe Some(0)
     }
-    
+
     "not allow wrong attacker to play when it's not their turn" in {
       val card = Card(Suit.Clubs, Rank.Seven)
       val player1 = Player("P1", List(card))
@@ -354,11 +357,11 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         currentAttackerIndex = Some(0)
       )
-      
+
       val result = AttackPhase.playCard(card, 1, state)
       result shouldBe state.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
-    
+
     "not allow wrong attacker to pass when it's not their turn" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
       val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Seven)))
@@ -374,11 +377,11 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         currentAttackerIndex = Some(0)
       )
-      
+
       val result = AttackPhase.pass(1, state)
       result shouldBe state.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
-    
+
     "check ranks from defended cards in table (table.values.flatten.map(_.rank))" in {
       val attackCard = Card(Suit.Clubs, Rank.Seven)
       val defendedCard = Card(Suit.Hearts, Rank.Eight)
@@ -396,13 +399,13 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         currentAttackerIndex = Some(0)
       )
-      
+
       val result = AttackPhase.playCard(newAttackCard, 0, state)
       result.players(0).hand.shouldNot(contain(newAttackCard))
       result.table.keys.toList should contain(newAttackCard)
       result.lastEvent.get shouldBe a[GameEvent.Attack]
     }
-    
+
     "not allow card with rank not matching defended cards in table" in {
       val attackCard = Card(Suit.Clubs, Rank.Seven)
       val defendedCard = Card(Suit.Hearts, Rank.Eight)
@@ -420,7 +423,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase,
         currentAttackerIndex = Some(0)
       )
-      
+
       val result = AttackPhase.playCard(invalidCard, 0, state)
       result shouldBe state.copy(lastEvent = Some(GameEvent.InvalidMove))
     }

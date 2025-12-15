@@ -15,7 +15,7 @@ class UndoHandlerSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       val handler = new UndoHandler(controller, None)
-      
+
       val action = handler.handleRequest("undo", controller.gameState)
       action shouldBe UndoAction
     }

@@ -20,7 +20,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         defenderIndex = 0,
         gamePhase = AttackPhase
       )
-      
+
       gameState.players should have size 1
       gameState.deck shouldBe empty
     }

@@ -21,7 +21,7 @@ class AskPlayerNamesPhaseImplSpec extends AnyWordSpec with Matchers {
       val resultState = AskPlayerNamesPhase.handle(initialGameState)
       resultState shouldBe initialGameState
     }
-    
+
     "have a string representation" in {
       AskPlayerNamesPhase.toString should not be empty
     }
