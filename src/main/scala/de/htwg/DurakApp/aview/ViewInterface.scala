@@ -1,30 +1,70 @@
 package de.htwg.DurakApp.aview
 
 import de.htwg.DurakApp.util.Observer
+import de.htwg.DurakApp.aview.tui.{TUI as InternalTUI}
+import de.htwg.DurakApp.aview.gui.{DurakGUI as InternalDurakGUI}
 
 /** View Component Interface
   *
   * This is the public port to the View component. All external access to view
   * implementations must go through this interface.
   *
-  * Provides access to:
-  *   - TUI: Text User Interface
-  *   - DurakGUI: Graphical User Interface
+  * The View component implements the Observer pattern to react to game state
+  * changes from the Controller. Multiple views can observe the same controller
+  * simultaneously (e.g., both TUI and GUI can be active).
   *
-  * Views observe the controller and update when notified.
+  * Provides access to:
+  *   - TUI: Text-based User Interface for console interaction
+  *   - DurakGUI: Graphical User Interface using JavaFX
+  *
+  * @example
+  * {{{
+  * import de.htwg.DurakApp.aview.ViewInterface.*
+  * 
+  * val tui = TUI(controller)
+  * controller.add(tui)
+  * tui.gameLoop()
+  * }}}
   */
 object ViewInterface:
-  type TUI = de.htwg.DurakApp.aview.tui.TUI
-  type DurakGUI = de.htwg.DurakApp.aview.gui.DurakGUI
+  
+  /** Type alias for the Text User Interface.
+    * Provides console-based interaction with the game.
+    */
+  type TUI = InternalTUI
+  
+  /** Type alias for the Graphical User Interface.
+    * Provides JavaFX-based graphical interaction with the game.
+    */
+  type DurakGUI = InternalDurakGUI
 
-  val TUI = de.htwg.DurakApp.aview.tui.TUI
+  /** Factory object for creating TUI instances. */
+  val TUI = InternalTUI
 
 /** View Interface Trait
   *
-  * Defines the external contract for view implementations. All views must
-  * implement the Observer pattern.
+  * Defines the contract that all view implementations must follow.
+  * Views implement the Observer pattern to receive notifications when
+  * the game state changes in the Controller.
   *
-  * The update method is called by the controller when the game state changes.
+  * This trait extends Observer to enforce that all views can be notified
+  * of state changes and must react accordingly.
+  *
+  * @example
+  * {{{
+  * class MyCustomView(controller: Controller) extends ViewInterface:
+  *   def update: Unit =
+  *     // React to controller state changes
+  *     println(s"Game state changed: ${controller.gameState}")
+  * }}}
   */
 trait ViewInterface extends Observer:
+  
+  /** Called by the Controller when the game state changes.
+    *
+    * Implementations should refresh their display and show the current
+    * game state to the user. This method is invoked automatically via
+    * the Observer pattern whenever the Controller's notifyObservers
+    * method is called.
+    */
   def update: Unit
