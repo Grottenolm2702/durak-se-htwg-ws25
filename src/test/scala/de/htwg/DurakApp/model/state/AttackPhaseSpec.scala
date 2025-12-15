@@ -378,5 +378,51 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       val result = AttackPhase.pass(1, state)
       result shouldBe state.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
+    
+    "check ranks from defended cards in table (table.values.flatten.map(_.rank))" in {
+      val attackCard = Card(Suit.Clubs, Rank.Seven)
+      val defendedCard = Card(Suit.Hearts, Rank.Eight)
+      val newAttackCard = Card(Suit.Diamonds, Rank.Eight)
+      val player1 = Player("P1", List(newAttackCard))
+      val player2 = Player("P2", List(Card(Suit.Spades, Rank.Nine)))
+      val state = GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map(attackCard -> Some(defendedCard)),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(0)
+      )
+      
+      val result = AttackPhase.playCard(newAttackCard, 0, state)
+      result.players(0).hand.shouldNot(contain(newAttackCard))
+      result.table.keys.toList should contain(newAttackCard)
+      result.lastEvent.get shouldBe a[GameEvent.Attack]
+    }
+    
+    "not allow card with rank not matching defended cards in table" in {
+      val attackCard = Card(Suit.Clubs, Rank.Seven)
+      val defendedCard = Card(Suit.Hearts, Rank.Eight)
+      val invalidCard = Card(Suit.Diamonds, Rank.Nine)
+      val player1 = Player("P1", List(invalidCard))
+      val player2 = Player("P2", List(Card(Suit.Spades, Rank.Ten)))
+      val state = GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map(attackCard -> Some(defendedCard)),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(0)
+      )
+      
+      val result = AttackPhase.playCard(invalidCard, 0, state)
+      result shouldBe state.copy(lastEvent = Some(GameEvent.InvalidMove))
+    }
   }
 }

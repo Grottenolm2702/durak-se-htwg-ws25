@@ -355,5 +355,53 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       res.table shouldBe empty
       res.gamePhase shouldBe DrawPhase
     }
+    
+    "return None for getNextAttacker when all players passed including main attacker" in {
+      val attackCard = Card(Suit.Clubs, Rank.Six)
+      val defenseCard = Card(Suit.Clubs, Rank.Seven)
+      val player1 = Player("P1", List.empty)
+      val player2 = Player("P2", List(defenseCard))
+      val player3 = Player("P3", List.empty)
+      val initial = GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = Map(attackCard -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = DefensePhase,
+        lastAttackerIndex = Some(2),
+        passedPlayers = Set(0, 2)
+      )
+      
+      val res = DefensePhase.playCard(defenseCard, 1, initial)
+      res.gamePhase shouldBe AttackPhase
+      res.currentAttackerIndex shouldBe None
+    }
+    
+    "return None for getNextAttacker when main attacker is defender" in {
+      val attackCard = Card(Suit.Clubs, Rank.Six)
+      val defenseCard = Card(Suit.Clubs, Rank.Seven)
+      val player1 = Player("P1", List.empty)
+      val player2 = Player("P2", List(defenseCard))
+      val player3 = Player("P3", List.empty)
+      val initial = GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = Map(attackCard -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 1,
+        defenderIndex = 1,
+        gamePhase = DefensePhase,
+        lastAttackerIndex = Some(2),
+        passedPlayers = Set(0, 2)
+      )
+      
+      val res = DefensePhase.playCard(defenseCard, 1, initial)
+      res.gamePhase shouldBe AttackPhase
+      res.currentAttackerIndex shouldBe None
+    }
   }
 }
