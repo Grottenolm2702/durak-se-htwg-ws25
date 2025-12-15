@@ -11,7 +11,6 @@ import scalafx.application.Platform
   val initialGameState = GameStateBuilder().withGamePhase(SetupPhase).build()
   val controller = Controller(initialGameState, UndoRedoManager())
   val tui = new TUI(controller)
-  controller.add(tui)
 
   Platform.startup(() => {
     val gui = new DurakGUI(controller)

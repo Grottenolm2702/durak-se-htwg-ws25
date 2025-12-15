@@ -24,6 +24,7 @@ class TUI(controller: Controller) extends ViewInterface {
   }
 
   def run(): Unit = {
+    controller.add(this)
     println(clearScreen())
     println("Willkommen bei Durak!")
     update
