@@ -3,6 +3,7 @@ package de.htwg.DurakApp.aview.gui
 import de.htwg.DurakApp.aview.ViewInterface
 import de.htwg.DurakApp.controller.ControllerInterface.*
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 import scalafx.application.Platform
 import scalafx.beans.binding.Bindings
 import scalafx.beans.property.ObjectProperty

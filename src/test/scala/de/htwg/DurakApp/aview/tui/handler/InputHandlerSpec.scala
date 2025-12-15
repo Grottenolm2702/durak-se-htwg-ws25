@@ -3,6 +3,7 @@ package de.htwg.DurakApp.aview.tui.handler
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 import de.htwg.DurakApp.controller.ControllerInterface.*
 import de.htwg.DurakApp.util.UndoRedoManager
 

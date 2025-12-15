@@ -16,22 +16,11 @@ object ModelInterface:
   type Suit = de.htwg.DurakApp.model.Suit
   type GamePhase = de.htwg.DurakApp.model.state.GamePhase
   type GameEvent = de.htwg.DurakApp.model.state.GameEvent
+  type StateInterface = de.htwg.DurakApp.model.state.StateInterface.type
 
   val Rank = de.htwg.DurakApp.model.Rank
   val Suit = de.htwg.DurakApp.model.Suit
-  val GameEvent = de.htwg.DurakApp.model.state.GameEvent
-
-  val SetupPhase = de.htwg.DurakApp.model.state.SetupPhase
-  val AskPlayerCountPhase = de.htwg.DurakApp.model.state.AskPlayerCountPhase
-  val AskPlayerNamesPhase = de.htwg.DurakApp.model.state.AskPlayerNamesPhase
-  val AskDeckSizePhase = de.htwg.DurakApp.model.state.AskDeckSizePhase
-  val AskPlayAgainPhase = de.htwg.DurakApp.model.state.AskPlayAgainPhase
-  val GameStartPhase = de.htwg.DurakApp.model.state.GameStartPhase
-  val AttackPhase = de.htwg.DurakApp.model.state.AttackPhase
-  val DefensePhase = de.htwg.DurakApp.model.state.DefensePhase
-  val DrawPhase = de.htwg.DurakApp.model.state.DrawPhase
-  val RoundPhase = de.htwg.DurakApp.model.state.RoundPhase
-  val EndPhase = de.htwg.DurakApp.model.state.EndPhase
+  val StateInterface = de.htwg.DurakApp.model.state.StateInterface
 
   object GameStateBuilder:
     def apply(): de.htwg.DurakApp.model.builder.GameStateBuilder =

@@ -4,7 +4,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.model.ModelInterface.GameState
 import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.util.{Observable, UndoRedoManager}
-import de.htwg.DurakApp.controller.command.{
+import de.htwg.DurakApp.controller.command.CommandInterface.{
   GameCommand,
   CommandFactory,
   PhaseChangeCommand
@@ -71,7 +71,7 @@ private[controller] class ControllerImpl(
             val minSize = gameState.setupPlayerNames.size
             if (size >= minSize && size <= 36) {
               val initializedGameState =
-                de.htwg.DurakApp.controller.Setup
+                de.htwg.DurakApp.controller.impl.Setup
                   .setupGame(gameState.setupPlayerNames, size)
 
               initializedGameState match {
@@ -101,7 +101,7 @@ private[controller] class ControllerImpl(
             val newPlayerNames = gameState.setupPlayerNames
             val newDeckSize = gameState.setupDeckSize.getOrElse(36)
 
-            de.htwg.DurakApp.controller.Setup
+            de.htwg.DurakApp.controller.impl.Setup
               .setupGame(newPlayerNames, newDeckSize) match {
               case Some(newGameState) =>
                 gameState = newGameState.copy(
@@ -154,7 +154,7 @@ private[controller] class ControllerImpl(
               if (nextState != currentState) {
                 this.gameState = nextState
                 this.undoRedoManager = currentUndoRedoManager.save(
-                  new PhaseChangeCommand(),
+                  PhaseChangeCommand(),
                   oldPhaseStateBeforeHandle
                 )
                 notifyObservers

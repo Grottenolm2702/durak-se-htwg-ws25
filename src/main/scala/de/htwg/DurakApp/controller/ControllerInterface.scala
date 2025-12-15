@@ -12,12 +12,16 @@ import de.htwg.DurakApp.model.ModelInterface.GameState
   */
 object ControllerInterface:
   type Controller = de.htwg.DurakApp.controller.Controller
+  type CommandInterface =
+    de.htwg.DurakApp.controller.command.CommandInterface.type
   type GameCommand = de.htwg.DurakApp.controller.command.GameCommand
   type PlayerAction = de.htwg.DurakApp.controller.PlayerAction
   type PlayCardAction = de.htwg.DurakApp.controller.PlayCardAction
   type SetPlayerCountAction = de.htwg.DurakApp.controller.SetPlayerCountAction
   type AddPlayerNameAction = de.htwg.DurakApp.controller.AddPlayerNameAction
   type SetDeckSizeAction = de.htwg.DurakApp.controller.SetDeckSizeAction
+
+  val CommandInterface = de.htwg.DurakApp.controller.command.CommandInterface
 
   val PlayCardAction = de.htwg.DurakApp.controller.PlayCardAction
   val PassAction = de.htwg.DurakApp.controller.PassAction

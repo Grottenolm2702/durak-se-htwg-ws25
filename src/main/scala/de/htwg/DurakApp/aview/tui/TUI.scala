@@ -4,6 +4,7 @@ import de.htwg.DurakApp.aview.ViewInterface
 import de.htwg.DurakApp.aview.tui.handler._
 import de.htwg.DurakApp.controller.ControllerInterface.*
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
 import scala.io.StdIn.readLine
 

@@ -1,8 +1,9 @@
-package de.htwg.DurakApp.model.builder
+package de.htwg.DurakApp.model.builder.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
@@ -91,8 +92,8 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       val builderWithPlayers =
         initialBuilder.withPlayers(List(Player("Test", List.empty)))
 
-      initialBuilder.players shouldBe empty
-      builderWithPlayers.players should not be empty
+      initialBuilder.build().players shouldBe empty
+      builderWithPlayers.build().players should not be empty
     }
   }
 }

@@ -1,4 +1,4 @@
-package de.htwg.DurakApp.controller
+package de.htwg.DurakApp.controller.impl
 
 import de.htwg.DurakApp.model.ModelInterface.{
   Card,

@@ -5,7 +5,8 @@ import de.htwg.DurakApp.controller.ControllerInterface.{
   PlayCardAction,
   InvalidAction
 }
-import de.htwg.DurakApp.model.ModelInterface.{GameState, DefensePhase}
+import de.htwg.DurakApp.model.ModelInterface.{GameState, StateInterface}
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.DefensePhase
 
 import scala.util.{Failure, Success, Try}
 

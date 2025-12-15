@@ -2,6 +2,7 @@ package de.htwg.DurakApp.aview.tui.handler
 
 import de.htwg.DurakApp.controller.ControllerInterface.*
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
 import scala.util.Try
 

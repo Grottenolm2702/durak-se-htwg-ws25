@@ -1,6 +1,7 @@
 package de.htwg.DurakApp
 
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 import de.htwg.DurakApp.controller.ControllerInterface.*
 import de.htwg.DurakApp.aview.ViewInterface.*
 import de.htwg.DurakApp.util.UndoRedoManager

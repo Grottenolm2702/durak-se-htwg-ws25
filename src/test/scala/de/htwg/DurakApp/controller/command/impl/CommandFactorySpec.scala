@@ -1,8 +1,9 @@
-package de.htwg.DurakApp.controller.command
+package de.htwg.DurakApp.controller.command.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 import de.htwg.DurakApp.controller.ControllerInterface.*
 
 class CommandFactorySpec extends AnyWordSpec with Matchers {

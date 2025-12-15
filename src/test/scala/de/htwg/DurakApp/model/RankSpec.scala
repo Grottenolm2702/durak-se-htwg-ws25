@@ -3,6 +3,7 @@ package de.htwg.DurakApp.model
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
 class RankSpec extends AnyWordSpec with Matchers {
 
