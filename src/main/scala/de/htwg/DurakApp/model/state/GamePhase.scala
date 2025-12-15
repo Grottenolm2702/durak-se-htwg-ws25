@@ -36,3 +36,16 @@ trait GamePhase {
   def takeCards(playerIdx: Int, gameState: GameState): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
 }
+
+// Phase implementations
+val SetupPhase: GamePhase = impl.SetupPhaseImpl
+val AskPlayerCountPhase: GamePhase = impl.AskPlayerCountPhaseImpl
+val AskPlayerNamesPhase: GamePhase = impl.AskPlayerNamesPhaseImpl
+val AskDeckSizePhase: GamePhase = impl.AskDeckSizePhaseImpl
+val AskPlayAgainPhase: GamePhase = impl.AskPlayAgainPhaseImpl
+val GameStartPhase: GamePhase = impl.GameStartPhaseImpl
+val AttackPhase: GamePhase = impl.AttackPhaseImpl
+val DefensePhase: GamePhase = impl.DefensePhaseImpl
+val DrawPhase: GamePhase = impl.DrawPhaseImpl
+val RoundPhase: GamePhase = impl.RoundPhaseImpl
+val EndPhase: GamePhase = impl.EndPhaseImpl
