@@ -1,11 +1,11 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
-class EndPhaseSpec extends AnyWordSpec with Matchers {
+class EndPhaseImplSpec extends AnyWordSpec with Matchers {
   "An EndPhase" should {
     "handle a game where there is a clear loser" in {
       val winner = Player("Winner", List.empty, isDone = true)

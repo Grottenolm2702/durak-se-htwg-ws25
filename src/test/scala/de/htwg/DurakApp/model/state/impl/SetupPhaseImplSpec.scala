@@ -1,4 +1,4 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -7,7 +7,7 @@ import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
 import scala.util.Random
 
-class SetupPhaseSpec extends AnyWordSpec with Matchers {
+class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
   "A SetupPhase" should {
     "handle initial game setup correctly" in {
 

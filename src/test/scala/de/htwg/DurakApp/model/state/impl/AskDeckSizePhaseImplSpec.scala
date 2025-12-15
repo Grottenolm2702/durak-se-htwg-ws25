@@ -1,11 +1,11 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
-class AskDeckSizePhaseSpec extends AnyWordSpec with Matchers {
+class AskDeckSizePhaseImplSpec extends AnyWordSpec with Matchers {
   "An AskDeckSizePhase" should {
     "handle the game state by returning it unchanged" in {
       val initialGameState = GameState(

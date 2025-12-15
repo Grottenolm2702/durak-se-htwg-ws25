@@ -1,11 +1,11 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
-class GameStartPhaseSpec extends AnyWordSpec with Matchers {
+class GameStartPhaseImplSpec extends AnyWordSpec with Matchers {
   "A GameStartPhase" should {
     "set GameSetupComplete event when handling state" in {
       val initialGameState = GameState(

@@ -1,11 +1,11 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
-class DrawPhaseSpec extends AnyWordSpec with Matchers {
+class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
   "A DrawPhase" should {
     "handle drawing cards for players with less than 6 cards" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))

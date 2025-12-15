@@ -1,11 +1,11 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
-class DefensePhaseSpec extends AnyWordSpec with Matchers {
+class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
   "A DefensePhase" should {
     "handle the game state without changing it by default" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))

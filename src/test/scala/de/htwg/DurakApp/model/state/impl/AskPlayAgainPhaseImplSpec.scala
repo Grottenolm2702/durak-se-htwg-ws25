@@ -1,11 +1,11 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
-class AskPlayAgainPhaseSpec extends AnyWordSpec with Matchers {
+class AskPlayAgainPhaseImplSpec extends AnyWordSpec with Matchers {
   "An AskPlayAgainPhase" should {
     "not modify the game state, including lastEvent" in {
       val player1 = Player("P1", List.empty, isDone = true)

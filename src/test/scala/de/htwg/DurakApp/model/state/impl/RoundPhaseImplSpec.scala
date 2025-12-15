@@ -1,11 +1,11 @@
-package de.htwg.DurakApp.model.state
+package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 
-class RoundPhaseSpec extends AnyWordSpec with Matchers {
+class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
   "A RoundPhase" should {
     "handle a round end by clearing the table and transitioning to AttackPhase when roundWinner is defined" in {
       val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
