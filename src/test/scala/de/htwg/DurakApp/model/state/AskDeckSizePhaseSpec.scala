@@ -21,5 +21,9 @@ class AskDeckSizePhaseSpec extends AnyWordSpec with Matchers {
       val resultState = AskDeckSizePhase.handle(initialGameState)
       resultState shouldBe initialGameState
     }
+    
+    "have a string representation" in {
+      AskDeckSizePhase.toString should not be empty
+    }
   }
 }

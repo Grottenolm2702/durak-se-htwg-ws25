@@ -37,6 +37,27 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       gameState.deck.shouldBe(deck)
       gameState.trumpCard.shouldBe(trumpCard)
     }
+    
+    "support copy operations" in {
+      val players = List(Player("P1"), Player("P2"))
+      val trumpCard = Card(Suit.Hearts, Rank.Ace)
+      val gameState = GameState(
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = SetupPhase
+      )
+      
+      val newDeck = List(Card(Suit.Clubs, Rank.Six))
+      val copied = gameState.copy(deck = newDeck)
+      
+      copied.deck.shouldBe(newDeck)
+      copied.players.shouldBe(players)
+    }
 
   }
 }

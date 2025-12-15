@@ -241,5 +241,119 @@ class DefensePhaseSpec extends AnyWordSpec with Matchers {
       res.table.values.count(_.isEmpty) shouldBe 1
       res.lastEvent.get.should(be(a[GameEvent.Defend]))
     }
+    
+    "switch to next available attacker when all attacks defended" in {
+      val attackCard = Card(Suit.Clubs, Rank.Six)
+      val defenseCard = Card(Suit.Clubs, Rank.Seven)
+      val player1 = Player("P1", List.empty)
+      val player2 = Player("P2", List(defenseCard))
+      val player3 = Player("P3", List.empty)
+      val initial = GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = Map(attackCard -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = DefensePhase,
+        lastAttackerIndex = Some(0)
+      )
+      
+      val res = DefensePhase.playCard(defenseCard, 1, initial)
+      res.gamePhase shouldBe AttackPhase
+      res.currentAttackerIndex shouldBe Some(2)
+    }
+    
+    "return to main attacker when no other attackers available" in {
+      val attackCard = Card(Suit.Clubs, Rank.Six)
+      val defenseCard = Card(Suit.Clubs, Rank.Seven)
+      val player1 = Player("P1", List.empty)
+      val player2 = Player("P2", List(defenseCard))
+      val initial = GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map(attackCard -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = DefensePhase,
+        lastAttackerIndex = Some(0)
+      )
+      
+      val res = DefensePhase.playCard(defenseCard, 1, initial)
+      res.gamePhase shouldBe AttackPhase
+      res.currentAttackerIndex shouldBe Some(0)
+    }
+    
+    "handle getNextAttacker when main attacker has passed" in {
+      val attackCard = Card(Suit.Clubs, Rank.Six)
+      val defenseCard = Card(Suit.Clubs, Rank.Seven)
+      val player1 = Player("P1", List.empty)
+      val player2 = Player("P2", List(defenseCard))
+      val player3 = Player("P3", List.empty)
+      val initial = GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = Map(attackCard -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = DefensePhase,
+        lastAttackerIndex = Some(0),
+        passedPlayers = Set(0)
+      )
+      
+      val res = DefensePhase.playCard(defenseCard, 1, initial)
+      res.gamePhase shouldBe AttackPhase
+      res.currentAttackerIndex shouldBe Some(2)
+    }
+    
+    "not set currentAttackerIndex when not all attacks defended" in {
+      val attack1 = Card(Suit.Clubs, Rank.Six)
+      val attack2 = Card(Suit.Clubs, Rank.Seven)
+      val defenseCard = Card(Suit.Clubs, Rank.Eight)
+      val player1 = Player("P1", List.empty)
+      val player2 = Player("P2", List(defenseCard))
+      val initial = GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map(attack1 -> None, attack2 -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = DefensePhase
+      )
+      
+      val res = DefensePhase.playCard(defenseCard, 1, initial)
+      res.gamePhase shouldBe DefensePhase
+      res.currentAttackerIndex shouldBe None
+    }
+    
+    "collect defended cards when defender takes" in {
+      val attackCard = Card(Suit.Clubs, Rank.Six)
+      val defenseCard = Card(Suit.Clubs, Rank.Seven)
+      val player1 = Player("P1", List.empty)
+      val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Ace)))
+      val initial = GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map(attackCard -> Some(defenseCard)),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = DefensePhase
+      )
+      
+      val res = DefensePhase.takeCards(1, initial)
+      res.players(1).hand should contain(attackCard)
+      res.players(1).hand should contain(defenseCard)
+      res.table shouldBe empty
+      res.gamePhase shouldBe DrawPhase
+    }
   }
 }

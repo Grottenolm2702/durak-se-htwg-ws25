@@ -26,5 +26,9 @@ class AskPlayAgainPhaseSpec extends AnyWordSpec with Matchers {
       resultState.lastEvent.shouldBe(None)
       resultState.gamePhase.shouldBe(AskPlayAgainPhase)
     }
+    
+    "have a string representation" in {
+      AskPlayAgainPhase.toString should not be empty
+    }
   }
 }

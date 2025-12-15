@@ -265,5 +265,118 @@ class AttackPhaseSpec extends AnyWordSpec with Matchers {
       val result = AttackPhase.pass(1, baseState)
       result.passedPlayers should contain(1)
     }
+    
+    "not allow playCard when table size >= 6" in {
+      val playCard = Card(Suit.Clubs, Rank.Six)
+      val attacker = Player("A", List(playCard))
+      val defender = Player("D", List(Card(Suit.Hearts, Rank.Ace), Card(Suit.Hearts, Rank.King)))
+      val table = Map(
+        Card(Suit.Spades, Rank.Six) -> None,
+        Card(Suit.Hearts, Rank.Six) -> None,
+        Card(Suit.Diamonds, Rank.Six) -> None,
+        Card(Suit.Clubs, Rank.Seven) -> None,
+        Card(Suit.Spades, Rank.Seven) -> None,
+        Card(Suit.Hearts, Rank.Seven) -> None
+      )
+      val state = GameState(
+        players = List(attacker, defender),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = AttackPhase
+      )
+      
+      val result = AttackPhase.playCard(playCard, 0, state)
+      result shouldBe state.copy(lastEvent = Some(GameEvent.InvalidMove))
+    }
+    
+    "allow pass and switch to next attacker when multiple attackers available" in {
+      val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
+      val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Seven)))
+      val player3 = Player("P3", List(Card(Suit.Spades, Rank.Seven)))
+      val player4 = Player("P4", List(Card(Suit.Hearts, Rank.Ace)))
+      val state = GameState(
+        players = List(player1, player2, player3, player4),
+        deck = List.empty,
+        table = Map(Card(Suit.Diamonds, Rank.Seven) -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 3,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(0)
+      )
+      
+      val result = AttackPhase.pass(0, state)
+      result.passedPlayers should contain(0)
+      result.currentAttackerIndex shouldBe Some(1)
+      result.lastEvent shouldBe Some(GameEvent.Pass)
+    }
+    
+    "return to main attacker when other attackers have passed" in {
+      val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
+      val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Seven)))
+      val player3 = Player("P3", List(Card(Suit.Hearts, Rank.Ace)))
+      val state = GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = Map(Card(Suit.Diamonds, Rank.Seven) -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 2,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(1),
+        passedPlayers = Set.empty
+      )
+      
+      val result = AttackPhase.pass(1, state)
+      result.passedPlayers should contain(1)
+      result.currentAttackerIndex shouldBe Some(0)
+    }
+    
+    "not allow wrong attacker to play when it's not their turn" in {
+      val card = Card(Suit.Clubs, Rank.Seven)
+      val player1 = Player("P1", List(card))
+      val player2 = Player("P2", List(card))
+      val player3 = Player("P3", List(Card(Suit.Hearts, Rank.Ace)))
+      val state = GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 2,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(0)
+      )
+      
+      val result = AttackPhase.playCard(card, 1, state)
+      result shouldBe state.copy(lastEvent = Some(GameEvent.NotYourTurn))
+    }
+    
+    "not allow wrong attacker to pass when it's not their turn" in {
+      val player1 = Player("P1", List(Card(Suit.Clubs, Rank.Six)))
+      val player2 = Player("P2", List(Card(Suit.Hearts, Rank.Seven)))
+      val player3 = Player("P3", List(Card(Suit.Hearts, Rank.Ace)))
+      val state = GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = Map(Card(Suit.Diamonds, Rank.Seven) -> None),
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Diamonds, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 2,
+        gamePhase = AttackPhase,
+        currentAttackerIndex = Some(0)
+      )
+      
+      val result = AttackPhase.pass(1, state)
+      result shouldBe state.copy(lastEvent = Some(GameEvent.NotYourTurn))
+    }
   }
 }

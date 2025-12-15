@@ -23,5 +23,14 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       player.hand.shouldBe(List())
       player.isDone.shouldBe(false)
     }
+    
+    "support copy with default isDone" in {
+      val hand = List(Card(Suit.Hearts, Rank.Six))
+      val player = Player("Gabriel", hand, isDone = true)
+      val copied = player.copy(name = "Raphael")
+      copied.name shouldBe "Raphael"
+      copied.hand shouldBe hand
+      copied.isDone shouldBe true
+    }
   }
 }
