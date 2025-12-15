@@ -12,7 +12,6 @@ import java.util.concurrent.{CountDownLatch, TimeUnit}
 
 class ViewInterfaceSpec extends AnyWordSpec with Matchers {
   
-  // Helper to initialize JavaFX toolkit once
   private val javafxInitialized = new java.util.concurrent.atomic.AtomicBoolean(false)
   
   private def ensureJavaFXInitialized(): Unit = {
@@ -25,7 +24,6 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
           })
         } catch {
           case _: IllegalStateException => 
-            // Already initialized
             latch.countDown()
         }
       }).start()
@@ -35,13 +33,12 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
   }
   
   "ViewInterface TUI factory" should {
-    "create TUI instances through apply method (line 61-62)" in {
+    "create TUI instances through apply method" in {
       val controller = Controller(
         GameStateBuilder().withGamePhase(SetupPhase).build(),
         UndoRedoManager()
       )
       
-      // Test: TUI(controller) calls new InternalTUI(controller)
       val tui = TUI(controller)
       
       tui shouldBe a[TUI]
@@ -82,7 +79,7 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
   }
   
   "ViewInterface GUI factory" should {
-    "create GUI instances through apply method (line 74-75)" in {
+    "create GUI instances through apply method" in {
       ensureJavaFXInitialized()
       
       val controller = Controller(
@@ -90,7 +87,6 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
       
-      // Test: GUI(controller) calls new InternalGUI(controller)
       var guiCreated = false
       var gui: GUI = null
       
@@ -104,7 +100,6 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
         }
       })
       
-      // Wait for JavaFX thread to complete
       Thread.sleep(1000)
       
       guiCreated shouldBe true
@@ -197,8 +192,6 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
       
       Thread.sleep(1000)
       
-      // GUI constructor should register itself as observer
-      // We verify this by checking that gui is a ViewInterface (Observer)
       gui shouldBe a[ViewInterface]
     }
     
@@ -218,13 +211,12 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
       
       Thread.sleep(1000)
       
-      // Verify that the returned object is actually the InternalGUI implementation
       gui.getClass.getSimpleName shouldBe "DurakGUI"
     }
   }
   
-  "ViewInterface" should {
-    "define View trait as base type" in {
+  "ViewInterface View trait" should {
+    "be base type for TUI" in {
       val tuiController = Controller(
         GameStateBuilder().withGamePhase(SetupPhase).build(),
         UndoRedoManager()
@@ -234,26 +226,46 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
       view shouldBe a[ViewInterface]
     }
     
-    "provide consistent factory pattern for all view types" in {
+    "be base type for GUI" in {
+      ensureJavaFXInitialized()
+      
       val controller = Controller(
         GameStateBuilder().withGamePhase(SetupPhase).build(),
         UndoRedoManager()
       )
       
-      // TUI factory works
-      noException should be thrownBy TUI(controller)
+      var view: View = null
       
-      // GUI factory object exists
+      Platform.runLater(() => {
+        view = GUI(controller)
+      })
+      
+      Thread.sleep(1000)
+      
+      view shouldBe a[ViewInterface]
+    }
+  }
+  
+  "ViewInterface factory pattern" should {
+    "support TUI creation without exceptions" in {
+      val controller = Controller(
+        GameStateBuilder().withGamePhase(SetupPhase).build(),
+        UndoRedoManager()
+      )
+      
+      noException should be thrownBy TUI(controller)
+    }
+    
+    "provide GUI factory object" in {
       GUI shouldBe a[Object]
     }
     
-    "support type aliasing for both TUI and GUI" in {
+    "support type aliasing" in {
       val controller = Controller(
         GameStateBuilder().withGamePhase(SetupPhase).build(),
         UndoRedoManager()
       )
       
-      // Both should compile with View type
       val tui: View = TUI(controller)
       
       tui shouldBe a[View]
