@@ -1,8 +1,7 @@
 package de.htwg.DurakApp.controller.impl
 
 import de.htwg.DurakApp.controller.Controller
-import de.htwg.DurakApp.model.ModelInterface.GameState
-import de.htwg.DurakApp.model.state.GameEvent
+import de.htwg.DurakApp.model.ModelInterface.{GameState, GameEvent}
 import de.htwg.DurakApp.util.{Observable, UndoRedoManager}
 import de.htwg.DurakApp.controller.command.CommandInterface.{
   GameCommand,

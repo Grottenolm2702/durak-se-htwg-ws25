@@ -1,7 +1,6 @@
 package de.htwg.DurakApp.controller.command
 
-import de.htwg.DurakApp.model.ModelInterface.{Card, GameState}
-import de.htwg.DurakApp.model.state.GameEvent
+import de.htwg.DurakApp.model.ModelInterface.{Card, GameState, GameEvent}
 
 /** Command Component Interface
   *

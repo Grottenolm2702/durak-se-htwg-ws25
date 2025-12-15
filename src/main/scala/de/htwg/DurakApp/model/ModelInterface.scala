@@ -74,6 +74,9 @@ object ModelInterface:
   /** Enum object containing all card suits (Hearts, Diamonds, Clubs, Spades). */
   val Suit = InternalSuit
   
+  /** Enum object containing all game events that can occur during gameplay. */
+  val GameEvent = de.htwg.DurakApp.model.state.GameEvent
+  
   /** Interface object providing access to game phases and state types. */
   val StateInterface = InternalStateInterface
 
