@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.util.impl
 
 import de.htwg.DurakApp.util.UndoRedoManager
-import de.htwg.DurakApp.controller.command.GameCommand
+import de.htwg.DurakApp.controller.ControllerInterface.GameCommand
 import de.htwg.DurakApp.model.ModelInterface.GameState
 
 private[util] case class UndoRedoManagerImpl(
