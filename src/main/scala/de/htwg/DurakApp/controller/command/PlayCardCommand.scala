@@ -8,19 +8,19 @@ import de.htwg.DurakApp.model.GameState
 case class PlayCardCommand(card: Card) extends GameCommand {
   override def execute(gameState: GameState): GameState = {
 
-    val playerIdx =
+    val activePlayerIndex =
       gameState.gamePhase match {
         case DefensePhase => gameState.defenderIndex
         case _ =>
           gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
       }
 
-    val player = gameState.players(playerIdx)
+    val activePlayer = gameState.players(activePlayerIndex)
 
-    if (!player.hand.contains(card)) {
+    if (!activePlayer.hand.contains(card)) {
       gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     } else {
-      gameState.gamePhase.playCard(card, playerIdx, gameState)
+      gameState.gamePhase.playCard(card, activePlayerIndex, gameState)
     }
   }
 }

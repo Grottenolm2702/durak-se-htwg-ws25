@@ -23,24 +23,25 @@ object Setup {
   }
 
   def setupGame(playerNames: List[String], deckSize: Int): Option[GameState] = {
-    if (playerNames.length < 2) {
+    val minimumPlayersRequired = 2
+    if (playerNames.length < minimumPlayersRequired) {
       return None
     }
 
-    val deck = createDeck(deckSize)
-    val minCardsRequired = playerNames.length
-    if (deck.length < minCardsRequired) {
+    val shuffledDeck = createDeck(deckSize)
+    val minimumCardsNeeded = playerNames.length
+    if (shuffledDeck.length < minimumCardsNeeded) {
       return None
     }
 
-    val players = playerNames.map(name => Player(name, List.empty))
+    val playersWithEmptyHands = playerNames.map(name => Player(name, List.empty))
 
-    val preSetupState = GameStateBuilder()
-      .withPlayers(players)
-      .withDeck(deck)
+    val initialGameState = GameStateBuilder()
+      .withPlayers(playersWithEmptyHands)
+      .withDeck(shuffledDeck)
       .withTable(Map.empty)
       .withDiscardPile(List.empty)
-      .withTrumpCard(deck.head)
+      .withTrumpCard(shuffledDeck.head)
       .withAttackerIndex(0)
       .withDefenderIndex(0)
       .withGamePhase(SetupPhase)
@@ -49,6 +50,6 @@ object Setup {
       .withRoundWinner(None)
       .build()
 
-    Some(preSetupState.gamePhase.handle(preSetupState))
+    Some(initialGameState.gamePhase.handle(initialGameState))
   }
 }

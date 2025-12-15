@@ -4,22 +4,24 @@ import de.htwg.DurakApp.model.GameState
 
 case object RoundPhase extends GamePhase {
   override def handle(gameState: GameState): GameState = {
-    val playersWithCards = gameState.players.filter(_.hand.nonEmpty)
-    if (playersWithCards.size <= 1 && gameState.deck.isEmpty) {
+    val remainingPlayersWithCards = gameState.players.filter(_.hand.nonEmpty)
+    val gameIsOver = remainingPlayersWithCards.size <= 1 && gameState.deck.isEmpty
+    
+    if (gameIsOver) {
       return EndPhase.handle(gameState)
     }
 
-    val newDiscardPile = if (gameState.roundWinner.isDefined) {
-      val cardsFromTable =
+    val updatedDiscardPile = if (gameState.roundWinner.isDefined) {
+      val allCardsFromTable =
         gameState.table.keys.toList ++ gameState.table.values.flatten.toList
-      gameState.discardPile ++ cardsFromTable
+      gameState.discardPile ++ allCardsFromTable
     } else {
       gameState.discardPile
     }
 
-    val stateForNewRound = gameState.copy(
+    val gameStateForNextRound = gameState.copy(
       table = Map.empty,
-      discardPile = newDiscardPile,
+      discardPile = updatedDiscardPile,
       passedPlayers = Set.empty,
       lastEvent =
         Some(GameEvent.RoundEnd(cleared = gameState.roundWinner.isDefined)),
@@ -29,6 +31,6 @@ case object RoundPhase extends GamePhase {
       lastAttackerIndex = None
     )
 
-    stateForNewRound.gamePhase.handle(stateForNewRound)
+    gameStateForNextRound.gamePhase.handle(gameStateForNextRound)
   }
 }

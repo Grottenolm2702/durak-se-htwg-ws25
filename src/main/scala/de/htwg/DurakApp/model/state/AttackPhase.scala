@@ -12,28 +12,28 @@ case object AttackPhase extends GamePhase {
   }
 
   private def getNextAttacker(gameState: GameState): Option[Int] = {
-    val currentIdx =
+    val currentAttackerIndex =
       gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
-    val numPlayers = gameState.players.size
-    val mainAttacker = gameState.attackerIndex
+    val totalPlayers = gameState.players.size
+    val mainAttackerIndex = gameState.attackerIndex
 
-    val otherAttackers = (1 until numPlayers)
-      .map { offset =>
-        (currentIdx + offset) % numPlayers
+    val nextAvailableAttacker = (1 until totalPlayers)
+      .map { offsetFromCurrent =>
+        (currentAttackerIndex + offsetFromCurrent) % totalPlayers
       }
-      .find { idx =>
-        idx != gameState.defenderIndex &&
-        idx != mainAttacker &&
-        !gameState.passedPlayers.contains(idx)
+      .find { playerIndex =>
+        playerIndex != gameState.defenderIndex &&
+        playerIndex != mainAttackerIndex &&
+        !gameState.passedPlayers.contains(playerIndex)
       }
 
-    otherAttackers.orElse {
+    nextAvailableAttacker.orElse {
       if (
         !gameState.passedPlayers.contains(
-          mainAttacker
-        ) && currentIdx != mainAttacker
+          mainAttackerIndex
+        ) && currentAttackerIndex != mainAttackerIndex
       ) {
-        Some(mainAttacker)
+        Some(mainAttackerIndex)
       } else {
         None
       }
@@ -42,66 +42,66 @@ case object AttackPhase extends GamePhase {
 
   override def playCard(
       card: Card,
-      playerIdx: Int,
+      playerIndex: Int,
       gameState: GameState
   ): GameState = {
-    if (playerIdx < 0 || playerIdx >= gameState.players.size) {
+    if (playerIndex < 0 || playerIndex >= gameState.players.size) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
-    if (playerIdx == gameState.defenderIndex) {
+    if (playerIndex == gameState.defenderIndex) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 
-    val currentIdx =
+    val expectedAttackerIndex =
       gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
-    if (playerIdx != currentIdx) {
+    if (playerIndex != expectedAttackerIndex) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 
-    val player = gameState.players(playerIdx)
-    if (!player.hand.contains(card)) {
+    val attackingPlayer = gameState.players(playerIndex)
+    if (!attackingPlayer.hand.contains(card)) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    val tableRanks = gameState.table.keys
+    val ranksOnTable = gameState.table.keys
       .map(_.rank)
       .toSet ++ gameState.table.values.flatten.map(_.rank).toSet
-    if (gameState.table.nonEmpty && !tableRanks.contains(card.rank)) {
+    if (gameState.table.nonEmpty && !ranksOnTable.contains(card.rank)) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    val defender = gameState.players(gameState.defenderIndex)
-    val openAttacks = gameState.table.values.count(_.isEmpty)
-    if (gameState.table.size >= 6 || openAttacks >= defender.hand.size) {
+    val defendingPlayer = gameState.players(gameState.defenderIndex)
+    val undefendedAttacks = gameState.table.values.count(_.isEmpty)
+    if (gameState.table.size >= 6 || undefendedAttacks >= defendingPlayer.hand.size) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    val newHand = player.hand.filterNot(_ == card)
-    val newPlayers =
-      gameState.players.updated(playerIdx, player.copy(hand = newHand))
-    val newTable = gameState.table + (card -> None)
+    val updatedPlayerHand = attackingPlayer.hand.filterNot(_ == card)
+    val updatedPlayers =
+      gameState.players.updated(playerIndex, attackingPlayer.copy(hand = updatedPlayerHand))
+    val updatedTable = gameState.table + (card -> None)
 
     gameState.copy(
-      players = newPlayers,
-      table = newTable,
+      players = updatedPlayers,
+      table = updatedTable,
       gamePhase = DefensePhase,
       lastEvent = Some(GameEvent.Attack(card)),
       currentAttackerIndex = None,
-      lastAttackerIndex = Some(playerIdx)
+      lastAttackerIndex = Some(playerIndex)
     )
   }
 
-  override def pass(playerIdx: Int, gameState: GameState): GameState = {
-    if (playerIdx < 0 || playerIdx >= gameState.players.size) {
+  override def pass(playerIndex: Int, gameState: GameState): GameState = {
+    if (playerIndex < 0 || playerIndex >= gameState.players.size) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
-    if (playerIdx == gameState.defenderIndex) {
+    if (playerIndex == gameState.defenderIndex) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 
-    val currentIdx =
+    val expectedAttackerIndex =
       gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
-    if (playerIdx != currentIdx) {
+    if (playerIndex != expectedAttackerIndex) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
 
@@ -109,16 +109,16 @@ case object AttackPhase extends GamePhase {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
-    val newPassedPlayers = gameState.passedPlayers + playerIdx
-    val nextAttacker = getNextAttacker(
-      gameState.copy(passedPlayers = newPassedPlayers)
+    val updatedPassedPlayers = gameState.passedPlayers + playerIndex
+    val nextAttackerIndex = getNextAttacker(
+      gameState.copy(passedPlayers = updatedPassedPlayers)
     )
 
-    nextAttacker match {
-      case Some(nextIdx) =>
+    nextAttackerIndex match {
+      case Some(nextPlayerIndex) =>
         gameState.copy(
-          passedPlayers = newPassedPlayers,
-          currentAttackerIndex = Some(nextIdx),
+          passedPlayers = updatedPassedPlayers,
+          currentAttackerIndex = Some(nextPlayerIndex),
           lastEvent = Some(GameEvent.Pass)
         )
       case None =>
