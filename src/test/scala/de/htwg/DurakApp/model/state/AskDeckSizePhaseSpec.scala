@@ -2,7 +2,7 @@ package de.htwg.DurakApp.model.state
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model._
+import de.htwg.DurakApp.model.ModelInterface.*
 
 class AskDeckSizePhaseSpec extends AnyWordSpec with Matchers {
   "An AskDeckSizePhase" should {

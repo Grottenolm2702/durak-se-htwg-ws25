@@ -2,8 +2,7 @@ package de.htwg.DurakApp.model.builder
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.{Card, Player, Rank, Suit}
-import de.htwg.DurakApp.model.state.{AttackPhase, DefensePhase, SetupPhase}
+import de.htwg.DurakApp.model.ModelInterface.*
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 

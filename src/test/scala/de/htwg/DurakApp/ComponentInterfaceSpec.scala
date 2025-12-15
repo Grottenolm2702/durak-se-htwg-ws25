@@ -2,8 +2,7 @@ package de.htwg.DurakApp
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.ControllerInterface.*
-import de.htwg.DurakApp.controller.ControllerInterfaceTrait
+import de.htwg.DurakApp.controller.ControllerInterface.{*, given}
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.aview.ViewInterface
 import de.htwg.DurakApp.util.{Observable, Observer, UndoRedoManager}
@@ -12,7 +11,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
 
 
   class MockController(initialState: GameState)
-      extends ControllerInterfaceTrait
+      extends ControllerTrait
       with Observable {
     private var _gameState: GameState = initialState
     private val _actionHistory =
@@ -102,7 +101,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
   }
 
   class SpyController(real: Controller)
-      extends ControllerInterfaceTrait
+      extends ControllerTrait
       with Observable {
     var processPlayerActionCallCount = 0
     var undoCallCount = 0
@@ -148,7 +147,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  class FakeController extends ControllerInterfaceTrait with Observable {
+  class FakeController extends ControllerTrait with Observable {
     private var _state = StubGameState.setupStub()
     private var _undoAvailable = false
 
@@ -332,7 +331,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
   "Real Controller through ControllerInterface" should {
 
     "be testable via interface" in {
-      val controller: ControllerInterfaceTrait = new Controller(
+      val controller: ControllerTrait = new Controller(
         StubGameState.setupStub(),
         UndoRedoManager()
       )
@@ -344,7 +343,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     }
 
     "support observer pattern" in {
-      val controller: ControllerInterfaceTrait = new Controller(
+      val controller: ControllerTrait = new Controller(
         StubGameState.setupStub(),
         UndoRedoManager()
       ).asInstanceOf[Controller]
@@ -369,7 +368,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
       val view = new MockView()
 
       // All implement the same interface
-      val controllers: List[ControllerInterfaceTrait] = List(mock, spy, fake)
+      val controllers: List[ControllerTrait] = List(mock, spy, fake)
 
       controllers.foreach { controller =>
         controller.processPlayerAction(SetPlayerCountAction(2))

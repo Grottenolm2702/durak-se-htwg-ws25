@@ -2,8 +2,8 @@ package de.htwg.DurakApp.controller.command
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model._
-import de.htwg.DurakApp.model.state._
+import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.controller.ControllerInterface.*
 
 class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
   "A TakeCardsCommand" should {

@@ -2,9 +2,8 @@ package de.htwg.DurakApp.aview.tui.handler
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model._
-import de.htwg.DurakApp.model.state._
-import de.htwg.DurakApp.controller._
+import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.controller.ControllerInterface.*
 
 class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
 

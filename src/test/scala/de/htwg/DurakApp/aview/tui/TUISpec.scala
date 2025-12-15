@@ -2,13 +2,11 @@ package de.htwg.DurakApp.aview.tui
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.Controller
-import de.htwg.DurakApp.model._
-import de.htwg.DurakApp.model.state._
+import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.controller.ControllerInterface.*
+import de.htwg.DurakApp.aview.ViewInterface.*
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import de.htwg.DurakApp.aview.tui.TUI
-import de.htwg.DurakApp.util.Observable
-import de.htwg.DurakApp.util.UndoRedoManager
+import de.htwg.DurakApp.util.{Observable, UndoRedoManager}
 
 class TUISpec extends AnyWordSpec with Matchers {
 

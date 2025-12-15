@@ -33,6 +33,8 @@ object ControllerInterface:
   }
   export de.htwg.DurakApp.controller.Setup
   export de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
+  
+  type ControllerTrait = ControllerInterfaceTrait
 
 /** Controller Interface Trait
   *

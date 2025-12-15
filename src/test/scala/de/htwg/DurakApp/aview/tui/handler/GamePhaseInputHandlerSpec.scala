@@ -2,11 +2,9 @@ package de.htwg.DurakApp.aview.tui.handler
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.*
-import de.htwg.DurakApp.model.GameState
-import de.htwg.DurakApp.model.state.*
+import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.controller.ControllerInterface.*
 
-import de.htwg.DurakApp.model.builder.GameStateBuilder
 
 class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
 

@@ -2,22 +2,8 @@ package de.htwg.DurakApp.controller.command
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.{
-  InvalidAction,
-  PassAction,
-  PlayCardAction,
-  TakeCardsAction,
-  SetPlayerCountAction,
-  AddPlayerNameAction,
-  SetDeckSizeAction,
-  PlayAgainAction,
-  ExitGameAction,
-  UndoAction,
-  RedoAction
-}
-import de.htwg.DurakApp.model.state.GameEvent
-import de.htwg.DurakApp.model.{Card, GameState, Player, Rank, Suit}
-import de.htwg.DurakApp.model.state._
+import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.controller.ControllerInterface.*
 
 class CommandFactorySpec extends AnyWordSpec with Matchers {
 

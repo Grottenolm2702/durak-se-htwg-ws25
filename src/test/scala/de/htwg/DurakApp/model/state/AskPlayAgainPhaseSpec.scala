@@ -2,7 +2,7 @@ package de.htwg.DurakApp.model.state
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.{GameState, Player, Card, Suit, Rank}
+import de.htwg.DurakApp.model.ModelInterface.*
 
 class AskPlayAgainPhaseSpec extends AnyWordSpec with Matchers {
   "An AskPlayAgainPhase" should {

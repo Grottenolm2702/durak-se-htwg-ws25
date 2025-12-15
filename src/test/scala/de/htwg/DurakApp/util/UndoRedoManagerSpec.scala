@@ -1,9 +1,9 @@
 package de.htwg.DurakApp.util
 
-import de.htwg.DurakApp.model.{Card, Rank, Suit, GameState}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.command.GameCommand
+import de.htwg.DurakApp.model.ModelInterface.*
+import de.htwg.DurakApp.controller.ControllerInterface.*
 
 class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
 
