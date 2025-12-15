@@ -67,7 +67,8 @@ class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
               gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
             }
           case SetDeckSizeAction(size) =>
-            if (size >= 2 && size <= 36) {
+            val minSize = gameState.setupPlayerNames.size
+            if (size >= minSize && size <= 36) {
               val initializedGameState =
                 Setup.setupGame(gameState.setupPlayerNames, size)
 

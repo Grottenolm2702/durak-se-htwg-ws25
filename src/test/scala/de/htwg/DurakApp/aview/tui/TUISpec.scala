@@ -830,7 +830,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       players = List.empty,
       gamePhase = AskDeckSizePhase,
       lastEvent = None
-    )
+    ).copy(setupPlayerNames = List("Alice", "Bob"))
     val controller = new Controller(game, UndoRedoManager())
     val tui = new TUI(controller)
     controller.add(tui)
@@ -977,6 +977,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "return correct string for AskDeckSizePhase" in {
       val game =
         createGameState(players = List.empty, gamePhase = AskDeckSizePhase)
+          .copy(setupPlayerNames = List("Alice", "Bob"))
       val controller = new Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.description(game) shouldBe "Deckgröße eingeben (2-36):"

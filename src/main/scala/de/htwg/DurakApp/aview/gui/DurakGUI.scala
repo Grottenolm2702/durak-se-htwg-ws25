@@ -15,6 +15,7 @@ import scalafx.scene.layout.*
 import scalafx.scene.effect.GaussianBlur
 import scalafx.stage.Stage
 import scalafx.Includes.*
+import scalafx.collections.ObservableBuffer
 import scala.util.{Try, Success, Failure}
 
 class DurakGUI(controller: Controller) extends ViewInterface {
@@ -215,7 +216,9 @@ class DurakGUI(controller: Controller) extends ViewInterface {
       case SetupPhase | AskPlayerCountPhase => "Enter number of players (2-6):"
       case AskPlayerNamesPhase =>
         s"Player name ${gameState.setupPlayerNames.length + 1}:"
-      case AskDeckSizePhase => "Select deck size (2-36):"
+      case AskDeckSizePhase => 
+        val minSize = gameState.setupPlayerNames.size
+        s"Select deck size ($minSize-36):"
       case _                => gameState.gamePhase.toString
     }
 
@@ -270,11 +273,14 @@ class DurakGUI(controller: Controller) extends ViewInterface {
           if (setupError) description(gameState)
           else s"Enter name for player ${currentNames + 1} of $expectedCount:"
       case AskDeckSizePhase =>
+        val minSize = gameState.setupPlayerNames.size
+        deckSizeChoiceBox.items = ObservableBuffer.from((minSize to 36))
         deckSizeChoiceBox.visible = true
         submitDeckSizeButton.visible = true
-        deckSizeChoiceBox.value = gameState.setupDeckSize.getOrElse(36)
+        val defaultSize = math.max(minSize, gameState.setupDeckSize.getOrElse(36))
+        deckSizeChoiceBox.value = defaultSize
         setupStatusLabel.text =
-          if (setupError) description(gameState) else "Select deck size (2-36):"
+          if (setupError) description(gameState) else s"Select deck size ($minSize-36):"
       case GameStartPhase =>
         setupStatusLabel.text = "Initializing game..."
       case _ =>
