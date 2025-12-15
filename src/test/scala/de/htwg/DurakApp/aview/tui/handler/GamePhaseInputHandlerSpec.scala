@@ -5,7 +5,6 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.controller.ControllerInterface.*
 
-
 class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
 
   "A GamePhaseInputHandler" when {

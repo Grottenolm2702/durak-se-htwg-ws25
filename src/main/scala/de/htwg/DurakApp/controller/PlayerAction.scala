@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.controller
 
-import de.htwg.DurakApp.model.Card
+import de.htwg.DurakApp.model.ModelInterface.Card
 
 sealed trait PlayerAction
 case class PlayCardAction(card: Card) extends PlayerAction

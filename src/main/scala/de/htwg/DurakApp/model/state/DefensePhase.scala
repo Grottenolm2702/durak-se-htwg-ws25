@@ -25,7 +25,9 @@ case object DefensePhase extends GamePhase {
     }
 
     val undefendedAttackCard =
-      gameState.table.find { case (_, defenseCard) => defenseCard.isEmpty }.map(_._1)
+      gameState.table
+        .find { case (_, defenseCard) => defenseCard.isEmpty }
+        .map(_._1)
     if (undefendedAttackCard.isEmpty) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
@@ -37,7 +39,10 @@ case object DefensePhase extends GamePhase {
 
     val updatedDefenderHand = defendingPlayer.hand.filterNot(_ == card)
     val updatedPlayers =
-      gameState.players.updated(playerIndex, defendingPlayer.copy(hand = updatedDefenderHand))
+      gameState.players.updated(
+        playerIndex,
+        defendingPlayer.copy(hand = updatedDefenderHand)
+      )
     val updatedTable = gameState.table.updated(attackingCard, Some(card))
 
     val allAttacksDefended = updatedTable.values.forall(_.isDefined)
@@ -71,7 +76,9 @@ case object DefensePhase extends GamePhase {
         (currentAttackerIndex + offsetFromCurrent) % totalPlayers
       }
       .find { playerIndex =>
-        playerIndex != defenderIndex && !gameState.passedPlayers.contains(playerIndex)
+        playerIndex != defenderIndex && !gameState.passedPlayers.contains(
+          playerIndex
+        )
       }
 
     nextAvailablePlayer.orElse {
@@ -99,7 +106,10 @@ case object DefensePhase extends GamePhase {
       gameState.table.keys.toList ++ gameState.table.values.flatten.toList
     val updatedDefenderHand = defendingPlayer.hand ++ allCardsFromTable
     val updatedPlayers =
-      gameState.players.updated(playerIndex, defendingPlayer.copy(hand = updatedDefenderHand))
+      gameState.players.updated(
+        playerIndex,
+        defendingPlayer.copy(hand = updatedDefenderHand)
+      )
 
     val updatedGameState = gameState.copy(
       players = updatedPlayers,

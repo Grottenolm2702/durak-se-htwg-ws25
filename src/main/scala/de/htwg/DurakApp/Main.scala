@@ -8,7 +8,7 @@ import scalafx.application.Platform
 
 @main def run: Unit = {
   val initialGameState = GameStateBuilder().withGamePhase(SetupPhase).build()
-  val controller = new Controller(initialGameState, UndoRedoManager())
+  val controller = Controller(initialGameState, UndoRedoManager())
   val tui = new TUI(controller)
   controller.add(tui)
 

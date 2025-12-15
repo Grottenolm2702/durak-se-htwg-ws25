@@ -78,7 +78,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.Attack(spadeSix))
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Angriff mit Six Spades."))
     }
@@ -93,7 +93,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.Defend(diamondTen))
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -108,7 +108,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.Take)
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Karten aufgenommen."))
     }
@@ -121,7 +121,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.Pass)
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Passen."))
     }
@@ -132,7 +132,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.InvalidMove)
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).should(include("Ungültiger Zug!"))
     }
@@ -147,7 +147,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.GameOver(donePlayer, Some(loser)))
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -163,7 +163,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.GameOver(p1, None))
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -179,7 +179,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.GameOver(Player("Quit", List.empty), None))
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game).shouldBe("Spiel beendet.")
     }
@@ -190,7 +190,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.CannotUndo)
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -203,7 +203,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.CannotRedo)
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui
         .buildStatusString(game)
@@ -211,7 +211,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "clearScreen returns ANSI escape sequence" in {
-      val controller = new Controller(
+      val controller = Controller(
         createGameState(List.empty),
         UndoRedoManager()
       )
@@ -228,7 +228,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         attackerIndex = 0
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       controller.add(tui)
 
@@ -244,7 +244,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "renderCard" should {
       "contain rank and suit for a red card" in {
-        val controller = new Controller(
+        val controller = Controller(
           createGameState(List.empty),
           UndoRedoManager()
         )
@@ -256,7 +256,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       "contain rank and suit for a black card" in {
-        val controller = new Controller(
+        val controller = Controller(
           createGameState(List.empty),
           UndoRedoManager()
         )
@@ -270,7 +270,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "renderHandWithIndices" should {
       "return 'Leere Hand' for an empty hand" in {
-        val controller = new Controller(
+        val controller = Controller(
           createGameState(List.empty),
           UndoRedoManager()
         )
@@ -279,7 +279,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       "render a single card with its index" in {
-        val controller = new Controller(
+        val controller = Controller(
           createGameState(List.empty),
           UndoRedoManager()
         )
@@ -292,7 +292,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       }
 
       "render multiple cards with their indices" in {
-        val controller = new Controller(
+        val controller = Controller(
           createGameState(List.empty),
           UndoRedoManager()
         )
@@ -319,7 +319,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         attackerIndex = 0
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       val input = "q\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -347,7 +347,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         defenderIndex = 1
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       val input = "q\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -376,7 +376,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val gameDefensePhase = gameAttackPhase.copy(gamePhase = DefensePhase)
       val controller =
-        new Controller(gameAttackPhase, UndoRedoManager())
+        Controller(gameAttackPhase, UndoRedoManager())
       val tui = new TUI(controller)
 
       "handle 'play 0' during AttackPhase" in {
@@ -448,7 +448,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       "handle non-numeric input in SetupPhase resulting in InvalidAction" in {
         val initialGame =
           createGameState(players = List.empty, gamePhase = SetupPhase)
-        val controller = new Controller(initialGame, UndoRedoManager())
+        val controller = Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
         val action =
@@ -459,7 +459,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       "handle non-numeric input in AskDeckSizePhase resulting in InvalidAction" in {
         val initialGame =
           createGameState(players = List.empty, gamePhase = AskDeckSizePhase)
-        val controller = new Controller(initialGame, UndoRedoManager())
+        val controller = Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
         val action =
@@ -470,7 +470,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       "handle non-numeric input in AskPlayerCountPhase resulting in InvalidAction" in {
         val initialGame =
           createGameState(players = List.empty, gamePhase = AskPlayerCountPhase)
-        val controller = new Controller(initialGame, UndoRedoManager())
+        val controller = Controller(initialGame, UndoRedoManager())
         val tui = new TUI(controller)
 
         val action =
@@ -486,7 +486,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         attackerIndex = 0
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       val input = "quit\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -507,7 +507,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List(Player("Alice", List.empty)),
         gamePhase = AskPlayAgainPhase
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
       val input = "no\n"
@@ -533,7 +533,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         attackerIndex = 0
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       val input = "q\n"
       val inStream = new ByteArrayInputStream(input.getBytes)
@@ -552,7 +552,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "renderCard includes Nine and Queen correctly" in {
-      val controller = new Controller(
+      val controller = Controller(
         createGameState(List.empty),
         UndoRedoManager()
       )
@@ -581,7 +581,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AttackPhase
       )
       val controller =
-        new Controller(game, UndoRedoManager())
+        Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
       val tableStr = tui.renderTable(game)
@@ -594,7 +594,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "buildStatusString - NotYourTurn, Draw and RoundEnd cases" in {
-      val controller = new Controller(
+      val controller = Controller(
         createGameState(List.empty),
         UndoRedoManager()
       )
@@ -628,7 +628,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "combineCardLines returns empty string for empty list" in {
-      val controller = new Controller(
+      val controller = Controller(
         createGameState(List.empty),
         UndoRedoManager()
       )
@@ -638,7 +638,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "renderCard includes Seven and Eight correctly" in {
-      val controller = new Controller(
+      val controller = Controller(
         createGameState(List.empty),
         UndoRedoManager()
       )
@@ -665,17 +665,25 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
 
       class TestController(
-          gs: GameState,
+          var gs: GameState,
           undoManager: UndoRedoManager
-      ) extends Controller(gs, undoManager) {
+      ) extends Observable
+          with de.htwg.DurakApp.controller.Controller {
         val calls = new java.util.concurrent.atomic.AtomicInteger(0)
-        override def processPlayerAction(
+
+        def gameState: GameState = gs
+
+        def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): de.htwg.DurakApp.model.GameState = {
           calls.incrementAndGet()
-          this.gameState = this.gameState.copy(lastEvent = Some(GameEvent.Pass))
-          this.gameState
+          gs = gs.copy(lastEvent = Some(GameEvent.Pass))
+          gs
         }
+
+        def undo(): Option[GameState] = None
+        def redo(): Option[GameState] = None
+        def getStatusString(): String = "test"
       }
 
       val controller =
@@ -709,7 +717,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "parseTuiInput handles SetPlayerCountAction" in {
       val initialGame =
         createGameState(players = List.empty, gamePhase = SetupPhase)
-      val controller = new Controller(initialGame, UndoRedoManager())
+      val controller = Controller(initialGame, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("2", controller.gameState)
@@ -725,7 +733,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AskPlayerNamesPhase,
         setupPlayerCount = Some(2)
       )
-      val controller = new Controller(gameAfterPlayerCount, UndoRedoManager())
+      val controller = Controller(gameAfterPlayerCount, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("Alice", controller.gameState)
@@ -747,7 +755,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         setupPlayerCount = Some(2),
         setupPlayerNames = List("Alice", "Bob")
       )
-      val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
+      val controller = Controller(gameAfterPlayerNames, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("36", controller.gameState)
@@ -761,7 +769,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "parseTuiInput handles invalid player count" in {
       val initialGame =
         createGameState(players = List.empty, gamePhase = SetupPhase)
-      val controller = new Controller(initialGame, UndoRedoManager())
+      val controller = Controller(initialGame, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("1", controller.gameState)
@@ -778,7 +786,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         setupPlayerCount = Some(2),
         setupPlayerNames = List("Alice", "Bob")
       )
-      val controller = new Controller(gameAfterPlayerNames, UndoRedoManager())
+      val controller = Controller(gameAfterPlayerNames, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("37", controller.gameState)
@@ -793,7 +801,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         gamePhase = AskPlayAgainPhase
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("no", game)
@@ -805,7 +813,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         gamePhase = AskPlayAgainPhase
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("yes", game)
@@ -817,7 +825,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         gamePhase = AskPlayAgainPhase
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
       val action = tui.inputHandler.handleRequest("maybe", game)
@@ -831,7 +839,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       gamePhase = AskDeckSizePhase,
       lastEvent = None
     ).copy(setupPlayerNames = List("Alice", "Bob"))
-    val controller = new Controller(game, UndoRedoManager())
+    val controller = Controller(game, UndoRedoManager())
     val tui = new TUI(controller)
     controller.add(tui)
 
@@ -854,7 +862,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.SetupError),
         gamePhase = SetupPhase
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(
         game
@@ -866,7 +874,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.GameSetupComplete)
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game) should include(
         s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
@@ -878,7 +886,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.AskPlayAgain)
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game) should include(
         s"${GREEN}Möchten Sie eine neue Runde spielen? (yes/no)$RESET"
@@ -890,7 +898,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.ExitApplication)
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game) should include(
         s"${GREEN}Anwendung wird beendet...$RESET"
@@ -902,7 +910,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.AskPlayerCount)
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game) shouldBe ""
     }
@@ -912,7 +920,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.AskPlayerNames)
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game) shouldBe ""
     }
@@ -922,7 +930,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List.empty,
         lastEvent = Some(GameEvent.AskDeckSize)
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.buildStatusString(game) shouldBe ""
     }
@@ -940,7 +948,7 @@ class TUISpec extends AnyWordSpec with Matchers {
           gamePhase = phase,
           lastEvent = None
         )
-        val controller = new Controller(game, UndoRedoManager())
+        val controller = Controller(game, UndoRedoManager())
         val tui = new TUI(controller)
         tui.buildStatusString(game) shouldBe ""
       }
@@ -950,7 +958,7 @@ class TUISpec extends AnyWordSpec with Matchers {
   "TUI description(game) method" should {
     "return correct string for SetupPhase" in {
       val game = createGameState(players = List.empty, gamePhase = SetupPhase)
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.description(game) shouldBe "Spieleranzahl eingeben (2-6):"
     }
@@ -958,7 +966,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "return correct string for AskPlayerCountPhase" in {
       val game =
         createGameState(players = List.empty, gamePhase = AskPlayerCountPhase)
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.description(game) shouldBe "Spieleranzahl eingeben (2-6):"
     }
@@ -969,7 +977,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = AskPlayerNamesPhase,
         setupPlayerNames = List("Alice")
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.description(game) shouldBe "Spielername 2:"
     }
@@ -978,7 +986,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val game =
         createGameState(players = List.empty, gamePhase = AskDeckSizePhase)
           .copy(setupPlayerNames = List("Alice", "Bob"))
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.description(game) shouldBe "Deckgröße eingeben (2-36):"
     }
@@ -986,7 +994,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "return correct string for AskPlayAgainPhase" in {
       val game =
         createGameState(players = List.empty, gamePhase = AskPlayAgainPhase)
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.description(
         game
@@ -995,7 +1003,7 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "return gamePhase.toString for other phases" in {
       val game = createGameState(players = List.empty, gamePhase = AttackPhase)
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
       tui.description(game) shouldBe "AttackPhase"
     }
@@ -1006,7 +1014,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List(player),
         gamePhase = DrawPhase
       )
-      val controller = new Controller(game, UndoRedoManager())
+      val controller = Controller(game, UndoRedoManager())
       val tui = new TUI(controller)
 
       val stream = new ByteArrayOutputStream()

@@ -5,43 +5,88 @@ package de.htwg.DurakApp.model
   * This is the public port to the Model component. All external access to model
   * types must go through this interface.
   *
-  * Exports:
-  *   - Basic types: Card, Player, Rank, Suit, GameState
-  *   - Builder: GameStateBuilder
-  *   - Game phases: All phase implementations
-  *   - Events: GameEvent
+  * Provides factory methods for creating model objects through traits only.
+  * Implementation details are hidden in the impl package.
   */
 object ModelInterface:
-  export de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameState}
-  export de.htwg.DurakApp.model.builder.GameStateBuilder
-  export de.htwg.DurakApp.model.state.{
-    GamePhase,
-    GameEvent,
-    SetupPhase,
-    AskPlayerCountPhase,
-    AskPlayerNamesPhase,
-    AskDeckSizePhase,
-    AskPlayAgainPhase,
-    GameStartPhase,
-    AttackPhase,
-    DefensePhase,
-    DrawPhase,
-    RoundPhase,
-    EndPhase
-  }
+  type Card = de.htwg.DurakApp.model.Card
+  type Player = de.htwg.DurakApp.model.Player
+  type GameState = de.htwg.DurakApp.model.GameState
+  type Rank = de.htwg.DurakApp.model.Rank
+  type Suit = de.htwg.DurakApp.model.Suit
+  type GamePhase = de.htwg.DurakApp.model.state.GamePhase
+  type GameEvent = de.htwg.DurakApp.model.state.GameEvent
 
-/** GameState Interface
-  *
-  * Defines the external contract for accessing game state. All implementations
-  * must provide these methods.
-  */
-trait GameStateInterface:
-  def players: List[Player]
-  def deck: List[Card]
-  def table: Map[Card, Option[Card]]
-  def discardPile: List[Card]
-  def trumpCard: Card
-  def attackerIndex: Int
-  def defenderIndex: Int
-  def gamePhase: de.htwg.DurakApp.model.state.GamePhase
-  def toBuilder: de.htwg.DurakApp.model.builder.GameStateBuilder
+  val Rank = de.htwg.DurakApp.model.Rank
+  val Suit = de.htwg.DurakApp.model.Suit
+  val GameEvent = de.htwg.DurakApp.model.state.GameEvent
+
+  val SetupPhase = de.htwg.DurakApp.model.state.SetupPhase
+  val AskPlayerCountPhase = de.htwg.DurakApp.model.state.AskPlayerCountPhase
+  val AskPlayerNamesPhase = de.htwg.DurakApp.model.state.AskPlayerNamesPhase
+  val AskDeckSizePhase = de.htwg.DurakApp.model.state.AskDeckSizePhase
+  val AskPlayAgainPhase = de.htwg.DurakApp.model.state.AskPlayAgainPhase
+  val GameStartPhase = de.htwg.DurakApp.model.state.GameStartPhase
+  val AttackPhase = de.htwg.DurakApp.model.state.AttackPhase
+  val DefensePhase = de.htwg.DurakApp.model.state.DefensePhase
+  val DrawPhase = de.htwg.DurakApp.model.state.DrawPhase
+  val RoundPhase = de.htwg.DurakApp.model.state.RoundPhase
+  val EndPhase = de.htwg.DurakApp.model.state.EndPhase
+
+  object GameStateBuilder:
+    def apply(): de.htwg.DurakApp.model.builder.GameStateBuilder =
+      de.htwg.DurakApp.model.builder.GameStateBuilder()
+
+  object Card:
+    def apply(
+        suit: Suit,
+        rank: Rank,
+        isTrump: Boolean = false
+    ): de.htwg.DurakApp.model.Card =
+      de.htwg.DurakApp.model.Card(suit, rank, isTrump)
+
+  object Player:
+    def apply(
+        name: String,
+        hand: List[Card] = List(),
+        isDone: Boolean = false
+    ): de.htwg.DurakApp.model.Player =
+      de.htwg.DurakApp.model.Player(name, hand, isDone)
+
+  object GameState:
+    def apply(
+        players: List[Player],
+        deck: List[Card],
+        table: Map[Card, Option[Card]],
+        discardPile: List[Card],
+        trumpCard: Card,
+        attackerIndex: Int,
+        defenderIndex: Int,
+        gamePhase: de.htwg.DurakApp.model.state.GamePhase,
+        lastEvent: Option[de.htwg.DurakApp.model.state.GameEvent] = None,
+        passedPlayers: Set[Int] = Set.empty,
+        roundWinner: Option[Int] = None,
+        setupPlayerCount: Option[Int] = None,
+        setupPlayerNames: List[String] = List.empty,
+        setupDeckSize: Option[Int] = None,
+        currentAttackerIndex: Option[Int] = None,
+        lastAttackerIndex: Option[Int] = None
+    ): de.htwg.DurakApp.model.GameState =
+      de.htwg.DurakApp.model.GameState(
+        players,
+        deck,
+        table,
+        discardPile,
+        trumpCard,
+        attackerIndex,
+        defenderIndex,
+        gamePhase,
+        lastEvent,
+        passedPlayers,
+        roundWinner,
+        setupPlayerCount,
+        setupPlayerNames,
+        setupDeckSize,
+        currentAttackerIndex,
+        lastAttackerIndex
+      )

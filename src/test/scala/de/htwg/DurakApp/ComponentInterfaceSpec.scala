@@ -9,9 +9,8 @@ import de.htwg.DurakApp.util.{Observable, Observer, UndoRedoManager}
 
 class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
 
-
   class MockController(initialState: GameState)
-      extends ControllerTrait
+      extends Controller
       with Observable {
     private var _gameState: GameState = initialState
     private val _actionHistory =
@@ -100,9 +99,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  class SpyController(real: Controller)
-      extends ControllerTrait
-      with Observable {
+  class SpyController(real: Controller) extends Controller with Observable {
     var processPlayerActionCallCount = 0
     var undoCallCount = 0
     var redoCallCount = 0
@@ -147,7 +144,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  class FakeController extends ControllerTrait with Observable {
+  class FakeController extends Controller with Observable {
     private var _state = StubGameState.setupStub()
     private var _undoAvailable = false
 
@@ -171,7 +168,6 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     override def getStatusString(): String = "FakeController"
     override def gameState: GameState = _state
   }
-
 
   "A MockController through ControllerInterface" should {
 
@@ -242,7 +238,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
 
     "count processPlayerAction calls" in {
       val realController =
-        new Controller(StubGameState.setupStub(), UndoRedoManager())
+        Controller(StubGameState.setupStub(), UndoRedoManager())
       val spy = new SpyController(realController)
 
       spy.processPlayerActionCallCount should be(0)
@@ -255,7 +251,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
 
     "count undo calls" in {
       val realController =
-        new Controller(StubGameState.setupStub(), UndoRedoManager())
+        Controller(StubGameState.setupStub(), UndoRedoManager())
       val spy = new SpyController(realController)
 
       spy.processPlayerAction(SetPlayerCountAction(2))
@@ -267,7 +263,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
 
     "delegate to real controller" in {
       val realController =
-        new Controller(StubGameState.setupStub(), UndoRedoManager())
+        Controller(StubGameState.setupStub(), UndoRedoManager())
       val spy = new SpyController(realController)
 
       val result = spy.processPlayerAction(SetPlayerCountAction(2))
@@ -331,7 +327,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
   "Real Controller through ControllerInterface" should {
 
     "be testable via interface" in {
-      val controller: ControllerTrait = new Controller(
+      val controller: Controller = Controller(
         StubGameState.setupStub(),
         UndoRedoManager()
       )
@@ -343,7 +339,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     }
 
     "support observer pattern" in {
-      val controller: ControllerTrait = new Controller(
+      val controller: Controller = Controller(
         StubGameState.setupStub(),
         UndoRedoManager()
       ).asInstanceOf[Controller]
@@ -362,13 +358,13 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     "work together through interfaces" in {
       val mock = new MockController(StubGameState.setupStub())
       val spy = new SpyController(
-        new Controller(StubGameState.setupStub(), UndoRedoManager())
+        Controller(StubGameState.setupStub(), UndoRedoManager())
       )
       val fake = new FakeController()
       val view = new MockView()
 
       // All implement the same interface
-      val controllers: List[ControllerTrait] = List(mock, spy, fake)
+      val controllers: List[Controller] = List(mock, spy, fake)
 
       controllers.foreach { controller =>
         controller.processPlayerAction(SetPlayerCountAction(2))

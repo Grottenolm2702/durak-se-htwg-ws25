@@ -18,7 +18,7 @@ class InputHandlerSpec extends AnyWordSpec with Matchers {
 
   "RedoHandler" should {
     "have next set to None by default" in {
-      val controller = new Controller(
+      val controller = Controller(
         GameStateBuilder().build(),
         UndoRedoManager()
       )
@@ -29,7 +29,7 @@ class InputHandlerSpec extends AnyWordSpec with Matchers {
 
   "UndoHandler" should {
     "have next set to None by default" in {
-      val controller = new Controller(
+      val controller = Controller(
         GameStateBuilder().build(),
         UndoRedoManager()
       )

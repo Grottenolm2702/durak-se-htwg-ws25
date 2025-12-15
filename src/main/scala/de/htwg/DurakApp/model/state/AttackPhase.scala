@@ -72,13 +72,18 @@ case object AttackPhase extends GamePhase {
 
     val defendingPlayer = gameState.players(gameState.defenderIndex)
     val undefendedAttacks = gameState.table.values.count(_.isEmpty)
-    if (gameState.table.size >= 6 || undefendedAttacks >= defendingPlayer.hand.size) {
+    if (
+      gameState.table.size >= 6 || undefendedAttacks >= defendingPlayer.hand.size
+    ) {
       return gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
     }
 
     val updatedPlayerHand = attackingPlayer.hand.filterNot(_ == card)
     val updatedPlayers =
-      gameState.players.updated(playerIndex, attackingPlayer.copy(hand = updatedPlayerHand))
+      gameState.players.updated(
+        playerIndex,
+        attackingPlayer.copy(hand = updatedPlayerHand)
+      )
     val updatedTable = gameState.table + (card -> None)
 
     gameState.copy(

@@ -7,15 +7,17 @@ import de.htwg.DurakApp.util.Observer
   * This is the public port to the View component. All external access to view
   * implementations must go through this interface.
   *
-  * Exports:
+  * Provides access to:
   *   - TUI: Text User Interface
   *   - DurakGUI: Graphical User Interface
   *
   * Views observe the controller and update when notified.
   */
 object ViewInterface:
-  export de.htwg.DurakApp.aview.tui.TUI
-  export de.htwg.DurakApp.aview.gui.DurakGUI
+  type TUI = de.htwg.DurakApp.aview.tui.TUI
+  type DurakGUI = de.htwg.DurakApp.aview.gui.DurakGUI
+
+  val TUI = de.htwg.DurakApp.aview.tui.TUI
 
 /** View Interface Trait
   *

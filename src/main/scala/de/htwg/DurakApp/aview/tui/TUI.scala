@@ -63,7 +63,7 @@ class TUI(controller: Controller) extends ViewInterface {
     case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
     case AskPlayerNamesPhase =>
       s"Spielername ${game.setupPlayerNames.length + 1}:"
-    case AskDeckSizePhase  => 
+    case AskDeckSizePhase =>
       val minSize = game.setupPlayerNames.size
       s"Deckgröße eingeben ($minSize-36):"
     case AskPlayAgainPhase => "Möchten Sie eine neue Runde spielen? (yes/no):"

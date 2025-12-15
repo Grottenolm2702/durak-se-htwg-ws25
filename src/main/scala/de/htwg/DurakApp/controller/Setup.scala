@@ -1,9 +1,14 @@
 package de.htwg.DurakApp.controller
 
-import de.htwg.DurakApp.model.*
+import de.htwg.DurakApp.model.ModelInterface.{
+  Card,
+  Player,
+  GameState,
+  Rank,
+  Suit,
+  GameStateBuilder
+}
 import de.htwg.DurakApp.model.state.SetupPhase
-
-import de.htwg.DurakApp.model.builder.GameStateBuilder
 
 import scala.util.Random
 
@@ -34,7 +39,8 @@ object Setup {
       return None
     }
 
-    val playersWithEmptyHands = playerNames.map(name => Player(name, List.empty))
+    val playersWithEmptyHands =
+      playerNames.map(name => Player(name, List.empty))
 
     val initialGameState = GameStateBuilder()
       .withPlayers(playersWithEmptyHands)

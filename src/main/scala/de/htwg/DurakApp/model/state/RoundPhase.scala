@@ -5,8 +5,9 @@ import de.htwg.DurakApp.model.GameState
 case object RoundPhase extends GamePhase {
   override def handle(gameState: GameState): GameState = {
     val remainingPlayersWithCards = gameState.players.filter(_.hand.nonEmpty)
-    val gameIsOver = remainingPlayersWithCards.size <= 1 && gameState.deck.isEmpty
-    
+    val gameIsOver =
+      remainingPlayersWithCards.size <= 1 && gameState.deck.isEmpty
+
     if (gameIsOver) {
       return EndPhase.handle(gameState)
     }

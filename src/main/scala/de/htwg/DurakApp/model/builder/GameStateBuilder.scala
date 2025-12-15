@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.model.builder
 
-import de.htwg.DurakApp.model.{Card, GameState, Player, Rank, Suit}
+import de.htwg.DurakApp.model.{Card, Player, Rank, Suit}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, SetupPhase}
 
 object GameStateBuilder {
@@ -74,8 +74,8 @@ case class GameStateBuilder(
   def withLastAttackerIndex(index: Option[Int]): GameStateBuilder =
     copy(lastAttackerIndex = index)
 
-  def build(): GameState = {
-    GameState(
+  def build(): de.htwg.DurakApp.model.GameState = {
+    de.htwg.DurakApp.model.GameState(
       players = players,
       deck = deck,
       table = table,

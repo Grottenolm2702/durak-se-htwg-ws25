@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.controller.command
 
-import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.ModelInterface.GameState
 import de.htwg.DurakApp.model.state.DefensePhase
 
 case class PassCommand() extends GameCommand {
