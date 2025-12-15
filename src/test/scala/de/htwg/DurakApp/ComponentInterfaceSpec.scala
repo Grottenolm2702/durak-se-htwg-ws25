@@ -14,7 +14,7 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
   class MockController(initialState: GameState)
       extends Controller
       with Observable {
-    private var _gameState: GameState = initialState
+    private val _gameStateRef = new java.util.concurrent.atomic.AtomicReference[GameState](initialState)
     private val _actionHistory =
       scala.collection.mutable.ListBuffer.empty[PlayerAction]
     private val _undoStack =
@@ -22,102 +22,116 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
     private val _redoStack =
       scala.collection.mutable.ListBuffer.empty[GameState]
 
-    var processPlayerActionCalled = false
-    var undoCalled = false
-    var redoCalled = false
+    private val processPlayerActionCalledRef = new java.util.concurrent.atomic.AtomicBoolean(false)
+    private val undoCalledRef = new java.util.concurrent.atomic.AtomicBoolean(false)
+    private val redoCalledRef = new java.util.concurrent.atomic.AtomicBoolean(false)
+    
+    def processPlayerActionCalled: Boolean = processPlayerActionCalledRef.get()
+    def undoCalled: Boolean = undoCalledRef.get()
+    def redoCalled: Boolean = redoCalledRef.get()
 
     override def processPlayerAction(action: PlayerAction): GameState = {
-      processPlayerActionCalled = true
+      processPlayerActionCalledRef.set(true)
       _actionHistory += action
-      _undoStack += _gameState
+      _undoStack += _gameStateRef.get()
       _redoStack.clear()
 
+      val currentState = _gameStateRef.get()
       val newState = action match {
         case SetPlayerCountAction(count) =>
-          _gameState.copy(
+          currentState.copy(
             setupPlayerCount = Some(count),
             gamePhase =
               if (count >= 2 && count <= 6) AskPlayerNamesPhase
-              else _gameState.gamePhase,
+              else currentState.gamePhase,
             lastEvent =
               if (count >= 2 && count <= 6) Some(GameEvent.AskPlayerNames)
               else Some(GameEvent.SetupError)
           )
         case AddPlayerNameAction(name) =>
-          val newNames = _gameState.setupPlayerNames :+ name
-          val expectedCount = _gameState.setupPlayerCount.getOrElse(0)
-          _gameState.copy(
+          val newNames = currentState.setupPlayerNames :+ name
+          val expectedCount = currentState.setupPlayerCount.getOrElse(0)
+          currentState.copy(
             setupPlayerNames = newNames,
             gamePhase =
               if (newNames.length == expectedCount) AskDeckSizePhase
-              else _gameState.gamePhase
+              else currentState.gamePhase
           )
         case PlayCardAction(card) =>
-          _gameState.copy(
-            table = _gameState.table + (card -> None),
+          currentState.copy(
+            table = currentState.table + (card -> None),
             gamePhase = DefensePhase
           )
         case PassAction =>
-          _gameState.copy(lastEvent = Some(GameEvent.Pass))
-        case _ => _gameState
+          currentState.copy(lastEvent = Some(GameEvent.Pass))
+        case _ => currentState
       }
 
-      _gameState = newState
+      _gameStateRef.set(newState)
       notifyObservers
-      _gameState
+      _gameStateRef.get()
     }
 
     override def undo(): Option[GameState] = {
-      undoCalled = true
+      undoCalledRef.set(true)
       if (_undoStack.nonEmpty) {
-        _redoStack += _gameState
-        _gameState = _undoStack.remove(_undoStack.length - 1)
-        Some(_gameState)
+        _redoStack += _gameStateRef.get()
+        val restored = _undoStack.remove(_undoStack.length - 1)
+        _gameStateRef.set(restored)
+        Some(_gameStateRef.get())
       } else None
     }
 
     override def redo(): Option[GameState] = {
-      redoCalled = true
+      redoCalledRef.set(true)
       if (_redoStack.nonEmpty) {
-        _undoStack += _gameState
-        _gameState = _redoStack.remove(_redoStack.length - 1)
-        Some(_gameState)
+        _undoStack += _gameStateRef.get()
+        val restored = _redoStack.remove(_redoStack.length - 1)
+        _gameStateRef.set(restored)
+        Some(_gameStateRef.get())
       } else None
     }
 
-    override def getStatusString(): String = _gameState.gamePhase.toString
-    override def gameState: GameState = _gameState
+    override def getStatusString(): String = _gameStateRef.get().gamePhase.toString
+    override def gameState: GameState = _gameStateRef.get()
 
     def actionHistory: List[PlayerAction] = _actionHistory.toList
   }
 
   class MockView extends ViewInterface {
-    var updateCalled = false
-    var updateCount = 0
+    private val updateCalledRef = new java.util.concurrent.atomic.AtomicBoolean(false)
+    private val updateCountRef = new java.util.concurrent.atomic.AtomicInteger(0)
+    
+    def updateCalled: Boolean = updateCalledRef.get()
+    def updateCount: Int = updateCountRef.get()
 
     override def update: Unit = {
-      updateCalled = true
-      updateCount += 1
+      updateCalledRef.set(true)
+      updateCountRef.incrementAndGet()
     }
   }
 
   class SpyController(real: Controller) extends Controller with Observable {
-    var processPlayerActionCallCount = 0
-    var undoCallCount = 0
-    var redoCallCount = 0
+    private val processPlayerActionCallCountRef = new java.util.concurrent.atomic.AtomicInteger(0)
+    private val undoCallCountRef = new java.util.concurrent.atomic.AtomicInteger(0)
+    private val redoCallCountRef = new java.util.concurrent.atomic.AtomicInteger(0)
+    
+    def processPlayerActionCallCount: Int = processPlayerActionCallCountRef.get()
+    def undoCallCount: Int = undoCallCountRef.get()
+    def redoCallCount: Int = redoCallCountRef.get()
 
     override def processPlayerAction(action: PlayerAction): GameState = {
-      processPlayerActionCallCount += 1
+      processPlayerActionCallCountRef.incrementAndGet()
       real.processPlayerAction(action)
     }
 
     override def undo(): Option[GameState] = {
-      undoCallCount += 1
+      undoCallCountRef.incrementAndGet()
       real.undo()
     }
 
     override def redo(): Option[GameState] = {
-      redoCallCount += 1
+      redoCallCountRef.incrementAndGet()
       real.redo()
     }
 
@@ -147,28 +161,30 @@ class ComponentInterfaceSpec extends AnyWordSpec with Matchers {
   }
 
   class FakeController extends Controller with Observable {
-    private var _state = StubGameState.setupStub()
-    private var _undoAvailable = false
+    private val _stateRef = new java.util.concurrent.atomic.AtomicReference[GameState](StubGameState.setupStub())
+    private val _undoAvailableRef = new java.util.concurrent.atomic.AtomicBoolean(false)
 
     override def processPlayerAction(action: PlayerAction): GameState = {
-      _undoAvailable = true
+      _undoAvailableRef.set(true)
+      val currentState = _stateRef.get()
       action match {
         case SetPlayerCountAction(count) if count >= 2 =>
-          _state = _state.copy(
+          val newState = currentState.copy(
             setupPlayerCount = Some(count),
             gamePhase = AskPlayerNamesPhase
           )
+          _stateRef.set(newState)
         case _ =>
       }
       notifyObservers
-      _state
+      _stateRef.get()
     }
 
     override def undo(): Option[GameState] =
-      if (_undoAvailable) Some(_state) else None
+      if (_undoAvailableRef.get()) Some(_stateRef.get()) else None
     override def redo(): Option[GameState] = None
     override def getStatusString(): String = "FakeController"
-    override def gameState: GameState = _state
+    override def gameState: GameState = _stateRef.get()
   }
 
   "A MockController through ControllerInterface" should {

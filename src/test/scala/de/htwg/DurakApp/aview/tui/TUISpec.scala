@@ -666,20 +666,22 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
 
       class TestController(
-          var gs: GameState,
+          initialGs: GameState,
           undoManager: UndoRedoManager
       ) extends Observable
           with de.htwg.DurakApp.controller.Controller {
         val calls = new java.util.concurrent.atomic.AtomicInteger(0)
+        private val gsRef = new java.util.concurrent.atomic.AtomicReference[GameState](initialGs)
 
-        def gameState: GameState = gs
+        def gameState: GameState = gsRef.get()
 
         def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): de.htwg.DurakApp.model.GameState = {
           calls.incrementAndGet()
-          gs = gs.copy(lastEvent = Some(GameEvent.Pass))
-          gs
+          val newState = gsRef.get().copy(lastEvent = Some(GameEvent.Pass))
+          gsRef.set(newState)
+          gsRef.get()
         }
 
         def undo(): Option[GameState] = None
