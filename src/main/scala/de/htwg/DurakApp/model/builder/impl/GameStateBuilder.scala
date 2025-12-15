@@ -8,7 +8,7 @@ object GameStateBuilder {
     new GameStateBuilderImpl()
 }
 
-case class GameStateBuilderImpl(
+private[model] case class GameStateBuilderImpl(
     players: List[Player] = List.empty,
     deck: List[Card] = List.empty,
     table: Map[Card, Option[Card]] = Map.empty,
