@@ -2,7 +2,7 @@ package de.htwg.DurakApp.aview
 
 import de.htwg.DurakApp.util.Observer
 import de.htwg.DurakApp.aview.tui.{TUI as InternalTUI}
-import de.htwg.DurakApp.aview.gui.{DurakGUI as InternalDurakGUI}
+import de.htwg.DurakApp.aview.gui.{DurakGUI as InternalGUI}
 
 /** View Component Interface
   *
@@ -15,18 +15,26 @@ import de.htwg.DurakApp.aview.gui.{DurakGUI as InternalDurakGUI}
   *
   * Provides access to:
   *   - TUI: Text-based User Interface for console interaction
-  *   - DurakGUI: Graphical User Interface using JavaFX
+  *   - GUI: Graphical User Interface using JavaFX
   *
   * @example
   * {{{
   * import de.htwg.DurakApp.aview.ViewInterface.*
   * 
   * val tui = TUI(controller)
+  * val gui = GUI(controller)
   * controller.add(tui)
-  * tui.gameLoop()
+  * controller.add(gui)
   * }}}
   */
 object ViewInterface:
+  
+  // Type Aliases
+  
+  /** Type alias for the View trait.
+    * Base trait that all view implementations must extend.
+    */
+  type View = ViewInterface
   
   /** Type alias for the Text User Interface.
     * Provides console-based interaction with the game.
@@ -36,10 +44,35 @@ object ViewInterface:
   /** Type alias for the Graphical User Interface.
     * Provides JavaFX-based graphical interaction with the game.
     */
-  type DurakGUI = InternalDurakGUI
+  type GUI = InternalGUI
 
-  /** Factory object for creating TUI instances. */
-  val TUI = InternalTUI
+  // Factory Objects
+
+  /** Factory for creating TUI instances.
+    *
+    * The TUI provides a text-based console interface for playing Durak.
+    */
+  object TUI:
+    /** Creates a new TUI instance.
+      *
+      * @param controller The controller managing game state
+      * @return A new TUI instance
+      */
+    def apply(controller: de.htwg.DurakApp.controller.Controller): InternalTUI =
+      new InternalTUI(controller)
+  
+  /** Factory for creating GUI instances.
+    *
+    * The GUI provides a graphical JavaFX interface for playing Durak.
+    */
+  object GUI:
+    /** Creates a new GUI instance.
+      *
+      * @param controller The controller managing game state
+      * @return A new GUI instance
+      */
+    def apply(controller: de.htwg.DurakApp.controller.Controller): InternalGUI =
+      new InternalGUI(controller)
 
 /** View Interface Trait
   *

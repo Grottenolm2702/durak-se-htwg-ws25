@@ -10,10 +10,10 @@ import scalafx.application.Platform
 @main def run: Unit = {
   val initialGameState = GameStateBuilder().withGamePhase(SetupPhase).build()
   val controller = Controller(initialGameState, UndoRedoManager())
-  val tui = new TUI(controller)
+  val tui = TUI(controller)
 
   Platform.startup(() => {
-    val gui = new DurakGUI(controller)
+    val gui = GUI(controller)
     gui.start()
   })
 

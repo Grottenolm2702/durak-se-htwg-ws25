@@ -36,6 +36,8 @@ import de.htwg.DurakApp.model.state.{
   */
 object StateInterface:
   
+  // Type Aliases
+  
   /** Type alias for the game phase trait.
     * Represents the current phase of the game (e.g., Attack, Defense, Draw).
     */
@@ -45,6 +47,43 @@ object StateInterface:
     * Events represent state changes and actions in the game.
     */
   type GameEvent = InternalGameEvent
+  
+  // Phase Types
+  
+  /** Type alias for SetupPhase. */
+  type SetupPhase = InternalSetupPhase.type
+  
+  /** Type alias for AskPlayerCountPhase. */
+  type AskPlayerCountPhase = InternalAskPlayerCountPhase.type
+  
+  /** Type alias for AskPlayerNamesPhase. */
+  type AskPlayerNamesPhase = InternalAskPlayerNamesPhase.type
+  
+  /** Type alias for AskDeckSizePhase. */
+  type AskDeckSizePhase = InternalAskDeckSizePhase.type
+  
+  /** Type alias for AskPlayAgainPhase. */
+  type AskPlayAgainPhase = InternalAskPlayAgainPhase.type
+  
+  /** Type alias for GameStartPhase. */
+  type GameStartPhase = InternalGameStartPhase.type
+  
+  /** Type alias for AttackPhase. */
+  type AttackPhase = InternalAttackPhase.type
+  
+  /** Type alias for DefensePhase. */
+  type DefensePhase = InternalDefensePhase.type
+  
+  /** Type alias for DrawPhase. */
+  type DrawPhase = InternalDrawPhase.type
+  
+  /** Type alias for RoundPhase. */
+  type RoundPhase = InternalRoundPhase.type
+  
+  /** Type alias for EndPhase. */
+  type EndPhase = InternalEndPhase.type
+
+  // Enum Values
 
   /** Factory object for creating game events.
     * Provides access to all event types like Attack, Defend, Pass, etc.
