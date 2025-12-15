@@ -26,5 +26,12 @@ class CardSpec extends AnyWordSpec with Matchers {
       copied.rank shouldBe Rank.Ace
       copied.isTrump shouldBe true
     }
+    
+    "use default parameter isTrump=false when creating with suit and rank" in {
+      val card = Card(Suit.Spades, Rank.King)
+      card.suit shouldBe Suit.Spades
+      card.rank shouldBe Rank.King
+      card.isTrump shouldBe false
+    }
   }
 }

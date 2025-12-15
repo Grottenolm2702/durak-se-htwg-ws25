@@ -5,5 +5,5 @@ import de.htwg.DurakApp.model.{Card, Suit, Rank}
 private[model] case class CardImpl(
     suit: Suit,
     rank: Rank,
-    isTrump: Boolean = false
+    isTrump: Boolean
 ) extends Card

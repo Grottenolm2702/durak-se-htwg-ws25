@@ -4,6 +4,6 @@ import de.htwg.DurakApp.model.{Player, Card}
 
 private[model] case class PlayerImpl(
     name: String,
-    hand: List[Card] = List(),
-    isDone: Boolean = false
+    hand: List[Card],
+    isDone: Boolean
 ) extends Player

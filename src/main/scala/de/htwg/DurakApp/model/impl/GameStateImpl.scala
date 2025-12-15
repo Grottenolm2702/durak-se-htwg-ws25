@@ -13,14 +13,14 @@ private[model] case class GameStateImpl(
     attackerIndex: Int,
     defenderIndex: Int,
     gamePhase: GamePhase,
-    lastEvent: Option[GameEvent] = None,
-    passedPlayers: Set[Int] = Set.empty,
-    roundWinner: Option[Int] = None,
-    setupPlayerCount: Option[Int] = None,
-    setupPlayerNames: List[String] = List.empty,
-    setupDeckSize: Option[Int] = None,
-    currentAttackerIndex: Option[Int] = None,
-    lastAttackerIndex: Option[Int] = None
+    lastEvent: Option[GameEvent],
+    passedPlayers: Set[Int],
+    roundWinner: Option[Int],
+    setupPlayerCount: Option[Int],
+    setupPlayerNames: List[String],
+    setupDeckSize: Option[Int],
+    currentAttackerIndex: Option[Int],
+    lastAttackerIndex: Option[Int]
 ) extends GameState {
 
   def toBuilder: GameStateBuilder = {

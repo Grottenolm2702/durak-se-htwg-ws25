@@ -37,7 +37,6 @@ trait GamePhase {
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
 }
 
-// Phase implementations
 val SetupPhase: GamePhase = impl.SetupPhaseImpl
 val AskPlayerCountPhase: GamePhase = impl.AskPlayerCountPhaseImpl
 val AskPlayerNamesPhase: GamePhase = impl.AskPlayerNamesPhaseImpl
