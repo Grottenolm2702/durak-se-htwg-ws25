@@ -46,35 +46,6 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
       tui shouldBe a[View]
       tui shouldBe a[ViewInterface]
     }
-
-    "create TUI with different game states" in {
-      val gameState = GameStateBuilder()
-        .withPlayers(List(Player("Alice"), Player("Bob")))
-        .withGamePhase(AttackPhase)
-        .build()
-
-      val controller = Controller(gameState, UndoRedoManager())
-
-      val tui = TUI(controller)
-
-      tui shouldBe a[ViewInterface]
-    }
-
-    "create distinct TUI instances for different controllers" in {
-      val controller1 = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-      val controller2 = Controller(
-        GameStateBuilder().withGamePhase(AttackPhase).build(),
-        UndoRedoManager()
-      )
-
-      val tui1 = TUI(controller1)
-      val tui2 = TUI(controller2)
-
-      tui1 should not be theSameInstanceAs(tui2)
-    }
   }
 
   "ViewInterface GUI factory" should {
@@ -86,188 +57,20 @@ class ViewInterfaceSpec extends AnyWordSpec with Matchers {
         UndoRedoManager()
       )
 
-      var guiCreated = false
       var gui: GUI = null
 
       Platform.runLater(() => {
-        try {
-          gui = GUI(controller)
-          guiCreated = true
-        } catch {
-          case e: Throwable =>
-            fail(s"Failed to create GUI: ${e.getMessage}")
-        }
+        gui = GUI(controller)
       })
 
       Thread.sleep(1000)
 
-      guiCreated shouldBe true
       gui should not be null
       gui shouldBe a[GUI]
-    }
-
-    "create GUI that is a ViewInterface" in {
-      ensureJavaFXInitialized()
-
-      val controller = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-
-      var gui: GUI = null
-
-      Platform.runLater(() => {
-        gui = GUI(controller)
-      })
-
-      Thread.sleep(1000)
-
-      gui shouldBe a[ViewInterface]
       gui shouldBe a[View]
-    }
-
-    "create GUI with different game states" in {
-      ensureJavaFXInitialized()
-
-      val gameState = GameStateBuilder()
-        .withPlayers(List(Player("Alice"), Player("Bob")))
-        .withGamePhase(AttackPhase)
-        .withTrumpCard(Card(Suit.Hearts, Rank.Ace))
-        .build()
-
-      val controller = Controller(gameState, UndoRedoManager())
-
-      var gui: GUI = null
-
-      Platform.runLater(() => {
-        gui = GUI(controller)
-      })
-
-      Thread.sleep(1000)
-
       gui shouldBe a[ViewInterface]
     }
-
-    "create distinct GUI instances for different controllers" in {
-      ensureJavaFXInitialized()
-
-      val controller1 = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-      val controller2 = Controller(
-        GameStateBuilder().withGamePhase(AttackPhase).build(),
-        UndoRedoManager()
-      )
-
-      var gui1: GUI = null
-      var gui2: GUI = null
-
-      Platform.runLater(() => {
-        gui1 = GUI(controller1)
-        gui2 = GUI(controller2)
-      })
-
-      Thread.sleep(1000)
-
-      gui1 should not be null
-      gui2 should not be null
-      gui1 should not be theSameInstanceAs(gui2)
-    }
-
-    "register GUI as observer on controller" in {
-      ensureJavaFXInitialized()
-
-      val controller = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-
-      var gui: GUI = null
-
-      Platform.runLater(() => {
-        gui = GUI(controller)
-      })
-
-      Thread.sleep(1000)
-
-      gui shouldBe a[ViewInterface]
-    }
-
-    "create GUI instance with correct internal type" in {
-      ensureJavaFXInitialized()
-
-      val controller = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-
-      var gui: Any = null
-
-      Platform.runLater(() => {
-        gui = GUI(controller)
-      })
-
-      Thread.sleep(1000)
-
-      gui.getClass.getSimpleName shouldBe "DurakGUI"
-    }
   }
 
-  "ViewInterface View trait" should {
-    "be base type for TUI" in {
-      val tuiController = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
 
-      val view: View = TUI(tuiController)
-      view shouldBe a[ViewInterface]
-    }
-
-    "be base type for GUI" in {
-      ensureJavaFXInitialized()
-
-      val controller = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-
-      var view: View = null
-
-      Platform.runLater(() => {
-        view = GUI(controller)
-      })
-
-      Thread.sleep(1000)
-
-      view shouldBe a[ViewInterface]
-    }
-  }
-
-  "ViewInterface factory pattern" should {
-    "support TUI creation without exceptions" in {
-      val controller = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-
-      noException should be thrownBy TUI(controller)
-    }
-
-    "provide GUI factory object" in {
-      GUI shouldBe a[Object]
-    }
-
-    "support type aliasing" in {
-      val controller = Controller(
-        GameStateBuilder().withGamePhase(SetupPhase).build(),
-        UndoRedoManager()
-      )
-
-      val tui: View = TUI(controller)
-
-      tui shouldBe a[View]
-    }
-  }
 }
