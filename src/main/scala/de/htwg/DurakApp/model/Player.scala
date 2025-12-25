@@ -14,7 +14,7 @@ trait Player:
 object Player:
   def apply(
       name: String,
-      hand: List[Card],
-      isDone: Boolean
+      hand: List[Card] = List(),
+      isDone: Boolean = false
   ): Player =
     impl.PlayerImpl(name, hand, isDone)

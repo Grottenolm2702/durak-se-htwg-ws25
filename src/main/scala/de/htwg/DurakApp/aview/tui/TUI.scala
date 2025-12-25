@@ -1,14 +1,15 @@
 package de.htwg.DurakApp.aview.tui
 
-import de.htwg.DurakApp.aview.ViewInterface
+import de.htwg.DurakApp.util.Observer
 import de.htwg.DurakApp.aview.tui.handler._
-import de.htwg.DurakApp.controller.ControllerInterface.*
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
+import de.htwg.DurakApp.controller.*
+import de.htwg.DurakApp.model.*
+import de.htwg.DurakApp.model.state.*
+import com.google.inject.Inject
 
 import scala.io.StdIn.readLine
 
-class TUI(controller: Controller) extends ViewInterface {
+class TUI @Inject() (controller: Controller) extends Observer {
 
   import TUI._
 

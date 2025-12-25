@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.util
 
-import de.htwg.DurakApp.controller.ControllerInterface.GameCommand
-import de.htwg.DurakApp.model.ModelInterface.GameState
+import de.htwg.DurakApp.controller.command.GameCommand
+import de.htwg.DurakApp.model.GameState
 
 trait UndoRedoManager:
   def undoStack: List[(GameCommand, GameState)]

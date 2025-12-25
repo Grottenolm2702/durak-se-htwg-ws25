@@ -10,5 +10,7 @@ lazy val root = project
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test",
     libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test,
     libraryDependencies += "org.scalafx" %% "scalafx" % "23.0.1-R34",
+    libraryDependencies += "com.google.inject" % "guice" % "7.0.0",
+    libraryDependencies += "net.codingwell" %% "scala-guice" % "7.0.0",
     coverageExcludedFiles := ".*Main|.*gui.*"
   )

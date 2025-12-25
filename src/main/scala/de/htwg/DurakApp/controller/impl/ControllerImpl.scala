@@ -1,13 +1,10 @@
 package de.htwg.DurakApp.controller.impl
 
 import de.htwg.DurakApp.controller.Controller
-import de.htwg.DurakApp.model.ModelInterface.{GameState, GameEvent}
+import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.state.{GameEvent, SetupPhase, AskPlayerCountPhase, AskPlayerNamesPhase, AskDeckSizePhase, AskPlayAgainPhase}
 import de.htwg.DurakApp.util.{Observable, UndoRedoManager}
-import de.htwg.DurakApp.controller.command.CommandInterface.{
-  GameCommand,
-  CommandFactory,
-  PhaseChangeCommand
-}
+import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 import de.htwg.DurakApp.controller.{
   PlayerAction,
   PlayCardAction,
@@ -18,12 +15,13 @@ import de.htwg.DurakApp.controller.{
   AddPlayerNameAction,
   SetDeckSizeAction
 }
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 import scala.util.Random
+import com.google.inject.Inject
 
-private[controller] class ControllerImpl(
+private[controller] class ControllerImpl @Inject() (
     var gameState: GameState,
-    var undoRedoManager: UndoRedoManager
+    var undoRedoManager: UndoRedoManager,
+    commandFactory: CommandFactory.type
 ) extends Observable
     with Controller {
 
@@ -125,7 +123,7 @@ private[controller] class ControllerImpl(
       case _ =>
         val oldGameStateBeforeAction = this.gameState
         val result =
-          CommandFactory.createCommand(action, oldGameStateBeforeAction)
+          commandFactory.createCommand(action, oldGameStateBeforeAction)
 
         result match {
           case Left(event) =>
@@ -152,7 +150,7 @@ private[controller] class ControllerImpl(
               if (nextState != currentState) {
                 this.gameState = nextState
                 this.undoRedoManager = currentUndoRedoManager.save(
-                  PhaseChangeCommand(),
+                  commandFactory.phaseChange(),
                   oldPhaseStateBeforeHandle
                 )
                 notifyObservers

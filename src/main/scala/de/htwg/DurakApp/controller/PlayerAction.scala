@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.controller
 
-import de.htwg.DurakApp.model.ModelInterface.Card
+import de.htwg.DurakApp.model.Card
 
 /** Sealed trait representing all possible player actions in the game.
   *

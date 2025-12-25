@@ -1,9 +1,10 @@
 package de.htwg.DurakApp.aview.gui
 
-import de.htwg.DurakApp.aview.ViewInterface
-import de.htwg.DurakApp.controller.ControllerInterface.*
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
+import de.htwg.DurakApp.util.Observer
+import de.htwg.DurakApp.controller.*
+import de.htwg.DurakApp.model.*
+import de.htwg.DurakApp.model.state.*
+import com.google.inject.Inject
 import scalafx.application.Platform
 import scalafx.beans.binding.Bindings
 import scalafx.beans.property.ObjectProperty
@@ -19,7 +20,7 @@ import scalafx.Includes.*
 import scalafx.collections.ObservableBuffer
 import scala.util.{Try, Success, Failure}
 
-class DurakGUI(controller: Controller) extends ViewInterface {
+class DurakGUI @Inject() (controller: Controller) extends Observer {
   controller.add(this)
 
   private val selectedCard = ObjectProperty[Option[Card]](None)

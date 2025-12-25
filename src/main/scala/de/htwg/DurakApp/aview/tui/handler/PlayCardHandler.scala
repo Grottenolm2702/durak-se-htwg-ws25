@@ -1,12 +1,12 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.ControllerInterface.{
+import de.htwg.DurakApp.controller.{
   PlayerAction,
   PlayCardAction,
   InvalidAction
 }
-import de.htwg.DurakApp.model.ModelInterface.{GameState, StateInterface}
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.DefensePhase
+import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.state.DefensePhase
 
 import scala.util.{Failure, Success, Try}
 

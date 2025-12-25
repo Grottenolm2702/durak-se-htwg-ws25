@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.controller.command.impl
 
-import de.htwg.DurakApp.model.ModelInterface.{GameState, GameEvent}
+import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.state.GameEvent
 
 import de.htwg.DurakApp.controller.{
   PlayerAction,

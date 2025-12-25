@@ -1,14 +1,14 @@
 package de.htwg.DurakApp.controller.impl
 
-import de.htwg.DurakApp.model.ModelInterface.{
+import de.htwg.DurakApp.model.{
   Card,
   Player,
   GameState,
   Rank,
-  Suit,
-  GameStateBuilder
+  Suit
 }
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.SetupPhase
+import de.htwg.DurakApp.model.builder.GameStateBuilder
+import de.htwg.DurakApp.model.state.SetupPhase
 
 import scala.util.Random
 

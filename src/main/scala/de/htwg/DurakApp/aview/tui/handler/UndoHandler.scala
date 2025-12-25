@@ -1,12 +1,12 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.ControllerInterface.{
+import de.htwg.DurakApp.controller.{
   Controller,
   PlayerAction,
   UndoAction,
   InvalidAction
 }
-import de.htwg.DurakApp.model.ModelInterface.GameState
+import de.htwg.DurakApp.model.GameState
 
 class UndoHandler(
     controller: Controller,

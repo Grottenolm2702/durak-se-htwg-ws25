@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.controller
 
-import de.htwg.DurakApp.model.ModelInterface.GameState
+import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 
 /** Controller trait for managing game flow and state transitions.
@@ -103,4 +103,5 @@ object Controller:
       gameState: GameState,
       undoRedoManager: UndoRedoManager
   ): Controller =
-    impl.ControllerImpl(gameState, undoRedoManager)
+    import de.htwg.DurakApp.controller.command.CommandFactory
+    impl.ControllerImpl(gameState, undoRedoManager, CommandFactory)

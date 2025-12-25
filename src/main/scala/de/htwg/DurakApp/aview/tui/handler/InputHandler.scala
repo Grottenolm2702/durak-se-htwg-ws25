@@ -1,10 +1,10 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.ControllerInterface.{
+import de.htwg.DurakApp.controller.{
   InvalidAction,
   PlayerAction
 }
-import de.htwg.DurakApp.model.ModelInterface.GameState
+import de.htwg.DurakApp.model.GameState
 
 trait InputHandler {
   val next: Option[InputHandler]

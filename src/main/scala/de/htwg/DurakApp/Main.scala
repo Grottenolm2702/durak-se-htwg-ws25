@@ -1,19 +1,19 @@
 package de.htwg.DurakApp
 
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
-import de.htwg.DurakApp.controller.ControllerInterface.*
-import de.htwg.DurakApp.aview.ViewInterface.*
-import de.htwg.DurakApp.util.UndoRedoManager
+import com.google.inject.Guice
+import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.aview.tui.TUI
+import de.htwg.DurakApp.aview.gui.DurakGUI
 import scalafx.application.Platform
 
 @main def run: Unit = {
-  val initialGameState = GameStateBuilder().withGamePhase(SetupPhase).build()
-  val controller = Controller(initialGameState, UndoRedoManager())
-  val tui = TUI(controller)
+  val injector = Guice.createInjector(new DurakModule)
+  
+  // Get TUI and GUI through dependency injection
+  val tui = injector.getInstance(classOf[TUI])
+  val gui = injector.getInstance(classOf[DurakGUI])
 
   Platform.startup(() => {
-    val gui = GUI(controller)
     gui.start()
   })
 
