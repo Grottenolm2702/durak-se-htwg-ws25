@@ -31,6 +31,7 @@ class DurakModule extends AbstractModule with ScalaModule:
     builderFactory.create().withGamePhase(SetupPhase).build()
   
   @Provides
+  @Singleton
   def provideController(
       gameState: GameState, 
       undoRedoManager: UndoRedoManager,

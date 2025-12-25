@@ -9,11 +9,12 @@ import scalafx.application.Platform
 @main def run: Unit = {
   val injector = Guice.createInjector(new DurakModule)
   
-  // Get TUI and GUI through dependency injection
+  // Get TUI through dependency injection
   val tui = injector.getInstance(classOf[TUI])
-  val gui = injector.getInstance(classOf[DurakGUI])
 
   Platform.startup(() => {
+    // Get GUI after Platform is initialized
+    val gui = injector.getInstance(classOf[DurakGUI])
     gui.start()
   })
 
