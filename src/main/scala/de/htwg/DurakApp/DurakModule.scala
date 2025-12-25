@@ -37,4 +37,4 @@ class DurakModule extends AbstractModule with ScalaModule:
       undoRedoManager: UndoRedoManager,
       commandFactory: CommandFactory.type
   ): Controller =
-    Controller(gameState, undoRedoManager)
+    Controller(gameState, undoRedoManager, commandFactory)

@@ -15,16 +15,16 @@ object GameCommand:
       action: de.htwg.DurakApp.controller.PlayerAction,
       gameState: GameState
   ): Either[de.htwg.DurakApp.model.state.GameEvent, GameCommand] =
-    impl.CommandFactory.createCommand(action, gameState)
+    CommandFactory.createCommand(action, gameState)
   
   def playCard(card: de.htwg.DurakApp.model.Card): GameCommand =
-    impl.PlayCardCommand(card)
+    CommandFactory.playCard(card)
   
   def pass(): GameCommand =
-    impl.PassCommand()
+    CommandFactory.pass()
   
   def takeCards(): GameCommand =
-    impl.TakeCardsCommand()
+    CommandFactory.takeCards()
   
   def phaseChange(): GameCommand =
-    impl.PhaseChangeCommand()
+    CommandFactory.phaseChange()

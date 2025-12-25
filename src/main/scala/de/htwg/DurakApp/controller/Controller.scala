@@ -105,3 +105,21 @@ object Controller:
   ): Controller =
     import de.htwg.DurakApp.controller.command.CommandFactory
     impl.ControllerImpl(gameState, undoRedoManager, CommandFactory)
+  
+  /** Creates a new Controller with explicit CommandFactory (for DI).
+    *
+    * @param gameState
+    *   The initial game state
+    * @param undoRedoManager
+    *   The manager for undo/redo command history
+    * @param commandFactory
+    *   The command factory to use
+    * @return
+    *   A new Controller instance
+    */
+  def apply(
+      gameState: GameState,
+      undoRedoManager: UndoRedoManager,
+      commandFactory: command.CommandFactory.type
+  ): Controller =
+    impl.ControllerImpl(gameState, undoRedoManager, commandFactory)
