@@ -1,9 +1,7 @@
 package de.htwg.DurakApp.controller
 
-// Model Component (Trait only)
 import de.htwg.DurakApp.model.GameState
 
-// Util Component (Traits only)
 import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 
 /** Controller trait for managing game flow and state transitions.
@@ -15,9 +13,6 @@ import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
   *
   * The Controller follows the Command pattern for undo/redo functionality,
   * allowing players to reverse and replay their actions.
-  * 
-  * NOTE: Use Guice DI to obtain instances - do not use the companion object
-  * in production code! See DurakModule for DI configuration.
   */
 trait Controller:
 

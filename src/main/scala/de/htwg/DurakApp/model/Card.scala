@@ -3,7 +3,6 @@ package de.htwg.DurakApp.model
 /** Trait representing a playing card in the Durak game.
   *
   * Use the companion object factory methods to create instances.
-  * Do not reference impl classes directly outside this file.
   */
 trait Card:
   def suit: Suit

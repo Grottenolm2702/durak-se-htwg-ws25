@@ -1,9 +1,7 @@
 package de.htwg.DurakApp.util
 
-// Controller Component (Command only)
 import de.htwg.DurakApp.controller.command.GameCommand
 
-// Model Component (Trait only)
 import de.htwg.DurakApp.model.GameState
 
 /** Manager for undo/redo functionality using the Command pattern.

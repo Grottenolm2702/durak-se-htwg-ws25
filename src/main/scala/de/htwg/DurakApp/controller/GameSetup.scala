@@ -5,8 +5,7 @@ import de.htwg.DurakApp.model.GameState
 /** Trait for game setup operations.
   *
   * Handles the initialization of a new game with the given player names and
-  * deck size. This abstraction allows for different setup implementations and
-  * facilitates dependency injection and testing.
+  * deck size.
   */
 trait GameSetup:
   /** Sets up a new game with the specified players and deck size.
