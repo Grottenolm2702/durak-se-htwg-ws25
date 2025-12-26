@@ -145,6 +145,11 @@ trait GameState:
     lastAttackerIndex
   )
 
+/** Factory for creating GameState instances.
+  * 
+  * This companion object is the only place that references impl.GameStateImpl.
+  * All other code should use GameState(...) to create instances.
+  */
 object GameState:
   def apply(
       players: List[Player],

@@ -1,10 +1,20 @@
 package de.htwg.DurakApp.aview.tui
 
+// Utilities (Trait)
 import de.htwg.DurakApp.util.Observer
-import de.htwg.DurakApp.aview.tui.handler._
+
+// Controller Component (Trait + Actions)
+import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.controller.*
-import de.htwg.DurakApp.model.*
-import de.htwg.DurakApp.model.state.*
+
+// Model Component (Traits + Types)
+import de.htwg.DurakApp.model.{Card, Player, GameState, Rank, Suit}
+import de.htwg.DurakApp.model.state.{GamePhase, GameEvent, SetupPhase, AskPlayerCountPhase, AskPlayerNamesPhase, AskDeckSizePhase, AskPlayAgainPhase, AttackPhase, DefensePhase, DrawPhase}
+
+// View Components
+import de.htwg.DurakApp.aview.tui.handler._
+
+// Dependency Injection
 import com.google.inject.Inject
 
 import scala.io.StdIn.readLine

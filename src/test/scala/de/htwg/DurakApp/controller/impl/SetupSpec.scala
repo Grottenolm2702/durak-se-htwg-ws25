@@ -5,25 +5,14 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.ModelInterface.*
 import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
 import de.htwg.DurakApp.controller.ControllerInterface.*
-import de.htwg.DurakApp.controller.impl.Setup
+import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 
 import scala.util.Random
 
 class SetupSpec extends AnyWordSpec with Matchers {
-  "The Setup object" should {
-    "create a deck of the specified size" in {
-      val deck = Setup.createDeck(36)
-      deck.length shouldBe 36
-      deck.foreach(_.isTrump shouldBe false)
-      deck.distinct.length shouldBe 36
-    }
-
-    "create a smaller deck if requested size exceeds available cards" in {
-      val deck = Setup.createDeck(100)
-      deck.length shouldBe (Suit.values.length * Rank.values.length)
-      deck.distinct.length shouldBe (Suit.values.length * Rank.values.length)
-    }
-
+  val gameSetup = GameSetupImpl(GameStateBuilderFactory())
+  
+  "The GameSetup implementation" should {
     "dealCards should handle handSize == 0 (no cards dealt to any player)" in {
       val players = List(
         Player(
@@ -62,7 +51,7 @@ class SetupSpec extends AnyWordSpec with Matchers {
 
     "setup game correctly with default deck size" in {
       val playerNames = List("Alice", "Bob")
-      val gameState = Setup.setupGame(playerNames, 36).get
+      val gameState = gameSetup.setupGame(playerNames, 36).get
 
       gameState.players.size.shouldBe(2)
       gameState.players.foreach(_.name.shouldNot(be(empty)))
@@ -120,12 +109,12 @@ class SetupSpec extends AnyWordSpec with Matchers {
     }
 
     "return None for less than two players" in {
-      val gameState = Setup.setupGame(List("Alice"), 36)
+      val gameState = gameSetup.setupGame(List("Alice"), 36)
       gameState shouldBe None
     }
 
     "return None for not enough cards for players" in {
-      val gameState = Setup.setupGame(List("Alice", "Bob"), 1)
+      val gameState = gameSetup.setupGame(List("Alice", "Bob"), 1)
       gameState shouldBe None
     }
   }

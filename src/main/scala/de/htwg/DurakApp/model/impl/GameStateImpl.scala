@@ -24,7 +24,8 @@ private[model] case class GameStateImpl(
 ) extends GameState {
 
   def toBuilder: GameStateBuilder = {
-    GameStateBuilder()
+    // Create builder implementation directly since we're in the impl package
+    de.htwg.DurakApp.model.builder.impl.GameStateBuilder()
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)

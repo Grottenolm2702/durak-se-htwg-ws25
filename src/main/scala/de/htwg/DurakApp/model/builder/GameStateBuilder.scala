@@ -3,6 +3,11 @@ package de.htwg.DurakApp.model.builder
 import de.htwg.DurakApp.model.{Card, Player, GameState}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
 
+/** Builder for constructing GameState instances with fluent API.
+  *
+  * Instances are created through GameStateBuilderFactory (via DI).
+  * Do not instantiate manually - inject GameStateBuilderFactory instead.
+  */
 trait GameStateBuilder {
   def withPlayers(newPlayers: List[Player]): GameStateBuilder
   def withDeck(newDeck: List[Card]): GameStateBuilder
@@ -21,8 +26,4 @@ trait GameStateBuilder {
   def withCurrentAttackerIndex(index: Option[Int]): GameStateBuilder
   def withLastAttackerIndex(index: Option[Int]): GameStateBuilder
   def build(): GameState
-}
-
-object GameStateBuilder {
-  def apply(): GameStateBuilder = impl.GameStateBuilder()
 }

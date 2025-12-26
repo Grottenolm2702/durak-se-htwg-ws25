@@ -1,8 +1,16 @@
 package de.htwg.DurakApp.util
 
+// Controller Component (Command only)
 import de.htwg.DurakApp.controller.command.GameCommand
+
+// Model Component (Trait only)
 import de.htwg.DurakApp.model.GameState
 
+/** Manager for undo/redo functionality using the Command pattern.
+  *
+  * Instances are created through Guice DI (see DurakModule).
+  * Do not instantiate manually - inject this trait instead.
+  */
 trait UndoRedoManager:
   def undoStack: List[(GameCommand, GameState)]
   def redoStack: List[(GameCommand, GameState)]
@@ -10,5 +18,10 @@ trait UndoRedoManager:
   def undo(currentGameState: GameState): Option[(UndoRedoManager, GameState)]
   def redo(currentGameState: GameState): Option[(UndoRedoManager, GameState)]
 
-object UndoRedoManager:
-  def apply(): UndoRedoManager = impl.UndoRedoManagerImpl(Nil, Nil)
+/** Factory for creating new UndoRedoManager instances.
+  * 
+  * Used when a fresh manager is needed (e.g., starting a new game).
+  * Inject this factory via Guice DI.
+  */
+trait UndoRedoManagerFactory:
+  def create(): UndoRedoManager

@@ -1,9 +1,9 @@
 package de.htwg.DurakApp.controller.impl
 
-import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.{GameEvent, SetupPhase, AskPlayerCountPhase, AskPlayerNamesPhase, AskDeckSizePhase, AskPlayAgainPhase}
-import de.htwg.DurakApp.util.{Observable, UndoRedoManager}
+import de.htwg.DurakApp.util.{Observable, UndoRedoManager, UndoRedoManagerFactory}
 import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 import de.htwg.DurakApp.controller.{
   PlayerAction,
@@ -18,10 +18,17 @@ import de.htwg.DurakApp.controller.{
 import scala.util.Random
 import com.google.inject.Inject
 
-private[controller] class ControllerImpl @Inject() (
+/** Implementation of Controller trait.
+  * 
+  * This class is package-private and should only be instantiated through
+  * Guice DI (see DurakModule).
+  */
+class ControllerImpl @Inject() (
     var gameState: GameState,
     var undoRedoManager: UndoRedoManager,
-    commandFactory: CommandFactory.type
+    commandFactory: CommandFactory.type,
+    gameSetup: GameSetup,
+    undoRedoManagerFactory: UndoRedoManagerFactory
 ) extends Observable
     with Controller {
 
@@ -66,11 +73,7 @@ private[controller] class ControllerImpl @Inject() (
           case SetDeckSizeAction(size) =>
             val minSize = gameState.setupPlayerNames.size
             if (size >= minSize && size <= 36) {
-              val initializedGameState =
-                de.htwg.DurakApp.controller.impl.Setup
-                  .setupGame(gameState.setupPlayerNames, size)
-
-              initializedGameState match {
+              gameSetup.setupGame(gameState.setupPlayerNames, size) match {
                 case Some(newGameState) =>
                   gameState = newGameState.copy(
                     lastEvent = Some(GameEvent.GameSetupComplete),
@@ -97,8 +100,7 @@ private[controller] class ControllerImpl @Inject() (
             val newPlayerNames = gameState.setupPlayerNames
             val newDeckSize = gameState.setupDeckSize.getOrElse(36)
 
-            de.htwg.DurakApp.controller.impl.Setup
-              .setupGame(newPlayerNames, newDeckSize) match {
+            gameSetup.setupGame(newPlayerNames, newDeckSize) match {
               case Some(newGameState) =>
                 gameState = newGameState.copy(
                   setupPlayerCount = Some(newPlayerNames.size),
@@ -106,7 +108,8 @@ private[controller] class ControllerImpl @Inject() (
                   setupDeckSize = Some(newDeckSize),
                   lastEvent = Some(GameEvent.GameSetupComplete)
                 )
-                undoRedoManager = UndoRedoManager()
+                // Reset undo/redo manager for new game using factory
+                undoRedoManager = undoRedoManagerFactory.create()
               case None =>
                 gameState =
                   gameState.copy(lastEvent = Some(GameEvent.SetupError))

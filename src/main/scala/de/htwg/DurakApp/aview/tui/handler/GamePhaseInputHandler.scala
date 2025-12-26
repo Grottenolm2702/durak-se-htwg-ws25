@@ -1,8 +1,11 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.*
-import de.htwg.DurakApp.model.*
-import de.htwg.DurakApp.model.state.*
+// Controller Component (Trait + Actions only)
+import de.htwg.DurakApp.controller.{PlayerAction, SetPlayerCountAction, AddPlayerNameAction, SetDeckSizeAction, PlayAgainAction, ExitGameAction, InvalidAction}
+
+// Model Component (Trait + Types only)
+import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.state.{GamePhase, SetupPhase, AskPlayerCountPhase, AskPlayerNamesPhase, AskDeckSizePhase, AskPlayAgainPhase}
 
 import scala.util.Try
 

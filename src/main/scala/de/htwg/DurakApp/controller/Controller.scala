@@ -1,6 +1,9 @@
 package de.htwg.DurakApp.controller
 
+// Model Component (Trait only)
 import de.htwg.DurakApp.model.GameState
+
+// Util Component (Traits only)
 import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 
 /** Controller trait for managing game flow and state transitions.
@@ -12,6 +15,9 @@ import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
   *
   * The Controller follows the Command pattern for undo/redo functionality,
   * allowing players to reverse and replay their actions.
+  * 
+  * NOTE: Use Guice DI to obtain instances - do not use the companion object
+  * in production code! See DurakModule for DI configuration.
   */
 trait Controller:
 
@@ -87,39 +93,3 @@ trait Controller:
     * Called internally after state changes to update all views.
     */
   def notifyObservers: Unit
-
-/** Factory object for creating Controller instances. */
-object Controller:
-  /** Creates a new Controller.
-    *
-    * @param gameState
-    *   The initial game state
-    * @param undoRedoManager
-    *   The manager for undo/redo command history
-    * @return
-    *   A new Controller instance
-    */
-  def apply(
-      gameState: GameState,
-      undoRedoManager: UndoRedoManager
-  ): Controller =
-    import de.htwg.DurakApp.controller.command.CommandFactory
-    impl.ControllerImpl(gameState, undoRedoManager, CommandFactory)
-  
-  /** Creates a new Controller with explicit CommandFactory (for DI).
-    *
-    * @param gameState
-    *   The initial game state
-    * @param undoRedoManager
-    *   The manager for undo/redo command history
-    * @param commandFactory
-    *   The command factory to use
-    * @return
-    *   A new Controller instance
-    */
-  def apply(
-      gameState: GameState,
-      undoRedoManager: UndoRedoManager,
-      commandFactory: command.CommandFactory.type
-  ): Controller =
-    impl.ControllerImpl(gameState, undoRedoManager, commandFactory)

@@ -1,5 +1,15 @@
 package de.htwg.DurakApp.model
 
+/** Factory objects for creating model instances.
+  * 
+  * These factories are bound as singletons in Guice (see DurakModule).
+  * They are the only places that reference impl classes.
+  * 
+  * Note: In most cases, you should use the companion objects (Card, Player, GameState)
+  * instead of these factories. These are primarily for dependency injection scenarios
+  * where you need to inject the factory itself.
+  */
+
 object CardFactory:
   def apply(suit: Suit, rank: Rank, isTrump: Boolean = false): Card =
     impl.CardImpl(suit, rank, isTrump)
