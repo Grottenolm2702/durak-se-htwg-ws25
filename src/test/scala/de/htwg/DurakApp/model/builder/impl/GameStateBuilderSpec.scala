@@ -2,14 +2,17 @@ package de.htwg.DurakApp.model.builder.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
+import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
+import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
+import de.htwg.DurakApp.model.state.{SetupPhase, AttackPhase, DefensePhase}
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
+  val builderFactory = new GameStateBuilderFactory()
+
   "A GameStateBuilder" should {
     "create a default GameState correctly" in {
-      val defaultGameState = GameStateBuilder().build()
+      val defaultGameState = builderFactory.create().build()
 
       defaultGameState.players shouldBe empty
       defaultGameState.deck shouldBe empty
@@ -27,7 +30,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
     "create a GameState with custom players" in {
       val player1 = Player("Player1", List.empty)
       val player2 = Player("Player2", List.empty)
-      val customGameState = GameStateBuilder()
+      val customGameState = builderFactory.create()
         .withPlayers(List(player1, player2))
         .build()
 
@@ -39,7 +42,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
     "create a GameState with a custom trump card" in {
       val customTrump = Card(Suit.Spades, Rank.King)
-      val customGameState = GameStateBuilder()
+      val customGameState = builderFactory.create()
         .withTrumpCard(customTrump)
         .build()
 
@@ -47,7 +50,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
     }
 
     "create a GameState with custom game phase" in {
-      val customGameState = GameStateBuilder()
+      val customGameState = builderFactory.create()
         .withGamePhase(AttackPhase)
         .build()
 
@@ -63,7 +66,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       val discardPile = List(Card(Suit.Clubs, Rank.Queen))
       val trump = Card(Suit.Diamonds, Rank.King)
 
-      val complexGameState = GameStateBuilder()
+      val complexGameState = builderFactory.create()
         .withPlayers(List(player1, player2))
         .withDeck(deck)
         .withTable(table)
@@ -88,7 +91,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
     }
 
     "ensure immutability of the builder instance" in {
-      val initialBuilder = GameStateBuilder()
+      val initialBuilder = builderFactory.create()
       val builderWithPlayers =
         initialBuilder.withPlayers(List(Player("Test", List.empty)))
 

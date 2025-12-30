@@ -2,8 +2,9 @@ package de.htwg.DurakApp.controller
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.ControllerInterface._
-import de.htwg.DurakApp.model.ModelInterface._
+import de.htwg.DurakApp.controller._
+import de.htwg.DurakApp.model.{Card, Player, GameState, Suit, Rank}
+import de.htwg.DurakApp.model.state._
 
 class PlayerActionSpec extends AnyWordSpec with Matchers {
   "PlayerAction PlayCardAction" should {

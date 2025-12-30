@@ -2,7 +2,7 @@ package de.htwg.DurakApp.model.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.ModelInterface._
+import de.htwg.DurakApp.model.{Card, Suit, Rank}
 
 class CardImplSpec extends AnyWordSpec with Matchers {
   "CardImpl" should {

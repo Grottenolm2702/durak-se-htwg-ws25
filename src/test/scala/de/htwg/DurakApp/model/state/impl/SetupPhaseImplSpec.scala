@@ -2,10 +2,9 @@ package de.htwg.DurakApp.model.state.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
-
-import scala.util.Random
+import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
+import de.htwg.DurakApp.model.state._
+import de.htwg.DurakApp.testutil.TestHelper
 
 class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
   "A SetupPhase" should {
@@ -29,13 +28,10 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
         Card(Suit.Diamonds, Rank.Nine)
       )
 
-      val initialGameState = GameState(
+      val initialGameState = TestHelper.createTestGameState(
         players = initialPlayers,
         deck = initialDeck,
-        table = Map.empty,
-        discardPile = List.empty,
         trumpCard = Card(Suit.Clubs, Rank.Six, isTrump = false),
-        attackerIndex = 0,
         defenderIndex = 0,
         gamePhase = SetupPhase
       )
@@ -75,13 +71,10 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
         Card(Suit.Diamonds, Rank.Six)
       )
 
-      val initialGameState = GameState(
+      val initialGameState = TestHelper.createTestGameState(
         players = initialPlayers,
         deck = initialDeck,
-        table = Map.empty,
-        discardPile = List.empty,
         trumpCard = Card(Suit.Clubs, Rank.Six, isTrump = false),
-        attackerIndex = 0,
         defenderIndex = 0,
         gamePhase = SetupPhase
       )

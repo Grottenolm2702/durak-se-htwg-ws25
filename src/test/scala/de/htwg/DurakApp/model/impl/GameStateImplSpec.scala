@@ -2,8 +2,8 @@ package de.htwg.DurakApp.model.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.ModelInterface._
-import de.htwg.DurakApp.model.ModelInterface.StateInterface._
+import de.htwg.DurakApp.model.{GameState, Player, Card, Suit, Rank}
+import de.htwg.DurakApp.model.state.AttackPhase
 
 class GameStateImplSpec extends AnyWordSpec with Matchers {
   "GameStateImpl" should {
@@ -18,7 +18,15 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         trumpCard = card,
         attackerIndex = 0,
         defenderIndex = 0,
-        gamePhase = AttackPhase
+        gamePhase = AttackPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
 
       gameState.players should have size 1

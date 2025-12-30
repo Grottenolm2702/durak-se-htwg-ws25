@@ -2,9 +2,9 @@ package de.htwg.DurakApp.controller.command.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
-import de.htwg.DurakApp.controller.ControllerInterface.*
+import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
+import de.htwg.DurakApp.model.state._
+import de.htwg.DurakApp.testutil.TestHelper
 
 class PlayCardCommandSpec extends AnyWordSpec with Matchers {
   "A PlayCardCommand" should {
@@ -15,14 +15,8 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     val player1ForAttack = Player("P1", List(player1Card1, player1Card2))
     val player2ForAttack = Player("P2", List(player2Card))
 
-    val initialGameStateAttack = GameState(
+    val initialGameStateAttack = TestHelper.createTestGameState(
       players = List(player1ForAttack, player2ForAttack),
-      deck = List.empty,
-      table = Map.empty,
-      discardPile = List.empty,
-      trumpCard = Card(Suit.Diamonds, Rank.Ace),
-      attackerIndex = 0,
-      defenderIndex = 1,
       gamePhase = AttackPhase
     )
 
@@ -30,14 +24,9 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     val defendingCard = Card(Suit.Spades, Rank.Nine)
     val player1ForDefense = Player("P1", List.empty)
     val player2ForDefense = Player("P2", List(defendingCard))
-    val initialGameStateDefense = GameState(
+    val initialGameStateDefense = TestHelper.createTestGameState(
       players = List(player1ForDefense, player2ForDefense),
-      deck = List.empty,
       table = Map(attackCardOnTable -> None),
-      discardPile = List.empty,
-      trumpCard = Card(Suit.Diamonds, Rank.Ace),
-      attackerIndex = 0,
-      defenderIndex = 1,
       gamePhase = DefensePhase
     )
 

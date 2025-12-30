@@ -2,8 +2,7 @@ package de.htwg.DurakApp.model
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
+import de.htwg.DurakApp.model.state.{GameEvent, SetupPhase}
 
 class GameStateSpec extends AnyWordSpec with Matchers {
 
@@ -31,7 +30,12 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         gamePhase = SetupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
-        roundWinner = None
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
       gameState.players.shouldBe(players)
       gameState.deck.shouldBe(deck)
@@ -49,7 +53,15 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = SetupPhase
+        gamePhase = SetupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
 
       val newDeck = List(Card(Suit.Clubs, Rank.Six))
@@ -71,7 +83,15 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = SetupPhase
+        gamePhase = SetupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
 
       gameState.lastEvent shouldBe None
@@ -94,7 +114,15 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         Card(Suit.Hearts, Rank.Ace),
         0,
         1,
-        SetupPhase
+        SetupPhase,
+        None,
+        Set.empty,
+        None,
+        None,
+        List.empty,
+        None,
+        None,
+        None
       )
       gameState.lastEvent shouldBe None
     }
@@ -110,7 +138,14 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         0,
         1,
         SetupPhase,
-        lastEvent = Some(GameEvent.Pass)
+        lastEvent = Some(GameEvent.Pass),
+        Set.empty,
+        None,
+        None,
+        List.empty,
+        None,
+        None,
+        None
       )
       gameState.passedPlayers shouldBe Set.empty
     }
@@ -127,7 +162,13 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         1,
         SetupPhase,
         lastEvent = None,
-        passedPlayers = Set.empty
+        passedPlayers = Set.empty,
+        None,
+        None,
+        List.empty,
+        None,
+        None,
+        None
       )
       gameState.roundWinner shouldBe None
     }
@@ -145,6 +186,11 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         SetupPhase,
         None,
         Set.empty,
+        None,
+        None,
+        List.empty,
+        None,
+        None,
         None
       )
       gameState.setupPlayerCount shouldBe None
@@ -163,6 +209,10 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         SetupPhase,
         None,
         Set.empty,
+        None,
+        None,
+        List.empty,
+        None,
         None,
         None
       )
@@ -184,7 +234,10 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         Set.empty,
         None,
         None,
-        List.empty
+        List.empty,
+        None,
+        None,
+        None
       )
       gameState.setupDeckSize shouldBe None
     }
@@ -205,6 +258,8 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         None,
         None,
         List.empty,
+        None,
+        None,
         None
       )
       gameState.currentAttackerIndex shouldBe None
@@ -226,6 +281,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         None,
         None,
         List.empty,
+        None,
         None,
         None
       )

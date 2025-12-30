@@ -2,8 +2,7 @@ package de.htwg.DurakApp.model.state
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.ModelInterface.*
-import de.htwg.DurakApp.model.ModelInterface.StateInterface.*
+import de.htwg.DurakApp.model.{Card, Player, GameState, Suit, Rank}
 
 class GamePhaseSpec extends AnyWordSpec with Matchers {
 
@@ -75,7 +74,15 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
       trumpCard = Card(Suit.Hearts, Rank.Six),
       attackerIndex = 0,
       defenderIndex = 0,
-      gamePhase = testGamePhase
+      gamePhase = testGamePhase,
+      lastEvent = None,
+      passedPlayers = Set.empty,
+      roundWinner = None,
+      setupPlayerCount = None,
+      setupPlayerNames = List.empty,
+      setupDeckSize = None,
+      currentAttackerIndex = None,
+      lastAttackerIndex = None
     )
     val testCard = Card(Suit.Spades, Rank.Seven)
 
