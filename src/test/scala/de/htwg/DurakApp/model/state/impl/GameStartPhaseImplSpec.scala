@@ -1,0 +1,43 @@
+package de.htwg.DurakApp.model.state.impl
+
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
+import de.htwg.DurakApp.model.state.GameEvent
+
+class GameStartPhaseImplSpec extends AnyWordSpec with Matchers {
+
+  "GameStartPhaseImpl" should {
+    "have correct string representation" in {
+      GameStartPhaseImpl.toString shouldBe "GameStartPhase"
+    }
+    
+    "handle sets GameSetupComplete event" in {
+      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
+      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      
+      val gameState = GameState(
+        players = List(player1, player2),
+        deck = List(Card(Suit.Spades, Rank.Eight)),
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = GameStartPhaseImpl,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = Some(2),
+        setupPlayerNames = List("Alice", "Bob"),
+        setupDeckSize = Some(36),
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val result = GameStartPhaseImpl.handle(gameState)
+      result.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
+    }
+  }
+}
