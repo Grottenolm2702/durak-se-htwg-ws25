@@ -16,7 +16,7 @@ import de.htwg.DurakApp.model.builder.{
   GameStateBuilder,
   GameStateBuilderFactory
 }
-import de.htwg.DurakApp.model.state.{SetupPhase, PhaseProvider}
+import de.htwg.DurakApp.model.state.{SetupPhase}
 
 import de.htwg.DurakApp.util.{UndoRedoManager, UndoRedoManagerFactory}
 
@@ -28,8 +28,6 @@ class DurakModule extends AbstractModule with ScalaModule:
     bind[PlayerFactory].to[model.impl.PlayerFactoryImpl]
     bind[GameStateFactory].to[model.impl.GameStateFactoryImpl]
     
-    bind[PhaseProvider.type].toInstance(PhaseProvider)
-
     bind[GameStateBuilderFactory].asEagerSingleton()
 
     bind[GameSetup].to[controller.impl.GameSetupImpl]
