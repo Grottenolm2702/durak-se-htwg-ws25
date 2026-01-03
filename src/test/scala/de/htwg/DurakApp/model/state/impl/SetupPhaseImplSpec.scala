@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -9,7 +10,7 @@ import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.testutil.TestHelper
 
 class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
-  "A SetupPhase" should {
+  "A TestGamePhases.setupPhase" should {
     "handle initial game setup correctly" in {
 
       val playerNames = List("Alice", "Bob")
@@ -35,16 +36,16 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
         deck = initialDeck,
         trumpCard = Card(Suit.Clubs, Rank.Six, isTrump = false),
         defenderIndex = 0,
-        gamePhase = SetupPhase
+        gamePhase = TestGamePhases.setupPhase
       )
 
-      val resultState = SetupPhase.handle(initialGameState)
+      val resultState = TestGamePhases.setupPhase.handle(initialGameState)
 
       resultState.players.size shouldBe 2
       resultState.players.foreach(_.hand.length shouldBe 6)
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
-      resultState.gamePhase shouldBe AttackPhase
+      resultState.gamePhase shouldBe TestGamePhases.attackPhase
       resultState.attackerIndex should (be >= 0)
       resultState.attackerIndex should (be < resultState.players.size)
       resultState.defenderIndex should (be >= 0)
@@ -78,16 +79,16 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
         deck = initialDeck,
         trumpCard = Card(Suit.Clubs, Rank.Six, isTrump = false),
         defenderIndex = 0,
-        gamePhase = SetupPhase
+        gamePhase = TestGamePhases.setupPhase
       )
 
-      val resultState = SetupPhase.handle(initialGameState)
+      val resultState = TestGamePhases.setupPhase.handle(initialGameState)
 
       resultState.players.size shouldBe 2
       resultState.players.foreach(_.hand.length shouldBe 6)
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
-      resultState.gamePhase shouldBe AttackPhase
+      resultState.gamePhase shouldBe TestGamePhases.attackPhase
       resultState.attackerIndex should (be >= 0)
       resultState.attackerIndex should (be < resultState.players.size)
       resultState.defenderIndex should (be >= 0)
@@ -96,7 +97,7 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "have a string representation" in {
-      SetupPhase.toString should not be empty
+      TestGamePhases.setupPhase.toString should not be empty
     }
   }
 }

@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.model.builder.impl
 
 import de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameStateFactory, CardFactory}
-import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, SetupPhase}
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
 import com.google.inject.Inject
 
 object GameStateBuilder {
@@ -23,7 +23,7 @@ private[model] case class GameStateBuilderImpl(
     trumpCard: Option[Card] = None,
     attackerIndex: Int = 0,
     defenderIndex: Int = 1,
-    gamePhase: GamePhase = SetupPhase,
+    gamePhase: GamePhase = de.htwg.DurakApp.model.state.impl.SetupPhaseImpl,
     lastEvent: Option[GameEvent] = None,
     passedPlayers: Set[Int] = Set.empty,
     roundWinner: Option[Int] = None,

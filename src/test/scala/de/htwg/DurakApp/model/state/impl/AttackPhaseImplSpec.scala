@@ -1,17 +1,18 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.model.state.{AttackPhase, DefensePhase, GameEvent}
+import de.htwg.DurakApp.model.state.{GameEvent}
 
 class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "AttackPhaseImpl" should {
     "have correct string representation" in {
-      AttackPhaseImpl.toString shouldBe "AttackPhase"
+      AttackPhaseImpl.toString shouldBe "TestGamePhases.attackPhase"
     }
     
     "set currentAttackerIndex when empty" in {
@@ -27,7 +28,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -55,7 +56,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -84,7 +85,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -115,7 +116,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -144,7 +145,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -174,7 +175,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -204,7 +205,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -235,7 +236,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -266,7 +267,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -295,7 +296,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,

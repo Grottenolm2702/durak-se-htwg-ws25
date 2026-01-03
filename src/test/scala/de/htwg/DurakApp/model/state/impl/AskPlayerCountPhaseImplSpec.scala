@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -10,7 +11,7 @@ class AskPlayerCountPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "AskPlayerCountPhaseImpl" should {
     "have correct string representation" in {
-      AskPlayerCountPhaseImpl.toString shouldBe "AskPlayerCountPhase"
+      AskPlayerCountPhaseImpl.toString shouldBe "TestGamePhases.askPlayerCountPhase"
     }
     
     "handle returns same state" in {

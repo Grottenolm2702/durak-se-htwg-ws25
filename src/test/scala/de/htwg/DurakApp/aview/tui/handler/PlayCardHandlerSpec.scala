@@ -1,17 +1,18 @@
 package de.htwg.DurakApp.aview.tui.handler
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.model.state.{AttackPhase, DefensePhase}
+
 import de.htwg.DurakApp.controller.{PlayCardAction, InvalidAction}
 
 class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
 
   "A PlayCardHandler" should {
-    "handle play command with valid index in AttackPhase" in {
+    "handle play command with valid index in TestGamePhases.attackPhase" in {
       val card1 = Card(Suit.Hearts, Rank.Six)
       val card2 = Card(Suit.Hearts, Rank.Seven)
       val player1 = Player("Alice", List(card1, card2))
@@ -26,7 +27,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -43,7 +44,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
       result shouldBe PlayCardAction(card1)
     }
     
-    "handle play command with valid index in DefensePhase" in {
+    "handle play command with valid index in TestGamePhases.defensePhase" in {
       val card1 = Card(Suit.Hearts, Rank.Six)
       val card2 = Card(Suit.Hearts, Rank.Seven)
       val player1 = Player("Alice", List(Card(Suit.Diamonds, Rank.Eight)))
@@ -58,7 +59,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = DefensePhase,
+        gamePhase = TestGamePhases.defensePhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -88,7 +89,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -118,7 +119,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -148,7 +149,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -180,7 +181,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,

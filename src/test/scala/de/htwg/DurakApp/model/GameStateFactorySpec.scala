@@ -3,7 +3,7 @@ package de.htwg.DurakApp.model
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.impl.{CardFactoryImpl, PlayerFactoryImpl, GameStateFactoryImpl}
-import de.htwg.DurakApp.model.state.SetupPhase
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 class GameStateFactorySpec extends AnyWordSpec with Matchers {
   
@@ -26,7 +26,7 @@ class GameStateFactorySpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = SetupPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,

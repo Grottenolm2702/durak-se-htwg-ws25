@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.model
 
 import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestFactories
+import de.htwg.DurakApp.testutil.{TestFactories, TestGamePhases}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -69,10 +69,10 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = state.AttackPhase,
-        lastEvent = Some(state.GameEvent.Attack(Card(Suit.Hearts, Rank.Six))),
+        gamePhase = TestGamePhases.setupPhase,
         passedPlayers = Set.empty,
         roundWinner = None,
+        lastEvent = Some(state.GameEvent.Attack(Card(Suit.Hearts, Rank.Six))),
         setupPlayerCount = Some(2),
         setupPlayerNames = List("Alice", "Bob"),
         setupDeckSize = Some(36),

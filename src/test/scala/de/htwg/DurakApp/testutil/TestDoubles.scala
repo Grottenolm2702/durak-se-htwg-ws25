@@ -4,7 +4,7 @@ import de.htwg.DurakApp.controller.{Controller, GameSetup, PlayerAction}
 import de.htwg.DurakApp.controller.command.GameCommand
 import de.htwg.DurakApp.model.{GameState, Card, Player, Suit, Rank, PlayerFactory, GameStateFactory, CardFactory}
 import de.htwg.DurakApp.model.impl.{PlayerFactoryImpl, GameStateFactoryImpl, CardFactoryImpl}
-import de.htwg.DurakApp.model.state.{GamePhase, GameEvent, SetupPhase}
+import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 
 // Test helpers for creating model instances
@@ -12,6 +12,33 @@ object TestFactories:
   val cardFactory: CardFactory = new CardFactoryImpl()
   val playerFactory: PlayerFactory = new PlayerFactoryImpl()
   val gameStateFactory: GameStateFactory = new GameStateFactoryImpl()
+
+object TestGamePhases:
+  val setupPhase: GamePhase = de.htwg.DurakApp.model.state.impl.SetupPhaseImpl
+  val askPlayerCountPhase: GamePhase = de.htwg.DurakApp.model.state.impl.AskPlayerCountPhaseImpl
+  val askPlayerNamesPhase: GamePhase = de.htwg.DurakApp.model.state.impl.AskPlayerNamesPhaseImpl
+  val askDeckSizePhase: GamePhase = de.htwg.DurakApp.model.state.impl.AskDeckSizePhaseImpl
+  val askPlayAgainPhase: GamePhase = de.htwg.DurakApp.model.state.impl.AskPlayAgainPhaseImpl
+  val gameStartPhase: GamePhase = de.htwg.DurakApp.model.state.impl.GameStartPhaseImpl
+  val attackPhase: GamePhase = de.htwg.DurakApp.model.state.impl.AttackPhaseImpl
+  val defensePhase: GamePhase = de.htwg.DurakApp.model.state.impl.DefensePhaseImpl
+  val drawPhase: GamePhase = de.htwg.DurakApp.model.state.impl.DrawPhaseImpl
+  val roundPhase: GamePhase = de.htwg.DurakApp.model.state.impl.RoundPhaseImpl
+  val endPhase: GamePhase = de.htwg.DurakApp.model.state.impl.EndPhaseImpl
+
+object TestGamePhasesInstance extends de.htwg.DurakApp.model.state.GamePhases {
+  def setupPhase = TestGamePhases.setupPhase
+  def askPlayerCountPhase = TestGamePhases.askPlayerCountPhase
+  def askPlayerNamesPhase = TestGamePhases.askPlayerNamesPhase
+  def askDeckSizePhase = TestGamePhases.askDeckSizePhase
+  def askPlayAgainPhase = TestGamePhases.askPlayAgainPhase
+  def gameStartPhase = TestGamePhases.gameStartPhase
+  def attackPhase = TestGamePhases.attackPhase
+  def defensePhase = TestGamePhases.defensePhase
+  def drawPhase = TestGamePhases.drawPhase
+  def roundPhase = TestGamePhases.roundPhase
+  def endPhase = TestGamePhases.endPhase
+}
 
 class StubGameSetup extends GameSetup:
   private val cardFactory = TestFactories.cardFactory
@@ -32,7 +59,7 @@ class StubGameSetup extends GameSetup:
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = SetupPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = Some(GameEvent.GameSetupComplete),
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -138,7 +165,7 @@ object TestHelper:
     trumpCard: Card = cardFactory(Suit.Hearts, Rank.Six, isTrump = true),
     attackerIndex: Int = 0,
     defenderIndex: Int = 1,
-    gamePhase: GamePhase = SetupPhase,
+    gamePhase: GamePhase = TestGamePhases.setupPhase,
     lastEvent: Option[GameEvent] = None,
     passedPlayers: Set[Int] = Set.empty,
     roundWinner: Option[Int] = None,

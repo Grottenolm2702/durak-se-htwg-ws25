@@ -3,8 +3,8 @@ package de.htwg.DurakApp.model.state.impl
 import de.htwg.DurakApp.model.{Card, GameState, Suit}
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 
-private[state] case object DefensePhaseImpl extends GamePhase {
-  override def toString: String = "DefensePhase"
+case object DefensePhaseImpl extends GamePhase {
+  override def toString: String = "TestGamePhases.defensePhase"
 
   override def handle(gameState: GameState): GameState = {
     gameState

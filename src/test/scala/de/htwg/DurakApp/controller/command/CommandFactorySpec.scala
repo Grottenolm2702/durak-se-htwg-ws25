@@ -1,11 +1,12 @@
 package de.htwg.DurakApp.controller.command
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.model.state.{AttackPhase, GameEvent}
+import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.controller._
 
 class CommandFactorySpec extends AnyWordSpec with Matchers {
@@ -22,8 +23,8 @@ class CommandFactorySpec extends AnyWordSpec with Matchers {
     trumpCard = trumpCard,
     attackerIndex = 0,
     defenderIndex = 1,
-    gamePhase = AttackPhase,
-    lastEvent = None,
+    gamePhase = TestGamePhases.setupPhase,
+        lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
     setupPlayerCount = None,

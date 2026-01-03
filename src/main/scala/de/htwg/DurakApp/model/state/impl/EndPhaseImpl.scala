@@ -3,8 +3,8 @@ package de.htwg.DurakApp.model.state.impl
 import de.htwg.DurakApp.model._
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 
-private[state] case object EndPhaseImpl extends GamePhase {
-  override def toString: String = "EndPhase"
+case object EndPhaseImpl extends GamePhase {
+  override def toString: String = "TestGamePhases.endPhase"
 
   override def handle(gameState: GameState): GameState = {
     val playersWithCards = gameState.players.filter(_.hand.nonEmpty)

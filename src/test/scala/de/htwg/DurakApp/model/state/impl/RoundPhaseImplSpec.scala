@@ -1,17 +1,18 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.model.state.{AttackPhase, GameEvent}
+import de.htwg.DurakApp.model.state.{GameEvent}
 
 class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "RoundPhaseImpl" should {
     "have correct string representation" in {
-      RoundPhaseImpl.toString shouldBe "RoundPhase"
+      RoundPhaseImpl.toString shouldBe "TestGamePhases.roundPhase"
     }
     
     "clear table when round won" in {
@@ -46,7 +47,7 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
       result.discardPile.size shouldBe 2
       result.passedPlayers shouldBe empty
       result.roundWinner shouldBe None
-      result.gamePhase shouldBe AttackPhase
+      result.gamePhase shouldBe TestGamePhases.attackPhase
       result.lastEvent shouldBe Some(GameEvent.RoundEnd(cleared = true))
     }
     
@@ -132,7 +133,7 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
       )
       
       val result = RoundPhaseImpl.handle(gameState)
-      result.gamePhase shouldBe AttackPhase
+      result.gamePhase shouldBe TestGamePhases.attackPhase
     }
   }
 }

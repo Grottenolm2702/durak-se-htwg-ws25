@@ -16,18 +16,54 @@ import de.htwg.DurakApp.model.builder.{
   GameStateBuilder,
   GameStateBuilderFactory
 }
-import de.htwg.DurakApp.model.state.{SetupPhase}
+import de.htwg.DurakApp.model.state.{GamePhase, GamePhases, GamePhasesImpl}
+import com.google.inject.name.{Named, Names}
 
 import de.htwg.DurakApp.util.{UndoRedoManager, UndoRedoManagerFactory}
 
 class DurakModule extends AbstractModule with ScalaModule:
   override def configure(): Unit =
+    bind[GamePhase]
+      .annotatedWith(Names.named("SetupPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.SetupPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("AskPlayerCountPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.AskPlayerCountPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("AskPlayerNamesPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.AskPlayerNamesPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("AskDeckSizePhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.AskDeckSizePhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("AskPlayAgainPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.AskPlayAgainPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("GameStartPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.GameStartPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("AttackPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.AttackPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("DefensePhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.DefensePhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("DrawPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.DrawPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("RoundPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.RoundPhaseImpl)
+    bind[GamePhase]
+      .annotatedWith(Names.named("EndPhase"))
+      .toInstance(de.htwg.DurakApp.model.state.impl.EndPhaseImpl)
+    bind[GamePhases].to[GamePhasesImpl].asEagerSingleton()
+
     bind[CommandFactory.type].toInstance(CommandFactory)
-    
+
     bind[CardFactory].to[model.impl.CardFactoryImpl]
     bind[PlayerFactory].to[model.impl.PlayerFactoryImpl]
     bind[GameStateFactory].to[model.impl.GameStateFactoryImpl]
-    
+
     bind[GameStateBuilderFactory].asEagerSingleton()
 
     bind[GameSetup].to[controller.impl.GameSetupImpl]
@@ -40,8 +76,11 @@ class DurakModule extends AbstractModule with ScalaModule:
     factory.create()
 
   @Provides
-  def provideGameState(builderFactory: GameStateBuilderFactory): GameState =
-    builderFactory.create().withGamePhase(SetupPhase).build()
+  def provideGameState(
+      builderFactory: GameStateBuilderFactory,
+      @Named("SetupPhase") setupPhase: GamePhase
+  ): GameState =
+    builderFactory.create().withGamePhase(setupPhase).build()
 
   @Provides
   @Singleton
@@ -50,12 +89,14 @@ class DurakModule extends AbstractModule with ScalaModule:
       undoRedoManager: UndoRedoManager,
       commandFactory: CommandFactory.type,
       gameSetup: GameSetup,
-      undoRedoManagerFactory: UndoRedoManagerFactory
+      undoRedoManagerFactory: UndoRedoManagerFactory,
+      gamePhases: GamePhases
   ): Controller =
     new controller.impl.ControllerImpl(
       gameState,
       undoRedoManager,
       commandFactory,
       gameSetup,
-      undoRedoManagerFactory
+      undoRedoManagerFactory,
+      gamePhases
     )

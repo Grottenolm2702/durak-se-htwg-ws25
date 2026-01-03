@@ -6,7 +6,6 @@ import de.htwg.DurakApp.controller.{
   InvalidAction
 }
 import de.htwg.DurakApp.model.GameState
-import de.htwg.DurakApp.model.state.DefensePhase
 
 import scala.util.{Failure, Success, Try}
 
@@ -21,14 +20,15 @@ class PlayCardHandler(override val next: Option[InputHandler] = None)
       case Some("play") if inputArgs.length > 1 =>
         Try(inputArgs(1).toInt) match {
           case Success(index) =>
-            val activePlayer = gameState.gamePhase match {
-              case DefensePhase => gameState.players(gameState.defenderIndex)
-              case _ =>
+            val activePlayer = 
+              if (gameState.gamePhase == de.htwg.DurakApp.model.state.impl.DefensePhaseImpl) {
+                gameState.players(gameState.defenderIndex)
+              } else {
                 val idx = gameState.currentAttackerIndex.getOrElse(
                   gameState.attackerIndex
                 )
                 gameState.players(idx)
-            }
+              }
             if (index >= 0 && index < activePlayer.hand.length) {
               PlayCardAction(activePlayer.hand(index))
             } else {

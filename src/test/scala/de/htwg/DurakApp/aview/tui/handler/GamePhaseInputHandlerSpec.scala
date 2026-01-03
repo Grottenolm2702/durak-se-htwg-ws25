@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.aview.tui.handler
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -13,7 +14,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
   val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
   "A GamePhaseInputHandler" should {
-    "handle player count input in AskPlayerCountPhase" in {
+    "handle player count input in TestGamePhases.askPlayerCountPhase" in {
       val gameState = GameState(
         players = List.empty,
         deck = List.empty,
@@ -22,7 +23,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 0,
-        gamePhase = AskPlayerCountPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -33,13 +34,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("3", gameState)
       
       result shouldBe SetPlayerCountAction(3)
     }
     
-    "handle player count input in SetupPhase" in {
+    "handle player count input in TestGamePhases.setupPhase" in {
       val gameState = GameState(
         players = List.empty,
         deck = List.empty,
@@ -48,7 +49,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 0,
-        gamePhase = SetupPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -59,13 +60,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("2", gameState)
       
       result shouldBe SetPlayerCountAction(2)
     }
     
-    "return InvalidAction for non-numeric input in AskPlayerCountPhase" in {
+    "return InvalidAction for non-numeric input in TestGamePhases.askPlayerCountPhase" in {
       val gameState = GameState(
         players = List.empty,
         deck = List.empty,
@@ -74,7 +75,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 0,
-        gamePhase = AskPlayerCountPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -85,13 +86,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("abc", gameState)
       
       result shouldBe InvalidAction
     }
     
-    "handle player name input in AskPlayerNamesPhase" in {
+    "handle player name input in TestGamePhases.askPlayerNamesPhase" in {
       val gameState = GameState(
         players = List.empty,
         deck = List.empty,
@@ -100,7 +101,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 0,
-        gamePhase = AskPlayerNamesPhase,
+        gamePhase = TestGamePhases.askPlayerNamesPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -111,13 +112,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("Alice", gameState)
       
       result shouldBe AddPlayerNameAction("Alice")
     }
     
-    "handle deck size input in AskDeckSizePhase" in {
+    "handle deck size input in TestGamePhases.askDeckSizePhase" in {
       val gameState = GameState(
         players = List.empty,
         deck = List.empty,
@@ -126,7 +127,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 0,
-        gamePhase = AskDeckSizePhase,
+        gamePhase = TestGamePhases.askDeckSizePhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -137,13 +138,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("36", gameState)
       
       result shouldBe SetDeckSizeAction(36)
     }
     
-    "return InvalidAction for non-numeric input in AskDeckSizePhase" in {
+    "return InvalidAction for non-numeric input in TestGamePhases.askDeckSizePhase" in {
       val gameState = GameState(
         players = List.empty,
         deck = List.empty,
@@ -152,7 +153,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 0,
-        gamePhase = AskDeckSizePhase,
+        gamePhase = TestGamePhases.askDeckSizePhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -163,13 +164,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("large", gameState)
       
       result shouldBe InvalidAction
     }
     
-    "handle yes input in AskPlayAgainPhase" in {
+    "handle yes input in TestGamePhases.askPlayAgainPhase" in {
       val player1 = Player("Alice", List.empty)
       val player2 = Player("Bob", List.empty)
       
@@ -181,7 +182,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AskPlayAgainPhase,
+        gamePhase = TestGamePhases.askPlayAgainPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -192,13 +193,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("yes", gameState)
       
       result shouldBe PlayAgainAction
     }
     
-    "handle no input in AskPlayAgainPhase" in {
+    "handle no input in TestGamePhases.askPlayAgainPhase" in {
       val player1 = Player("Alice", List.empty)
       val player2 = Player("Bob", List.empty)
       
@@ -210,7 +211,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AskPlayAgainPhase,
+        gamePhase = TestGamePhases.askPlayAgainPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -221,13 +222,13 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("no", gameState)
       
       result shouldBe ExitGameAction
     }
     
-    "return InvalidAction for invalid input in AskPlayAgainPhase" in {
+    "return InvalidAction for invalid input in TestGamePhases.askPlayAgainPhase" in {
       val player1 = Player("Alice", List.empty)
       val player2 = Player("Bob", List.empty)
       
@@ -239,7 +240,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AskPlayAgainPhase,
+        gamePhase = TestGamePhases.askPlayAgainPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -250,7 +251,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = GamePhaseInputHandler(None)
+      val handler = new GamePhaseInputHandler(None, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
       val result = handler.handleRequest("maybe", gameState)
       
       result shouldBe InvalidAction
@@ -268,7 +269,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = AttackPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -280,7 +281,7 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
       )
       
       val nextHandler = InvalidInputHandler()
-      val handler = GamePhaseInputHandler(Some(nextHandler))
+      val handler = GamePhaseInputHandler(Some(nextHandler), TestGamePhasesInstance)
       val result = handler.handleRequest("test", gameState)
       
       result shouldBe InvalidAction

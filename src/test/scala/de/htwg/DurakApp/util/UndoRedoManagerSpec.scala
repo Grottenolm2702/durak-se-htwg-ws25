@@ -6,7 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.util.impl.UndoRedoManagerFactoryImpl
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.model.state.AttackPhase
+import de.htwg.DurakApp.testutil.TestGamePhases
 import de.htwg.DurakApp.controller.command.impl.PhaseChangeCommand
 
 class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
@@ -24,8 +24,8 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     trumpCard = trumpCard,
     attackerIndex = 0,
     defenderIndex = 1,
-    gamePhase = AttackPhase,
-    lastEvent = None,
+    gamePhase = TestGamePhases.setupPhase,
+        lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
     setupPlayerCount = None,

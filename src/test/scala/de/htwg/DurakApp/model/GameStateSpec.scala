@@ -1,10 +1,11 @@
 package de.htwg.DurakApp.model
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.state.{GameEvent, SetupPhase}
+import de.htwg.DurakApp.model.state.GameEvent
 
 class GameStateSpec extends AnyWordSpec with Matchers {
 
@@ -29,7 +30,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = SetupPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -55,7 +56,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = SetupPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -85,7 +86,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = SetupPhase,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -109,22 +110,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for lastEvent" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
-        None,
-        Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
       gameState.lastEvent shouldBe None
     }
@@ -132,22 +133,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for passedPlayers" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = Some(GameEvent.Pass),
-        Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
       gameState.passedPlayers shouldBe Set.empty
     }
@@ -155,22 +156,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for roundWinner" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
       gameState.roundWinner shouldBe None
     }
@@ -178,22 +179,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for setupPlayerCount" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
-        None,
-        Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
       gameState.setupPlayerCount shouldBe None
     }
@@ -201,22 +202,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for setupPlayerNames" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
-        None,
-        Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None,
+        lastEvent = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None
       )
       gameState.setupPlayerNames shouldBe List.empty
     }
@@ -224,22 +225,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for setupDeckSize" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
-        None,
-        Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
       )
       gameState.setupDeckSize shouldBe None
     }
@@ -247,22 +248,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for currentAttackerIndex" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
-        None,
-        Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None,
+        lastEvent = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None
       )
       gameState.currentAttackerIndex shouldBe None
     }
@@ -270,22 +271,22 @@ class GameStateSpec extends AnyWordSpec with Matchers {
     "use default parameter for lastAttackerIndex" in {
       val players = List(Player("P1"), Player("P2"))
       val gameState = GameState(
-        players,
-        List.empty,
-        Map.empty,
-        List.empty,
-        Card(Suit.Hearts, Rank.Ace),
-        0,
-        1,
-        SetupPhase,
-        None,
-        Set.empty,
-        None,
-        None,
-        List.empty,
-        None,
-        None,
-        None
+        players = players,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = Card(Suit.Hearts, Rank.Ace),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = TestGamePhases.setupPhase,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None,
+        lastEvent = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None
       )
       gameState.lastAttackerIndex shouldBe None
     }

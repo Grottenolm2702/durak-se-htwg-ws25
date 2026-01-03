@@ -6,7 +6,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.controller.*
 
 import de.htwg.DurakApp.model.{Card, Player, GameState, Rank, Suit}
-import de.htwg.DurakApp.model.state.{GamePhase, GameEvent, SetupPhase, AskPlayerCountPhase, AskPlayerNamesPhase, AskDeckSizePhase, AskPlayAgainPhase, AttackPhase, DefensePhase, DrawPhase}
+import de.htwg.DurakApp.model.state.GameEvent
 
 import de.htwg.DurakApp.aview.tui.handler._
 
@@ -14,7 +14,7 @@ import com.google.inject.Inject
 
 import scala.io.StdIn.readLine
 
-class TUI @Inject() (controller: Controller) extends Observer {
+class TUI @Inject() (controller: Controller, gamePhases: de.htwg.DurakApp.model.state.GamePhases) extends Observer {
 
   import TUI._
 
@@ -25,7 +25,7 @@ class TUI @Inject() (controller: Controller) extends Observer {
     val play = new PlayCardHandler(Some(pass))
     val redo = new RedoHandler(controller, Some(play))
     val undo = new UndoHandler(controller, Some(redo))
-    val gamePhaseHandler = new GamePhaseInputHandler(Some(undo))
+    val gamePhaseHandler = new GamePhaseInputHandler(Some(undo), gamePhases)
     gamePhaseHandler
   }
 
@@ -56,56 +56,71 @@ class TUI @Inject() (controller: Controller) extends Observer {
   override def update: Unit = {
     println(clearScreen())
     val game = controller.gameState
-    val render = game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase =>
+    val render = 
+      if (isSetupPhase(game.gamePhase)) {
         buildStatusString(game)
-      case _ =>
+      } else {
         renderScreen(game, buildStatusString(game))
-    }
+      }
     println(render)
     printPrompt(game)
   }
 
-  def description(game: GameState): String = game.gamePhase match {
-    case SetupPhase | AskPlayerCountPhase => "Spieleranzahl eingeben (2-6):"
-    case AskPlayerNamesPhase =>
+  def description(game: GameState): String = {
+    if (game.gamePhase == gamePhases.setupPhase || game.gamePhase == gamePhases.askPlayerCountPhase) {
+      "Spieleranzahl eingeben (2-6):"
+    } else if (game.gamePhase == gamePhases.askPlayerNamesPhase) {
       s"Spielername ${game.setupPlayerNames.length + 1}:"
-    case AskDeckSizePhase =>
+    } else if (game.gamePhase == gamePhases.askDeckSizePhase) {
       val minSize = game.setupPlayerNames.size
       s"Deckgröße eingeben ($minSize-36):"
-    case AskPlayAgainPhase => "Möchten Sie eine neue Runde spielen? (yes/no):"
-    case _                 => game.gamePhase.toString
+    } else if (game.gamePhase == gamePhases.askPlayAgainPhase) {
+      "Möchten Sie eine neue Runde spielen? (yes/no):"
+    } else {
+      game.gamePhase.toString
+    }
+  }
+
+  private def isSetupPhase(phase: de.htwg.DurakApp.model.state.GamePhase): Boolean = {
+    phase == gamePhases.setupPhase ||
+    phase == gamePhases.askPlayerCountPhase ||
+    phase == gamePhases.askPlayerNamesPhase ||
+    phase == gamePhases.askDeckSizePhase
   }
 
   private def printPrompt(game: GameState): Unit = {
-    game.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase =>
-        println(description(game))
-        print("> ")
-      case AttackPhase | DefensePhase | DrawPhase =>
-        val activePlayer = game.gamePhase match {
-          case AttackPhase =>
-            val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
-            Some(game.players(idx))
-          case DefensePhase => Some(game.players(game.defenderIndex))
-          case _            => None
+    if (isSetupPhase(game.gamePhase)) {
+      println(description(game))
+      print("> ")
+    } else if (game.gamePhase == gamePhases.attackPhase || 
+               game.gamePhase == gamePhases.defensePhase || 
+               game.gamePhase == gamePhases.drawPhase) {
+      val activePlayer = 
+        if (game.gamePhase == gamePhases.attackPhase) {
+          val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
+          Some(game.players(idx))
+        } else if (game.gamePhase == gamePhases.defensePhase) {
+          Some(game.players(game.defenderIndex))
+        } else {
+          None
         }
-        val moves = game.gamePhase match {
-          case AttackPhase  => "('play index', 'pass', 'u', 'r')"
-          case DefensePhase => "('play index', 'take', 'u', 'r')"
-          case _            => ""
+      val moves = 
+        if (game.gamePhase == gamePhases.attackPhase) {
+          "('play index', 'pass', 'u', 'r')"
+        } else if (game.gamePhase == gamePhases.defensePhase) {
+          "('play index', 'take', 'u', 'r')"
+        } else {
+          ""
         }
-        activePlayer match {
-          case Some(player) =>
-            println(s"$GREEN${player.name}$RESET, dein Zug $moves:")
-          case None => println("Error: No active player. " + description(game))
-        }
-        print("> ")
-      case _ =>
-        println(description(game))
-        print("> ")
+      activePlayer match {
+        case Some(player) =>
+          println(s"$GREEN${player.name}$RESET, dein Zug $moves:")
+        case None => println("Error: No active player. " + description(game))
+      }
+      print("> ")
+    } else {
+      println(description(game))
+      print("> ")
     }
   }
 
@@ -200,13 +215,15 @@ class TUI @Inject() (controller: Controller) extends Observer {
 
     val table = renderTable(game)
 
-    val activePlayer = game.gamePhase match {
-      case AttackPhase =>
+    val activePlayer = 
+      if (game.gamePhase == gamePhases.attackPhase) {
         val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
         game.players(idx)
-      case DefensePhase => game.players(game.defenderIndex)
-      case _            => game.players(game.attackerIndex)
-    }
+      } else if (game.gamePhase == gamePhases.defensePhase) {
+        game.players(game.defenderIndex)
+      } else {
+        game.players(game.attackerIndex)
+      }
 
     val playersStr = game.players
       .map { p =>
@@ -264,11 +281,10 @@ $statusLine
           ""
       }
       .getOrElse(
-        game.gamePhase match {
-          case SetupPhase |
-              AskPlayerCountPhase | AskPlayerNamesPhase | AskDeckSizePhase =>
-            ""
-          case _ => game.gamePhase.toString
+        if (isSetupPhase(game.gamePhase)) {
+          ""
+        } else {
+          game.gamePhase.toString
         }
       )
 }

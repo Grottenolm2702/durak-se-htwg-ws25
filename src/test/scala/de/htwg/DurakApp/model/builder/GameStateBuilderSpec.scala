@@ -2,7 +2,7 @@ package de.htwg.DurakApp.model.builder
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.state.SetupPhase
+import de.htwg.DurakApp.testutil.TestGamePhases
 import de.htwg.DurakApp.testutil.TestFactories
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
@@ -13,7 +13,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
       gameState.players shouldBe empty
       gameState.deck shouldBe empty
-      gameState.gamePhase shouldBe SetupPhase
+      gameState.gamePhase shouldBe TestGamePhases.setupPhase
     }
   }
 }

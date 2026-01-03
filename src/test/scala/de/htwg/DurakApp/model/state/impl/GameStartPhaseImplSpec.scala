@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,7 +12,7 @@ class GameStartPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "GameStartPhaseImpl" should {
     "have correct string representation" in {
-      GameStartPhaseImpl.toString shouldBe "GameStartPhase"
+      GameStartPhaseImpl.toString shouldBe "TestGamePhases.gameStartPhase"
     }
     
     "handle sets GameSetupComplete event" in {

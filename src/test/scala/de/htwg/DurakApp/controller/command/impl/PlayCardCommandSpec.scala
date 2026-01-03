@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.controller.command.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -19,7 +20,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
 
     val initialGameStateAttack = TestHelper.createTestGameState(
       players = List(player1ForAttack, player2ForAttack),
-      gamePhase = AttackPhase
+      gamePhase = TestGamePhases.attackPhase
     )
 
     val attackCardOnTable = Card(Suit.Spades, Rank.Eight)
@@ -29,22 +30,22 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     val initialGameStateDefense = TestHelper.createTestGameState(
       players = List(player1ForDefense, player2ForDefense),
       table = Map(attackCardOnTable -> None),
-      gamePhase = DefensePhase
+      gamePhase = TestGamePhases.defensePhase
     )
 
-    "execute correctly when playing a card in AttackPhase" in {
+    "execute correctly when playing a card in TestGamePhases.attackPhase" in {
       val command = PlayCardCommand(player1Card1)
       val resultState = command.execute(initialGameStateAttack)
 
       resultState.players(0).hand should not contain player1Card1
       resultState.table.keys should contain(player1Card1)
-      resultState.gamePhase shouldBe DefensePhase
+      resultState.gamePhase shouldBe TestGamePhases.defensePhase
       resultState.lastEvent.get shouldBe a[GameEvent.Attack]
     }
 
-    "execute correctly when playing a card in DefensePhase" in {
+    "execute correctly when playing a card in TestGamePhases.defensePhase" in {
       val gameState = initialGameStateDefense.copy(
-        gamePhase = DefensePhase,
+        gamePhase = TestGamePhases.defensePhase,
         table = Map(attackCardOnTable -> None),
         players = List(player1ForDefense, player2ForDefense)
       )
@@ -53,7 +54,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
 
       resultState.players(1).hand should not contain defendingCard
       resultState.table(attackCardOnTable) should contain(defendingCard)
-      resultState.gamePhase shouldBe AttackPhase
+      resultState.gamePhase shouldBe TestGamePhases.attackPhase
       resultState.lastEvent.get shouldBe a[GameEvent.Defend]
     }
 

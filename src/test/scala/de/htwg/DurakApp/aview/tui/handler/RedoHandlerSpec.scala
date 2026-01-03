@@ -5,7 +5,7 @@ import de.htwg.DurakApp.testutil.TestHelpers._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.model.state.AttackPhase
+import de.htwg.DurakApp.testutil.TestGamePhases
 import de.htwg.DurakApp.controller.{RedoAction, InvalidAction, Controller}
 import com.google.inject.Guice
 
@@ -26,8 +26,8 @@ class RedoHandlerSpec extends AnyWordSpec with Matchers {
     trumpCard = trumpCard,
     attackerIndex = 0,
     defenderIndex = 1,
-    gamePhase = AttackPhase,
-    lastEvent = None,
+    gamePhase = TestGamePhases.setupPhase,
+        lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
     setupPlayerCount = None,

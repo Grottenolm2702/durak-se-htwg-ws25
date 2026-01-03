@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,7 +12,7 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "EndPhaseImpl" should {
     "have correct string representation" in {
-      EndPhaseImpl.toString shouldBe "EndPhase"
+      EndPhaseImpl.toString shouldBe "TestGamePhases.endPhase"
     }
     
     "handle game over with winner and loser" in {

@@ -10,7 +10,6 @@ import de.htwg.DurakApp.model.{
   Suit
 }
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
-import de.htwg.DurakApp.model.state.SetupPhase
 import com.google.inject.Inject
 
 import scala.util.Random
@@ -58,7 +57,7 @@ class GameSetupImpl @Inject() (
       .withTrumpCard(shuffledDeck.head)
       .withAttackerIndex(0)
       .withDefenderIndex(0)
-      .withGamePhase(SetupPhase)
+      .withGamePhase(de.htwg.DurakApp.model.state.impl.SetupPhaseImpl)
       .withLastEvent(None)
       .withPassedPlayers(Set.empty)
       .withRoundWinner(None)

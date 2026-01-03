@@ -3,8 +3,8 @@ package de.htwg.DurakApp.model.state.impl
 import de.htwg.DurakApp.model.{Card, GameState}
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 
-private[state] case object AttackPhaseImpl extends GamePhase {
-  override def toString: String = "AttackPhase"
+case object AttackPhaseImpl extends GamePhase {
+  override def toString: String = "TestGamePhases.attackPhase"
 
   override def handle(gameState: GameState): GameState = {
     if (gameState.currentAttackerIndex.isEmpty) {

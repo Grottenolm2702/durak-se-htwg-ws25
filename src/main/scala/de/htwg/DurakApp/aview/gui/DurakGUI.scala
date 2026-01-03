@@ -6,18 +6,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.controller.*
 
 import de.htwg.DurakApp.model.{Card, Player, GameState, Rank, Suit}
-import de.htwg.DurakApp.model.state.{
-  GamePhase,
-  GameEvent,
-  SetupPhase,
-  AskPlayerCountPhase,
-  AskPlayerNamesPhase,
-  AskDeckSizePhase,
-  GameStartPhase,
-  AskPlayAgainPhase,
-  AttackPhase,
-  DefensePhase
-}
+import de.htwg.DurakApp.model.state.GameEvent
 
 import com.google.inject.Inject
 
@@ -36,7 +25,7 @@ import scalafx.Includes.*
 import scalafx.collections.ObservableBuffer
 import scala.util.{Try, Success, Failure}
 
-class DurakGUI @Inject() (controller: Controller) extends Observer {
+class DurakGUI @Inject() (controller: Controller, val gamePhases: de.htwg.DurakApp.model.state.GamePhases) extends Observer {
   controller.add(this)
 
   private val selectedCard = ObjectProperty[Option[Card]](None)
@@ -229,26 +218,24 @@ class DurakGUI @Inject() (controller: Controller) extends Observer {
     update
   }
 
-  private def description(gameState: GameState): String =
-    gameState.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase => "Enter number of players (2-6):"
-      case AskPlayerNamesPhase =>
-        s"Player name ${gameState.setupPlayerNames.length + 1}:"
-      case AskDeckSizePhase =>
-        val minSize = gameState.setupPlayerNames.size
-        s"Select deck size ($minSize-36):"
-      case _ => gameState.gamePhase.toString
+  private def description(gameState: GameState): String = {
+    val p = gameState.gamePhase
+    if (p == gamePhases.setupPhase || p == gamePhases.askPlayerCountPhase) {
+      "Enter number of players (2-6):"
+    } else if (p == gamePhases.askPlayerNamesPhase) {
+      s"Player name ${gameState.setupPlayerNames.length + 1}:"
+    } else if (p == gamePhases.askDeckSizePhase) {
+      val minSize = gameState.setupPlayerNames.size
+      s"Select deck size ($minSize-36):"
+    } else {
+      gameState.gamePhase.toString
     }
+  }
 
   override def update: Unit = Platform.runLater {
     val gameState = controller.gameState
     updateWinnerDisplay(gameState)
-    val isSetupPhase = gameState.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase | GameStartPhase =>
-        true
-      case _ => false
-    }
+    val isSetupPhase = gamePhases.isAnySetupPhase(gameState.gamePhase)
     setupInputPane.visible = isSetupPhase
     gameDisplayPane.visible = !isSetupPhase
     if (isSetupPhase) {
@@ -273,76 +260,78 @@ class DurakGUI @Inject() (controller: Controller) extends Observer {
     submitPlayerNameButton.visible = false
     deckSizeChoiceBox.visible = false
     submitDeckSizeButton.visible = false
-    gameState.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase =>
-        playerCountInput.visible = true
-        submitPlayerCountButton.visible = true
-        playerCountInput.text =
-          gameState.setupPlayerCount.map(_.toString).getOrElse("")
-        setupStatusLabel.text =
-          if (setupError) description(gameState)
-          else "Enter number of players (2-6):"
-      case AskPlayerNamesPhase =>
-        val expectedCount = gameState.setupPlayerCount.getOrElse(0)
-        val currentNames = gameState.setupPlayerNames.size
-        playerNameInput.visible = true
-        submitPlayerNameButton.visible = true
-        setupStatusLabel.text =
-          if (setupError) description(gameState)
-          else s"Enter name for player ${currentNames + 1} of $expectedCount:"
-      case AskDeckSizePhase =>
-        val minSize = gameState.setupPlayerNames.size
-        deckSizeChoiceBox.items = ObservableBuffer.from((minSize to 36))
-        deckSizeChoiceBox.visible = true
-        submitDeckSizeButton.visible = true
-        val defaultSize =
-          math.max(minSize, gameState.setupDeckSize.getOrElse(36))
-        deckSizeChoiceBox.value = defaultSize
-        setupStatusLabel.text =
-          if (setupError) description(gameState)
-          else s"Select deck size ($minSize-36):"
-      case GameStartPhase =>
-        setupStatusLabel.text = "Initializing game..."
-      case _ =>
+    val p = gameState.gamePhase
+    if (p == gamePhases.setupPhase || p == gamePhases.askPlayerCountPhase) {
+      playerCountInput.visible = true
+      submitPlayerCountButton.visible = true
+      playerCountInput.text =
+        gameState.setupPlayerCount.map(_.toString).getOrElse("")
+      setupStatusLabel.text =
+        if (setupError) description(gameState)
+        else "Enter number of players (2-6):"
+    } else if (p == gamePhases.askPlayerNamesPhase) {
+      val expectedCount = gameState.setupPlayerCount.getOrElse(0)
+      val currentNames = gameState.setupPlayerNames.size
+      playerNameInput.visible = true
+      submitPlayerNameButton.visible = true
+      setupStatusLabel.text =
+        if (setupError) description(gameState)
+        else s"Enter name for player ${currentNames + 1} of $expectedCount:"
+    } else if (p == gamePhases.askDeckSizePhase) {
+      val minSize = gameState.setupPlayerNames.size
+      deckSizeChoiceBox.items = ObservableBuffer.from((minSize to 36))
+      deckSizeChoiceBox.visible = true
+      submitDeckSizeButton.visible = true
+      val defaultSize =
+        math.max(minSize, gameState.setupDeckSize.getOrElse(36))
+      deckSizeChoiceBox.value = defaultSize
+      setupStatusLabel.text =
+        if (setupError) description(gameState)
+        else s"Select deck size ($minSize-36):"
+    } else if (p == gamePhases.gameStartPhase) {
+      setupStatusLabel.text = "Initializing game..."
     }
   }
 
   private def updateWinnerDisplay(gameState: GameState): Unit = {
     winnerDisplayPane.visible = false
     gameDisplayPane.effect = null
-    gameState.gamePhase match {
-      case AskPlayAgainPhase =>
-        gameState.lastEvent match {
-          case Some(GameEvent.GameOver(winner, loserOpt)) =>
-            val loserText =
-              loserOpt.fold("")(l => s" (${l.name} is the Durak!)")
-            winnerLabel.text = s"${winner.name} Wins!$loserText"
-            winnerDisplayPane.visible = true
-            gameDisplayPane.effect = new GaussianBlur(10)
-          case Some(GameEvent.ExitApplication) =>
-            Platform.exit()
-          case _ =>
-        }
-      case _ =>
+    if (gamePhases.isAskPlayAgainPhase(gameState.gamePhase)) {
+      gameState.lastEvent match {
+        case Some(GameEvent.GameOver(winner, loserOpt)) =>
+          val loserText =
+            loserOpt.fold("")(l => s" (${l.name} is the Durak!)")
+          winnerLabel.text = s"${winner.name} Wins!$loserText"
+          winnerDisplayPane.visible = true
+          gameDisplayPane.effect = new GaussianBlur(10)
+        case Some(GameEvent.ExitApplication) =>
+          Platform.exit()
+        case _ =>
+      }
     }
   }
 
   private def updateActionButtons(gameState: GameState): Unit = {
-    val (playVisible, passVisible, takeVisible) = gameState.gamePhase match {
-      case AttackPhase  => (true, true, false)
-      case DefensePhase => (true, false, true)
-      case _            => (false, false, false)
-    }
+    val (playVisible, passVisible, takeVisible) = 
+      if (gamePhases.isAttackPhase(gameState.gamePhase)) {
+        (true, true, false)
+      } else if (gamePhases.isDefensePhase(gameState.gamePhase)) {
+        (true, false, true)
+      } else {
+        (false, false, false)
+      }
     playCardButton.visible = playVisible
     passButton.visible = passVisible
     takeCardsButton.visible = takeVisible
   }
 
   private def activePlayerIndex(gameState: GameState): Option[Int] =
-    gameState.gamePhase match {
-      case AttackPhase  => Some(gameState.attackerIndex)
-      case DefensePhase => Some(gameState.defenderIndex)
-      case _            => None
+    if (gamePhases.isAttackPhase(gameState.gamePhase)) {
+      Some(gameState.attackerIndex)
+    } else if (gamePhases.isDefensePhase(gameState.gamePhase)) {
+      Some(gameState.defenderIndex)
+    } else {
+      None
     }
 
   private def updateActivePlayer(gameState: GameState): Unit = {

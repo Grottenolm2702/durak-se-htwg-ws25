@@ -1,13 +1,13 @@
 package de.htwg.DurakApp.model.builder.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestGamePhases
 import de.htwg.DurakApp.testutil.TestFactories
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
-import de.htwg.DurakApp.model.state.{SetupPhase, AttackPhase, DefensePhase}
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
@@ -24,7 +24,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       defaultGameState.trumpCard shouldBe Card(Suit.Hearts, Rank.Six)
       defaultGameState.attackerIndex shouldBe 0
       defaultGameState.defenderIndex shouldBe 1
-      defaultGameState.gamePhase shouldBe SetupPhase
+      defaultGameState.gamePhase shouldBe TestGamePhases.setupPhase
       defaultGameState.lastEvent shouldBe None
       defaultGameState.passedPlayers shouldBe empty
       defaultGameState.roundWinner shouldBe None
@@ -54,10 +54,10 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
     "create a GameState with custom game phase" in {
       val customGameState = builderFactory.create()
-        .withGamePhase(AttackPhase)
+        .withGamePhase(TestGamePhases.attackPhase)
         .build()
 
-      customGameState.gamePhase shouldBe AttackPhase
+      customGameState.gamePhase shouldBe TestGamePhases.attackPhase
     }
 
     "create a complex GameState with multiple custom parameters" in {
@@ -77,7 +77,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
         .withTrumpCard(trump)
         .withAttackerIndex(0)
         .withDefenderIndex(1)
-        .withGamePhase(DefensePhase)
+        .withGamePhase(TestGamePhases.defensePhase)
         .build()
 
       complexGameState.players should contain theSameElementsAs List(
@@ -90,7 +90,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       complexGameState.trumpCard shouldBe trump
       complexGameState.attackerIndex shouldBe 0
       complexGameState.defenderIndex shouldBe 1
-      complexGameState.gamePhase shouldBe DefensePhase
+      complexGameState.gamePhase shouldBe TestGamePhases.defensePhase
     }
 
     "ensure immutability of the builder instance" in {

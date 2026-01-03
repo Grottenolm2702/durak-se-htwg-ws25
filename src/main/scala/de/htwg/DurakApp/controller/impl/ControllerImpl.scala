@@ -2,7 +2,7 @@ package de.htwg.DurakApp.controller.impl
 
 import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.model.GameState
-import de.htwg.DurakApp.model.state.{GameEvent, SetupPhase, AskPlayerCountPhase, AskPlayerNamesPhase, AskDeckSizePhase, AskPlayAgainPhase}
+import de.htwg.DurakApp.model.state.GameEvent
 import de.htwg.DurakApp.util.{Observable, UndoRedoManager, UndoRedoManagerFactory}
 import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 import de.htwg.DurakApp.controller.{
@@ -28,26 +28,28 @@ class ControllerImpl @Inject() (
     var undoRedoManager: UndoRedoManager,
     commandFactory: CommandFactory.type,
     gameSetup: GameSetup,
-    undoRedoManagerFactory: UndoRedoManagerFactory
+    undoRedoManagerFactory: UndoRedoManagerFactory,
+    gamePhases: de.htwg.DurakApp.model.state.GamePhases
 ) extends Observable
     with Controller {
 
   def processPlayerAction(action: PlayerAction): GameState = {
-    gameState.gamePhase match {
-      case SetupPhase | AskPlayerCountPhase | AskPlayerNamesPhase |
-          AskDeckSizePhase =>
-        action match {
-          case SetPlayerCountAction(count) =>
-            if (count >= 2 && count <= 6) {
-              gameState = gameState.copy(
-                setupPlayerCount = Some(count),
-                gamePhase = AskPlayerNamesPhase,
-                lastEvent = Some(GameEvent.AskPlayerNames)
-              )
-            } else {
-              gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
-            }
-          case AddPlayerNameAction(name) =>
+    if (gameState.gamePhase == gamePhases.setupPhase ||
+        gameState.gamePhase == gamePhases.askPlayerCountPhase ||
+        gameState.gamePhase == gamePhases.askPlayerNamesPhase ||
+        gameState.gamePhase == gamePhases.askDeckSizePhase) {
+      action match {
+        case SetPlayerCountAction(count) =>
+          if (count >= 2 && count <= 6) {
+            gameState = gameState.copy(
+              setupPlayerCount = Some(count),
+              gamePhase = gamePhases.askPlayerNamesPhase,
+              lastEvent = Some(GameEvent.AskPlayerNames)
+            )
+          } else {
+            gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+          }
+        case AddPlayerNameAction(name) =>
             val currentNames = gameState.setupPlayerNames
             val expectedCount = gameState.setupPlayerCount.getOrElse(0)
             if (name.trim.nonEmpty) {
@@ -60,7 +62,7 @@ class ControllerImpl @Inject() (
               } else if (newNames.size == expectedCount) {
                 gameState = gameState.copy(
                   setupPlayerNames = newNames,
-                  gamePhase = AskDeckSizePhase,
+                  gamePhase = gamePhases.askDeckSizePhase,
                   lastEvent = Some(GameEvent.AskDeckSize)
                 )
               } else {
@@ -90,42 +92,40 @@ class ControllerImpl @Inject() (
             }
           case _ =>
             gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
-        }
-        notifyObservers
-        this.gameState
+      }
+      notifyObservers
+      this.gameState
+    } else if (gameState.gamePhase == gamePhases.askPlayAgainPhase) {
+      action match {
+        case de.htwg.DurakApp.controller.PlayAgainAction =>
+          val newPlayerNames = gameState.setupPlayerNames
+          val newDeckSize = gameState.setupDeckSize.getOrElse(36)
 
-      case AskPlayAgainPhase =>
-        action match {
-          case de.htwg.DurakApp.controller.PlayAgainAction =>
-            val newPlayerNames = gameState.setupPlayerNames
-            val newDeckSize = gameState.setupDeckSize.getOrElse(36)
-
-            gameSetup.setupGame(newPlayerNames, newDeckSize) match {
-              case Some(newGameState) =>
-                gameState = newGameState.copy(
-                  setupPlayerCount = Some(newPlayerNames.size),
-                  setupPlayerNames = newPlayerNames,
-                  setupDeckSize = Some(newDeckSize),
-                  lastEvent = Some(GameEvent.GameSetupComplete)
-                )
-                // Reset undo/redo manager for new game using factory
-                undoRedoManager = undoRedoManagerFactory.create()
-              case None =>
-                gameState =
-                  gameState.copy(lastEvent = Some(GameEvent.SetupError))
-            }
-          case de.htwg.DurakApp.controller.ExitGameAction =>
-            gameState =
-              gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
-          case _ =>
-            gameState = gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-        }
-        notifyObservers
-        this.gameState
-
-      case _ =>
-        val oldGameStateBeforeAction = this.gameState
-        val result =
+          gameSetup.setupGame(newPlayerNames, newDeckSize) match {
+            case Some(newGameState) =>
+              gameState = newGameState.copy(
+                setupPlayerCount = Some(newPlayerNames.size),
+                setupPlayerNames = newPlayerNames,
+                setupDeckSize = Some(newDeckSize),
+                lastEvent = Some(GameEvent.GameSetupComplete)
+              )
+              // Reset undo/redo manager for new game using factory
+              undoRedoManager = undoRedoManagerFactory.create()
+            case None =>
+              gameState =
+                gameState.copy(lastEvent = Some(GameEvent.SetupError))
+          }
+        case de.htwg.DurakApp.controller.ExitGameAction =>
+          gameState =
+            gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
+        case _ =>
+          gameState = gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+      }
+      notifyObservers
+      this.gameState
+    } else {
+      val oldGameStateBeforeAction = this.gameState
+      val result =
           commandFactory.createCommand(action, oldGameStateBeforeAction)
 
         result match {

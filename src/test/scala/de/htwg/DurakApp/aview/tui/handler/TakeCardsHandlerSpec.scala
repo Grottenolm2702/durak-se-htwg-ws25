@@ -5,7 +5,7 @@ import de.htwg.DurakApp.testutil.TestHelpers._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.model.state.DefensePhase
+import de.htwg.DurakApp.testutil.TestGamePhases
 import de.htwg.DurakApp.controller.{TakeCardsAction, InvalidAction}
 
 class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
@@ -22,8 +22,8 @@ class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
     trumpCard = trumpCard,
     attackerIndex = 0,
     defenderIndex = 1,
-    gamePhase = DefensePhase,
-    lastEvent = None,
+    gamePhase = TestGamePhases.setupPhase,
+        lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
     setupPlayerCount = None,
