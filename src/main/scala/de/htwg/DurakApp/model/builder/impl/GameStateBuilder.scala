@@ -1,14 +1,18 @@
 package de.htwg.DurakApp.model.builder.impl
 
-import de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameStateFactory}
+import de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameStateFactory, CardFactory}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, SetupPhase}
 import com.google.inject.Inject
 
 object GameStateBuilder {
   def apply(
-      gameStateFactory: GameStateFactory
+      gameStateFactory: GameStateFactory,
+      cardFactory: CardFactory
   ): de.htwg.DurakApp.model.builder.GameStateBuilder =
-    new GameStateBuilderImpl(gameStateFactory = gameStateFactory)
+    new GameStateBuilderImpl(
+      gameStateFactory = gameStateFactory,
+      cardFactory = cardFactory
+    )
 }
 
 private[model] case class GameStateBuilderImpl(
@@ -16,7 +20,7 @@ private[model] case class GameStateBuilderImpl(
     deck: List[Card] = List.empty,
     table: Map[Card, Option[Card]] = Map.empty,
     discardPile: List[Card] = List.empty,
-    trumpCard: Card = Card(Suit.Hearts, Rank.Six),
+    trumpCard: Option[Card] = None,
     attackerIndex: Int = 0,
     defenderIndex: Int = 1,
     gamePhase: GamePhase = SetupPhase,
@@ -28,7 +32,8 @@ private[model] case class GameStateBuilderImpl(
     setupDeckSize: Option[Int] = None,
     currentAttackerIndex: Option[Int] = None,
     lastAttackerIndex: Option[Int] = None,
-    gameStateFactory: GameStateFactory
+    gameStateFactory: GameStateFactory,
+    cardFactory: CardFactory
 ) extends de.htwg.DurakApp.model.builder.GameStateBuilder {
 
   def withPlayers(
@@ -54,7 +59,7 @@ private[model] case class GameStateBuilderImpl(
   def withTrumpCard(
       newTrumpCard: Card
   ): de.htwg.DurakApp.model.builder.GameStateBuilder =
-    copy(trumpCard = newTrumpCard)
+    copy(trumpCard = Some(newTrumpCard))
 
   def withAttackerIndex(
       newAttackerIndex: Int
@@ -112,12 +117,14 @@ private[model] case class GameStateBuilderImpl(
     copy(lastAttackerIndex = index)
 
   def build(): de.htwg.DurakApp.model.GameState = {
+    val defaultTrumpCard = trumpCard.getOrElse(cardFactory(Suit.Hearts, Rank.Six))
+    
     gameStateFactory(
       players = players,
       deck = deck,
       table = table,
       discardPile = discardPile,
-      trumpCard = trumpCard,
+      trumpCard = defaultTrumpCard,
       attackerIndex = attackerIndex,
       defenderIndex = defenderIndex,
       gamePhase = gamePhase,

@@ -11,7 +11,7 @@ import de.htwg.DurakApp.model.state.{SetupPhase, AttackPhase, DefensePhase}
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
-  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory)
+  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory, TestFactories.cardFactory)
 
   "A GameStateBuilder" should {
     "create a default GameState correctly" in {

@@ -14,8 +14,8 @@ import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 
 class ControllerImplSpec extends AnyWordSpec with Matchers {
 
-  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory)
-  val gameSetup = new GameSetupImpl(builderFactory, TestFactories.playerFactory)
+  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory, TestFactories.cardFactory)
+  val gameSetup = new GameSetupImpl(builderFactory, TestFactories.playerFactory, TestFactories.cardFactory)
   val undoRedoManagerFactory = new UndoRedoManagerFactoryImpl()
 
   "ControllerImpl with SetPlayerCountAction" should {

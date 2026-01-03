@@ -3,6 +3,7 @@ package de.htwg.DurakApp.controller.impl
 import de.htwg.DurakApp.controller.GameSetup
 import de.htwg.DurakApp.model.{
   Card,
+  CardFactory,
   PlayerFactory,
   GameState,
   Rank,
@@ -16,7 +17,8 @@ import scala.util.Random
 
 class GameSetupImpl @Inject() (
     builderFactory: GameStateBuilderFactory,
-    playerFactory: PlayerFactory
+    playerFactory: PlayerFactory,
+    cardFactory: CardFactory
 ) extends GameSetup {
   
   private def createDeck(requestedDeckSize: Int): List[Card] = {
@@ -26,7 +28,7 @@ class GameSetupImpl @Inject() (
     val fullStandardDeck = for {
       suit <- suits
       rank <- standardRanks
-    } yield Card(suit, rank)
+    } yield cardFactory(suit, rank)
 
     val effectiveDeckSize = requestedDeckSize.min(fullStandardDeck.length)
 

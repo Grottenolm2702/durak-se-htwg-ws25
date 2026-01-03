@@ -14,6 +14,7 @@ object TestFactories:
   val gameStateFactory: GameStateFactory = new GameStateFactoryImpl()
 
 class StubGameSetup extends GameSetup:
+  private val cardFactory = TestFactories.cardFactory
   private val playerFactory = TestFactories.playerFactory
   private val gameStateFactory = TestFactories.gameStateFactory
   
@@ -22,7 +23,7 @@ class StubGameSetup extends GameSetup:
       None
     else
       val players = playerNames.map(name => playerFactory(name, List.empty))
-      val trumpCard = Card(Suit.Hearts, Rank.Six, isTrump = true)
+      val trumpCard = cardFactory(Suit.Hearts, Rank.Six, isTrump = true)
       Some(gameStateFactory(
         players = players,
         deck = List.empty,
@@ -125,6 +126,7 @@ class SpyController(
     observers.foreach(_.update)
 
 object TestHelper:
+  private val cardFactory = TestFactories.cardFactory
   private val playerFactory = TestFactories.playerFactory
   private val gameStateFactory = TestFactories.gameStateFactory
   
@@ -133,7 +135,7 @@ object TestHelper:
     deck: List[Card] = List.empty,
     table: Map[Card, Option[Card]] = Map.empty,
     discardPile: List[Card] = List.empty,
-    trumpCard: Card = Card(Suit.Hearts, Rank.Six, isTrump = true),
+    trumpCard: Card = cardFactory(Suit.Hearts, Rank.Six, isTrump = true),
     attackerIndex: Int = 0,
     defenderIndex: Int = 1,
     gamePhase: GamePhase = SetupPhase,

@@ -6,4 +6,9 @@ private[model] case class CardImpl(
     suit: Suit,
     rank: Rank,
     isTrump: Boolean
-) extends Card
+) extends Card:
+  override def copy(
+      suit: Suit = this.suit,
+      rank: Rank = this.rank,
+      isTrump: Boolean = this.isTrump
+  ): Card = CardImpl(suit, rank, isTrump)
