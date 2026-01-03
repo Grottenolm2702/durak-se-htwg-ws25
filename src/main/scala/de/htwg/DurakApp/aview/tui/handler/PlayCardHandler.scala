@@ -6,11 +6,14 @@ import de.htwg.DurakApp.controller.{
   InvalidAction
 }
 import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.state.GamePhases
 
 import scala.util.{Failure, Success, Try}
 
-class PlayCardHandler(override val next: Option[InputHandler] = None)
-    extends InputHandler {
+class PlayCardHandler(
+    override val next: Option[InputHandler] = None,
+    gamePhases: GamePhases
+) extends InputHandler {
   override def handleRequest(
       input: String,
       gameState: GameState
@@ -21,7 +24,7 @@ class PlayCardHandler(override val next: Option[InputHandler] = None)
         Try(inputArgs(1).toInt) match {
           case Success(index) =>
             val activePlayer = 
-              if (gameState.gamePhase == de.htwg.DurakApp.model.state.impl.DefensePhaseImpl) {
+              if (gamePhases.isDefensePhase(gameState.gamePhase)) {
                 gameState.players(gameState.defenderIndex)
               } else {
                 val idx = gameState.currentAttackerIndex.getOrElse(

@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.controller.command.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -36,7 +36,7 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val command = PassCommand()
+      val command = PassCommand(TestGamePhasesInstance)
       val result = command.execute(gameState)
       
       result.lastEvent should not be None
@@ -67,7 +67,7 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val command = PassCommand()
+      val command = PassCommand(TestGamePhasesInstance)
       val result = command.execute(gameState)
       
       result.lastEvent should not be None
@@ -98,7 +98,7 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val command = PassCommand()
+      val command = PassCommand(TestGamePhasesInstance)
       val result = command.execute(gameState)
       
       result.lastEvent should not be None

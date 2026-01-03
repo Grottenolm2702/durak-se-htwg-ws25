@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.controller.command.impl
 
 import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -34,7 +34,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     )
 
     "execute correctly when playing a card in TestGamePhases.attackPhase" in {
-      val command = PlayCardCommand(player1Card1)
+      val command = PlayCardCommand(player1Card1, TestGamePhasesInstance)
       val resultState = command.execute(initialGameStateAttack)
 
       resultState.players(0).hand should not contain player1Card1
@@ -49,7 +49,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
         table = Map(attackCardOnTable -> None),
         players = List(player1ForDefense, player2ForDefense)
       )
-      val command = PlayCardCommand(defendingCard)
+      val command = PlayCardCommand(defendingCard, TestGamePhasesInstance)
       val resultState = command.execute(gameState)
 
       resultState.players(1).hand should not contain defendingCard
@@ -60,7 +60,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
 
     "return InvalidMove when player plays a card not in hand" in {
       val wrongCard = Card(Suit.Hearts, Rank.King)
-      val command = PlayCardCommand(wrongCard)
+      val command = PlayCardCommand(wrongCard, TestGamePhasesInstance)
       val resultState = command.execute(initialGameStateAttack)
       resultState.lastEvent.get shouldBe GameEvent.InvalidMove
       resultState shouldBe initialGameStateAttack.copy(lastEvent =

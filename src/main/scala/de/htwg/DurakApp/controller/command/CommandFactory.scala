@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.controller.command
 
 import de.htwg.DurakApp.model.{Card, GameState}
-import de.htwg.DurakApp.model.state.GameEvent
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
 
 import de.htwg.DurakApp.controller.{
   PlayerAction,
@@ -18,17 +18,19 @@ import de.htwg.DurakApp.controller.{
   ExitGameAction
 }
 
-object CommandFactory {
+import com.google.inject.Inject
+
+class CommandFactory @Inject() (gamePhases: GamePhases) {
   def createCommand(
       action: PlayerAction,
       gameState: GameState
   ): Either[GameEvent, GameCommand] = {
     action match {
       case PlayCardAction(card) =>
-        Right(impl.PlayCardCommand(card))
+        Right(impl.PlayCardCommand(card, gamePhases))
 
       case PassAction =>
-        Right(impl.PassCommand())
+        Right(impl.PassCommand(gamePhases))
 
       case TakeCardsAction =>
         Right(impl.TakeCardsCommand())
@@ -44,10 +46,10 @@ object CommandFactory {
   }
   
   def playCard(card: Card): GameCommand =
-    impl.PlayCardCommand(card)
+    impl.PlayCardCommand(card, gamePhases)
   
   def pass(): GameCommand =
-    impl.PassCommand()
+    impl.PassCommand(gamePhases)
   
   def takeCards(): GameCommand =
     impl.TakeCardsCommand()

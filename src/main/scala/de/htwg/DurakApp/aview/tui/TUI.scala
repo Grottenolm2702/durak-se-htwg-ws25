@@ -22,7 +22,7 @@ class TUI @Inject() (controller: Controller, gamePhases: de.htwg.DurakApp.model.
     val invalid = new InvalidInputHandler(None)
     val take = new TakeCardsHandler(Some(invalid))
     val pass = new PassHandler(Some(take))
-    val play = new PlayCardHandler(Some(pass))
+    val play = new PlayCardHandler(Some(pass), gamePhases)
     val redo = new RedoHandler(controller, Some(play))
     val undo = new UndoHandler(controller, Some(redo))
     val gamePhaseHandler = new GamePhaseInputHandler(Some(undo), gamePhases)

@@ -26,7 +26,7 @@ import com.google.inject.Inject
 class ControllerImpl @Inject() (
     var gameState: GameState,
     var undoRedoManager: UndoRedoManager,
-    commandFactory: CommandFactory.type,
+    commandFactory: CommandFactory,
     gameSetup: GameSetup,
     undoRedoManagerFactory: UndoRedoManagerFactory,
     gamePhases: de.htwg.DurakApp.model.state.GamePhases

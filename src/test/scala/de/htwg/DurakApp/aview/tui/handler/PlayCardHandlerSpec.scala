@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.aview.tui.handler
 
 import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -38,7 +38,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = PlayCardHandler()
+      val handler = PlayCardHandler(None, TestGamePhasesInstance)
       val result = handler.handleRequest("play 0", gameState)
       
       result shouldBe PlayCardAction(card1)
@@ -70,7 +70,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = PlayCardHandler()
+      val handler = PlayCardHandler(None, TestGamePhasesInstance)
       val result = handler.handleRequest("play 1", gameState)
       
       result shouldBe PlayCardAction(card2)
@@ -100,7 +100,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = PlayCardHandler()
+      val handler = PlayCardHandler(None, TestGamePhasesInstance)
       val result = handler.handleRequest("play 5", gameState)
       
       result shouldBe InvalidAction
@@ -130,7 +130,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = PlayCardHandler()
+      val handler = PlayCardHandler(None, TestGamePhasesInstance)
       val result = handler.handleRequest("play abc", gameState)
       
       result shouldBe InvalidAction
@@ -161,7 +161,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
       )
       
       val nextHandler = InvalidInputHandler()
-      val handler = PlayCardHandler(Some(nextHandler))
+      val handler = PlayCardHandler(Some(nextHandler), TestGamePhasesInstance)
       val result = handler.handleRequest("pass", gameState)
       
       result shouldBe InvalidAction
@@ -192,7 +192,7 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       
-      val handler = PlayCardHandler()
+      val handler = PlayCardHandler(None, TestGamePhasesInstance)
       val result = handler.handleRequest("PLAY 0", gameState)
       
       result shouldBe PlayCardAction(card1)

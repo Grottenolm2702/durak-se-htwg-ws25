@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.controller.command
 
 import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -34,28 +34,30 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     lastAttackerIndex = None
   )
 
-  "GameCommand companion object" should {
+  val commandFactory = new CommandFactory(TestGamePhasesInstance)
+
+  "CommandFactory" should {
     "create PlayCardCommand via createCommand" in {
       val card = Card(Suit.Hearts, Rank.Six)
-      val result = GameCommand.createCommand(PlayCardAction(card), gameState)
+      val result = commandFactory.createCommand(PlayCardAction(card), gameState)
       
       result.isRight shouldBe true
     }
     
     "create PassCommand via createCommand" in {
-      val result = GameCommand.createCommand(PassAction, gameState)
+      val result = commandFactory.createCommand(PassAction, gameState)
       
       result.isRight shouldBe true
     }
     
     "create TakeCardsCommand via createCommand" in {
-      val result = GameCommand.createCommand(TakeCardsAction, gameState)
+      val result = commandFactory.createCommand(TakeCardsAction, gameState)
       
       result.isRight shouldBe true
     }
     
     "return GameEvent for InvalidAction via createCommand" in {
-      val result = GameCommand.createCommand(InvalidAction, gameState)
+      val result = commandFactory.createCommand(InvalidAction, gameState)
       
       result.isLeft shouldBe true
       result.left.getOrElse(null) shouldBe GameEvent.InvalidMove
@@ -63,7 +65,7 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     
     "create PlayCardCommand via playCard factory method" in {
       val card = Card(Suit.Hearts, Rank.Six)
-      val command = GameCommand.playCard(card)
+      val command = commandFactory.playCard(card)
       
       command should not be null
       val result = command.execute(gameState)
@@ -71,19 +73,19 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     }
     
     "create PassCommand via pass factory method" in {
-      val command = GameCommand.pass()
+      val command = commandFactory.pass()
       
       command should not be null
     }
     
     "create TakeCardsCommand via takeCards factory method" in {
-      val command = GameCommand.takeCards()
+      val command = commandFactory.takeCards()
       
       command should not be null
     }
     
     "create PhaseChangeCommand via phaseChange factory method" in {
-      val command = GameCommand.phaseChange()
+      val command = commandFactory.phaseChange()
       
       command should not be null
       val result = command.execute(gameState)

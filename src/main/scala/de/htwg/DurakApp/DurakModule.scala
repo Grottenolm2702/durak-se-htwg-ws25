@@ -59,7 +59,7 @@ class DurakModule extends AbstractModule with ScalaModule:
       .toInstance(de.htwg.DurakApp.model.state.impl.EndPhaseImpl)
     bind[GamePhases].to[GamePhasesImpl].asEagerSingleton()
 
-    bind[CommandFactory.type].toInstance(CommandFactory)
+    bind[CommandFactory].asEagerSingleton()
 
     bind[CardFactory].to[model.impl.CardFactoryImpl]
     bind[PlayerFactory].to[model.impl.PlayerFactoryImpl]
@@ -88,7 +88,7 @@ class DurakModule extends AbstractModule with ScalaModule:
   def provideController(
       gameState: GameState,
       undoRedoManager: UndoRedoManager,
-      commandFactory: CommandFactory.type,
+      commandFactory: CommandFactory,
       gameSetup: GameSetup,
       undoRedoManagerFactory: UndoRedoManagerFactory,
       gamePhases: GamePhases
