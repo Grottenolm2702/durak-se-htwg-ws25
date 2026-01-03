@@ -29,19 +29,19 @@ private[state] case object SetupPhaseImpl extends GamePhase {
     val attackerIndex = findFirstAttacker(dealtPlayers, trumpCard.suit)
     val defenderIndex = (attackerIndex + 1) % dealtPlayers.size
 
-    val finalGameState = gameState.toBuilder
-      .withPlayers(dealtPlayers)
-      .withDeck(finalDeck)
-      .withTable(Map.empty)
-      .withDiscardPile(List.empty)
-      .withTrumpCard(trumpCard)
-      .withAttackerIndex(attackerIndex)
-      .withDefenderIndex(defenderIndex)
-      .withGamePhase(RoundPhaseImpl)
-      .withLastEvent(None)
-      .withPassedPlayers(Set.empty)
-      .withRoundWinner(None)
-      .build()
+    val finalGameState = gameState.copy(
+      players = dealtPlayers,
+      deck = finalDeck,
+      table = Map.empty,
+      discardPile = List.empty,
+      trumpCard = trumpCard,
+      attackerIndex = attackerIndex,
+      defenderIndex = defenderIndex,
+      gamePhase = RoundPhaseImpl,
+      lastEvent = None,
+      passedPlayers = Set.empty,
+      roundWinner = None
+    )
 
     finalGameState.gamePhase.handle(finalGameState)
   }

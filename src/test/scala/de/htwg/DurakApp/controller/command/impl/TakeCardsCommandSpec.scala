@@ -1,5 +1,7 @@
 package de.htwg.DurakApp.controller.command.impl
 
+import de.htwg.DurakApp.testutil.TestHelpers._
+
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}

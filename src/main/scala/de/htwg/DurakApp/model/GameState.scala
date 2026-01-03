@@ -8,6 +8,8 @@ import de.htwg.DurakApp.model.builder.GameStateBuilder
   * This immutable data structure contains all information about the current
   * game including players, cards, current phase, and game progress. Use the
   * `copy` method to create modified versions of the state.
+  * 
+  * Use GameStateFactory to create instances via dependency injection.
   */
 trait GameState:
 
@@ -126,64 +128,4 @@ trait GameState:
       setupDeckSize: Option[Int] = this.setupDeckSize,
       currentAttackerIndex: Option[Int] = this.currentAttackerIndex,
       lastAttackerIndex: Option[Int] = this.lastAttackerIndex
-  ): GameState = GameState(
-    players,
-    deck,
-    table,
-    discardPile,
-    trumpCard,
-    attackerIndex,
-    defenderIndex,
-    gamePhase,
-    lastEvent,
-    passedPlayers,
-    roundWinner,
-    setupPlayerCount,
-    setupPlayerNames,
-    setupDeckSize,
-    currentAttackerIndex,
-    lastAttackerIndex
-  )
-
-/** Factory for creating GameState instances.
-  * 
-  * This companion object is the only place that references impl.GameStateImpl.
-  * All other code should use GameState(...) to create instances.
-  */
-object GameState:
-  def apply(
-      players: List[Player],
-      deck: List[Card],
-      table: Map[Card, Option[Card]],
-      discardPile: List[Card],
-      trumpCard: Card,
-      attackerIndex: Int,
-      defenderIndex: Int,
-      gamePhase: GamePhase,
-      lastEvent: Option[GameEvent],
-      passedPlayers: Set[Int],
-      roundWinner: Option[Int],
-      setupPlayerCount: Option[Int],
-      setupPlayerNames: List[String],
-      setupDeckSize: Option[Int],
-      currentAttackerIndex: Option[Int],
-      lastAttackerIndex: Option[Int]
-  ): GameState =
-    impl.GameStateImpl(
-      players,
-      deck,
-      table,
-      discardPile,
-      trumpCard,
-      attackerIndex,
-      defenderIndex,
-      gamePhase,
-      lastEvent,
-      passedPlayers,
-      roundWinner,
-      setupPlayerCount,
-      setupPlayerNames,
-      setupDeckSize,
-      currentAttackerIndex,
-      lastAttackerIndex
-    )
+  ): GameState

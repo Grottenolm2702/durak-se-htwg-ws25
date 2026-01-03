@@ -2,18 +2,28 @@ package de.htwg.DurakApp.testutil
 
 import de.htwg.DurakApp.controller.{Controller, GameSetup, PlayerAction}
 import de.htwg.DurakApp.controller.command.GameCommand
-import de.htwg.DurakApp.model.{GameState, Card, Player, Suit, Rank}
+import de.htwg.DurakApp.model.{GameState, Card, Player, Suit, Rank, PlayerFactory, GameStateFactory, CardFactory}
+import de.htwg.DurakApp.model.impl.{PlayerFactoryImpl, GameStateFactoryImpl, CardFactoryImpl}
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent, SetupPhase}
 import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 
+// Test helpers for creating model instances
+object TestFactories:
+  val cardFactory: CardFactory = new CardFactoryImpl()
+  val playerFactory: PlayerFactory = new PlayerFactoryImpl()
+  val gameStateFactory: GameStateFactory = new GameStateFactoryImpl()
+
 class StubGameSetup extends GameSetup:
+  private val playerFactory = TestFactories.playerFactory
+  private val gameStateFactory = TestFactories.gameStateFactory
+  
   def setupGame(playerNames: List[String], deckSize: Int): Option[GameState] =
     if playerNames.size < 2 || playerNames.size > 6 || deckSize < 2 || deckSize > 36 then
       None
     else
-      val players = playerNames.map(name => Player(name, List.empty))
+      val players = playerNames.map(name => playerFactory(name, List.empty))
       val trumpCard = Card(Suit.Hearts, Rank.Six, isTrump = true)
-      Some(GameState(
+      Some(gameStateFactory(
         players = players,
         deck = List.empty,
         table = Map.empty,
@@ -115,8 +125,11 @@ class SpyController(
     observers.foreach(_.update)
 
 object TestHelper:
+  private val playerFactory = TestFactories.playerFactory
+  private val gameStateFactory = TestFactories.gameStateFactory
+  
   def createTestGameState(
-    players: List[Player] = List(Player("P1"), Player("P2")),
+    players: List[Player] = List(playerFactory("P1"), playerFactory("P2")),
     deck: List[Card] = List.empty,
     table: Map[Card, Option[Card]] = Map.empty,
     discardPile: List[Card] = List.empty,
@@ -133,7 +146,7 @@ object TestHelper:
     currentAttackerIndex: Option[Int] = None,
     lastAttackerIndex: Option[Int] = None
   ): GameState =
-    GameState(
+    gameStateFactory(
       players,
       deck,
       table,

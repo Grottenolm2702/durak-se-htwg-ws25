@@ -3,11 +3,12 @@ package de.htwg.DurakApp.controller.impl
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
+import de.htwg.DurakApp.testutil.TestFactories
 
 class GameSetupImplSpec extends AnyWordSpec with Matchers {
 
-  val builderFactory = GameStateBuilderFactory()
-  val gameSetup = GameSetupImpl(builderFactory)
+  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory)
+  val gameSetup = new GameSetupImpl(builderFactory, TestFactories.playerFactory)
 
   "A GameSetupImpl" should {
     "setup game with valid parameters" in {

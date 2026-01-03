@@ -1,5 +1,8 @@
 package de.htwg.DurakApp.model.builder.impl
 
+import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestFactories
+
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
@@ -8,7 +11,7 @@ import de.htwg.DurakApp.model.state.{SetupPhase, AttackPhase, DefensePhase}
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
-  val builderFactory = new GameStateBuilderFactory()
+  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory)
 
   "A GameStateBuilder" should {
     "create a default GameState correctly" in {

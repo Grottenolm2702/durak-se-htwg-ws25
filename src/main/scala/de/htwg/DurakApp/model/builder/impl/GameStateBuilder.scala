@@ -1,11 +1,14 @@
 package de.htwg.DurakApp.model.builder.impl
 
-import de.htwg.DurakApp.model.{Card, Player, Rank, Suit}
+import de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameStateFactory}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, SetupPhase}
+import com.google.inject.Inject
 
 object GameStateBuilder {
-  def apply(): de.htwg.DurakApp.model.builder.GameStateBuilder =
-    new GameStateBuilderImpl()
+  def apply(
+      gameStateFactory: GameStateFactory
+  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+    new GameStateBuilderImpl(gameStateFactory = gameStateFactory)
 }
 
 private[model] case class GameStateBuilderImpl(
@@ -24,7 +27,8 @@ private[model] case class GameStateBuilderImpl(
     setupPlayerNames: List[String] = List.empty,
     setupDeckSize: Option[Int] = None,
     currentAttackerIndex: Option[Int] = None,
-    lastAttackerIndex: Option[Int] = None
+    lastAttackerIndex: Option[Int] = None,
+    gameStateFactory: GameStateFactory
 ) extends de.htwg.DurakApp.model.builder.GameStateBuilder {
 
   def withPlayers(
@@ -108,7 +112,7 @@ private[model] case class GameStateBuilderImpl(
     copy(lastAttackerIndex = index)
 
   def build(): de.htwg.DurakApp.model.GameState = {
-    de.htwg.DurakApp.model.GameState(
+    gameStateFactory(
       players = players,
       deck = deck,
       table = table,

@@ -23,9 +23,11 @@ import de.htwg.DurakApp.util.{UndoRedoManager, UndoRedoManagerFactory}
 class DurakModule extends AbstractModule with ScalaModule:
   override def configure(): Unit =
     bind[CommandFactory.type].toInstance(CommandFactory)
-    bind[CardFactory.type].toInstance(CardFactory)
-    bind[PlayerFactory.type].toInstance(PlayerFactory)
-    bind[GameStateFactory.type].toInstance(GameStateFactory)
+    
+    bind[CardFactory].to[model.impl.CardFactoryImpl]
+    bind[PlayerFactory].to[model.impl.PlayerFactoryImpl]
+    bind[GameStateFactory].to[model.impl.GameStateFactoryImpl]
+    
     bind[PhaseProvider.type].toInstance(PhaseProvider)
 
     bind[GameStateBuilderFactory].asEagerSingleton()

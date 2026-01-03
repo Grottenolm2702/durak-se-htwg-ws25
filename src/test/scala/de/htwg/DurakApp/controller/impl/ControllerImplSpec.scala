@@ -1,5 +1,8 @@
 package de.htwg.DurakApp.controller.impl
 
+import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil.TestFactories
+
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
@@ -11,9 +14,9 @@ import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 
 class ControllerImplSpec extends AnyWordSpec with Matchers {
 
-  val builderFactory = GameStateBuilderFactory()
-  val gameSetup = GameSetupImpl(builderFactory)
-  val undoRedoManagerFactory = UndoRedoManagerFactoryImpl()
+  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory)
+  val gameSetup = new GameSetupImpl(builderFactory, TestFactories.playerFactory)
+  val undoRedoManagerFactory = new UndoRedoManagerFactoryImpl()
 
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {

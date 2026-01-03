@@ -1,28 +1,30 @@
 package de.htwg.DurakApp.model
 
-/** Factory objects for creating model instances.
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
+
+/** Factory trait for creating Card instances.
   * 
-  * These factories are bound as singletons in Guice (see DurakModule).
-  * They are the only places that reference impl classes.
-  * 
-  * Note: In most cases, you should use the companion objects (Card, Player, GameState)
-  * instead of these factories. These are primarily for dependency injection scenarios
-  * where you need to inject the factory itself.
+  * Inject this factory via Guice to create Card instances.
   */
+trait CardFactory:
+  def apply(suit: Suit, rank: Rank, isTrump: Boolean = false): Card
 
-object CardFactory:
-  def apply(suit: Suit, rank: Rank, isTrump: Boolean = false): Card =
-    impl.CardImpl(suit, rank, isTrump)
-
-object PlayerFactory:
+/** Factory trait for creating Player instances.
+  * 
+  * Inject this factory via Guice to create Player instances.
+  */
+trait PlayerFactory:
   def apply(
       name: String,
       hand: List[Card] = List(),
       isDone: Boolean = false
-  ): Player =
-    impl.PlayerImpl(name, hand, isDone)
+  ): Player
 
-object GameStateFactory:
+/** Factory trait for creating GameState instances.
+  * 
+  * Inject this factory via Guice to create GameState instances.
+  */
+trait GameStateFactory:
   def apply(
       players: List[Player],
       deck: List[Card],
@@ -31,8 +33,8 @@ object GameStateFactory:
       trumpCard: Card,
       attackerIndex: Int,
       defenderIndex: Int,
-      gamePhase: state.GamePhase,
-      lastEvent: Option[state.GameEvent],
+      gamePhase: GamePhase,
+      lastEvent: Option[GameEvent],
       passedPlayers: Set[Int],
       roundWinner: Option[Int],
       setupPlayerCount: Option[Int],
@@ -40,22 +42,4 @@ object GameStateFactory:
       setupDeckSize: Option[Int],
       currentAttackerIndex: Option[Int],
       lastAttackerIndex: Option[Int]
-  ): GameState =
-    impl.GameStateImpl(
-      players,
-      deck,
-      table,
-      discardPile,
-      trumpCard,
-      attackerIndex,
-      defenderIndex,
-      gamePhase,
-      lastEvent,
-      passedPlayers,
-      roundWinner,
-      setupPlayerCount,
-      setupPlayerNames,
-      setupDeckSize,
-      currentAttackerIndex,
-      lastAttackerIndex
-    )
+  ): GameState

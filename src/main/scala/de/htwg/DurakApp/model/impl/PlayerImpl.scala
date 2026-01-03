@@ -6,4 +6,9 @@ private[model] case class PlayerImpl(
     name: String,
     hand: List[Card],
     isDone: Boolean
-) extends Player
+) extends Player:
+  override def copy(
+      name: String = this.name,
+      hand: List[Card] = this.hand,
+      isDone: Boolean = this.isDone
+  ): Player = PlayerImpl(name, hand, isDone)

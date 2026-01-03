@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.model.impl
 
-import de.htwg.DurakApp.model.{GameState, Player, Card}
+import de.htwg.DurakApp.model.{GameState, Player, Card, GameStateFactory}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 
@@ -23,9 +23,83 @@ private[model] case class GameStateImpl(
     lastAttackerIndex: Option[Int]
 ) extends GameState {
 
+  override def copy(
+      players: List[Player] = this.players,
+      deck: List[Card] = this.deck,
+      table: Map[Card, Option[Card]] = this.table,
+      discardPile: List[Card] = this.discardPile,
+      trumpCard: Card = this.trumpCard,
+      attackerIndex: Int = this.attackerIndex,
+      defenderIndex: Int = this.defenderIndex,
+      gamePhase: GamePhase = this.gamePhase,
+      lastEvent: Option[GameEvent] = this.lastEvent,
+      passedPlayers: Set[Int] = this.passedPlayers,
+      roundWinner: Option[Int] = this.roundWinner,
+      setupPlayerCount: Option[Int] = this.setupPlayerCount,
+      setupPlayerNames: List[String] = this.setupPlayerNames,
+      setupDeckSize: Option[Int] = this.setupDeckSize,
+      currentAttackerIndex: Option[Int] = this.currentAttackerIndex,
+      lastAttackerIndex: Option[Int] = this.lastAttackerIndex
+  ): GameState = GameStateImpl(
+    players,
+    deck,
+    table,
+    discardPile,
+    trumpCard,
+    attackerIndex,
+    defenderIndex,
+    gamePhase,
+    lastEvent,
+    passedPlayers,
+    roundWinner,
+    setupPlayerCount,
+    setupPlayerNames,
+    setupDeckSize,
+    currentAttackerIndex,
+    lastAttackerIndex
+  )
+
   def toBuilder: GameStateBuilder = {
-    // Create builder implementation directly since we're in the impl package
-    de.htwg.DurakApp.model.builder.impl.GameStateBuilder()
+    // Use inline factory that creates GameStateImpl directly
+    val inlineFactory = new GameStateFactory {
+      def apply(
+          players: List[Player],
+          deck: List[Card],
+          table: Map[Card, Option[Card]],
+          discardPile: List[Card],
+          trumpCard: Card,
+          attackerIndex: Int,
+          defenderIndex: Int,
+          gamePhase: GamePhase,
+          lastEvent: Option[GameEvent],
+          passedPlayers: Set[Int],
+          roundWinner: Option[Int],
+          setupPlayerCount: Option[Int],
+          setupPlayerNames: List[String],
+          setupDeckSize: Option[Int],
+          currentAttackerIndex: Option[Int],
+          lastAttackerIndex: Option[Int]
+      ): GameState = GameStateImpl(
+        players,
+        deck,
+        table,
+        discardPile,
+        trumpCard,
+        attackerIndex,
+        defenderIndex,
+        gamePhase,
+        lastEvent,
+        passedPlayers,
+        roundWinner,
+        setupPlayerCount,
+        setupPlayerNames,
+        setupDeckSize,
+        currentAttackerIndex,
+        lastAttackerIndex
+      )
+    }
+    
+    de.htwg.DurakApp.model.builder.impl.GameStateBuilder(inlineFactory)
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)
