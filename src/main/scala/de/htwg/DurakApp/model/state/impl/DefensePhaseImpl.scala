@@ -4,7 +4,7 @@ import de.htwg.DurakApp.model.{Card, GameState, Suit}
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 
 case object DefensePhaseImpl extends GamePhase {
-  override def toString: String = "TestGamePhases.defensePhase"
+  override def toString: String = "DefensePhase"
 
   override def handle(gameState: GameState): GameState = {
     gameState

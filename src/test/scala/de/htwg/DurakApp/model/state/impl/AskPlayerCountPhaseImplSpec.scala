@@ -11,7 +11,7 @@ class AskPlayerCountPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "AskPlayerCountPhaseImpl" should {
     "have correct string representation" in {
-      AskPlayerCountPhaseImpl.toString shouldBe "TestGamePhases.askPlayerCountPhase"
+      AskPlayerCountPhaseImpl.toString shouldBe "AskPlayerCountPhase"
     }
     
     "handle returns same state" in {

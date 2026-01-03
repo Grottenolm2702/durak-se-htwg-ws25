@@ -16,7 +16,8 @@ import de.htwg.DurakApp.model.builder.{
   GameStateBuilder,
   GameStateBuilderFactory
 }
-import de.htwg.DurakApp.model.state.{GamePhase, GamePhases, GamePhasesImpl}
+import de.htwg.DurakApp.model.state.{GamePhase, GamePhases}
+import de.htwg.DurakApp.model.state.impl.GamePhasesImpl
 import com.google.inject.name.{Named, Names}
 
 import de.htwg.DurakApp.util.{UndoRedoManager, UndoRedoManagerFactory}

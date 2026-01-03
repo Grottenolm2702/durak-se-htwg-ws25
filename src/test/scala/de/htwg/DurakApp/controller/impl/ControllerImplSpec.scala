@@ -357,7 +357,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       
       val status = controller.getStatusString()
       
-      status shouldBe "TestGamePhases.attackPhase"
+      status shouldBe "AttackPhase"
     }
   }
 }

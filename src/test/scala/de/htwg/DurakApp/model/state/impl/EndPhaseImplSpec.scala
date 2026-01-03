@@ -12,7 +12,7 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "EndPhaseImpl" should {
     "have correct string representation" in {
-      EndPhaseImpl.toString shouldBe "TestGamePhases.endPhase"
+      EndPhaseImpl.toString shouldBe "EndPhase"
     }
     
     "handle game over with winner and loser" in {

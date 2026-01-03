@@ -11,7 +11,7 @@ class AskPlayAgainPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "AskPlayAgainPhaseImpl" should {
     "have correct string representation" in {
-      AskPlayAgainPhaseImpl.toString shouldBe "TestGamePhases.askPlayAgainPhase"
+      AskPlayAgainPhaseImpl.toString shouldBe "AskPlayAgainPhase"
     }
     
     "handle returns same state" in {

@@ -16,7 +16,6 @@ object TestGamePhases extends de.htwg.DurakApp.model.state.GamePhases {
   def roundPhase = de.htwg.DurakApp.testutil.TestGamePhases.roundPhase
   def endPhase = de.htwg.DurakApp.testutil.TestGamePhases.endPhase
 }
-import de.htwg.DurakApp.model.state.GamePhasesImpl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -136,7 +135,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       
       val desc = tui.description(gameState)
       
-      desc should include("TestGamePhases.attackPhase")
+      desc should include("AttackPhase")
     }
     
     "build status string contains important information" in {

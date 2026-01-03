@@ -12,7 +12,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "DrawPhaseImpl" should {
     "have correct string representation" in {
-      DrawPhaseImpl.toString shouldBe "TestGamePhases.drawPhase"
+      DrawPhaseImpl.toString shouldBe "DrawPhase"
     }
     
     "draw cards for attacker first" in {

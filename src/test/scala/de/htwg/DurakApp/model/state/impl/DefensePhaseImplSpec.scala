@@ -12,7 +12,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
 
   "DefensePhaseImpl" should {
     "have correct string representation" in {
-      DefensePhaseImpl.toString shouldBe "TestGamePhases.defensePhase"
+      DefensePhaseImpl.toString shouldBe "DefensePhase"
     }
     
     "handle returns same state" in {

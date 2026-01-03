@@ -11,7 +11,7 @@ class AskDeckSizePhaseImplSpec extends AnyWordSpec with Matchers {
 
   "AskDeckSizePhaseImpl" should {
     "have correct string representation" in {
-      AskDeckSizePhaseImpl.toString shouldBe "TestGamePhases.askDeckSizePhase"
+      AskDeckSizePhaseImpl.toString shouldBe "AskDeckSizePhase"
     }
     
     "handle returns same state" in {

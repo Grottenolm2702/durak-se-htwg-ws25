@@ -12,7 +12,7 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "RoundPhaseImpl" should {
     "have correct string representation" in {
-      RoundPhaseImpl.toString shouldBe "TestGamePhases.roundPhase"
+      RoundPhaseImpl.toString shouldBe "RoundPhase"
     }
     
     "clear table when round won" in {

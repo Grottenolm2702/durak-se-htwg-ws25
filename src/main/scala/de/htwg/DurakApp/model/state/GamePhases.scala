@@ -1,8 +1,5 @@
 package de.htwg.DurakApp.model.state
 
-import com.google.inject.Inject
-import com.google.inject.name.Named
-
 trait GamePhases {
   def setupPhase: GamePhase
   def askPlayerCountPhase: GamePhase
@@ -29,17 +26,3 @@ trait GamePhases {
     phase == askPlayerNamesPhase || phase == askDeckSizePhase || 
     phase == gameStartPhase
 }
-
-class GamePhasesImpl @Inject() (
-  @Named("SetupPhase") val setupPhase: GamePhase,
-  @Named("AskPlayerCountPhase") val askPlayerCountPhase: GamePhase,
-  @Named("AskPlayerNamesPhase") val askPlayerNamesPhase: GamePhase,
-  @Named("AskDeckSizePhase") val askDeckSizePhase: GamePhase,
-  @Named("AskPlayAgainPhase") val askPlayAgainPhase: GamePhase,
-  @Named("GameStartPhase") val gameStartPhase: GamePhase,
-  @Named("AttackPhase") val attackPhase: GamePhase,
-  @Named("DefensePhase") val defensePhase: GamePhase,
-  @Named("DrawPhase") val drawPhase: GamePhase,
-  @Named("RoundPhase") val roundPhase: GamePhase,
-  @Named("EndPhase") val endPhase: GamePhase
-) extends GamePhases

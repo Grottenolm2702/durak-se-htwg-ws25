@@ -12,7 +12,7 @@ class GameStartPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "GameStartPhaseImpl" should {
     "have correct string representation" in {
-      GameStartPhaseImpl.toString shouldBe "TestGamePhases.gameStartPhase"
+      GameStartPhaseImpl.toString shouldBe "GameStartPhase"
     }
     
     "handle sets GameSetupComplete event" in {

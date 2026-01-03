@@ -12,7 +12,7 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
 
   "AttackPhaseImpl" should {
     "have correct string representation" in {
-      AttackPhaseImpl.toString shouldBe "TestGamePhases.attackPhase"
+      AttackPhaseImpl.toString shouldBe "AttackPhase"
     }
     
     "set currentAttackerIndex when empty" in {

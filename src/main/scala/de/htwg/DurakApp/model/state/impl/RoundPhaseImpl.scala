@@ -4,7 +4,7 @@ import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 
 case object RoundPhaseImpl extends GamePhase {
-  override def toString: String = "TestGamePhases.roundPhase"
+  override def toString: String = "RoundPhase"
 
   override def handle(gameState: GameState): GameState = {
     val remainingPlayersWithCards = gameState.players.filter(_.hand.nonEmpty)
