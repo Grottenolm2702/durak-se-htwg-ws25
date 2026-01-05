@@ -8,6 +8,7 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.model.state.{GameEvent}
 import de.htwg.DurakApp.controller._
+import de.htwg.DurakApp.controller.command.impl.CommandFactoryImpl
 
 class GameCommandSpec extends AnyWordSpec with Matchers {
 
@@ -34,62 +35,62 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     lastAttackerIndex = None
   )
 
-  val commandFactory = new CommandFactory(TestGamePhasesInstance)
+  val commandFactory = new CommandFactoryImpl(TestGamePhasesInstance)
 
   "CommandFactory" should {
     "create PlayCardCommand via createCommand" in {
       val card = Card(Suit.Hearts, Rank.Six)
       val result = commandFactory.createCommand(PlayCardAction(card), gameState)
       
-      result.isRight shouldBe true
+      result.isRight.shouldBe(true)
     }
     
     "create PassCommand via createCommand" in {
       val result = commandFactory.createCommand(PassAction, gameState)
       
-      result.isRight shouldBe true
+      result.isRight.shouldBe(true)
     }
     
     "create TakeCardsCommand via createCommand" in {
       val result = commandFactory.createCommand(TakeCardsAction, gameState)
       
-      result.isRight shouldBe true
+      result.isRight.shouldBe(true)
     }
     
     "return GameEvent for InvalidAction via createCommand" in {
       val result = commandFactory.createCommand(InvalidAction, gameState)
       
-      result.isLeft shouldBe true
-      result.left.getOrElse(null) shouldBe GameEvent.InvalidMove
+      result.isLeft.shouldBe(true)
+      result.left.getOrElse(null).shouldBe(GameEvent.InvalidMove)
     }
     
     "create PlayCardCommand via playCard factory method" in {
       val card = Card(Suit.Hearts, Rank.Six)
       val command = commandFactory.playCard(card)
       
-      command should not be null
+      command.should(not.be(null))
       val result = command.execute(gameState)
-      result should not be null
+      result.should(not.be(null))
     }
     
     "create PassCommand via pass factory method" in {
       val command = commandFactory.pass()
       
-      command should not be null
+      command.should(not.be(null))
     }
     
     "create TakeCardsCommand via takeCards factory method" in {
       val command = commandFactory.takeCards()
       
-      command should not be null
+      command.should(not.be(null))
     }
     
     "create PhaseChangeCommand via phaseChange factory method" in {
       val command = commandFactory.phaseChange()
       
-      command should not be null
+      command.should(not.be(null))
       val result = command.execute(gameState)
-      result shouldBe gameState
+      result.shouldBe(gameState)
     }
   }
   

@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.controller.command
 
 import de.htwg.DurakApp.model.{Card, GameState}
-import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
+import de.htwg.DurakApp.model.state.GameEvent
 
 import de.htwg.DurakApp.controller.{
   PlayerAction,
@@ -18,22 +18,20 @@ import de.htwg.DurakApp.controller.{
   ExitGameAction
 }
 
-import com.google.inject.Inject
-
-class CommandFactory @Inject() (gamePhases: GamePhases) {
+trait CommandFactory {
   def createCommand(
       action: PlayerAction,
       gameState: GameState
   ): Either[GameEvent, GameCommand] = {
     action match {
       case PlayCardAction(card) =>
-        Right(impl.PlayCardCommand(card, gamePhases))
+        Right(playCard(card))
 
       case PassAction =>
-        Right(impl.PassCommand(gamePhases))
+        Right(pass())
 
       case TakeCardsAction =>
-        Right(impl.TakeCardsCommand())
+        Right(takeCards())
 
       case InvalidAction | UndoAction | RedoAction =>
         Left(GameEvent.InvalidMove)
@@ -45,15 +43,11 @@ class CommandFactory @Inject() (gamePhases: GamePhases) {
     }
   }
   
-  def playCard(card: Card): GameCommand =
-    impl.PlayCardCommand(card, gamePhases)
+  def playCard(card: Card): PlayCardCommand
   
-  def pass(): GameCommand =
-    impl.PassCommand(gamePhases)
+  def pass(): PassCommand
   
-  def takeCards(): GameCommand =
-    impl.TakeCardsCommand()
+  def takeCards(): TakeCardsCommand
   
-  def phaseChange(): GameCommand =
-    impl.PhaseChangeCommand()
+  def phaseChange(): PhaseChangeCommand
 }

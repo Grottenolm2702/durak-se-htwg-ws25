@@ -6,6 +6,7 @@ import java.io.PrintStream
 
 import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.controller.command.CommandFactory
+import de.htwg.DurakApp.controller.command.impl.CommandFactoryImpl
 
 import de.htwg.DurakApp.model.{
   GameState,
@@ -59,7 +60,7 @@ class DurakModule extends AbstractModule with ScalaModule:
       .toInstance(EndPhaseImpl)
     bind[GamePhases].to[GamePhasesImpl].asEagerSingleton()
 
-    bind[CommandFactory].asEagerSingleton()
+    bind[CommandFactory].to[CommandFactoryImpl].asEagerSingleton()
 
     bind[CardFactory].to[CardFactoryImpl]
     bind[PlayerFactory].to[PlayerFactoryImpl]
@@ -69,6 +70,8 @@ class DurakModule extends AbstractModule with ScalaModule:
     bind[GameSetup].to[controller.impl.GameSetupImpl]
 
     bind[UndoRedoManagerFactory].to[util.impl.UndoRedoManagerFactoryImpl]
+    
+    bind[Controller].to[controller.impl.ControllerImpl].in(classOf[Singleton])
 
   @Provides
   @Singleton
@@ -83,25 +86,6 @@ class DurakModule extends AbstractModule with ScalaModule:
     gameStateBuilderFactory.create()
       .withGamePhase(setupPhase)
       .build()
-
-  @Provides
-  @Singleton
-  def provideController(
-      gameState: GameState,
-      undoRedoManager: UndoRedoManager,
-      commandFactory: CommandFactory,
-      gameSetup: GameSetup,
-      undoRedoManagerFactory: UndoRedoManagerFactory,
-      gamePhases: GamePhases
-  ): Controller =
-    new controller.impl.ControllerImpl(
-      gameState,
-      undoRedoManager,
-      commandFactory,
-      gameSetup,
-      undoRedoManagerFactory,
-      gamePhases
-    )
 
   @Provides
   def providePrintStream(): PrintStream = Console.out

@@ -1,10 +1,11 @@
 package de.htwg.DurakApp.controller.command.impl
 
-import de.htwg.DurakApp.controller.command.GameCommand
+import de.htwg.DurakApp.controller.command.{GameCommand, PlayCardCommand as PlayCardCommandTrait}
 import de.htwg.DurakApp.model.{Card, GameState}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
 
-case class PlayCardCommand(card: Card, gamePhases: GamePhases) extends GameCommand {
+ case class PlayCardCommand(card: Card, gamePhases: GamePhases) 
+    extends PlayCardCommandTrait {
   override def execute(gameState: GameState): GameState = {
 
     val activePlayerIndex =

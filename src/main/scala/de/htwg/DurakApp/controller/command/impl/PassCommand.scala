@@ -1,10 +1,10 @@
 package de.htwg.DurakApp.controller.command.impl
 
-import de.htwg.DurakApp.controller.command.GameCommand
+import de.htwg.DurakApp.controller.command.{GameCommand, PassCommand as PassCommandTrait}
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.GamePhases
 
-case class PassCommand(gamePhases: GamePhases) extends GameCommand {
+ case class PassCommand(gamePhases: GamePhases) extends PassCommandTrait {
   override def execute(gameState: GameState): GameState = {
     val activePlayerIndex = 
       if (gamePhases.isDefensePhase(gameState.gamePhase)) {
