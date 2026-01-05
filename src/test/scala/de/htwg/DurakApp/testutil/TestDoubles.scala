@@ -12,7 +12,7 @@ import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 object TestFactories:
   val cardFactory: CardFactory = new CardFactoryImpl()
   val playerFactory: PlayerFactory = new PlayerFactoryImpl()
-  val gameStateFactory: GameStateFactory = new GameStateFactoryImpl()
+  val gameStateFactory: GameStateFactory = new GameStateFactoryImpl(TestGamePhasesInstance, cardFactory, playerFactory)
 
 object TestGamePhases:
   val setupPhase: GamePhase = SetupPhaseImpl

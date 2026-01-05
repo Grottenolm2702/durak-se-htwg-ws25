@@ -3,14 +3,14 @@ package de.htwg.DurakApp.model
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.impl.{CardFactoryImpl, PlayerFactoryImpl, GameStateFactoryImpl}
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
 
 class GameStateFactorySpec extends AnyWordSpec with Matchers {
   
   "GameStateFactory" should {
     val cardFactory: CardFactory = new CardFactoryImpl()
     val playerFactory: PlayerFactory = new PlayerFactoryImpl()
-    val gameStateFactory: GameStateFactory = new GameStateFactoryImpl()
+    val gameStateFactory: GameStateFactory = new GameStateFactoryImpl(TestGamePhasesInstance, cardFactory, playerFactory)
     
     "create a game state with all fields" in {
       val player1 = playerFactory("Alice")

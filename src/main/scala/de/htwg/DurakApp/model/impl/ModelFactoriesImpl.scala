@@ -1,13 +1,14 @@
 package de.htwg.DurakApp.model.impl
 
 import de.htwg.DurakApp.model._
-import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
+import com.google.inject.Inject
 
-private[model] class CardFactoryImpl extends CardFactory:
+class CardFactoryImpl extends CardFactory:
   def apply(suit: Suit, rank: Rank, isTrump: Boolean = false): Card =
     CardImpl(suit, rank, isTrump)
 
-private[model] class PlayerFactoryImpl extends PlayerFactory:
+class PlayerFactoryImpl extends PlayerFactory:
   def apply(
       name: String,
       hand: List[Card] = List(),
@@ -15,7 +16,11 @@ private[model] class PlayerFactoryImpl extends PlayerFactory:
   ): Player =
     PlayerImpl(name, hand, isDone)
 
-private[model] class GameStateFactoryImpl extends GameStateFactory:
+class GameStateFactoryImpl @Inject() (
+  gamePhases: GamePhases,
+  cardFactory: CardFactory,
+  playerFactory: PlayerFactory
+) extends GameStateFactory:
   def apply(
       players: List[Player],
       deck: List[Card],
@@ -50,5 +55,8 @@ private[model] class GameStateFactoryImpl extends GameStateFactory:
       setupPlayerNames,
       setupDeckSize,
       currentAttackerIndex,
-      lastAttackerIndex
+      lastAttackerIndex,
+      gamePhases,
+      cardFactory,
+      playerFactory
     )

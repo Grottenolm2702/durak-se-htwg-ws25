@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import de.htwg.DurakApp.model.state.{GamePhase, GamePhases}
 
-private[state] class GamePhasesImpl @Inject() (
+class GamePhasesImpl @Inject() (
   @Named("SetupPhase") val setupPhase: GamePhase,
   @Named("AskPlayerCountPhase") val askPlayerCountPhase: GamePhase,
   @Named("AskPlayerNamesPhase") val askPlayerNamesPhase: GamePhase,

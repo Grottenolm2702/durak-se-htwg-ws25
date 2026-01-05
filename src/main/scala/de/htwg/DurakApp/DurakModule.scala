@@ -12,6 +12,7 @@ import de.htwg.DurakApp.model.{
   PlayerFactory,
   GameStateFactory
 }
+import de.htwg.DurakApp.model.impl.{CardFactoryImpl, PlayerFactoryImpl, GameStateFactoryImpl}
 import de.htwg.DurakApp.model.builder.impl.GameStateBuilder
 import de.htwg.DurakApp.model.state.{GamePhase, GamePhases}
 import de.htwg.DurakApp.model.state.impl.*
@@ -58,9 +59,9 @@ class DurakModule extends AbstractModule with ScalaModule:
 
     bind[CommandFactory].asEagerSingleton()
 
-    bind[CardFactory].to[model.impl.CardFactoryImpl]
-    bind[PlayerFactory].to[model.impl.PlayerFactoryImpl]
-    bind[GameStateFactory].to[model.impl.GameStateFactoryImpl]
+    bind[CardFactory].to[CardFactoryImpl]
+    bind[PlayerFactory].to[PlayerFactoryImpl]
+    bind[GameStateFactory].to[GameStateFactoryImpl]
 
     bind[GameSetup].to[controller.impl.GameSetupImpl]
 

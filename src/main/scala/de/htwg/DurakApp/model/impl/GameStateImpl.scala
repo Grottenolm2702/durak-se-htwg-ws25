@@ -1,30 +1,32 @@
 package de.htwg.DurakApp.model.impl
 
-import de.htwg.DurakApp.model.{GameState, Player, Card, GameStateFactory, CardFactory, Suit, Rank}
+import de.htwg.DurakApp.model.{GameState, Player, Card, GameStateFactory, CardFactory, PlayerFactory, Suit, Rank}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
-import de.htwg.DurakApp.model.state.impl.*
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 
-private[model] case class GameStateImpl(
-    players: List[Player],
-    deck: List[Card],
-    table: Map[Card, Option[Card]],
-    discardPile: List[Card],
-    trumpCard: Card,
-    attackerIndex: Int,
-    defenderIndex: Int,
-    gamePhase: GamePhase,
-    lastEvent: Option[GameEvent],
-    passedPlayers: Set[Int],
-    roundWinner: Option[Int],
-    setupPlayerCount: Option[Int],
-    setupPlayerNames: List[String],
-    setupDeckSize: Option[Int],
-    currentAttackerIndex: Option[Int],
-    lastAttackerIndex: Option[Int]
+private[model] class GameStateImpl(
+    val players: List[Player],
+    val deck: List[Card],
+    val table: Map[Card, Option[Card]],
+    val discardPile: List[Card],
+    val trumpCard: Card,
+    val attackerIndex: Int,
+    val defenderIndex: Int,
+    val gamePhase: GamePhase,
+    val lastEvent: Option[GameEvent],
+    val passedPlayers: Set[Int],
+    val roundWinner: Option[Int],
+    val setupPlayerCount: Option[Int],
+    val setupPlayerNames: List[String],
+    val setupDeckSize: Option[Int],
+    val currentAttackerIndex: Option[Int],
+    val lastAttackerIndex: Option[Int],
+    gamePhases: GamePhases,
+    cardFactory: CardFactory,
+    playerFactory: PlayerFactory
 ) extends GameState {
 
-  override def copy(
+  def copy(
       players: List[Player] = this.players,
       deck: List[Card] = this.deck,
       table: Map[Card, Option[Card]] = this.table,
@@ -41,7 +43,7 @@ private[model] case class GameStateImpl(
       setupDeckSize: Option[Int] = this.setupDeckSize,
       currentAttackerIndex: Option[Int] = this.currentAttackerIndex,
       lastAttackerIndex: Option[Int] = this.lastAttackerIndex
-  ): GameState = GameStateImpl(
+  ): GameState = new GameStateImpl(
     players,
     deck,
     table,
@@ -57,7 +59,10 @@ private[model] case class GameStateImpl(
     setupPlayerNames,
     setupDeckSize,
     currentAttackerIndex,
-    lastAttackerIndex
+    lastAttackerIndex,
+    gamePhases,
+    cardFactory,
+    playerFactory
   )
 
   def toBuilder: GameStateBuilder = {
@@ -96,30 +101,14 @@ private[model] case class GameStateImpl(
         setupPlayerNames,
         setupDeckSize,
         currentAttackerIndex,
-        lastAttackerIndex
+        lastAttackerIndex,
+        gamePhases,
+        cardFactory,
+        playerFactory
       )
     }
     
-    val inlineCardFactory = new CardFactory {
-      def apply(suit: Suit, rank: Rank, isTrump: Boolean): Card =
-        CardImpl(suit, rank, isTrump)
-    }
-    
-    val inlineGamePhases = new GamePhases {
-      def setupPhase = SetupPhaseImpl
-      def askPlayerCountPhase = AskPlayerCountPhaseImpl
-      def askPlayerNamesPhase = AskPlayerNamesPhaseImpl
-      def askDeckSizePhase = AskDeckSizePhaseImpl
-      def askPlayAgainPhase = AskPlayAgainPhaseImpl
-      def gameStartPhase = GameStartPhaseImpl
-      def attackPhase = AttackPhaseImpl
-      def defensePhase = DefensePhaseImpl
-      def drawPhase = DrawPhaseImpl
-      def roundPhase = RoundPhaseImpl
-      def endPhase = EndPhaseImpl
-    }
-    
-    de.htwg.DurakApp.model.builder.impl.GameStateBuilder(inlineGameStateFactory, inlineCardFactory, inlineGamePhases)
+    de.htwg.DurakApp.model.builder.impl.GameStateBuilder(inlineGameStateFactory, cardFactory, gamePhases)
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)
@@ -136,5 +125,34 @@ private[model] case class GameStateImpl(
       .withSetupDeckSize(setupDeckSize)
       .withCurrentAttackerIndex(currentAttackerIndex)
       .withLastAttackerIndex(lastAttackerIndex)
+  }
+
+  override def equals(obj: Any): Boolean = obj match {
+    case that: GameStateImpl =>
+      this.players == that.players &&
+      this.deck == that.deck &&
+      this.table == that.table &&
+      this.discardPile == that.discardPile &&
+      this.trumpCard == that.trumpCard &&
+      this.attackerIndex == that.attackerIndex &&
+      this.defenderIndex == that.defenderIndex &&
+      this.gamePhase == that.gamePhase &&
+      this.lastEvent == that.lastEvent &&
+      this.passedPlayers == that.passedPlayers &&
+      this.roundWinner == that.roundWinner &&
+      this.setupPlayerCount == that.setupPlayerCount &&
+      this.setupPlayerNames == that.setupPlayerNames &&
+      this.setupDeckSize == that.setupDeckSize &&
+      this.currentAttackerIndex == that.currentAttackerIndex &&
+      this.lastAttackerIndex == that.lastAttackerIndex
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(players, deck, table, discardPile, trumpCard, attackerIndex, 
+                    defenderIndex, gamePhase, lastEvent, passedPlayers, roundWinner,
+                    setupPlayerCount, setupPlayerNames, setupDeckSize, 
+                    currentAttackerIndex, lastAttackerIndex)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 }
