@@ -6,7 +6,7 @@ import de.htwg.DurakApp.testutil.{TestFactories, TestGamePhasesInstance}
 
 class GameSetupImplSpec extends AnyWordSpec with Matchers {
 
-  val gameSetup = new GameSetupImpl(TestFactories.gameStateFactory, TestFactories.playerFactory, TestFactories.cardFactory, TestGamePhasesInstance)
+  val gameSetup = new GameSetupImpl(TestFactories.gameStateFactory, TestFactories.playerFactory, TestFactories.cardFactory, TestGamePhasesInstance, TestFactories.gameStateBuilderFactory)
 
   "A GameSetupImpl" should {
     "setup game with valid parameters" in {

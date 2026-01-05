@@ -4,6 +4,7 @@ import de.htwg.DurakApp.controller.{Controller, GameSetup, PlayerAction}
 import de.htwg.DurakApp.controller.command.GameCommand
 import de.htwg.DurakApp.model.{GameState, Card, Player, Suit, Rank, PlayerFactory, GameStateFactory, CardFactory}
 import de.htwg.DurakApp.model.impl.{PlayerFactoryImpl, GameStateFactoryImpl, CardFactoryImpl}
+import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent, GamePhases}
 import de.htwg.DurakApp.model.state.impl.*
 import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
@@ -13,6 +14,9 @@ object TestFactories:
   val cardFactory: CardFactory = new CardFactoryImpl()
   val playerFactory: PlayerFactory = new PlayerFactoryImpl()
   val gameStateFactory: GameStateFactory = new GameStateFactoryImpl(TestGamePhasesInstance, cardFactory, playerFactory)
+  val gameStateBuilderFactory: GameStateBuilderFactory = new GameStateBuilderFactory {
+    def create() = de.htwg.DurakApp.model.builder.impl.GameStateBuilder(gameStateFactory, cardFactory, TestGamePhasesInstance)
+  }
 
 object TestGamePhases:
   val setupPhase: GamePhase = SetupPhaseImpl

@@ -10,7 +10,7 @@ import de.htwg.DurakApp.model.{
   Rank,
   Suit
 }
-import de.htwg.DurakApp.model.builder.impl.GameStateBuilder
+import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 import de.htwg.DurakApp.model.state.GamePhases
 import com.google.inject.Inject
 
@@ -20,7 +20,8 @@ class GameSetupImpl @Inject() (
     gameStateFactory: GameStateFactory,
     playerFactory: PlayerFactory,
     cardFactory: CardFactory,
-    gamePhases: GamePhases
+    gamePhases: GamePhases,
+    gameStateBuilderFactory: GameStateBuilderFactory
 ) extends GameSetup {
   
   private def createDeck(requestedDeckSize: Int): List[Card] = {
@@ -52,7 +53,7 @@ class GameSetupImpl @Inject() (
     val playersWithEmptyHands =
       playerNames.map(name => playerFactory(name, List.empty))
 
-    val initialGameState = GameStateBuilder(gameStateFactory, cardFactory, gamePhases)
+    val initialGameState = gameStateBuilderFactory.create()
       .withPlayers(playersWithEmptyHands)
       .withDeck(shuffledDeck)
       .withTable(Map.empty)
