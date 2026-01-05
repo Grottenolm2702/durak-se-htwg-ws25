@@ -2,12 +2,15 @@ package de.htwg.DurakApp.model
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.impl.CardFactoryImpl
+import com.google.inject.Guice
 
 class CardFactorySpec extends AnyWordSpec with Matchers {
   
+  // Use DI instead of direct instantiation
+  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  
   "CardFactory" should {
-    val cardFactory: CardFactory = new CardFactoryImpl()
+    val cardFactory: CardFactory = injector.getInstance(classOf[CardFactory])
     
     "create a card with suit and rank" in {
       val card = cardFactory(Suit.Hearts, Rank.Six)

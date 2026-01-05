@@ -3,20 +3,24 @@ package de.htwg.DurakApp.testutil
 import de.htwg.DurakApp.controller.{Controller, GameSetup, PlayerAction}
 import de.htwg.DurakApp.controller.command.GameCommand
 import de.htwg.DurakApp.model.{GameState, Card, Player, Suit, Rank, PlayerFactory, GameStateFactory, CardFactory}
-import de.htwg.DurakApp.model.impl.{PlayerFactoryImpl, GameStateFactoryImpl, CardFactoryImpl}
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent, GamePhases}
 import de.htwg.DurakApp.model.state.impl.*
 import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 
+// ============================================================
+// EXISTING Test helpers (keeping compatibility)
+// ============================================================
+
 // Test helpers for creating model instances
 object TestFactories:
-  val cardFactory: CardFactory = new CardFactoryImpl()
-  val playerFactory: PlayerFactory = new PlayerFactoryImpl()
-  val gameStateFactory: GameStateFactory = new GameStateFactoryImpl(TestGamePhasesInstance, cardFactory, playerFactory)
-  val gameStateBuilderFactory: GameStateBuilderFactory = new GameStateBuilderFactory {
-    def create() = de.htwg.DurakApp.model.builder.impl.GameStateBuilder(gameStateFactory, cardFactory, TestGamePhasesInstance)
-  }
+  // Use Guice injector for factories instead of direct instantiation
+  private lazy val injector = com.google.inject.Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  
+  val cardFactory: CardFactory = injector.getInstance(classOf[CardFactory])
+  val playerFactory: PlayerFactory = injector.getInstance(classOf[PlayerFactory])
+  val gameStateFactory: GameStateFactory = injector.getInstance(classOf[GameStateFactory])
+  val gameStateBuilderFactory: GameStateBuilderFactory = injector.getInstance(classOf[GameStateBuilderFactory])
 
 object TestGamePhases:
   val setupPhase: GamePhase = SetupPhaseImpl
@@ -44,6 +48,10 @@ object TestGamePhasesInstance extends GamePhases {
   def roundPhase = TestGamePhases.roundPhase
   def endPhase = TestGamePhases.endPhase
 }
+
+// ============================================================
+// STUBS - keeping existing ones for compatibility
+// ============================================================
 
 class StubGameSetup extends GameSetup:
   private val cardFactory = TestFactories.cardFactory
@@ -198,3 +206,4 @@ object TestHelper:
       currentAttackerIndex,
       lastAttackerIndex
     )
+

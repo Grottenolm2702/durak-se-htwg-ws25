@@ -10,16 +10,19 @@ import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.controller._
 import de.htwg.DurakApp.controller.command.CommandFactory
-import de.htwg.DurakApp.controller.command.impl.CommandFactoryImpl
-import de.htwg.DurakApp.util.impl.{UndoRedoManagerFactoryImpl, UndoRedoManagerImpl}
-import de.htwg.DurakApp.model.builder.impl.GameStateBuilder
+import de.htwg.DurakApp.util.UndoRedoManagerFactory
+import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
+import com.google.inject.Guice
 
 class ControllerImplSpec extends AnyWordSpec with Matchers {
 
-  def createBuilder() = GameStateBuilder(TestFactories.gameStateFactory, TestFactories.cardFactory, TestGamePhasesInstance)
-  val gameSetup = new GameSetupImpl(TestFactories.gameStateFactory, TestFactories.playerFactory, TestFactories.cardFactory, TestGamePhasesInstance, TestFactories.gameStateBuilderFactory)
-  val undoRedoManagerFactory = new UndoRedoManagerFactoryImpl()
-  val commandFactory = new CommandFactoryImpl(TestGamePhasesInstance)
+  // Use DI instead of direct instantiation
+  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  
+  def createBuilder() = injector.getInstance(classOf[GameStateBuilderFactory]).create()
+  val gameSetup: GameSetup = injector.getInstance(classOf[GameSetup])
+  val undoRedoManagerFactory: UndoRedoManagerFactory = injector.getInstance(classOf[UndoRedoManagerFactory])
+  val commandFactory: CommandFactory = injector.getInstance(classOf[CommandFactory])
 
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {

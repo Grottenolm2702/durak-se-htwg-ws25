@@ -4,14 +4,18 @@ import de.htwg.DurakApp.testutil.TestHelpers._
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.util.impl.UndoRedoManagerFactoryImpl
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.testutil.TestGamePhases
-import de.htwg.DurakApp.controller.command.impl.PhaseChangeCommand
+import de.htwg.DurakApp.controller.command.CommandFactory
+import com.google.inject.Guice
 
 class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
 
-  val factory = UndoRedoManagerFactoryImpl()
+  // Use DI instead of direct instantiation
+  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  private val factory: UndoRedoManagerFactory = injector.getInstance(classOf[UndoRedoManagerFactory])
+  private val commandFactory: CommandFactory = injector.getInstance(classOf[CommandFactory])
+  
   val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
   val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
   val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
@@ -45,7 +49,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     
     "save a command and state" in {
       val manager = factory.create()
-      val command = PhaseChangeCommand()
+      val command = commandFactory.phaseChange()
       
       val updatedManager = manager.save(command, gameState)
       
@@ -55,8 +59,8 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     
     "clear redo stack when saving new command" in {
       val manager = factory.create()
-      val command1 = PhaseChangeCommand()
-      val command2 = PhaseChangeCommand()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
       
       val manager1 = manager.save(command1, gameState)
       val manager2 = manager1.save(command2, gameState.copy(attackerIndex = 1))
@@ -69,7 +73,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     
     "undo a command" in {
       val manager = factory.create()
-      val command = PhaseChangeCommand()
+      val command = commandFactory.phaseChange()
       val oldState = gameState
       val newState = gameState.copy(attackerIndex = 1)
       
@@ -92,7 +96,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     
     "redo a command" in {
       val manager = factory.create()
-      val command = PhaseChangeCommand()
+      val command = commandFactory.phaseChange()
       val oldState = gameState
       val newState = gameState.copy(attackerIndex = 1)
       
@@ -116,8 +120,8 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     
     "maintain proper stack state through multiple operations" in {
       val manager = factory.create()
-      val command1 = PhaseChangeCommand()
-      val command2 = PhaseChangeCommand()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
       val state1 = gameState
       val state2 = gameState.copy(attackerIndex = 1)
       val state3 = gameState.copy(attackerIndex = 2)

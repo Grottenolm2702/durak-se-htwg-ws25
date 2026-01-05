@@ -1,16 +1,20 @@
 package de.htwg.DurakApp.controller.command
 
 import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance, TestFactories}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.model.state.{GameEvent}
 import de.htwg.DurakApp.controller._
-import de.htwg.DurakApp.controller.command.impl.CommandFactoryImpl
+import com.google.inject.Guice
 
 class GameCommandSpec extends AnyWordSpec with Matchers {
+
+  // Use DI instead of direct instantiation
+  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  private val commandFactory: CommandFactory = injector.getInstance(classOf[CommandFactory])
 
   val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
   val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
@@ -25,7 +29,7 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     attackerIndex = 0,
     defenderIndex = 1,
     gamePhase = TestGamePhases.setupPhase,
-        lastEvent = None,
+    lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
     setupPlayerCount = None,
@@ -34,8 +38,6 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     currentAttackerIndex = Some(0),
     lastAttackerIndex = None
   )
-
-  val commandFactory = new CommandFactoryImpl(TestGamePhasesInstance)
 
   "CommandFactory" should {
     "create PlayCardCommand via createCommand" in {
