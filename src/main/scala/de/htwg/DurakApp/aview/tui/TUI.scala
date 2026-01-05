@@ -6,7 +6,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.controller.*
 
 import de.htwg.DurakApp.model.{Card, Player, GameState, Rank, Suit}
-import de.htwg.DurakApp.model.state.GameEvent
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
 
 import de.htwg.DurakApp.aview.tui.handler._
 
@@ -14,7 +14,7 @@ import com.google.inject.Inject
 
 import scala.io.StdIn.readLine
 
-class TUI @Inject() (controller: Controller, gamePhases: de.htwg.DurakApp.model.state.GamePhases) extends Observer {
+class TUI @Inject() (controller: Controller, gamePhases: GamePhases) extends Observer {
 
   import TUI._
 

@@ -6,7 +6,7 @@ import de.htwg.DurakApp.controller.Controller
 import de.htwg.DurakApp.controller.*
 
 import de.htwg.DurakApp.model.{Card, Player, GameState, Rank, Suit}
-import de.htwg.DurakApp.model.state.GameEvent
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
 
 import com.google.inject.Inject
 
@@ -25,7 +25,7 @@ import scalafx.Includes.*
 import scalafx.collections.ObservableBuffer
 import scala.util.{Try, Success, Failure}
 
-class DurakGUI @Inject() (controller: Controller, val gamePhases: de.htwg.DurakApp.model.state.GamePhases) extends Observer {
+class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases) extends Observer {
   controller.add(this)
 
   private val selectedCard = ObjectProperty[Option[Card]](None)

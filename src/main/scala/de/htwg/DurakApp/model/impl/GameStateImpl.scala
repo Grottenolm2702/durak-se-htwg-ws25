@@ -1,7 +1,8 @@
 package de.htwg.DurakApp.model.impl
 
 import de.htwg.DurakApp.model.{GameState, Player, Card, GameStateFactory, CardFactory, Suit, Rank}
-import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
+import de.htwg.DurakApp.model.state.impl.*
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 
 private[model] case class GameStateImpl(
@@ -104,7 +105,21 @@ private[model] case class GameStateImpl(
         CardImpl(suit, rank, isTrump)
     }
     
-    de.htwg.DurakApp.model.builder.impl.GameStateBuilder(inlineGameStateFactory, inlineCardFactory)
+    val inlineGamePhases = new GamePhases {
+      def setupPhase = SetupPhaseImpl
+      def askPlayerCountPhase = AskPlayerCountPhaseImpl
+      def askPlayerNamesPhase = AskPlayerNamesPhaseImpl
+      def askDeckSizePhase = AskDeckSizePhaseImpl
+      def askPlayAgainPhase = AskPlayAgainPhaseImpl
+      def gameStartPhase = GameStartPhaseImpl
+      def attackPhase = AttackPhaseImpl
+      def defensePhase = DefensePhaseImpl
+      def drawPhase = DrawPhaseImpl
+      def roundPhase = RoundPhaseImpl
+      def endPhase = EndPhaseImpl
+    }
+    
+    de.htwg.DurakApp.model.builder.impl.GameStateBuilder(inlineGameStateFactory, inlineCardFactory, inlineGamePhases)
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)

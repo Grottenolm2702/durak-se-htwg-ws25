@@ -11,18 +11,18 @@ import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.controller._
 import de.htwg.DurakApp.controller.command.CommandFactory
 import de.htwg.DurakApp.util.impl.{UndoRedoManagerFactoryImpl, UndoRedoManagerImpl}
-import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
+import de.htwg.DurakApp.model.builder.impl.GameStateBuilder
 
 class ControllerImplSpec extends AnyWordSpec with Matchers {
 
-  val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory, TestFactories.cardFactory)
-  val gameSetup = new GameSetupImpl(builderFactory, TestFactories.playerFactory, TestFactories.cardFactory, TestGamePhasesInstance)
+  def createBuilder() = GameStateBuilder(TestFactories.gameStateFactory, TestFactories.cardFactory, TestGamePhasesInstance)
+  val gameSetup = new GameSetupImpl(TestFactories.gameStateFactory, TestFactories.playerFactory, TestFactories.cardFactory, TestGamePhasesInstance)
   val undoRedoManagerFactory = new UndoRedoManagerFactoryImpl()
   val commandFactory = new CommandFactory(TestGamePhasesInstance)
 
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -35,7 +35,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "accept valid player count of 6" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -48,7 +48,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reject player count less than 2" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -60,7 +60,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reject player count greater than 6" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -74,7 +74,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
   "ControllerImpl with AddPlayerNameAction" should {
     "add first player name" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
@@ -88,7 +88,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "add all player names and transition to AskDeckSize" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice"))
@@ -103,7 +103,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reject empty player name" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
@@ -116,7 +116,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reject whitespace-only player name" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
@@ -129,7 +129,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "trim player name" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
@@ -144,7 +144,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
   "ControllerImpl with SetDeckSizeAction" should {
     "accept valid deck size" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
@@ -159,7 +159,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "accept minimum deck size equal to player count" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(3))
         .withSetupPlayerNames(List("Alice", "Bob", "Charlie"))
@@ -173,7 +173,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reject deck size less than player count" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(3))
         .withSetupPlayerNames(List("Alice", "Bob", "Charlie"))
@@ -187,7 +187,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reject deck size greater than 36" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
@@ -203,7 +203,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
   "ControllerImpl with PlayAgainAction" should {
     "restart game with same players" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
@@ -219,7 +219,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reset undo/redo manager on restart" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
@@ -236,7 +236,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "handle ExitGameAction" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
@@ -251,7 +251,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     }
     
     "reject invalid action in TestGamePhases.askPlayAgainPhase" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
@@ -336,7 +336,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
   "ControllerImpl with invalid actions in setup phase" should {
     "reject invalid action in TestGamePhases.setupPhase" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.setupPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -350,7 +350,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
   "ControllerImpl getStatusString" should {
     "return current game phase as string" in {
-      val initialGameState = builderFactory.create()
+      val initialGameState = createBuilder()
         .withGamePhase(TestGamePhases.attackPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()

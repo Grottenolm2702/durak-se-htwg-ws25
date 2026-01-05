@@ -2,8 +2,9 @@ package de.htwg.DurakApp.aview.tui
 
 import de.htwg.DurakApp.testutil.TestHelpers._
 import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.model.state.GamePhases
 
-object TestGamePhases extends de.htwg.DurakApp.model.state.GamePhases {
+object TestGamePhases extends GamePhases {
   def setupPhase = de.htwg.DurakApp.testutil.TestGamePhases.setupPhase
   def askPlayerCountPhase = de.htwg.DurakApp.testutil.TestGamePhases.askPlayerCountPhase
   def askPlayerNamesPhase = de.htwg.DurakApp.testutil.TestGamePhases.askPlayerNamesPhase

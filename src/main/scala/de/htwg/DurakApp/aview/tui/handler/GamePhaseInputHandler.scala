@@ -3,12 +3,13 @@ package de.htwg.DurakApp.aview.tui.handler
 import de.htwg.DurakApp.controller.{PlayerAction, SetPlayerCountAction, AddPlayerNameAction, SetDeckSizeAction, PlayAgainAction, ExitGameAction, InvalidAction}
 
 import de.htwg.DurakApp.model.GameState
+import de.htwg.DurakApp.model.state.GamePhases
 
 import scala.util.Try
 
 class GamePhaseInputHandler(
   override val next: Option[InputHandler],
-  gamePhases: de.htwg.DurakApp.model.state.GamePhases
+  gamePhases: GamePhases
 ) extends InputHandler {
   override def handleRequest(input: String, game: GameState): PlayerAction = {
     if (game.gamePhase == gamePhases.setupPhase || game.gamePhase == gamePhases.askPlayerCountPhase) {

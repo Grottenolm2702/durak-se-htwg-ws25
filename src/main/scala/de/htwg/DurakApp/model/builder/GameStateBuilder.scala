@@ -5,8 +5,8 @@ import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
 
 /** Builder for constructing GameState instances with fluent API.
   *
-  * Instances are created through GameStateBuilderFactory (via DI).
-  * Do not instantiate manually - inject GameStateBuilderFactory instead.
+  * Instances are created through GameStateBuilder.apply() (via DI).
+  * Dependencies are injected via constructor parameters.
   */
 trait GameStateBuilder {
   def withPlayers(newPlayers: List[Player]): GameStateBuilder

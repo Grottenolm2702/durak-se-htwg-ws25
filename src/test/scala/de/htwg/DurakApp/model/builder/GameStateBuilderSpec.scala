@@ -2,14 +2,14 @@ package de.htwg.DurakApp.model.builder
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
 import de.htwg.DurakApp.testutil.TestFactories
+import de.htwg.DurakApp.model.builder.impl.GameStateBuilder
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
   "GameStateBuilder" should {
     "build a default game state" in {
-      val builderFactory = new GameStateBuilderFactory(TestFactories.gameStateFactory, TestFactories.cardFactory)
-      val gameState = builderFactory.create().build()
+      val gameState = GameStateBuilder(TestFactories.gameStateFactory, TestFactories.cardFactory, TestGamePhasesInstance).build()
 
       gameState.players shouldBe empty
       gameState.deck shouldBe empty

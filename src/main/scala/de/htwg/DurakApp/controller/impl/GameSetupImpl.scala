@@ -6,17 +6,18 @@ import de.htwg.DurakApp.model.{
   CardFactory,
   PlayerFactory,
   GameState,
+  GameStateFactory,
   Rank,
   Suit
 }
-import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
+import de.htwg.DurakApp.model.builder.impl.GameStateBuilder
 import de.htwg.DurakApp.model.state.GamePhases
 import com.google.inject.Inject
 
 import scala.util.Random
 
 class GameSetupImpl @Inject() (
-    builderFactory: GameStateBuilderFactory,
+    gameStateFactory: GameStateFactory,
     playerFactory: PlayerFactory,
     cardFactory: CardFactory,
     gamePhases: GamePhases
@@ -51,7 +52,7 @@ class GameSetupImpl @Inject() (
     val playersWithEmptyHands =
       playerNames.map(name => playerFactory(name, List.empty))
 
-    val initialGameState = builderFactory.create()
+    val initialGameState = GameStateBuilder(gameStateFactory, cardFactory, gamePhases)
       .withPlayers(playersWithEmptyHands)
       .withDeck(shuffledDeck)
       .withTable(Map.empty)

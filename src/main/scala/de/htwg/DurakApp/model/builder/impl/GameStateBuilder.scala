@@ -1,17 +1,20 @@
 package de.htwg.DurakApp.model.builder.impl
 
-import de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameStateFactory, CardFactory}
-import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
+import de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameState, GameStateFactory, CardFactory}
+import de.htwg.DurakApp.model.builder.GameStateBuilder
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
 import com.google.inject.Inject
 
 object GameStateBuilder {
   def apply(
       gameStateFactory: GameStateFactory,
-      cardFactory: CardFactory
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+      cardFactory: CardFactory,
+      gamePhases: GamePhases
+  ): GameStateBuilder =
     new GameStateBuilderImpl(
       gameStateFactory = gameStateFactory,
-      cardFactory = cardFactory
+      cardFactory = cardFactory,
+      gamePhases = gamePhases
     )
 }
 
@@ -23,7 +26,7 @@ private[model] case class GameStateBuilderImpl(
     trumpCard: Option[Card] = None,
     attackerIndex: Int = 0,
     defenderIndex: Int = 1,
-    gamePhase: GamePhase = de.htwg.DurakApp.model.state.impl.SetupPhaseImpl,
+    gamePhase: Option[GamePhase] = None,
     lastEvent: Option[GameEvent] = None,
     passedPlayers: Set[Int] = Set.empty,
     roundWinner: Option[Int] = None,
@@ -33,91 +36,93 @@ private[model] case class GameStateBuilderImpl(
     currentAttackerIndex: Option[Int] = None,
     lastAttackerIndex: Option[Int] = None,
     gameStateFactory: GameStateFactory,
-    cardFactory: CardFactory
-) extends de.htwg.DurakApp.model.builder.GameStateBuilder {
+    cardFactory: CardFactory,
+    gamePhases: GamePhases
+) extends GameStateBuilder {
 
   def withPlayers(
       newPlayers: List[Player]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(players = newPlayers)
 
   def withDeck(
       newDeck: List[Card]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(deck = newDeck)
 
   def withTable(
       newTable: Map[Card, Option[Card]]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(table = newTable)
 
   def withDiscardPile(
       newDiscardPile: List[Card]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(discardPile = newDiscardPile)
 
   def withTrumpCard(
       newTrumpCard: Card
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(trumpCard = Some(newTrumpCard))
 
   def withAttackerIndex(
       newAttackerIndex: Int
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(attackerIndex = newAttackerIndex)
 
   def withDefenderIndex(
       newDefenderIndex: Int
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(defenderIndex = newDefenderIndex)
 
   def withGamePhase(
       newGamePhase: GamePhase
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
-    copy(gamePhase = newGamePhase)
+  ): GameStateBuilder =
+    copy(gamePhase = Some(newGamePhase))
 
   def withLastEvent(
       newEvent: Option[GameEvent]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(lastEvent = newEvent)
 
   def withPassedPlayers(
       newPassedPlayers: Set[Int]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(passedPlayers = newPassedPlayers)
 
   def withRoundWinner(
       newRoundWinner: Option[Int]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(roundWinner = newRoundWinner)
 
   def withSetupPlayerCount(
       count: Option[Int]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(setupPlayerCount = count)
 
   def withSetupPlayerNames(
       names: List[String]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(setupPlayerNames = names)
 
   def withSetupDeckSize(
       size: Option[Int]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(setupDeckSize = size)
 
   def withCurrentAttackerIndex(
       index: Option[Int]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(currentAttackerIndex = index)
 
   def withLastAttackerIndex(
       index: Option[Int]
-  ): de.htwg.DurakApp.model.builder.GameStateBuilder =
+  ): GameStateBuilder =
     copy(lastAttackerIndex = index)
 
-  def build(): de.htwg.DurakApp.model.GameState = {
+  def build(): GameState = {
     val defaultTrumpCard = trumpCard.getOrElse(cardFactory(Suit.Hearts, Rank.Six))
+    val defaultGamePhase = gamePhase.getOrElse(gamePhases.setupPhase)
     
     gameStateFactory(
       players = players,
@@ -127,7 +132,7 @@ private[model] case class GameStateBuilderImpl(
       trumpCard = defaultTrumpCard,
       attackerIndex = attackerIndex,
       defenderIndex = defenderIndex,
-      gamePhase = gamePhase,
+      gamePhase = defaultGamePhase,
       lastEvent = lastEvent,
       passedPlayers = passedPlayers,
       roundWinner = roundWinner,

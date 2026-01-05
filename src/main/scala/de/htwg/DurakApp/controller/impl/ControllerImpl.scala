@@ -2,7 +2,7 @@ package de.htwg.DurakApp.controller.impl
 
 import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.model.GameState
-import de.htwg.DurakApp.model.state.GameEvent
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
 import de.htwg.DurakApp.util.{Observable, UndoRedoManager, UndoRedoManagerFactory}
 import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 import de.htwg.DurakApp.controller.{
@@ -13,7 +13,9 @@ import de.htwg.DurakApp.controller.{
   InvalidAction,
   SetPlayerCountAction,
   AddPlayerNameAction,
-  SetDeckSizeAction
+  SetDeckSizeAction,
+  PlayAgainAction,
+  ExitGameAction
 }
 import scala.util.Random
 import com.google.inject.Inject
@@ -29,7 +31,7 @@ class ControllerImpl @Inject() (
     commandFactory: CommandFactory,
     gameSetup: GameSetup,
     undoRedoManagerFactory: UndoRedoManagerFactory,
-    gamePhases: de.htwg.DurakApp.model.state.GamePhases
+    gamePhases: GamePhases
 ) extends Observable
     with Controller {
 
@@ -97,7 +99,7 @@ class ControllerImpl @Inject() (
       this.gameState
     } else if (gameState.gamePhase == gamePhases.askPlayAgainPhase) {
       action match {
-        case de.htwg.DurakApp.controller.PlayAgainAction =>
+        case PlayAgainAction =>
           val newPlayerNames = gameState.setupPlayerNames
           val newDeckSize = gameState.setupDeckSize.getOrElse(36)
 
@@ -115,7 +117,7 @@ class ControllerImpl @Inject() (
               gameState =
                 gameState.copy(lastEvent = Some(GameEvent.SetupError))
           }
-        case de.htwg.DurakApp.controller.ExitGameAction =>
+        case ExitGameAction =>
           gameState =
             gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
         case _ =>
