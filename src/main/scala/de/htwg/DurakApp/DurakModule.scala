@@ -2,6 +2,7 @@ package de.htwg.DurakApp
 
 import com.google.inject.{AbstractModule, Provides, Singleton}
 import net.codingwell.scalaguice.ScalaModule
+import java.io.PrintStream
 
 import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.controller.command.CommandFactory
@@ -101,3 +102,6 @@ class DurakModule extends AbstractModule with ScalaModule:
       undoRedoManagerFactory,
       gamePhases
     )
+
+  @Provides
+  def providePrintStream(): PrintStream = Console.out
