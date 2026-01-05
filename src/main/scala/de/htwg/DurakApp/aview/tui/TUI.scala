@@ -13,8 +13,13 @@ import de.htwg.DurakApp.aview.tui.handler._
 import com.google.inject.Inject
 
 import scala.io.StdIn.readLine
+import java.io.{PrintStream, OutputStream}
 
-class TUI @Inject() (controller: Controller, gamePhases: GamePhases) extends Observer {
+class TUI @Inject() (
+  controller: Controller, 
+  gamePhases: GamePhases,
+  outputStream: PrintStream = Console.out
+) extends Observer {
 
   import TUI._
 
@@ -31,11 +36,11 @@ class TUI @Inject() (controller: Controller, gamePhases: GamePhases) extends Obs
 
   def run(): Unit = {
     controller.add(this)
-    println(clearScreen())
-    println("Willkommen bei Durak!")
+    outputStream.println(clearScreen())
+    outputStream.println("Willkommen bei Durak!")
     update
     gameLoop()
-    println("Spiel beendet.")
+    outputStream.println("Spiel beendet.")
   }
 
   @scala.annotation.tailrec
@@ -54,7 +59,7 @@ class TUI @Inject() (controller: Controller, gamePhases: GamePhases) extends Obs
   }
 
   override def update: Unit = {
-    println(clearScreen())
+    outputStream.println(clearScreen())
     val game = controller.gameState
     val render = 
       if (isSetupPhase(game.gamePhase)) {
@@ -62,7 +67,7 @@ class TUI @Inject() (controller: Controller, gamePhases: GamePhases) extends Obs
       } else {
         renderScreen(game, buildStatusString(game))
       }
-    println(render)
+    outputStream.println(render)
     printPrompt(game)
   }
 
@@ -90,8 +95,8 @@ class TUI @Inject() (controller: Controller, gamePhases: GamePhases) extends Obs
 
   private def printPrompt(game: GameState): Unit = {
     if (isSetupPhase(game.gamePhase)) {
-      println(description(game))
-      print("> ")
+      outputStream.println(description(game))
+      outputStream.print("> ")
     } else if (game.gamePhase == gamePhases.attackPhase || 
                game.gamePhase == gamePhases.defensePhase || 
                game.gamePhase == gamePhases.drawPhase) {
@@ -114,13 +119,13 @@ class TUI @Inject() (controller: Controller, gamePhases: GamePhases) extends Obs
         }
       activePlayer match {
         case Some(player) =>
-          println(s"$GREEN${player.name}$RESET, dein Zug $moves:")
-        case None => println("Error: No active player. " + description(game))
+          outputStream.println(s"$GREEN${player.name}$RESET, dein Zug $moves:")
+        case None => outputStream.println("Error: No active player. " + description(game))
       }
-      print("> ")
+      outputStream.print("> ")
     } else {
-      println(description(game))
-      print("> ")
+      outputStream.println(description(game))
+      outputStream.print("> ")
     }
   }
 

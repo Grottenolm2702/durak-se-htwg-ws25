@@ -25,8 +25,14 @@ import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.testutil.{TestHelper, StubGameSetup, StubUndoRedoManager, SpyController}
 import de.htwg.DurakApp.controller.Controller
 import com.google.inject.Guice
+import java.io.{PrintStream, OutputStream}
 
 class TUISpec extends AnyWordSpec with Matchers {
+
+  // Null output stream to suppress console output in tests
+  val nullOutputStream = new PrintStream(new OutputStream {
+    override def write(b: Int): Unit = ()
+  })
 
   "A TUI" should {
 
@@ -37,7 +43,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         new StubUndoRedoManager(),
         new StubGameSetup()
       )
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       tui should not be null
     }
@@ -52,7 +58,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       
       val controller = new SpyController(game, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       val statusString = tui.buildStatusString(game)
       
       statusString should not be empty
@@ -67,14 +73,14 @@ class TUISpec extends AnyWordSpec with Matchers {
         new StubGameSetup()
       )
       
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       noException should be thrownBy tui.update
     }
     
     "show correct description for TestGamePhases.setupPhase" in {
       val gameState = TestHelper.createTestGameState(gamePhase = TestGamePhases.setupPhase)
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       val desc = tui.description(gameState)
       
@@ -84,7 +90,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "show correct description for TestGamePhases.askPlayerCountPhase" in {
       val gameState = TestHelper.createTestGameState(gamePhase = TestGamePhases.askPlayerCountPhase)
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       val desc = tui.description(gameState)
       
@@ -97,7 +103,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         setupPlayerNames = List("Alice")
       )
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
+      val tui = new TUI(controller, de.htwg.DurakApp.testutil.TestGamePhasesInstance, nullOutputStream)
       
       val desc = tui.description(gameState)
       
@@ -111,7 +117,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         setupPlayerNames = List("Alice", "Bob")
       )
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, de.htwg.DurakApp.testutil.TestGamePhasesInstance)
+      val tui = new TUI(controller, de.htwg.DurakApp.testutil.TestGamePhasesInstance, nullOutputStream)
       
       val desc = tui.description(gameState)
       
@@ -122,7 +128,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "show correct description for TestGamePhases.askPlayAgainPhase" in {
       val gameState = TestHelper.createTestGameState(gamePhase = TestGamePhases.askPlayAgainPhase)
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       val desc = tui.description(gameState)
       
@@ -132,7 +138,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "show correct description for TestGamePhases.attackPhase" in {
       val gameState = TestHelper.createTestGameState(gamePhase = TestGamePhases.attackPhase)
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       val desc = tui.description(gameState)
       
@@ -147,7 +153,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         gamePhase = TestGamePhases.attackPhase
       )
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       val statusString = tui.buildStatusString(gameState)
       
@@ -164,7 +170,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.Defend(Card(Suit.Hearts, Rank.Seven)))
       )
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       val statusString = tui.buildStatusString(gameState)
       
@@ -181,7 +187,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         lastEvent = Some(GameEvent.GameOver(player1, Some(player2)))
       )
       val controller = new SpyController(gameState, new StubUndoRedoManager(), new StubGameSetup())
-      val tui = new TUI(controller, TestGamePhases)
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       
       val statusString = tui.buildStatusString(gameState)
       
