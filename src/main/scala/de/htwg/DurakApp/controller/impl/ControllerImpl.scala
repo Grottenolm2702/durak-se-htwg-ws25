@@ -36,141 +36,182 @@ class ControllerImpl @Inject() (
     with Controller {
 
   def processPlayerAction(action: PlayerAction): GameState = {
-    if (gameState.gamePhase == gamePhases.setupPhase ||
-        gameState.gamePhase == gamePhases.askPlayerCountPhase ||
-        gameState.gamePhase == gamePhases.askPlayerNamesPhase ||
-        gameState.gamePhase == gamePhases.askDeckSizePhase) {
-      action match {
-        case SetPlayerCountAction(count) =>
-          if (count >= 2 && count <= 6) {
-            gameState = gameState.copy(
-              setupPlayerCount = Some(count),
-              gamePhase = gamePhases.askPlayerNamesPhase,
-              lastEvent = Some(GameEvent.AskPlayerNames)
-            )
-          } else {
-            gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
-          }
-        case AddPlayerNameAction(name) =>
-            val currentNames = gameState.setupPlayerNames
-            val expectedCount = gameState.setupPlayerCount.getOrElse(0)
-            if (name.trim.nonEmpty) {
-              val newNames = currentNames :+ name.trim
-              if (newNames.size < expectedCount) {
-                gameState = gameState.copy(
-                  setupPlayerNames = newNames,
-                  lastEvent = Some(GameEvent.AskPlayerNames)
-                )
-              } else if (newNames.size == expectedCount) {
-                gameState = gameState.copy(
-                  setupPlayerNames = newNames,
-                  gamePhase = gamePhases.askDeckSizePhase,
-                  lastEvent = Some(GameEvent.AskDeckSize)
-                )
-              } else {
-                gameState =
-                  gameState.copy(lastEvent = Some(GameEvent.SetupError))
-              }
-            } else {
-              gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
-            }
-          case SetDeckSizeAction(size) =>
-            val minSize = gameState.setupPlayerNames.size
-            if (size >= minSize && size <= 36) {
-              gameSetup.setupGame(gameState.setupPlayerNames, size) match {
-                case Some(newGameState) =>
-                  gameState = newGameState.copy(
-                    lastEvent = Some(GameEvent.GameSetupComplete),
-                    setupPlayerCount = gameState.setupPlayerCount,
-                    setupPlayerNames = gameState.setupPlayerNames,
-                    setupDeckSize = Some(size)
-                  )
-                case None =>
-                  gameState =
-                    gameState.copy(lastEvent = Some(GameEvent.SetupError))
-              }
-            } else {
-              gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
-            }
-          case _ =>
-            gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
-      }
-      notifyObservers
-      this.gameState
+    if (isSetupPhase) {
+      processSetupAction(action)
     } else if (gameState.gamePhase == gamePhases.askPlayAgainPhase) {
-      action match {
-        case PlayAgainAction =>
-          val newPlayerNames = gameState.setupPlayerNames
-          val newDeckSize = gameState.setupDeckSize.getOrElse(36)
-
-          gameSetup.setupGame(newPlayerNames, newDeckSize) match {
-            case Some(newGameState) =>
-              gameState = newGameState.copy(
-                setupPlayerCount = Some(newPlayerNames.size),
-                setupPlayerNames = newPlayerNames,
-                setupDeckSize = Some(newDeckSize),
-                lastEvent = Some(GameEvent.GameSetupComplete)
-              )
-              // Reset undo/redo manager for new game using factory
-              undoRedoManager = undoRedoManagerFactory.create()
-            case None =>
-              gameState =
-                gameState.copy(lastEvent = Some(GameEvent.SetupError))
-          }
-        case ExitGameAction =>
-          gameState =
-            gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
-        case _ =>
-          gameState = gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-      }
-      notifyObservers
-      this.gameState
+      processPlayAgainAction(action)
     } else {
-      val oldGameStateBeforeAction = this.gameState
-      val result =
-          commandFactory.createCommand(action, oldGameStateBeforeAction)
-
-        result match {
-          case Left(event) =>
-            this.gameState =
-              oldGameStateBeforeAction.copy(lastEvent = Some(event))
-            notifyObservers
-
-          case Right(command) =>
-            val gameStateAfterCommand =
-              command.execute(oldGameStateBeforeAction)
-            this.gameState = gameStateAfterCommand
-            undoRedoManager =
-              undoRedoManager.save(command, oldGameStateBeforeAction)
-            notifyObservers
-
-            @scala.annotation.tailrec
-            def handlePhaseRecursively(
-                currentState: GameState,
-                currentUndoRedoManager: UndoRedoManager
-            ): GameState = {
-              val oldPhaseStateBeforeHandle = currentState
-              val nextState = currentState.gamePhase.handle(currentState)
-
-              if (nextState != currentState) {
-                this.gameState = nextState
-                this.undoRedoManager = currentUndoRedoManager.save(
-                  commandFactory.phaseChange(),
-                  oldPhaseStateBeforeHandle
-                )
-                notifyObservers
-                handlePhaseRecursively(this.gameState, this.undoRedoManager)
-              } else {
-                currentState
-              }
-            }
-
-            val finalStateFromPhaseHandling =
-              handlePhaseRecursively(this.gameState, this.undoRedoManager)
-            this.gameState = finalStateFromPhaseHandling
-        }
-        this.gameState
+      processGameAction(action)
     }
+  }
+
+  private def isSetupPhase: Boolean = {
+    gameState.gamePhase == gamePhases.setupPhase ||
+    gameState.gamePhase == gamePhases.askPlayerCountPhase ||
+    gameState.gamePhase == gamePhases.askPlayerNamesPhase ||
+    gameState.gamePhase == gamePhases.askDeckSizePhase
+  }
+
+  private def processSetupAction(action: PlayerAction): GameState = {
+    action match {
+      case SetPlayerCountAction(count) => handleSetPlayerCount(count)
+      case AddPlayerNameAction(name)   => handleAddPlayerName(name)
+      case SetDeckSizeAction(size)     => handleSetDeckSize(size)
+      case _                           => setSetupError()
+    }
+    notifyObservers
+    this.gameState
+  }
+
+  private def handleSetPlayerCount(count: Int): Unit = {
+    if (count < 2 || count > 6) {
+      gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+      return
+    }
+    
+    gameState = gameState.copy(
+      setupPlayerCount = Some(count),
+      gamePhase = gamePhases.askPlayerNamesPhase,
+      lastEvent = Some(GameEvent.AskPlayerNames)
+    )
+  }
+
+  private def handleAddPlayerName(name: String): Unit = {
+    if (name.trim.isEmpty) {
+      gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+      return
+    }
+
+    val currentNames = gameState.setupPlayerNames
+    val expectedCount = gameState.setupPlayerCount.getOrElse(0)
+    val newNames = currentNames :+ name.trim
+
+    if (newNames.size > expectedCount) {
+      gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+      return
+    }
+
+    if (newNames.size < expectedCount) {
+      gameState = gameState.copy(
+        setupPlayerNames = newNames,
+        lastEvent = Some(GameEvent.AskPlayerNames)
+      )
+    } else {
+      gameState = gameState.copy(
+        setupPlayerNames = newNames,
+        gamePhase = gamePhases.askDeckSizePhase,
+        lastEvent = Some(GameEvent.AskDeckSize)
+      )
+    }
+  }
+
+  private def handleSetDeckSize(size: Int): Unit = {
+    val minSize = gameState.setupPlayerNames.size
+    
+    if (size < minSize || size > 36) {
+      gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+      return
+    }
+
+    gameSetup.setupGame(gameState.setupPlayerNames, size) match {
+      case Some(newGameState) =>
+        gameState = newGameState.copy(
+          lastEvent = Some(GameEvent.GameSetupComplete),
+          setupPlayerCount = gameState.setupPlayerCount,
+          setupPlayerNames = gameState.setupPlayerNames,
+          setupDeckSize = Some(size)
+        )
+      case None =>
+        gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+    }
+  }
+
+  private def processPlayAgainAction(action: PlayerAction): GameState = {
+    action match {
+      case PlayAgainAction  => handlePlayAgain()
+      case ExitGameAction   => handleExitGame()
+      case _                => setInvalidMoveError()
+    }
+    notifyObservers
+    this.gameState
+  }
+
+  private def handlePlayAgain(): Unit = {
+    val newPlayerNames = gameState.setupPlayerNames
+    val newDeckSize = gameState.setupDeckSize.getOrElse(36)
+
+    gameSetup.setupGame(newPlayerNames, newDeckSize) match {
+      case Some(newGameState) =>
+        gameState = newGameState.copy(
+          setupPlayerCount = Some(newPlayerNames.size),
+          setupPlayerNames = newPlayerNames,
+          setupDeckSize = Some(newDeckSize),
+          lastEvent = Some(GameEvent.GameSetupComplete)
+        )
+        undoRedoManager = undoRedoManagerFactory.create()
+      case None =>
+        gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+    }
+  }
+
+  private def handleExitGame(): Unit = {
+    gameState = gameState.copy(lastEvent = Some(GameEvent.ExitApplication))
+  }
+
+  private def setSetupError(): Unit = {
+    gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
+  }
+
+  private def setInvalidMoveError(): Unit = {
+    gameState = gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
+  }
+
+  private def processGameAction(action: PlayerAction): GameState = {
+    val oldGameStateBeforeAction = this.gameState
+    val result = commandFactory.createCommand(action, oldGameStateBeforeAction)
+
+    result match {
+      case Left(event) =>
+        handleCommandError(event, oldGameStateBeforeAction)
+      case Right(command) =>
+        handleCommandSuccess(command, oldGameStateBeforeAction)
+    }
+    this.gameState
+  }
+
+  private def handleCommandError(event: GameEvent, oldState: GameState): Unit = {
+    this.gameState = oldState.copy(lastEvent = Some(event))
+    notifyObservers
+  }
+
+  private def handleCommandSuccess(command: GameCommand, oldState: GameState): Unit = {
+    val gameStateAfterCommand = command.execute(oldState)
+    this.gameState = gameStateAfterCommand
+    undoRedoManager = undoRedoManager.save(command, oldState)
+    notifyObservers
+
+    val finalStateFromPhaseHandling = handlePhaseRecursively(this.gameState, this.undoRedoManager)
+    this.gameState = finalStateFromPhaseHandling
+  }
+
+  @scala.annotation.tailrec
+  private def handlePhaseRecursively(
+      currentState: GameState,
+      currentUndoRedoManager: UndoRedoManager
+  ): GameState = {
+    val nextState = currentState.gamePhase.handle(currentState)
+
+    if (nextState == currentState) {
+      return currentState
+    }
+
+    this.gameState = nextState
+    this.undoRedoManager = currentUndoRedoManager.save(
+      commandFactory.phaseChange(),
+      currentState
+    )
+    notifyObservers
+    handlePhaseRecursively(this.gameState, this.undoRedoManager)
   }
 
   def undo(): Option[GameState] = {
