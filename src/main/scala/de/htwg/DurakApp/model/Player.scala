@@ -2,8 +2,8 @@ package de.htwg.DurakApp.model
 
 /** Trait representing a player in the Durak game.
   *
-  * Use PlayerFactory to create instances via dependency injection.
-  * Do not reference impl classes directly.
+  * Use PlayerFactory to create instances via dependency injection. Do not
+  * reference impl classes directly.
   */
 trait Player:
   def name: String

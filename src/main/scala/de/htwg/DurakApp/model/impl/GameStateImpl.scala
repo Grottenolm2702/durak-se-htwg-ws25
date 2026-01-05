@@ -1,6 +1,15 @@
 package de.htwg.DurakApp.model.impl
 
-import de.htwg.DurakApp.model.{GameState, Player, Card, GameStateFactory, CardFactory, PlayerFactory, Suit, Rank}
+import de.htwg.DurakApp.model.{
+  GameState,
+  Player,
+  Card,
+  GameStateFactory,
+  CardFactory,
+  PlayerFactory,
+  Suit,
+  Rank
+}
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 
@@ -107,8 +116,9 @@ private[model] class GameStateImpl(
         playerFactory
       )
     }
-    
-    de.htwg.DurakApp.model.builder.impl.GameStateBuilder(inlineGameStateFactory, cardFactory, gamePhases)
+
+    de.htwg.DurakApp.model.builder.impl
+      .GameStateBuilder(inlineGameStateFactory, cardFactory, gamePhases)
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)
@@ -149,10 +159,24 @@ private[model] class GameStateImpl(
   }
 
   override def hashCode(): Int = {
-    val state = Seq(players, deck, table, discardPile, trumpCard, attackerIndex, 
-                    defenderIndex, gamePhase, lastEvent, passedPlayers, roundWinner,
-                    setupPlayerCount, setupPlayerNames, setupDeckSize, 
-                    currentAttackerIndex, lastAttackerIndex)
+    val state = Seq(
+      players,
+      deck,
+      table,
+      discardPile,
+      trumpCard,
+      attackerIndex,
+      defenderIndex,
+      gamePhase,
+      lastEvent,
+      passedPlayers,
+      roundWinner,
+      setupPlayerCount,
+      setupPlayerNames,
+      setupDeckSize,
+      currentAttackerIndex,
+      lastAttackerIndex
+    )
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 }

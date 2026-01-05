@@ -13,12 +13,12 @@ class AskPlayerNamesPhaseImplSpec extends AnyWordSpec with Matchers {
     "have correct string representation" in {
       AskPlayerNamesPhaseImpl.toString shouldBe "AskPlayerNamesPhase"
     }
-    
+
     "handle returns same state" in {
       val player1 = Player("Alice", List.empty)
       val player2 = Player("Bob", List.empty)
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -37,7 +37,7 @@ class AskPlayerNamesPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = AskPlayerNamesPhaseImpl.handle(gameState)
       result shouldBe gameState
     }

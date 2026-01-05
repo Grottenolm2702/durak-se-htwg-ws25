@@ -13,7 +13,7 @@ class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
   val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
   val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
   val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-  
+
   val gameState = GameState(
     players = List(player1, player2),
     deck = List.empty,
@@ -23,7 +23,7 @@ class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
     attackerIndex = 0,
     defenderIndex = 1,
     gamePhase = TestGamePhases.setupPhase,
-        lastEvent = None,
+    lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
     setupPlayerCount = None,
@@ -37,29 +37,29 @@ class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
     "handle take command" in {
       val handler = TakeCardsHandler()
       val result = handler.handleRequest("take", gameState)
-      
+
       result shouldBe TakeCardsAction
     }
-    
+
     "handle uppercase TAKE command" in {
       val handler = TakeCardsHandler()
       val result = handler.handleRequest("TAKE", gameState)
-      
+
       result shouldBe TakeCardsAction
     }
-    
+
     "handle take with extra whitespace" in {
       val handler = TakeCardsHandler()
       val result = handler.handleRequest("  take  ", gameState)
-      
+
       result shouldBe TakeCardsAction
     }
-    
+
     "delegate to next handler for non-take command" in {
       val nextHandler = InvalidInputHandler()
       val handler = TakeCardsHandler(Some(nextHandler))
       val result = handler.handleRequest("pass", gameState)
-      
+
       result shouldBe InvalidAction
     }
   }

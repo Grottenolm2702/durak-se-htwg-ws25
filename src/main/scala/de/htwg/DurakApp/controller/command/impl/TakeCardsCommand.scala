@@ -1,6 +1,9 @@
 package de.htwg.DurakApp.controller.command.impl
 
-import de.htwg.DurakApp.controller.command.{GameCommand, TakeCardsCommand as TakeCardsCommandTrait}
+import de.htwg.DurakApp.controller.command.{
+  GameCommand,
+  TakeCardsCommand as TakeCardsCommandTrait
+}
 import de.htwg.DurakApp.model.GameState
 
 private[command] case class TakeCardsCommand() extends TakeCardsCommandTrait {

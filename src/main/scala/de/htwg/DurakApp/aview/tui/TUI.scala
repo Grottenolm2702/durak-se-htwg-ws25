@@ -16,9 +16,9 @@ import scala.io.StdIn.readLine
 import java.io.{PrintStream, OutputStream}
 
 class TUI @Inject() (
-  controller: Controller, 
-  gamePhases: GamePhases,
-  outputStream: PrintStream = Console.out
+    controller: Controller,
+    gamePhases: GamePhases,
+    outputStream: PrintStream = Console.out
 ) extends Observer {
 
   import TUI._
@@ -61,7 +61,7 @@ class TUI @Inject() (
   override def update: Unit = {
     outputStream.println(clearScreen())
     val game = controller.gameState
-    val render = 
+    val render =
       if (isSetupPhase(game.gamePhase)) {
         buildStatusString(game)
       } else {
@@ -72,7 +72,9 @@ class TUI @Inject() (
   }
 
   def description(game: GameState): String = {
-    if (game.gamePhase == gamePhases.setupPhase || game.gamePhase == gamePhases.askPlayerCountPhase) {
+    if (
+      game.gamePhase == gamePhases.setupPhase || game.gamePhase == gamePhases.askPlayerCountPhase
+    ) {
       "Spieleranzahl eingeben (2-6):"
     } else if (game.gamePhase == gamePhases.askPlayerNamesPhase) {
       s"Spielername ${game.setupPlayerNames.length + 1}:"
@@ -86,7 +88,9 @@ class TUI @Inject() (
     }
   }
 
-  private def isSetupPhase(phase: de.htwg.DurakApp.model.state.GamePhase): Boolean = {
+  private def isSetupPhase(
+      phase: de.htwg.DurakApp.model.state.GamePhase
+  ): Boolean = {
     phase == gamePhases.setupPhase ||
     phase == gamePhases.askPlayerCountPhase ||
     phase == gamePhases.askPlayerNamesPhase ||
@@ -97,10 +101,12 @@ class TUI @Inject() (
     if (isSetupPhase(game.gamePhase)) {
       outputStream.println(description(game))
       outputStream.print("> ")
-    } else if (game.gamePhase == gamePhases.attackPhase || 
-               game.gamePhase == gamePhases.defensePhase || 
-               game.gamePhase == gamePhases.drawPhase) {
-      val activePlayer = 
+    } else if (
+      game.gamePhase == gamePhases.attackPhase ||
+      game.gamePhase == gamePhases.defensePhase ||
+      game.gamePhase == gamePhases.drawPhase
+    ) {
+      val activePlayer =
         if (game.gamePhase == gamePhases.attackPhase) {
           val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
           Some(game.players(idx))
@@ -109,7 +115,7 @@ class TUI @Inject() (
         } else {
           None
         }
-      val moves = 
+      val moves =
         if (game.gamePhase == gamePhases.attackPhase) {
           "('play index', 'pass', 'u', 'r')"
         } else if (game.gamePhase == gamePhases.defensePhase) {
@@ -120,7 +126,8 @@ class TUI @Inject() (
       activePlayer match {
         case Some(player) =>
           outputStream.println(s"$GREEN${player.name}$RESET, dein Zug $moves:")
-        case None => outputStream.println("Error: No active player. " + description(game))
+        case None =>
+          outputStream.println("Error: No active player. " + description(game))
       }
       outputStream.print("> ")
     } else {
@@ -220,7 +227,7 @@ class TUI @Inject() (
 
     val table = renderTable(game)
 
-    val activePlayer = 
+    val activePlayer =
       if (game.gamePhase == gamePhases.attackPhase) {
         val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
         game.players(idx)

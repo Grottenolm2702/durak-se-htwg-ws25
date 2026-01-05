@@ -14,7 +14,11 @@ import de.htwg.DurakApp.model.{
   PlayerFactory,
   GameStateFactory
 }
-import de.htwg.DurakApp.model.impl.{CardFactoryImpl, PlayerFactoryImpl, GameStateFactoryImpl}
+import de.htwg.DurakApp.model.impl.{
+  CardFactoryImpl,
+  PlayerFactoryImpl,
+  GameStateFactoryImpl
+}
 import de.htwg.DurakApp.model.builder.{GameStateBuilderFactory}
 import de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl
 import de.htwg.DurakApp.model.state.{GamePhase, GamePhases}
@@ -70,7 +74,7 @@ class DurakModule extends AbstractModule with ScalaModule:
     bind[GameSetup].to[controller.impl.GameSetupImpl]
 
     bind[UndoRedoManagerFactory].to[util.impl.UndoRedoManagerFactoryImpl]
-    
+
     bind[Controller].to[controller.impl.ControllerImpl].in(classOf[Singleton])
 
   @Provides
@@ -83,7 +87,8 @@ class DurakModule extends AbstractModule with ScalaModule:
       gameStateBuilderFactory: GameStateBuilderFactory,
       @Named("SetupPhase") setupPhase: GamePhase
   ): GameState =
-    gameStateBuilderFactory.create()
+    gameStateBuilderFactory
+      .create()
       .withGamePhase(setupPhase)
       .build()
 

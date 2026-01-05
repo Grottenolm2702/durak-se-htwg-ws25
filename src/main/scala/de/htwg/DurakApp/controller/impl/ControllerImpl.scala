@@ -3,7 +3,11 @@ package de.htwg.DurakApp.controller.impl
 import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
-import de.htwg.DurakApp.util.{Observable, UndoRedoManager, UndoRedoManagerFactory}
+import de.htwg.DurakApp.util.{
+  Observable,
+  UndoRedoManager,
+  UndoRedoManagerFactory
+}
 import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 import de.htwg.DurakApp.controller.{
   PlayerAction,
@@ -21,9 +25,9 @@ import scala.util.Random
 import com.google.inject.Inject
 
 /** Implementation of Controller trait.
-  * 
-  * This class is package-private and should only be instantiated through
-  * Guice DI (see DurakModule).
+  *
+  * This class is package-private and should only be instantiated through Guice
+  * DI (see DurakModule).
   */
 class ControllerImpl @Inject() (
     private var _gameState: GameState,
@@ -70,7 +74,7 @@ class ControllerImpl @Inject() (
       _gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
       return
     }
-    
+
     _gameState = gameState.copy(
       setupPlayerCount = Some(count),
       gamePhase = gamePhases.askPlayerNamesPhase,
@@ -109,7 +113,7 @@ class ControllerImpl @Inject() (
 
   private def handleSetDeckSize(size: Int): Unit = {
     val minSize = _gameState.setupPlayerNames.size
-    
+
     if (size < minSize || size > 36) {
       _gameState = gameState.copy(lastEvent = Some(GameEvent.SetupError))
       return
@@ -130,9 +134,9 @@ class ControllerImpl @Inject() (
 
   private def processPlayAgainAction(action: PlayerAction): GameState = {
     action match {
-      case PlayAgainAction  => handlePlayAgain()
-      case ExitGameAction   => handleExitGame()
-      case _                => setInvalidMoveError()
+      case PlayAgainAction => handlePlayAgain()
+      case ExitGameAction  => handleExitGame()
+      case _               => setInvalidMoveError()
     }
     notifyObservers
     _gameState
@@ -181,18 +185,25 @@ class ControllerImpl @Inject() (
     _gameState
   }
 
-  private def handleCommandError(event: GameEvent, oldState: GameState): Unit = {
+  private def handleCommandError(
+      event: GameEvent,
+      oldState: GameState
+  ): Unit = {
     _gameState = oldState.copy(lastEvent = Some(event))
     notifyObservers
   }
 
-  private def handleCommandSuccess(command: GameCommand, oldState: GameState): Unit = {
+  private def handleCommandSuccess(
+      command: GameCommand,
+      oldState: GameState
+  ): Unit = {
     val gameStateAfterCommand = command.execute(oldState)
     _gameState = gameStateAfterCommand
     undoRedoManager = undoRedoManager.save(command, oldState)
     notifyObservers
 
-    val finalStateFromPhaseHandling = handlePhaseRecursively(_gameState, this.undoRedoManager)
+    val finalStateFromPhaseHandling =
+      handlePhaseRecursively(_gameState, this.undoRedoManager)
     _gameState = finalStateFromPhaseHandling
   }
 
@@ -224,8 +235,7 @@ class ControllerImpl @Inject() (
         notifyObservers
         Some(_gameState)
       case None =>
-        _gameState =
-          _gameState.copy(lastEvent = Some(GameEvent.CannotUndo))
+        _gameState = _gameState.copy(lastEvent = Some(GameEvent.CannotUndo))
         notifyObservers
         None
     }
@@ -239,8 +249,7 @@ class ControllerImpl @Inject() (
         notifyObservers
         Some(_gameState)
       case None =>
-        _gameState =
-          _gameState.copy(lastEvent = Some(GameEvent.CannotRedo))
+        _gameState = _gameState.copy(lastEvent = Some(GameEvent.CannotRedo))
         notifyObservers
         None
     }

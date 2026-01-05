@@ -16,7 +16,7 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(Card(Suit.Hearts, Rank.Eight) -> None)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -35,20 +35,20 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val command = TakeCardsCommand()
       val result = command.execute(gameState)
-      
+
       result.lastEvent should not be None
     }
-    
+
     "use defenderIndex from game state" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val player3 = Player("Charlie", List(Card(Suit.Spades, Rank.Nine)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(Card(Suit.Hearts, Rank.Eight) -> None)
-      
+
       val gameState = GameState(
         players = List(player1, player2, player3),
         deck = List.empty,
@@ -67,10 +67,10 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val command = TakeCardsCommand()
       val result = command.execute(gameState)
-      
+
       result.defenderIndex shouldBe 2
     }
   }

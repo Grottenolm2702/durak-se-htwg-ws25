@@ -8,7 +8,7 @@ import de.htwg.DurakApp.model.builder.GameStateBuilder
   * This immutable data structure contains all information about the current
   * game including players, cards, current phase, and game progress. Use the
   * `copy` method to create modified versions of the state.
-  * 
+  *
   * Use GameStateFactory to create instances via dependency injection.
   */
 trait GameState:

@@ -1,10 +1,6 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.controller.{
-  PlayerAction,
-  PlayCardAction,
-  InvalidAction
-}
+import de.htwg.DurakApp.controller.{PlayerAction, PlayCardAction, InvalidAction}
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.state.GamePhases
 
@@ -23,7 +19,7 @@ class PlayCardHandler(
       case Some("play") if inputArgs.length > 1 =>
         Try(inputArgs(1).toInt) match {
           case Success(index) =>
-            val activePlayer = 
+            val activePlayer =
               if (gamePhases.isDefensePhase(gameState.gamePhase)) {
                 gameState.players(gameState.defenderIndex)
               } else {

@@ -14,12 +14,12 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
     "have correct string representation" in {
       EndPhaseImpl.toString shouldBe "EndPhase"
     }
-    
+
     "handle game over with winner and loser" in {
       val player1 = Player("Alice", List.empty)
       val player2 = Player("Bob", List(Card(Suit.Hearts, Rank.Six)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -38,7 +38,7 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = EndPhaseImpl.handle(gameState)
       result.gamePhase shouldBe AskPlayAgainPhaseImpl
       result.lastEvent match {
@@ -48,12 +48,12 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
         case _ => fail("Expected GameOver event with winner and loser")
       }
     }
-    
+
     "handle game over when all players have no cards" in {
       val player1 = Player("Alice", List.empty)
       val player2 = Player("Bob", List.empty)
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -72,7 +72,7 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = EndPhaseImpl.handle(gameState)
       result.gamePhase shouldBe AskPlayAgainPhaseImpl
       result.lastEvent match {
@@ -81,13 +81,13 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
         case _ => fail("Expected GameOver event with winner only")
       }
     }
-    
+
     "identify correct winner when multiple players" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
       val player2 = Player("Bob", List.empty)
       val player3 = Player("Charlie", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2, player3),
         deck = List.empty,
@@ -106,7 +106,7 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = EndPhaseImpl.handle(gameState)
       result.lastEvent match {
         case Some(GameEvent.GameOver(winner, Some(loser))) =>

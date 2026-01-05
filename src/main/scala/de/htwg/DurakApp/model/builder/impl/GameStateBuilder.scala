@@ -1,6 +1,14 @@
 package de.htwg.DurakApp.model.builder.impl
 
-import de.htwg.DurakApp.model.{Card, Player, Rank, Suit, GameState, GameStateFactory, CardFactory}
+import de.htwg.DurakApp.model.{
+  Card,
+  Player,
+  Rank,
+  Suit,
+  GameState,
+  GameStateFactory,
+  CardFactory
+}
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
 import com.google.inject.Inject
@@ -121,9 +129,10 @@ private[model] case class GameStateBuilderImpl(
     copy(lastAttackerIndex = index)
 
   def build(): GameState = {
-    val defaultTrumpCard = trumpCard.getOrElse(cardFactory(Suit.Hearts, Rank.Six))
+    val defaultTrumpCard =
+      trumpCard.getOrElse(cardFactory(Suit.Hearts, Rank.Six))
     val defaultGamePhase = gamePhase.getOrElse(gamePhases.setupPhase)
-    
+
     gameStateFactory(
       players = players,
       deck = deck,

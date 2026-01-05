@@ -2,8 +2,8 @@ package de.htwg.DurakApp.model
 
 /** Trait representing a playing card in the Durak game.
   *
-  * Use CardFactory to create instances via dependency injection.
-  * Do not reference impl classes directly.
+  * Use CardFactory to create instances via dependency injection. Do not
+  * reference impl classes directly.
   */
 trait Card:
   def suit: Suit

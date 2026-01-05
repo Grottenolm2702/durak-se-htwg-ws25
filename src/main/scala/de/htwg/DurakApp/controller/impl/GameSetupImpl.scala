@@ -23,7 +23,7 @@ class GameSetupImpl @Inject() (
     gamePhases: GamePhases,
     gameStateBuilderFactory: GameStateBuilderFactory
 ) extends GameSetup {
-  
+
   private def createDeck(requestedDeckSize: Int): List[Card] = {
     val suits = Suit.values.toList
     val standardRanks = Rank.values.toList
@@ -53,7 +53,8 @@ class GameSetupImpl @Inject() (
     val playersWithEmptyHands =
       playerNames.map(name => playerFactory(name, List.empty))
 
-    val initialGameState = gameStateBuilderFactory.create()
+    val initialGameState = gameStateBuilderFactory
+      .create()
       .withPlayers(playersWithEmptyHands)
       .withDeck(shuffledDeck)
       .withTable(Map.empty)

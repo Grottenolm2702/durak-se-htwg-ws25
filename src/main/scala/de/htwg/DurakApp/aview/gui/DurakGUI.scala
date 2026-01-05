@@ -25,7 +25,8 @@ import scalafx.Includes.*
 import scalafx.collections.ObservableBuffer
 import scala.util.{Try, Success, Failure}
 
-class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases) extends Observer {
+class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
+    extends Observer {
   controller.add(this)
 
   private val selectedCard = ObjectProperty[Option[Card]](None)
@@ -312,7 +313,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases) ex
   }
 
   private def updateActionButtons(gameState: GameState): Unit = {
-    val (playVisible, passVisible, takeVisible) = 
+    val (playVisible, passVisible, takeVisible) =
       if (gamePhases.isAttackPhase(gameState.gamePhase)) {
         (true, true, false)
       } else if (gamePhases.isDefensePhase(gameState.gamePhase)) {

@@ -14,7 +14,7 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
     "have correct string representation" in {
       RoundPhaseImpl.toString shouldBe "RoundPhase"
     }
-    
+
     "clear table when round won" in {
       val card1 = Card(Suit.Hearts, Rank.Six)
       val card2 = Card(Suit.Hearts, Rank.Seven)
@@ -22,7 +22,7 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Nine)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> Some(card2))
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List(Card(Suit.Spades, Rank.Ten)),
@@ -41,7 +41,7 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = RoundPhaseImpl.handle(gameState)
       result.table shouldBe empty
       result.discardPile.size shouldBe 2
@@ -50,12 +50,12 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
       result.gamePhase shouldBe TestGamePhases.attackPhase
       result.lastEvent shouldBe Some(GameEvent.RoundEnd(cleared = true))
     }
-    
+
     "not clear table when round lost" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Eight)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Nine)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List(Card(Suit.Spades, Rank.Ten)),
@@ -74,17 +74,17 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = RoundPhaseImpl.handle(gameState)
       result.discardPile shouldBe empty
       result.lastEvent shouldBe Some(GameEvent.RoundEnd(cleared = false))
     }
-    
+
     "transition to end phase when game over" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Eight)))
       val player2 = Player("Bob", List.empty)
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -103,16 +103,16 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = RoundPhaseImpl.handle(gameState)
       result.gamePhase shouldBe AskPlayAgainPhaseImpl
     }
-    
+
     "continue game when multiple players have cards" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Eight)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Nine)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -131,7 +131,7 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = RoundPhaseImpl.handle(gameState)
       result.gamePhase shouldBe TestGamePhases.attackPhase
     }

@@ -17,9 +17,9 @@ class PlayerFactoryImpl extends PlayerFactory:
     PlayerImpl(name, hand, isDone)
 
 class GameStateFactoryImpl @Inject() (
-  gamePhases: GamePhases,
-  cardFactory: CardFactory,
-  playerFactory: PlayerFactory
+    gamePhases: GamePhases,
+    cardFactory: CardFactory,
+    playerFactory: PlayerFactory
 ) extends GameStateFactory:
   def apply(
       players: List[Player],

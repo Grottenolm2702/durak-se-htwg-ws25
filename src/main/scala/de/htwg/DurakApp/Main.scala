@@ -13,7 +13,7 @@ import scalafx.application.Platform
 
 @main def run: Unit = {
   val injector = Guice.createInjector(new DurakModule)
-  
+
   // Get TUI through dependency injection
   val tui = injector.getInstance(classOf[TUI])
 

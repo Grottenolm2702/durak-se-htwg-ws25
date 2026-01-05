@@ -10,8 +10,9 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
   // Use DI instead of direct instantiation
   private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
-  private val builderFactory: GameStateBuilderFactory = injector.getInstance(classOf[GameStateBuilderFactory])
-  
+  private val builderFactory: GameStateBuilderFactory =
+    injector.getInstance(classOf[GameStateBuilderFactory])
+
   "GameStateBuilder" should {
     "build a default game state" in {
       val gameState = builderFactory.create().build()

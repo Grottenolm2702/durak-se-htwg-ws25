@@ -16,7 +16,7 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(Card(Suit.Hearts, Rank.Six) -> None)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -35,19 +35,19 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = Some(0),
         lastAttackerIndex = None
       )
-      
+
       val command = PassCommand(TestGamePhasesInstance)
       val result = command.execute(gameState)
-      
+
       result.lastEvent should not be None
     }
-    
+
     "execute pass in TestGamePhases.defensePhase" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(Card(Suit.Hearts, Rank.Six) -> None)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -66,19 +66,19 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val command = PassCommand(TestGamePhasesInstance)
       val result = command.execute(gameState)
-      
+
       result.lastEvent should not be None
     }
-    
+
     "use default currentAttackerIndex when None" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(Card(Suit.Hearts, Rank.Six) -> None)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -97,10 +97,10 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val command = PassCommand(TestGamePhasesInstance)
       val result = command.execute(gameState)
-      
+
       result.lastEvent should not be None
     }
   }

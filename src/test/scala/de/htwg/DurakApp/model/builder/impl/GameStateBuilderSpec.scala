@@ -10,7 +10,11 @@ import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
-  def createBuilder() = GameStateBuilder(TestFactories.gameStateFactory, TestFactories.cardFactory, TestGamePhasesInstance)
+  def createBuilder() = GameStateBuilder(
+    TestFactories.gameStateFactory,
+    TestFactories.cardFactory,
+    TestGamePhasesInstance
+  )
 
   "A GameStateBuilder" should {
     "create a default GameState correctly" in {

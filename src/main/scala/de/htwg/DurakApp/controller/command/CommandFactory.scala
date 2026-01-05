@@ -42,12 +42,12 @@ trait CommandFactory {
       case ExitGameAction          => Left(GameEvent.InvalidMove)
     }
   }
-  
+
   def playCard(card: Card): PlayCardCommand
-  
+
   def pass(): PassCommand
-  
+
   def takeCards(): TakeCardsCommand
-  
+
   def phaseChange(): PhaseChangeCommand
 }

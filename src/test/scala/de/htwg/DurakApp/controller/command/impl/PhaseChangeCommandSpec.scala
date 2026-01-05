@@ -14,7 +14,7 @@ class PhaseChangeCommandSpec extends AnyWordSpec with Matchers {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -33,18 +33,18 @@ class PhaseChangeCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val command = PhaseChangeCommand()
       val result = command.execute(gameState)
-      
+
       result shouldBe gameState
     }
-    
+
     "undo and return previous game state" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val previousGameState = GameState(
         players = List(player1, player2),
         deck = List(Card(Suit.Hearts, Rank.Eight)),
@@ -63,12 +63,12 @@ class PhaseChangeCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val currentGameState = previousGameState.copy(deck = List.empty)
-      
+
       val command = PhaseChangeCommand()
       val result = command.undo(currentGameState, previousGameState)
-      
+
       result shouldBe previousGameState
       result.deck.size shouldBe 1
     }

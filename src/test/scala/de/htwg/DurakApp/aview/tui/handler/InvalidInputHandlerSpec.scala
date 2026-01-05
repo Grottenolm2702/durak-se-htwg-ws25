@@ -13,7 +13,7 @@ class InvalidInputHandlerSpec extends AnyWordSpec with Matchers {
   val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
   val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
   val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-  
+
   val gameState = GameState(
     players = List(player1, player2),
     deck = List.empty,
@@ -23,7 +23,7 @@ class InvalidInputHandlerSpec extends AnyWordSpec with Matchers {
     attackerIndex = 0,
     defenderIndex = 1,
     gamePhase = TestGamePhases.setupPhase,
-        lastEvent = None,
+    lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
     setupPlayerCount = None,
@@ -37,21 +37,21 @@ class InvalidInputHandlerSpec extends AnyWordSpec with Matchers {
     "always return InvalidAction" in {
       val handler = InvalidInputHandler()
       val result = handler.handleRequest("anything", gameState)
-      
+
       result shouldBe InvalidAction
     }
-    
+
     "return InvalidAction for empty input" in {
       val handler = InvalidInputHandler()
       val result = handler.handleRequest("", gameState)
-      
+
       result shouldBe InvalidAction
     }
-    
+
     "return InvalidAction for any random string" in {
       val handler = InvalidInputHandler()
       val result = handler.handleRequest("xyz123", gameState)
-      
+
       result shouldBe InvalidAction
     }
   }

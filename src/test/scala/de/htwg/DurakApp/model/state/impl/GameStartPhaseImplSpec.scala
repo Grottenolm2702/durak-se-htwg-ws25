@@ -14,12 +14,12 @@ class GameStartPhaseImplSpec extends AnyWordSpec with Matchers {
     "have correct string representation" in {
       GameStartPhaseImpl.toString shouldBe "GameStartPhase"
     }
-    
+
     "handle sets GameSetupComplete event" in {
       val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
       val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
       val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      
+
       val gameState = GameState(
         players = List(player1, player2),
         deck = List(Card(Suit.Spades, Rank.Eight)),
@@ -38,7 +38,7 @@ class GameStartPhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       val result = GameStartPhaseImpl.handle(gameState)
       result.lastEvent shouldBe Some(GameEvent.GameSetupComplete)
     }
