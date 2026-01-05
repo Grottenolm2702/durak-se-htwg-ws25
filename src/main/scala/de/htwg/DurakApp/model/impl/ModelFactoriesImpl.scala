@@ -3,11 +3,11 @@ package de.htwg.DurakApp.model.impl
 import de.htwg.DurakApp.model._
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
 
-class CardFactoryImpl extends CardFactory:
+private[model] class CardFactoryImpl extends CardFactory:
   def apply(suit: Suit, rank: Rank, isTrump: Boolean = false): Card =
     CardImpl(suit, rank, isTrump)
 
-class PlayerFactoryImpl extends PlayerFactory:
+private[model] class PlayerFactoryImpl extends PlayerFactory:
   def apply(
       name: String,
       hand: List[Card] = List(),
@@ -15,7 +15,7 @@ class PlayerFactoryImpl extends PlayerFactory:
   ): Player =
     PlayerImpl(name, hand, isDone)
 
-class GameStateFactoryImpl extends GameStateFactory:
+private[model] class GameStateFactoryImpl extends GameStateFactory:
   def apply(
       players: List[Player],
       deck: List[Card],
