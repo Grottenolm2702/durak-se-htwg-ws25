@@ -6,33 +6,77 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
 import de.htwg.DurakApp.model.state._
-import com.google.inject.Guice
+import de.htwg.DurakApp.model.state.impl._
+import de.htwg.DurakApp.model.impl._
 
 class PlayCardCommandSpec extends AnyWordSpec with Matchers {
-  val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
-  val gamePhases = injector.getInstance(classOf[GamePhases])
+  val cardFactory = new CardFactoryImpl
+  val playerFactory = new PlayerFactoryImpl
+  
+  val gamePhases = new GamePhasesImpl(
+    SetupPhaseImpl,
+    AskPlayerCountPhaseImpl,
+    AskPlayerNamesPhaseImpl,
+    AskDeckSizePhaseImpl,
+    AskPlayAgainPhaseImpl,
+    GameStartPhaseImpl,
+    AttackPhaseImpl,
+    DefensePhaseImpl,
+    DrawPhaseImpl,
+    RoundPhaseImpl,
+    EndPhaseImpl
+  )
+  
+  val gameStateFactory = new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
   
   "A PlayCardCommand" should {
-    val player1Card1 = TestHelper.Card(Suit.Clubs, Rank.Six)
-    val player1Card2 = TestHelper.Card(Suit.Clubs, Rank.Seven)
-    val player2Card = TestHelper.Card(Suit.Hearts, Rank.Ace)
+    val player1Card1 = cardFactory(Suit.Clubs, Rank.Six)
+    val player1Card2 = cardFactory(Suit.Clubs, Rank.Seven)
+    val player2Card = cardFactory(Suit.Hearts, Rank.Ace)
 
-    val player1ForAttack = TestHelper.Player("P1", List(player1Card1, player1Card2))
-    val player2ForAttack = TestHelper.Player("P2", List(player2Card))
+    val player1ForAttack = playerFactory("P1", List(player1Card1, player1Card2))
+    val player2ForAttack = playerFactory("P2", List(player2Card))
 
-    val initialGameStateAttack = TestHelper.createTestGameState(
+    val initialGameStateAttack = gameStateFactory(
       players = List(player1ForAttack, player2ForAttack),
-      gamePhase = gamePhases.attackPhase
+      deck = List.empty,
+      table = Map.empty,
+      discardPile = List.empty,
+      trumpCard = cardFactory(Suit.Hearts, Rank.Ace, true),
+      attackerIndex = 0,
+      defenderIndex = 1,
+      gamePhase = gamePhases.attackPhase,
+      lastEvent = None,
+      passedPlayers = Set.empty,
+      roundWinner = None,
+      setupPlayerCount = None,
+      setupPlayerNames = List.empty,
+      setupDeckSize = None,
+      currentAttackerIndex = Some(0),
+      lastAttackerIndex = None
     )
 
-    val attackCardOnTable = TestHelper.Card(Suit.Spades, Rank.Eight)
-    val defendingCard = TestHelper.Card(Suit.Spades, Rank.Nine)
-    val player1ForDefense = TestHelper.Player("P1", List.empty)
-    val player2ForDefense = TestHelper.Player("P2", List(defendingCard))
-    val initialGameStateDefense = TestHelper.createTestGameState(
+    val attackCardOnTable = cardFactory(Suit.Spades, Rank.Eight)
+    val defendingCard = cardFactory(Suit.Spades, Rank.Nine)
+    val player1ForDefense = playerFactory("P1", List.empty)
+    val player2ForDefense = playerFactory("P2", List(defendingCard))
+    val initialGameStateDefense = gameStateFactory(
       players = List(player1ForDefense, player2ForDefense),
+      deck = List.empty,
       table = Map(attackCardOnTable -> None),
-      gamePhase = gamePhases.defensePhase
+      discardPile = List.empty,
+      trumpCard = cardFactory(Suit.Clubs, Rank.Ace, true),
+      attackerIndex = 0,
+      defenderIndex = 1,
+      gamePhase = gamePhases.defensePhase,
+      lastEvent = None,
+      passedPlayers = Set.empty,
+      roundWinner = None,
+      setupPlayerCount = None,
+      setupPlayerNames = List.empty,
+      setupDeckSize = None,
+      currentAttackerIndex = None,
+      lastAttackerIndex = None
     )
 
     "execute correctly when playing a card in attack phase" in {
@@ -61,7 +105,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidMove when player plays a card not in hand" in {
-      val wrongCard = TestHelper.Card(Suit.Hearts, Rank.King)
+      val wrongCard = cardFactory(Suit.Hearts, Rank.King)
       val command = PlayCardCommand(wrongCard, gamePhases)
       val resultState = command.execute(initialGameStateAttack)
       resultState.lastEvent.get shouldBe GameEvent.InvalidMove

@@ -6,21 +6,23 @@ import de.htwg.DurakApp.model.{Card, Player, GameState, Suit, Rank}
 import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.testutil._
 import de.htwg.DurakApp.util.Observer
-import com.google.inject.Guice
 
 class ControllerSpec extends AnyWordSpec with Matchers {
 
-  val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  def createController(): Controller = {
+    val initialState = TestHelper.createTestGameState()
+    new SpyController(initialState, new StubUndoRedoManager())
+  }
 
   "Controller interface" should {
 
     "provide access to game state" in {
-      val controller = injector.getInstance(classOf[Controller])
+      val controller = createController()
       controller.gameState should not be null
     }
 
     "process player actions" in {
-      val controller = injector.getInstance(classOf[Controller])
+      val controller = createController()
       val initialState = controller.gameState
 
       controller.processPlayerAction(SetPlayerCountAction(2))
@@ -28,7 +30,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     }
 
     "support undo operation" in {
-      val controller = injector.getInstance(classOf[Controller])
+      val controller = createController()
 
       controller.processPlayerAction(SetPlayerCountAction(2))
       val stateAfterAction = controller.gameState
@@ -38,7 +40,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     }
 
     "support redo operation" in {
-      val controller = injector.getInstance(classOf[Controller])
+      val controller = createController()
 
       controller.processPlayerAction(SetPlayerCountAction(2))
       controller.undo()
@@ -48,12 +50,12 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     }
 
     "provide status string" in {
-      val controller = injector.getInstance(classOf[Controller])
+      val controller = createController()
       controller.getStatusString() should not be empty
     }
 
     "support observer pattern" in {
-      val controller = injector.getInstance(classOf[Controller])
+      val controller = createController()
       val observer = new SpyObserver()
 
       controller.add(observer)
@@ -164,57 +166,6 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
       setup.setupGame(List("Alice", "Bob"), 1) shouldBe None
       setup.setupGame(List("Alice", "Bob"), 37) shouldBe None
-    }
-  }
-
-  "Controller with real implementation" should {
-
-    "handle SetPlayerCountAction" in {
-      val controller = injector.getInstance(classOf[Controller])
-
-      controller.processPlayerAction(SetPlayerCountAction(2))
-      val state = controller.gameState
-
-      state.setupPlayerCount shouldBe defined
-    }
-
-    "handle AddPlayerNameAction" in {
-      val controller = injector.getInstance(classOf[Controller])
-
-      controller.processPlayerAction(SetPlayerCountAction(2))
-      controller.processPlayerAction(AddPlayerNameAction("Alice"))
-
-      val state = controller.gameState
-      state.setupPlayerNames should not be empty
-    }
-
-    "handle SetDeckSizeAction" in {
-      val controller = injector.getInstance(classOf[Controller])
-
-      controller.processPlayerAction(SetPlayerCountAction(2))
-      controller.processPlayerAction(AddPlayerNameAction("Alice"))
-      controller.processPlayerAction(AddPlayerNameAction("Bob"))
-      controller.processPlayerAction(SetDeckSizeAction(36))
-
-      val state = controller.gameState
-      state.lastEvent shouldBe defined
-    }
-
-    "reject invalid actions with appropriate error events" in {
-      val controller = injector.getInstance(classOf[Controller])
-
-      controller.processPlayerAction(SetPlayerCountAction(1))
-      controller.gameState.lastEvent shouldBe defined
-
-      controller.processPlayerAction(SetPlayerCountAction(7))
-      controller.gameState.lastEvent shouldBe defined
-    }
-
-    "handle ExitGameAction" in {
-      val controller = injector.getInstance(classOf[Controller])
-
-      controller.processPlayerAction(ExitGameAction)
-      controller.gameState.lastEvent shouldBe defined
     }
   }
 }

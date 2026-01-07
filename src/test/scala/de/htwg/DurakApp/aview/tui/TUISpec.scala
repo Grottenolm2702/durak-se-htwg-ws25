@@ -29,7 +29,6 @@ import de.htwg.DurakApp.testutil.{
   SpyController
 }
 import de.htwg.DurakApp.controller.Controller
-import com.google.inject.Guice
 import java.io.{PrintStream, OutputStream}
 
 class TUISpec extends AnyWordSpec with Matchers {

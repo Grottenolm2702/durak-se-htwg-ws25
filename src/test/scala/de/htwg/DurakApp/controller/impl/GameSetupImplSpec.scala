@@ -2,12 +2,39 @@ package de.htwg.DurakApp.controller.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import com.google.inject.Guice
+import de.htwg.DurakApp.model.impl._
+import de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl
+import de.htwg.DurakApp.model.state.impl._
 
 class GameSetupImplSpec extends AnyWordSpec with Matchers {
 
-  val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
-  val gameSetup = injector.getInstance(classOf[de.htwg.DurakApp.controller.GameSetup])
+  val cardFactory = new CardFactoryImpl
+  val playerFactory = new PlayerFactoryImpl
+  
+  val gamePhases = new GamePhasesImpl(
+    SetupPhaseImpl,
+    AskPlayerCountPhaseImpl,
+    AskPlayerNamesPhaseImpl,
+    AskDeckSizePhaseImpl,
+    AskPlayAgainPhaseImpl,
+    GameStartPhaseImpl,
+    AttackPhaseImpl,
+    DefensePhaseImpl,
+    DrawPhaseImpl,
+    RoundPhaseImpl,
+    EndPhaseImpl
+  )
+  
+  val gameStateFactory = new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
+  val gameStateBuilderFactory = new GameStateBuilderFactoryImpl(gameStateFactory, cardFactory, gamePhases)
+  
+  val gameSetup = new GameSetupImpl(
+    gameStateFactory,
+    playerFactory,
+    cardFactory,
+    gamePhases,
+    gameStateBuilderFactory
+  )
 
   "A GameSetupImpl" should {
     "setup game with valid parameters" in {

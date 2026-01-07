@@ -7,12 +7,15 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.testutil.*
 import de.htwg.DurakApp.controller.{UndoAction, InvalidAction, Controller}
-import com.google.inject.Guice
 
 class UndoHandlerSpec extends AnyWordSpec with Matchers {
 
-  val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
-  val controller = injector.getInstance(classOf[Controller])
+  def createController(): Controller = {
+    val initialState = TestHelper.createTestGameState()
+    new SpyController(initialState, new StubUndoRedoManager())
+  }
+
+  val controller = createController()
 
   val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
   val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))

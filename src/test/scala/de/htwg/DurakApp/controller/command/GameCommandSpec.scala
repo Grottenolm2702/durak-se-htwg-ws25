@@ -6,14 +6,10 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.model.state.{GameEvent}
 import de.htwg.DurakApp.controller._
-import com.google.inject.Guice
 
 class GameCommandSpec extends AnyWordSpec with Matchers {
 
-  // Use DI instead of direct instantiation
-  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
-  private val commandFactory: CommandFactory =
-    injector.getInstance(classOf[CommandFactory])
+  private val commandFactory: CommandFactory = new StubCommandFactory()
 
   val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
   val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))

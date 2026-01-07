@@ -9,20 +9,19 @@ import de.htwg.DurakApp.controller._
 import de.htwg.DurakApp.controller.command.CommandFactory
 import de.htwg.DurakApp.util.UndoRedoManagerFactory
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
-import com.google.inject.Guice
 
 class ControllerImplSpec extends AnyWordSpec with Matchers {
 
-  // Use DI instead of direct instantiation
-  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  val cardFactory = new StubCardFactory()
+  val playerFactory = new StubPlayerFactory()
+  val gameStateFactory = new StubGameStateFactory()
+  val gameStateBuilderFactory: GameStateBuilderFactory = new StubGameStateBuilderFactory(cardFactory, playerFactory, gameStateFactory)
+  val gameSetup: GameSetup = new StubGameSetup(cardFactory, playerFactory, gameStateFactory)
+  val undoRedoManagerFactory: UndoRedoManagerFactory = new StubUndoRedoManagerFactory()
+  val commandFactory: CommandFactory = new StubCommandFactory()
+  val stubGamePhases = new StubGamePhasesImpl()
 
-  def createBuilder() =
-    injector.getInstance(classOf[GameStateBuilderFactory]).create()
-  val gameSetup: GameSetup = injector.getInstance(classOf[GameSetup])
-  val undoRedoManagerFactory: UndoRedoManagerFactory =
-    injector.getInstance(classOf[UndoRedoManagerFactory])
-  val commandFactory: CommandFactory =
-    injector.getInstance(classOf[CommandFactory])
+  def createBuilder() = gameStateBuilderFactory.create()
 
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {
@@ -36,7 +35,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetPlayerCountAction(2))
@@ -56,7 +55,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetPlayerCountAction(6))
@@ -76,7 +75,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetPlayerCountAction(1))
@@ -95,7 +94,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetPlayerCountAction(7))
@@ -117,7 +116,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(AddPlayerNameAction("Alice"))
@@ -139,7 +138,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(AddPlayerNameAction("Bob"))
@@ -160,7 +159,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(AddPlayerNameAction(""))
@@ -180,7 +179,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(AddPlayerNameAction("   "))
@@ -200,7 +199,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(AddPlayerNameAction("  Alice  "))
@@ -223,7 +222,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetDeckSizeAction(36))
@@ -245,7 +244,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetDeckSizeAction(20))
@@ -266,7 +265,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetDeckSizeAction(2))
@@ -287,7 +286,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(SetDeckSizeAction(50))
@@ -311,7 +310,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(PlayAgainAction)
@@ -337,7 +336,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(PlayAgainAction)
@@ -358,7 +357,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(ExitGameAction)
@@ -380,7 +379,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(InvalidAction)
@@ -420,7 +419,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       val result = controller.undo()
@@ -461,7 +460,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       val result = controller.redo()
@@ -483,7 +482,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       controller.processPlayerAction(
@@ -506,7 +505,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        new StubGamePhasesImpl()
+        stubGamePhases
       )
 
       val status = controller.getStatusString()
