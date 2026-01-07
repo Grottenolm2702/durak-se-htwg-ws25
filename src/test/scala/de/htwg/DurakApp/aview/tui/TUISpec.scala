@@ -1,25 +1,21 @@
 package de.htwg.DurakApp.aview.tui
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.TestHelper._
+import de.htwg.DurakApp.testutil.StubGamePhases
 import de.htwg.DurakApp.model.state.GamePhases
 
 object TestGamePhases extends GamePhases {
-  def setupPhase = de.htwg.DurakApp.testutil.TestGamePhases.setupPhase
-  def askPlayerCountPhase =
-    de.htwg.DurakApp.testutil.TestGamePhases.askPlayerCountPhase
-  def askPlayerNamesPhase =
-    de.htwg.DurakApp.testutil.TestGamePhases.askPlayerNamesPhase
-  def askDeckSizePhase =
-    de.htwg.DurakApp.testutil.TestGamePhases.askDeckSizePhase
-  def askPlayAgainPhase =
-    de.htwg.DurakApp.testutil.TestGamePhases.askPlayAgainPhase
-  def gameStartPhase = de.htwg.DurakApp.testutil.TestGamePhases.gameStartPhase
-  def attackPhase = de.htwg.DurakApp.testutil.TestGamePhases.attackPhase
-  def defensePhase = de.htwg.DurakApp.testutil.TestGamePhases.defensePhase
-  def drawPhase = de.htwg.DurakApp.testutil.TestGamePhases.drawPhase
-  def roundPhase = de.htwg.DurakApp.testutil.TestGamePhases.roundPhase
-  def endPhase = de.htwg.DurakApp.testutil.TestGamePhases.endPhase
+  def setupPhase = StubGamePhases.setupPhase
+  def askPlayerCountPhase = StubGamePhases.askPlayerCountPhase
+  def askPlayerNamesPhase = StubGamePhases.askPlayerNamesPhase
+  def askDeckSizePhase = StubGamePhases.askDeckSizePhase
+  def askPlayAgainPhase = StubGamePhases.askPlayAgainPhase
+  def gameStartPhase = StubGamePhases.gameStartPhase
+  def attackPhase = StubGamePhases.attackPhase
+  def defensePhase = StubGamePhases.defensePhase
+  def drawPhase = StubGamePhases.drawPhase
+  def roundPhase = StubGamePhases.roundPhase
+  def endPhase = StubGamePhases.endPhase
 }
 
 import org.scalatest.wordspec.AnyWordSpec
@@ -49,42 +45,40 @@ class TUISpec extends AnyWordSpec with Matchers {
       val initialState = TestHelper.createTestGameState()
       val controller = new SpyController(
         initialState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
-      tui should not be null
+      tui.should(not(be(null)))
     }
 
     "build status string for attack phase" in {
-      val attacker = Player("Angreifer", List.empty)
-      val defender = Player("Verteidiger", List.empty)
+      val attacker = TestHelper.Player("Angreifer", List.empty)
+      val defender = TestHelper.Player("Verteidiger", List.empty)
       val game = TestHelper.createTestGameState(
         players = List(attacker, defender),
         gamePhase = TestGamePhases.setupPhase,
-        lastEvent = Some(GameEvent.Attack(Card(Suit.Spades, Rank.Six)))
+        lastEvent = Some(GameEvent.Attack(TestHelper.Card(Suit.Spades, Rank.Six)))
       )
 
       val controller =
-        new SpyController(game, new StubUndoRedoManager(), new StubGameSetup())
+        new SpyController(game, new StubUndoRedoManager())
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
       val statusString = tui.buildStatusString(game)
 
-      statusString should not be empty
-      statusString should include("Angriff")
+      statusString.should(not(be(empty)))
+      statusString.should(include("Angriff"))
     }
 
     "respond to update notification" in {
       val initialState = TestHelper.createTestGameState()
       val controller = new SpyController(
         initialState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
 
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
-      noException should be thrownBy tui.update
+      noException shouldBe thrownBy { tui.update }
     }
 
     "show correct description for TestGamePhases.setupPhase" in {
@@ -92,14 +86,13 @@ class TUISpec extends AnyWordSpec with Matchers {
         TestHelper.createTestGameState(gamePhase = TestGamePhases.setupPhase)
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
       val desc = tui.description(gameState)
 
-      desc should include("Spieleranzahl")
+      desc.should(include("Spieleranzahl"))
     }
 
     "show correct description for TestGamePhases.askPlayerCountPhase" in {
@@ -108,14 +101,13 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
       val desc = tui.description(gameState)
 
-      desc should include("Spieleranzahl")
+      desc.should(include("Spieleranzahl"))
     }
 
     "show correct description for TestGamePhases.askPlayerNamesPhase" in {
@@ -125,19 +117,18 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(
         controller,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance,
+        new de.htwg.DurakApp.testutil.StubGamePhasesImpl(),
         nullOutputStream
       )
 
       val desc = tui.description(gameState)
 
-      desc should include("Spielername")
-      desc should include("2")
+      desc.should(include("Spielername"))
+      desc.should(include("2"))
     }
 
     "show correct description for TestGamePhases.askDeckSizePhase" in {
@@ -147,19 +138,18 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(
         controller,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance,
+        new de.htwg.DurakApp.testutil.StubGamePhasesImpl(),
         nullOutputStream
       )
 
       val desc = tui.description(gameState)
 
-      desc should include("Deckgröße")
-      desc should include("2")
+      desc.should(include("Deckgröße"))
+      desc.should(include("2"))
     }
 
     "show correct description for TestGamePhases.askPlayAgainPhase" in {
@@ -168,14 +158,13 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
       val desc = tui.description(gameState)
 
-      desc should include("neue Runde")
+      desc.should(include("neue Runde"))
     }
 
     "show correct description for TestGamePhases.attackPhase" in {
@@ -183,60 +172,57 @@ class TUISpec extends AnyWordSpec with Matchers {
         TestHelper.createTestGameState(gamePhase = TestGamePhases.attackPhase)
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
       val desc = tui.description(gameState)
 
-      desc should include("AttackPhase")
+      desc.should(include("AttackPhase"))
     }
 
     "build status string contains important information" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
       val gameState = TestHelper.createTestGameState(
         players = List(player1, player2),
         gamePhase = TestGamePhases.attackPhase
       )
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
       val statusString = tui.buildStatusString(gameState)
 
-      statusString should not be empty
-      statusString.length should be > 0
+      statusString.should(not(be(empty)))
+      statusString.length.should(be > 0)
     }
 
     "build status string for TestGamePhases.defensePhase" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
       val gameState = TestHelper.createTestGameState(
         players = List(player1, player2),
         gamePhase = TestGamePhases.setupPhase,
-        lastEvent = Some(GameEvent.Defend(Card(Suit.Hearts, Rank.Seven)))
+        lastEvent = Some(GameEvent.Defend(TestHelper.Card(Suit.Hearts, Rank.Seven)))
       )
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
       val statusString = tui.buildStatusString(gameState)
 
-      statusString should not be empty
-      statusString should include("Verteidigung")
+      statusString.should(not(be(empty)))
+      statusString.should(include("Verteidigung"))
     }
 
     "build status string for GameOver event contains end message" in {
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(Card(Suit.Hearts, Rank.Six)))
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
       val gameState = TestHelper.createTestGameState(
         players = List(player1, player2),
         gamePhase = TestGamePhases.setupPhase,
@@ -244,14 +230,13 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       val controller = new SpyController(
         gameState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)
 
       val statusString = tui.buildStatusString(gameState)
 
-      statusString should include("Spiel")
+      statusString.should(include("Spiel"))
     }
   }
 }

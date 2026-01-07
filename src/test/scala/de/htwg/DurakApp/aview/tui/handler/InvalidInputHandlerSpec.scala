@@ -1,20 +1,20 @@
 package de.htwg.DurakApp.aview.tui.handler
 
-import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil._
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil.*
 import de.htwg.DurakApp.controller.InvalidAction
 
 class InvalidInputHandlerSpec extends AnyWordSpec with Matchers {
 
-  val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-  val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-  val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+  val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+  val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+  val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-  val gameState = GameState(
+  val gameState = TestHelper.GameState(
     players = List(player1, player2),
     deck = List.empty,
     table = Map.empty,
@@ -22,7 +22,7 @@ class InvalidInputHandlerSpec extends AnyWordSpec with Matchers {
     trumpCard = trumpCard,
     attackerIndex = 0,
     defenderIndex = 1,
-    gamePhase = TestGamePhases.setupPhase,
+    gamePhase = StubGamePhases.setupPhase,
     lastEvent = None,
     passedPlayers = Set.empty,
     roundWinner = None,
