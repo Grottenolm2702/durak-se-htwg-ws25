@@ -17,6 +17,10 @@ class StubGamePhase(val phaseName: String) extends GamePhase:
   
   override def toString: String = phaseName
 
+class StubGamePhaseWithTransition(phaseName: String, nextPhase: => GamePhase) extends StubGamePhase(phaseName):
+  override def handle(gameState: GameState): GameState = 
+    gameState.copy(gamePhase = nextPhase, lastEvent = Some(GameEvent.Draw))
+
 object StubGamePhases:
   val setupPhase: GamePhase = new StubGamePhase("SetupPhase")
   val askPlayerCountPhase: GamePhase = new StubGamePhase("AskPlayerCountPhase")

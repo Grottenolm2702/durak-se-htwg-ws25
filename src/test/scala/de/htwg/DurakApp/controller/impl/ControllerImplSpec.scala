@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.controller._
-import de.htwg.DurakApp.controller.command.CommandFactory
+import de.htwg.DurakApp.controller.command.{CommandFactory, PlayCardCommand}
 import de.htwg.DurakApp.util.UndoRedoManagerFactory
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 
@@ -206,6 +206,27 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
       controller.gameState.setupPlayerNames shouldBe List("Alice")
     }
+
+    "reject adding more names than expected count" in {
+      val initialGameState = createBuilder()
+        .withGamePhase(StubGamePhases.askPlayerNamesPhase)
+        .withSetupPlayerCount(Some(2))
+        .withSetupPlayerNames(List("Alice", "Bob"))
+        .build()
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      controller.processPlayerAction(AddPlayerNameAction("Charlie"))
+
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
   }
 
   "ControllerImpl with SetDeckSizeAction" should {
@@ -290,6 +311,31 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       )
 
       controller.processPlayerAction(SetDeckSizeAction(50))
+
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
+
+    "handle gameSetup failure when setupGame returns None" in {
+      val failingGameSetup = new GameSetup {
+        def setupGame(playerNames: List[String], deckSize: Int): Option[GameState] = None
+      }
+      
+      val initialGameState = createBuilder()
+        .withGamePhase(StubGamePhases.askDeckSizePhase)
+        .withSetupPlayerCount(Some(2))
+        .withSetupPlayerNames(List("Alice", "Bob"))
+        .build()
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        failingGameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      controller.processPlayerAction(SetDeckSizeAction(20))
 
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
     }
@@ -386,6 +432,32 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
       controller.gameState.lastEvent shouldBe Some(GameEvent.InvalidMove)
     }
+
+    "handle PlayAgain when setupGame fails" in {
+      val failingGameSetup = new GameSetup {
+        def setupGame(playerNames: List[String], deckSize: Int): Option[GameState] = None
+      }
+      
+      val initialGameState = createBuilder()
+        .withGamePhase(StubGamePhases.askPlayAgainPhase)
+        .withSetupPlayerCount(Some(2))
+        .withSetupPlayerNames(List("Alice", "Bob"))
+        .withSetupDeckSize(Some(36))
+        .build()
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        failingGameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      controller.processPlayerAction(PlayAgainAction)
+
+      controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
+    }
   }
 
   "ControllerImpl undo functionality" should {
@@ -427,6 +499,49 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       result shouldBe None
       controller.gameState.lastEvent shouldBe Some(GameEvent.CannotUndo)
     }
+
+    "undo successfully when history exists" in {
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+
+      val currentGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = Some(GameEvent.Pass),
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val previousGameState = currentGameState.copy(lastEvent = Some(GameEvent.Draw))
+      val testCommand = commandFactory.phaseChange()
+      val managerWithHistory = undoRedoManagerFactory.create().save(testCommand, previousGameState)
+      
+      val controller = ControllerImpl(
+        currentGameState,
+        managerWithHistory,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      val result = controller.undo()
+
+      result shouldBe defined
+      result.get.lastEvent shouldBe Some(GameEvent.Draw)
+    }
   }
 
   "ControllerImpl redo functionality" should {
@@ -467,6 +582,53 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
       result shouldBe None
       controller.gameState.lastEvent shouldBe Some(GameEvent.CannotRedo)
+    }
+
+    "redo successfully when redo stack exists" in {
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+
+      val currentGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = Some(GameEvent.Pass),
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val nextGameState = currentGameState.copy(lastEvent = Some(GameEvent.Draw))
+      val testCommand = commandFactory.phaseChange()
+      // Create a manager with redo stack (simulate an undo was done before)
+      val managerWithRedo = new StubUndoRedoManager(
+        undoStack = List.empty,
+        redoStack = List((testCommand, nextGameState))
+      )
+      
+      val controller = ControllerImpl(
+        currentGameState,
+        managerWithRedo,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      val result = controller.redo()
+
+      result shouldBe defined
+      result.get.lastEvent shouldBe Some(GameEvent.Draw)
     }
   }
 
@@ -633,6 +795,137 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
       // StubCommandFactory returns the state unchanged
       result.gamePhase shouldBe StubGamePhases.defensePhase
+    }
+
+    "handle command error when createCommand returns Left" in {
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      
+      val initialGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.attackPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      // UndoAction will cause createCommand to return Left(GameEvent.InvalidMove)
+      val result = controller.processPlayerAction(InvalidAction)
+
+      result.lastEvent shouldBe Some(GameEvent.InvalidMove)
+    }
+
+    "handle SetPlayerCountAction in game phase returns error" in {
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      
+      val initialGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.attackPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      val result = controller.processPlayerAction(SetPlayerCountAction(2))
+
+      result.lastEvent shouldBe Some(GameEvent.InvalidMove)
+    }
+
+    "handle phase transitions recursively" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List.empty)
+      
+      // Create a phase that transitions to attackPhase when handle is called
+      val transitionPhase = new StubGamePhaseWithTransition("TransitionPhase", StubGamePhases.attackPhase)
+      
+      val initialGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = transitionPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val commandFactoryWithTransition = new StubCommandFactory {
+        override def playCard(cardValue: Card): PlayCardCommand =
+          new PlayCardCommand:
+            val card: Card = cardValue
+            def execute(state: GameState): GameState = 
+              // Change the phase to trigger handlePhaseRecursively
+              state.copy(gamePhase = transitionPhase)
+            def undo(state: GameState): GameState = state
+      }
+      
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactoryWithTransition,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      val result = controller.processPlayerAction(PlayCardAction(card))
+
+      // The phase should have transitioned through handlePhaseRecursively
+      result.gamePhase shouldBe StubGamePhases.attackPhase
+      result.lastEvent shouldBe Some(GameEvent.Draw)
     }
   }
 }

@@ -93,6 +93,18 @@ class CardSpec extends AnyWordSpec with Matchers {
       copied.rank shouldBe originalCard.rank
       copied.isTrump shouldBe originalCard.isTrump
     }
+
+    "test copy default parameters via trait" in {
+      val card: Card = TestHelper.Card(Suit.Clubs, Rank.Ten, isTrump = true)
+      // Call copy through trait interface to trigger default parameter methods
+      val copied1: Card = card.copy(suit = Suit.Diamonds)
+      val copied2: Card = card.copy(rank = Rank.Jack)
+      val copied3: Card = card.copy(isTrump = false)
+      
+      copied1.suit shouldBe Suit.Diamonds
+      copied2.rank shouldBe Rank.Jack
+      copied3.isTrump shouldBe false
+    }
   }
 
   "CardFactory" should {

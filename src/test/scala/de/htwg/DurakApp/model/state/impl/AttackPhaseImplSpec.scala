@@ -531,5 +531,316 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
       result.currentAttackerIndex shouldBe Some(0)
       result.passedPlayers shouldBe Set(2)
     }
+
+    "allow playing card with same rank as defended card on table" in {
+      val attackCard1 = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard1 = TestHelper.Card(Suit.Clubs, Rank.Seven)
+      val attackCard2 = TestHelper.Card(Suit.Diamonds, Rank.Seven)
+      val player1 = TestHelper.Player("Alice", List(attackCard2))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Eight)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(attackCard1 -> Some(defenseCard1))
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(0),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.playCard(attackCard2, 0, gameState)
+      result.table.contains(attackCard2) shouldBe true
+      result.lastEvent shouldBe Some(GameEvent.Attack(attackCard2))
+    }
+
+    "return InvalidMove when table has 6 cards already" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(
+        TestHelper.Card(Suit.Diamonds, Rank.Seven),
+        TestHelper.Card(Suit.Diamonds, Rank.Eight),
+        TestHelper.Card(Suit.Diamonds, Rank.Nine),
+        TestHelper.Card(Suit.Diamonds, Rank.Ten),
+        TestHelper.Card(Suit.Diamonds, Rank.Jack),
+        TestHelper.Card(Suit.Diamonds, Rank.Queen)
+      ))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(
+        TestHelper.Card(Suit.Hearts, Rank.Six) -> None,
+        TestHelper.Card(Suit.Spades, Rank.Six) -> None,
+        TestHelper.Card(Suit.Diamonds, Rank.Six) -> None,
+        TestHelper.Card(Suit.Clubs, Rank.Six) -> None,
+        TestHelper.Card(Suit.Hearts, Rank.Seven) -> None,
+        TestHelper.Card(Suit.Spades, Rank.Seven) -> None
+      )
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(0),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.playCard(card, 0, gameState)
+      result.lastEvent shouldBe Some(GameEvent.InvalidMove)
+    }
+
+    "return InvalidMove when undefended attacks equal defender's hand size" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(
+        TestHelper.Card(Suit.Diamonds, Rank.Seven),
+        TestHelper.Card(Suit.Diamonds, Rank.Eight)
+      ))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(
+        TestHelper.Card(Suit.Hearts, Rank.Six) -> None,
+        TestHelper.Card(Suit.Spades, Rank.Six) -> None
+      )
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(0),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.playCard(card, 0, gameState)
+      result.lastEvent shouldBe Some(GameEvent.InvalidMove)
+    }
+
+    "allow playing card when undefended attacks less than defender's hand size" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(
+        TestHelper.Card(Suit.Diamonds, Rank.Seven),
+        TestHelper.Card(Suit.Diamonds, Rank.Eight),
+        TestHelper.Card(Suit.Diamonds, Rank.Nine)
+      ))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(
+        TestHelper.Card(Suit.Hearts, Rank.Six) -> None,
+        TestHelper.Card(Suit.Spades, Rank.Six) -> None
+      )
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(0),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.playCard(card, 0, gameState)
+      result.table.contains(card) shouldBe true
+      result.lastEvent shouldBe Some(GameEvent.Attack(card))
+    }
+
+    "count undefended attacks correctly with mixed table state" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(
+        TestHelper.Card(Suit.Diamonds, Rank.Seven),
+        TestHelper.Card(Suit.Diamonds, Rank.Eight)
+      ))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(
+        TestHelper.Card(Suit.Hearts, Rank.Six) -> Some(TestHelper.Card(Suit.Diamonds, Rank.Ten)),
+        TestHelper.Card(Suit.Spades, Rank.Six) -> None
+      )
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(0),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.playCard(card, 0, gameState)
+      result.table.contains(card) shouldBe true
+      result.lastEvent shouldBe Some(GameEvent.Attack(card))
+    }
+
+    "return InvalidMove when playerIndex negative in playCard" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(0),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.playCard(card, -1, gameState)
+      result.lastEvent shouldBe Some(GameEvent.InvalidMove)
+    }
+
+    "use attackerIndex when currentAttackerIndex is None in playCard" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.playCard(card, 0, gameState)
+      result.table.contains(card) shouldBe true
+      result.lastEvent shouldBe Some(GameEvent.Attack(card))
+    }
+
+    "use attackerIndex when currentAttackerIndex is None in pass" in {
+      val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card1))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(card1 -> None)
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.pass(0, gameState)
+      result.lastEvent shouldBe Some(GameEvent.Pass)
+      result.passedPlayers.contains(0) shouldBe true
+      result.currentAttackerIndex shouldBe Some(2)
+    }
+
+    "use attackerIndex in getNextAttacker when currentAttackerIndex is None" in {
+      val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card1))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(card1 -> None)
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.pass(0, gameState)
+      result.currentAttackerIndex shouldBe Some(2)
+    }
   }
 }
