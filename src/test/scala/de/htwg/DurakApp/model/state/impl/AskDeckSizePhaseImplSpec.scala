@@ -1,24 +1,18 @@
 package de.htwg.DurakApp.model.state.impl
-
 import de.htwg.DurakApp.testutil._
 import de.htwg.DurakApp.testutil.*
-
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
-
 class AskDeckSizePhaseImplSpec extends AnyWordSpec with Matchers {
-
   "AskDeckSizePhaseImpl" should {
     "have correct string representation" in {
       AskDeckSizePhaseImpl.toString shouldBe "AskDeckSizePhase"
     }
-
     "handle returns same state" in {
       val player1 = TestHelper.Player("Alice", List.empty)
       val player2 = TestHelper.Player("Bob", List.empty)
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
-
       val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
@@ -37,7 +31,6 @@ class AskDeckSizePhaseImplSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-
       val result = AskDeckSizePhaseImpl.handle(gameState)
       result shouldBe gameState
     }

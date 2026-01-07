@@ -24,11 +24,6 @@ import de.htwg.DurakApp.controller.{
 import scala.util.Random
 import com.google.inject.Inject
 
-/** Implementation of Controller trait.
-  *
-  * This class is package-private and should only be instantiated through Guice
-  * DI (see DurakModule).
-  */
 class ControllerImpl @Inject() (
     private var _gameState: GameState,
     private var undoRedoManager: UndoRedoManager,

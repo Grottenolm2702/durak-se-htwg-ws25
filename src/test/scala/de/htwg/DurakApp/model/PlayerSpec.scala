@@ -1,12 +1,8 @@
 package de.htwg.DurakApp.model
-
 import de.htwg.DurakApp.testutil._
-
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
 class PlayerSpec extends AnyWordSpec with Matchers {
-
   "A Player" should {
     "store its name and hand correctly" in {
       val hand = List(
@@ -23,7 +19,6 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       player.hand.shouldBe(List())
       player.isDone.shouldBe(false)
     }
-
     "support copy with default isDone" in {
       val hand = List(TestHelper.Card(Suit.Hearts, Rank.Six))
       val player = TestHelper.Player("Gabriel", hand, isDone = true)
@@ -32,14 +27,12 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.hand shouldBe hand
       copied.isDone shouldBe true
     }
-
     "use default parameter for hand when creating with only name" in {
       val player = TestHelper.Player("Solo")
       player.name shouldBe "Solo"
       player.hand shouldBe List.empty
       player.isDone shouldBe false
     }
-
     "use default parameter for isDone when creating with name and hand" in {
       val hand = List(TestHelper.Card(Suit.Hearts, Rank.Six))
       val player = TestHelper.Player("Hero", hand)
@@ -48,19 +41,16 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       player.isDone shouldBe false
     }
   }
-
   "Player copy method" should {
     val card1 = TestHelper.Card(Suit.Hearts, Rank.Ace)
     val card2 = TestHelper.Card(Suit.Diamonds, Rank.King)
     val originalPlayer = TestHelper.Player("Alice", List(card1), isDone = true)
-
     "copy with only name changed" in {
       val copied = originalPlayer.copy(name = "Bob")
       copied.name shouldBe "Bob"
       copied.hand shouldBe List(card1)
       copied.isDone shouldBe true
     }
-
     "copy with only hand changed" in {
       val newHand = List(card2)
       val copied = originalPlayer.copy(hand = newHand)
@@ -68,14 +58,12 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.hand shouldBe newHand
       copied.isDone shouldBe true
     }
-
     "copy with only isDone changed" in {
       val copied = originalPlayer.copy(isDone = false)
       copied.name shouldBe "Alice"
       copied.hand shouldBe List(card1)
       copied.isDone shouldBe false
     }
-
     "copy with name and hand changed" in {
       val newHand = List(card1, card2)
       val copied = originalPlayer.copy(name = "Charlie", hand = newHand)
@@ -83,14 +71,12 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.hand shouldBe newHand
       copied.isDone shouldBe true
     }
-
     "copy with name and isDone changed" in {
       val copied = originalPlayer.copy(name = "David", isDone = false)
       copied.name shouldBe "David"
       copied.hand shouldBe List(card1)
       copied.isDone shouldBe false
     }
-
     "copy with hand and isDone changed" in {
       val newHand = List(card2)
       val copied = originalPlayer.copy(hand = newHand, isDone = false)
@@ -98,7 +84,6 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.hand shouldBe newHand
       copied.isDone shouldBe false
     }
-
     "copy with all parameters changed" in {
       val newHand = List(card1, card2)
       val copied =
@@ -107,7 +92,6 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.hand shouldBe newHand
       copied.isDone shouldBe false
     }
-
     "copy with no parameters (returns same values)" in {
       val copied = originalPlayer.copy()
       copied.name shouldBe originalPlayer.name
@@ -115,38 +99,31 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.isDone shouldBe originalPlayer.isDone
     }
   }
-
   "PlayerFactory" should {
     val playerFactory = TestHelper.playerFactory
-
     "use default hand=List.empty when not specified" in {
       val player = playerFactory("Alice")
       player.hand shouldBe List.empty
     }
-
     "use default isDone=false when not specified" in {
       val player = playerFactory("Bob")
       player.isDone shouldBe false
     }
-
     "use default hand and isDone when only name specified" in {
       val player = playerFactory("Charlie")
       player.name shouldBe "Charlie"
       player.hand shouldBe List.empty
       player.isDone shouldBe false
     }
-
     "respect explicit hand parameter" in {
       val hand = List(TestHelper.Card(Suit.Hearts, Rank.Ace))
       val player = playerFactory("David", hand)
       player.hand shouldBe hand
     }
-
     "respect explicit isDone parameter" in {
       val player = playerFactory("Eve", List.empty, isDone = true)
       player.isDone shouldBe true
     }
-
     "respect all explicit parameters" in {
       val hand = List(TestHelper.Card(Suit.Clubs, Rank.King))
       val player = playerFactory("Frank", hand, isDone = true)

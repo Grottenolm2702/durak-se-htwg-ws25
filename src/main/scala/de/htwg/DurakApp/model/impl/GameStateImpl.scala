@@ -75,7 +75,7 @@ private[model] class GameStateImpl(
   )
 
   def toBuilder: GameStateBuilder = {
-    // Use inline factories that creates GameStateImpl and CardImpl directly
+
     val inlineGameStateFactory = new GameStateFactory {
       def apply(
           players: List[Player],

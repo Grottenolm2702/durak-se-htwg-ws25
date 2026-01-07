@@ -1,31 +1,23 @@
 package de.htwg.DurakApp.testutil
-
 import de.htwg.DurakApp.model.state.{GamePhase, GamePhases, GameEvent}
 import de.htwg.DurakApp.model.{GameState, Card}
-
 class StubGamePhase(val phaseName: String) extends GamePhase:
   def handle(gameState: GameState): GameState = gameState
-
   override def playCard(
       card: Card,
       playerIdx: Int,
       gameState: GameState
   ): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-
   override def pass(playerIdx: Int, gameState: GameState): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-
   override def takeCards(playerIdx: Int, gameState: GameState): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-
   override def toString: String = phaseName
-
 class StubGamePhaseWithTransition(phaseName: String, nextPhase: => GamePhase)
     extends StubGamePhase(phaseName):
   override def handle(gameState: GameState): GameState =
     gameState.copy(gamePhase = nextPhase, lastEvent = Some(GameEvent.Draw))
-
 object StubGamePhases:
   val setupPhase: GamePhase = new StubGamePhase("SetupPhase")
   val askPlayerCountPhase: GamePhase = new StubGamePhase("AskPlayerCountPhase")
@@ -38,7 +30,6 @@ object StubGamePhases:
   val drawPhase: GamePhase = new StubGamePhase("DrawPhase")
   val roundPhase: GamePhase = new StubGamePhase("RoundPhase")
   val endPhase: GamePhase = new StubGamePhase("EndPhase")
-
 class StubGamePhasesImpl extends GamePhases:
   def setupPhase = StubGamePhases.setupPhase
   def askPlayerCountPhase = StubGamePhases.askPlayerCountPhase

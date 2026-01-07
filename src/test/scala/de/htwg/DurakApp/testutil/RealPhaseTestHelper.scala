@@ -1,13 +1,10 @@
 package de.htwg.DurakApp.testutil
-
 import de.htwg.DurakApp.model.{GameState, Card, Player}
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 import de.htwg.DurakApp.model.state.impl.*
-
 object RealPhaseTestHelper:
   val cardFactory = new StubCardFactory()
   val playerFactory = new StubPlayerFactory()
-
   def createGameStateWithRealPhases(
       players: List[Player] = List(playerFactory("P1"), playerFactory("P2")),
       deck: List[Card] = List.empty,

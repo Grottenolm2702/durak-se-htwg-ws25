@@ -1,9 +1,7 @@
 package de.htwg.DurakApp.testutil
-
 import de.htwg.DurakApp.model.{GameState, GameStateFactory, Card, Player}
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 import de.htwg.DurakApp.model.builder.GameStateBuilder
-
 private class StubGameState(
     val players: List[Player],
     val deck: List[Card],
@@ -22,7 +20,6 @@ private class StubGameState(
     val currentAttackerIndex: Option[Int],
     val lastAttackerIndex: Option[Int]
 ) extends GameState:
-
   def copy(
       players: List[Player] = this.players,
       deck: List[Card] = this.deck,
@@ -59,7 +56,6 @@ private class StubGameState(
       currentAttackerIndex,
       lastAttackerIndex
     )
-
   def toBuilder: GameStateBuilder =
     val gameStateFactory = new StubGameStateFactory()
     val builderFactory = new StubGameStateBuilderFactory(
@@ -85,7 +81,6 @@ private class StubGameState(
       .withSetupDeckSize(setupDeckSize)
       .withCurrentAttackerIndex(currentAttackerIndex)
       .withLastAttackerIndex(lastAttackerIndex)
-
   override def equals(obj: Any): Boolean = obj match
     case that: StubGameState =>
       this.players == that.players &&
@@ -105,7 +100,6 @@ private class StubGameState(
       this.currentAttackerIndex == that.currentAttackerIndex &&
       this.lastAttackerIndex == that.lastAttackerIndex
     case _ => false
-
   override def hashCode(): Int =
     val state = Seq(
       players,
@@ -126,7 +120,6 @@ private class StubGameState(
       lastAttackerIndex
     )
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-
 class StubGameStateFactory extends GameStateFactory:
   def apply(
       players: List[Player],
