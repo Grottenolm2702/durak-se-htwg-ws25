@@ -513,4 +513,126 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       status shouldBe "AttackPhase"
     }
   }
+
+  "ControllerImpl processGameAction" should {
+    "call processGameAction for PlayCardAction in attack phase" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List.empty)
+      
+      val initialGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.attackPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      val result = controller.processPlayerAction(PlayCardAction(card))
+
+      // StubCommandFactory returns the state unchanged, so we just verify it was called
+      result.gamePhase shouldBe StubGamePhases.attackPhase
+    }
+
+    "call processGameAction for PassAction in attack phase" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List.empty)
+      
+      val initialGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map(card -> None),
+        discardPile = List.empty,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.attackPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      val result = controller.processPlayerAction(PassAction)
+
+      // StubCommandFactory returns the state unchanged
+      result.gamePhase shouldBe StubGamePhases.attackPhase
+    }
+
+    "call processGameAction for TakeCardsAction in defense phase" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      
+      val initialGameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map(card -> None),
+        discardPile = List.empty,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.defensePhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases
+      )
+
+      val result = controller.processPlayerAction(TakeCardsAction)
+
+      // StubCommandFactory returns the state unchanged
+      result.gamePhase shouldBe StubGamePhases.defensePhase
+    }
+  }
 }

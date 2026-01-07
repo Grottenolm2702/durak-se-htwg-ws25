@@ -76,5 +76,20 @@ class RedoHandlerSpec extends AnyWordSpec with Matchers {
 
       result shouldBe InvalidAction
     }
+
+    "use default None for next parameter when not provided" in {
+      val handler = RedoHandler(controller)
+      handler.next shouldBe None
+      
+      val result = handler.handleRequest("unknown", gameState)
+      result shouldBe InvalidAction
+    }
+
+    "fallback to InvalidAction when next is None" in {
+      val handler = new RedoHandler(controller)
+      val result = handler.handleRequest("something", gameState)
+      
+      result shouldBe InvalidAction
+    }
   }
 }

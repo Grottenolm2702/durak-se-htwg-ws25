@@ -465,5 +465,71 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
       result.roundWinner shouldBe Some(1)
       result.currentAttackerIndex shouldBe None
     }
+
+    "pass with fallback to main attacker when no other attackers available" in {
+      val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card1))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(card1 -> None)
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(2),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.pass(2, gameState)
+      result.lastEvent shouldBe Some(GameEvent.Pass)
+      result.currentAttackerIndex shouldBe Some(0)
+      result.passedPlayers.contains(2) shouldBe true
+    }
+
+    "pass with main attacker when current attacker is not main attacker and main not passed" in {
+      val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List(card1))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(card1 -> None)
+
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2, player3),
+        deck = List.empty,
+        table = table,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set(2),
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(2),
+        lastAttackerIndex = None
+      )
+
+      val result = AttackPhaseImpl.pass(2, gameState)
+      result.lastEvent shouldBe Some(GameEvent.Pass)
+      result.currentAttackerIndex shouldBe Some(0)
+      result.passedPlayers shouldBe Set(2)
+    }
   }
 }

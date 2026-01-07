@@ -98,5 +98,53 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
     "have a string representation" in {
       SetupPhaseImpl.toString should not be empty
     }
+
+    "handle deck where handSize is 0 due to more players than cards" in {
+      val playerNames = List("P1", "P2", "P3", "P4", "P5", "P6")
+      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
+      val initialDeck = List(
+        TestHelper.Card(Suit.Clubs, Rank.Six),
+        TestHelper.Card(Suit.Clubs, Rank.Seven),
+        TestHelper.Card(Suit.Diamonds, Rank.Six)
+      )
+
+      val initialGameState = RealPhaseTestHelper.createGameStateWithRealPhases(
+        players = initialPlayers,
+        deck = initialDeck,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Six, isTrump = false),
+        defenderIndex = 0,
+        gamePhase = SetupPhaseImpl
+      )
+
+      val resultState = SetupPhaseImpl.handle(initialGameState)
+
+      resultState.players.size shouldBe 6
+      resultState.players.foreach(_.hand shouldBe empty)
+      resultState.trumpCard.isTrump shouldBe true
+    }
+
+    "handle deck with exactly 1 card per player" in {
+      val playerNames = List("Alice", "Bob")
+      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
+      val initialDeck = List(
+        TestHelper.Card(Suit.Clubs, Rank.Six),
+        TestHelper.Card(Suit.Diamonds, Rank.Seven),
+        TestHelper.Card(Suit.Hearts, Rank.Eight)
+      )
+
+      val initialGameState = RealPhaseTestHelper.createGameStateWithRealPhases(
+        players = initialPlayers,
+        deck = initialDeck,
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Six, isTrump = false),
+        defenderIndex = 0,
+        gamePhase = SetupPhaseImpl
+      )
+
+      val resultState = SetupPhaseImpl.handle(initialGameState)
+
+      resultState.players.size shouldBe 2
+      resultState.players.foreach(_.hand.length shouldBe 1)
+      resultState.trumpCard.isTrump shouldBe true
+    }
   }
 }

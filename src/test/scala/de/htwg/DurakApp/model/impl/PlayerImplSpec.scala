@@ -15,6 +15,15 @@ class PlayerImplSpec extends AnyWordSpec with Matchers {
       player.hand should have size 1
     }
 
+    "be created directly with PlayerImpl" in {
+      val card = CardImpl(Suit.Hearts, Rank.Ace, isTrump = false)
+      val player = PlayerImpl("Alice", List(card), isDone = false)
+
+      player.name shouldBe "Alice"
+      player.hand shouldBe List(card)
+      player.isDone shouldBe false
+    }
+
     "support copy with name change" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card), isDone = true)
@@ -65,6 +74,17 @@ class PlayerImplSpec extends AnyWordSpec with Matchers {
       copied.name shouldBe player.name
       copied.hand shouldBe player.hand
       copied.isDone shouldBe player.isDone
+    }
+
+    "support direct PlayerImpl copy" in {
+      val card = CardImpl(Suit.Hearts, Rank.Ace, isTrump = false)
+      val player = PlayerImpl("Alice", List(card), isDone = false)
+      val copied = player.copy()
+
+      copied shouldBe a[PlayerImpl]
+      copied.name shouldBe "Alice"
+      copied.hand shouldBe List(card)
+      copied.isDone shouldBe false
     }
   }
 }

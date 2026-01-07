@@ -3,6 +3,7 @@ package de.htwg.DurakApp.model
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.testutil.TestHelper
+import de.htwg.DurakApp.model.impl.{PlayerFactoryImpl, CardImpl}
 
 class PlayerFactorySpec extends AnyWordSpec with Matchers {
 
@@ -29,6 +30,39 @@ class PlayerFactorySpec extends AnyWordSpec with Matchers {
       val player = playerFactory("Charlie", List.empty, isDone = true)
       player.name shouldBe "Charlie"
       player.isDone shouldBe true
+    }
+
+    "use PlayerFactoryImpl directly with default parameters" in {
+      val factory = new PlayerFactoryImpl()
+      val player = factory("Alice")
+      
+      player.name shouldBe "Alice"
+      player.hand shouldBe List.empty
+      player.isDone shouldBe false
+    }
+
+    "use PlayerFactoryImpl directly with all parameters" in {
+      val factory = new PlayerFactoryImpl()
+      val card = CardImpl(Suit.Hearts, Rank.Ace, isTrump = false)
+      val player = factory("Bob", List(card), isDone = true)
+      
+      player.name shouldBe "Bob"
+      player.hand shouldBe List(card)
+      player.isDone shouldBe true
+    }
+
+    "test trait default parameters through PlayerFactory interface" in {
+      val factory: PlayerFactory = new PlayerFactoryImpl()
+      
+      // Test default hand parameter (List.empty)
+      val player1 = factory("Test1")
+      player1.hand shouldBe List.empty
+      player1.isDone shouldBe false
+      
+      // Test default isDone parameter (false)
+      val card = CardImpl(Suit.Clubs, Rank.King, isTrump = false)
+      val player2 = factory("Test2", List(card))
+      player2.isDone shouldBe false
     }
   }
 }

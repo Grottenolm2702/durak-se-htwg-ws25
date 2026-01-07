@@ -113,5 +113,92 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
         Some(GameEvent.InvalidMove)
       )
     }
+
+    "use attackerIndex when currentAttackerIndex is None in attack phase" in {
+      val gameState = initialGameStateAttack.copy(
+        currentAttackerIndex = None
+      )
+      
+      val command = PlayCardCommand(player1Card1, gamePhases)
+      val resultState = command.execute(gameState)
+
+      resultState.players(0).hand should not contain player1Card1
+      resultState.table.keys should contain(player1Card1)
+      resultState.gamePhase shouldBe gamePhases.defensePhase
+    }
+
+    "use currentAttackerIndex when it is defined in attack phase" in {
+      val player3Card = cardFactory(Suit.Diamonds, Rank.Ten)
+      val player3 = playerFactory("P3", List(player3Card))
+      
+      val gameState = gameStateFactory(
+        players = List(player1ForAttack, player2ForAttack, player3),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = cardFactory(Suit.Hearts, Rank.Ace, true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = gamePhases.attackPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = Some(2),
+        lastAttackerIndex = None
+      )
+      
+      val command = PlayCardCommand(player3Card, gamePhases)
+      val resultState = command.execute(gameState)
+
+      resultState.players(2).hand should not contain player3Card
+      resultState.table.keys should contain(player3Card)
+    }
+
+    "use defenderIndex in defense phase regardless of currentAttackerIndex" in {
+      val gameState = initialGameStateDefense.copy(
+        currentAttackerIndex = Some(0)
+      )
+      
+      val command = PlayCardCommand(defendingCard, gamePhases)
+      val resultState = command.execute(gameState)
+
+      resultState.players(1).hand should not contain defendingCard
+      resultState.table(attackCardOnTable) should contain(defendingCard)
+    }
+
+    "explicitly use gameState.attackerIndex when currentAttackerIndex is None" in {
+      val player1 = playerFactory("P1", List(player1Card1))
+      val player2 = playerFactory("P2", List(player2Card))
+      
+      val gameState = gameStateFactory(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = cardFactory(Suit.Hearts, Rank.Ace, true),
+        attackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = gamePhases.attackPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      
+      gameState.currentAttackerIndex shouldBe None
+      gameState.attackerIndex shouldBe 0
+      
+      val command = PlayCardCommand(player1Card1, gamePhases)
+      val resultState = command.execute(gameState)
+      
+      resultState.players(0).hand should not contain player1Card1
+    }
   }
 }
