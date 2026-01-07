@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.controller
 
-import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil._
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -11,7 +11,7 @@ import de.htwg.DurakApp.model.state._
 class PlayerActionSpec extends AnyWordSpec with Matchers {
   "PlayerAction PlayCardAction" should {
     "be created with a Card parameter" in {
-      val card = Card(Suit.Hearts, Rank.Ace)
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val action = PlayCardAction(card)
 
       action shouldBe a[PlayCardAction]
@@ -19,8 +19,8 @@ class PlayerActionSpec extends AnyWordSpec with Matchers {
     }
 
     "work with different cards" in {
-      val action1 = PlayCardAction(Card(Suit.Spades, Rank.Six))
-      val action2 = PlayCardAction(Card(Suit.Diamonds, Rank.King))
+      val action1 = PlayCardAction(TestHelper.Card(Suit.Spades, Rank.Six))
+      val action2 = PlayCardAction(TestHelper.Card(Suit.Diamonds, Rank.King))
 
       action1 shouldBe a[PlayCardAction]
       action2 shouldBe a[PlayCardAction]

@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.model
 
-import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil._
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -32,8 +32,8 @@ class SuitSpec extends AnyWordSpec with Matchers {
     }
 
     "be usable in Cards" in {
-      val heartsCard = Card(Suit.Hearts, Rank.Ace)
-      val spadesCard = Card(Suit.Spades, Rank.King)
+      val heartsCard = TestHelper.Card(Suit.Hearts, Rank.Ace)
+      val spadesCard = TestHelper.Card(Suit.Spades, Rank.King)
 
       heartsCard.suit shouldBe Suit.Hearts
       spadesCard.suit shouldBe Suit.Spades

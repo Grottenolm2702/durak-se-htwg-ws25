@@ -1,51 +1,50 @@
 package de.htwg.DurakApp.model.state.impl
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil._
+import de.htwg.DurakApp.testutil.RealPhaseTestHelper
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
 import de.htwg.DurakApp.model.state._
-import de.htwg.DurakApp.testutil.TestHelper
 
 class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
-  "A TestGamePhases.setupPhase" should {
+  "SetupPhaseImpl" should {
     "handle initial game setup correctly" in {
 
       val playerNames = List("Alice", "Bob")
-      val initialPlayers = playerNames.map(Player(_))
+      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
       val initialDeck = List(
-        Card(Suit.Clubs, Rank.Six),
-        Card(Suit.Clubs, Rank.Seven),
-        Card(Suit.Clubs, Rank.Eight),
-        Card(Suit.Clubs, Rank.Nine),
-        Card(Suit.Clubs, Rank.Ten),
-        Card(Suit.Clubs, Rank.Jack),
-        Card(Suit.Clubs, Rank.Queen),
-        Card(Suit.Clubs, Rank.King),
-        Card(Suit.Clubs, Rank.Ace),
-        Card(Suit.Diamonds, Rank.Six),
-        Card(Suit.Diamonds, Rank.Seven),
-        Card(Suit.Diamonds, Rank.Eight),
-        Card(Suit.Diamonds, Rank.Nine)
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Six),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Seven),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Eight),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Nine),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Ten),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Jack),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Queen),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.King),
+        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Ace),
+        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Six),
+        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Seven),
+        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Eight),
+        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Nine)
       )
 
-      val initialGameState = TestHelper.createTestGameState(
+      val initialGameState = RealPhaseTestHelper.createGameStateWithRealPhases(
         players = initialPlayers,
         deck = initialDeck,
-        trumpCard = Card(Suit.Clubs, Rank.Six, isTrump = false),
+        trumpCard = RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Six, isTrump = false),
         defenderIndex = 0,
-        gamePhase = TestGamePhases.setupPhase
+        gamePhase = SetupPhaseImpl
       )
 
-      val resultState = TestGamePhases.setupPhase.handle(initialGameState)
+      val resultState = SetupPhaseImpl.handle(initialGameState)
 
       resultState.players.size shouldBe 2
       resultState.players.foreach(_.hand.length shouldBe 6)
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
-      resultState.gamePhase shouldBe TestGamePhases.attackPhase
+      resultState.gamePhase shouldBe AttackPhaseImpl
       resultState.attackerIndex should (be >= 0)
       resultState.attackerIndex should (be < resultState.players.size)
       resultState.defenderIndex should (be >= 0)
@@ -57,38 +56,38 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
     "handle setup with a small deck where no cards are left after dealing" in {
 
       val playerNames = List("Alice", "Bob")
-      val initialPlayers = playerNames.map(Player(_))
+      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
       val initialDeck = List(
-        Card(Suit.Clubs, Rank.Six),
-        Card(Suit.Clubs, Rank.Seven),
-        Card(Suit.Clubs, Rank.Eight),
-        Card(Suit.Clubs, Rank.Nine),
-        Card(Suit.Clubs, Rank.Ten),
-        Card(Suit.Clubs, Rank.Jack),
-        Card(Suit.Hearts, Rank.Six),
-        Card(Suit.Hearts, Rank.Seven),
-        Card(Suit.Hearts, Rank.Eight),
-        Card(Suit.Hearts, Rank.Nine),
-        Card(Suit.Hearts, Rank.Ten),
-        Card(Suit.Hearts, Rank.Jack),
-        Card(Suit.Diamonds, Rank.Six)
+        TestHelper.Card(Suit.Clubs, Rank.Six),
+        TestHelper.Card(Suit.Clubs, Rank.Seven),
+        TestHelper.Card(Suit.Clubs, Rank.Eight),
+        TestHelper.Card(Suit.Clubs, Rank.Nine),
+        TestHelper.Card(Suit.Clubs, Rank.Ten),
+        TestHelper.Card(Suit.Clubs, Rank.Jack),
+        TestHelper.Card(Suit.Hearts, Rank.Six),
+        TestHelper.Card(Suit.Hearts, Rank.Seven),
+        TestHelper.Card(Suit.Hearts, Rank.Eight),
+        TestHelper.Card(Suit.Hearts, Rank.Nine),
+        TestHelper.Card(Suit.Hearts, Rank.Ten),
+        TestHelper.Card(Suit.Hearts, Rank.Jack),
+        TestHelper.Card(Suit.Diamonds, Rank.Six)
       )
 
-      val initialGameState = TestHelper.createTestGameState(
+      val initialGameState = RealPhaseTestHelper.createGameStateWithRealPhases(
         players = initialPlayers,
         deck = initialDeck,
-        trumpCard = Card(Suit.Clubs, Rank.Six, isTrump = false),
+        trumpCard = TestHelper.Card(Suit.Clubs, Rank.Six, isTrump = false),
         defenderIndex = 0,
-        gamePhase = TestGamePhases.setupPhase
+        gamePhase = SetupPhaseImpl
       )
 
-      val resultState = TestGamePhases.setupPhase.handle(initialGameState)
+      val resultState = SetupPhaseImpl.handle(initialGameState)
 
       resultState.players.size shouldBe 2
       resultState.players.foreach(_.hand.length shouldBe 6)
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
-      resultState.gamePhase shouldBe TestGamePhases.attackPhase
+      resultState.gamePhase shouldBe AttackPhaseImpl
       resultState.attackerIndex should (be >= 0)
       resultState.attackerIndex should (be < resultState.players.size)
       resultState.defenderIndex should (be >= 0)
@@ -97,7 +96,7 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "have a string representation" in {
-      TestGamePhases.setupPhase.toString should not be empty
+      SetupPhaseImpl.toString should not be empty
     }
   }
 }

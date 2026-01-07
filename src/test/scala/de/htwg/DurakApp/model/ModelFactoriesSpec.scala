@@ -1,8 +1,6 @@
 package de.htwg.DurakApp.model
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.{TestFactories, TestGamePhases}
-
+import de.htwg.DurakApp.testutil._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -11,7 +9,7 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
   "CardFactory" should {
     "create card with all parameters" in {
       val card =
-        TestFactories.cardFactory(Suit.Hearts, Rank.Ace, isTrump = true)
+        new StubCardFactory()(Suit.Hearts, Rank.Ace, isTrump = true)
 
       card.suit shouldBe Suit.Hearts
       card.rank shouldBe Rank.Ace
@@ -19,7 +17,7 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
     }
 
     "create card with default isTrump" in {
-      val card = TestFactories.cardFactory(Suit.Diamonds, Rank.King)
+      val card = new StubCardFactory()(Suit.Diamonds, Rank.King)
 
       card.suit shouldBe Suit.Diamonds
       card.rank shouldBe Rank.King
@@ -29,8 +27,8 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
 
   "PlayerFactory" should {
     "create player with all parameters" in {
-      val cards = List(Card(Suit.Hearts, Rank.Six))
-      val player = TestFactories.playerFactory("Alice", cards, isDone = true)
+      val cards = List(TestHelper.Card(Suit.Hearts, Rank.Six))
+      val player = new StubPlayerFactory()("Alice", cards, isDone = true)
 
       player.name shouldBe "Alice"
       player.hand shouldBe cards
@@ -38,7 +36,7 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
     }
 
     "create player with default hand" in {
-      val player = TestFactories.playerFactory("Bob")
+      val player = new StubPlayerFactory()("Bob")
 
       player.name shouldBe "Bob"
       player.hand shouldBe empty
@@ -46,8 +44,8 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
     }
 
     "create player with default isDone" in {
-      val cards = List(Card(Suit.Hearts, Rank.Six))
-      val player = TestFactories.playerFactory("Charlie", cards)
+      val cards = List(TestHelper.Card(Suit.Hearts, Rank.Six))
+      val player = new StubPlayerFactory()("Charlie", cards)
 
       player.name shouldBe "Charlie"
       player.hand shouldBe cards
@@ -57,12 +55,12 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
 
   "GameStateFactory" should {
     "create game state with all parameters" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      val table = Map(Card(Suit.Hearts, Rank.Six) -> None)
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(TestHelper.Card(Suit.Hearts, Rank.Six) -> None)
 
-      val gameState = TestFactories.gameStateFactory(
+      val gameState = new StubGameStateFactory()(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -70,10 +68,10 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         passedPlayers = Set.empty,
         roundWinner = None,
-        lastEvent = Some(state.GameEvent.Attack(Card(Suit.Hearts, Rank.Six))),
+        lastEvent = Some(state.GameEvent.Attack(TestHelper.Card(Suit.Hearts, Rank.Six))),
         setupPlayerCount = Some(2),
         setupPlayerNames = List("Alice", "Bob"),
         setupDeckSize = Some(36),

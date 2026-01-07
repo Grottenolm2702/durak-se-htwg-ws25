@@ -1,9 +1,6 @@
 package de.htwg.DurakApp.controller.impl
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
-import de.htwg.DurakApp.testutil.TestFactories
-
+import de.htwg.DurakApp.testutil._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
@@ -30,7 +27,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerCountPhase)
+        .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
@@ -39,18 +36,18 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetPlayerCountAction(2))
 
       controller.gameState.setupPlayerCount shouldBe Some(2)
-      controller.gameState.gamePhase shouldBe TestGamePhases.askPlayerNamesPhase
+      controller.gameState.gamePhase shouldBe StubGamePhases.askPlayerNamesPhase
     }
 
     "accept valid player count of 6" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerCountPhase)
+        .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
@@ -59,18 +56,18 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetPlayerCountAction(6))
 
       controller.gameState.setupPlayerCount shouldBe Some(6)
-      controller.gameState.gamePhase shouldBe TestGamePhases.askPlayerNamesPhase
+      controller.gameState.gamePhase shouldBe StubGamePhases.askPlayerNamesPhase
     }
 
     "reject player count less than 2" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerCountPhase)
+        .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
@@ -79,7 +76,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetPlayerCountAction(1))
@@ -89,7 +86,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "reject player count greater than 6" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerCountPhase)
+        .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
@@ -98,7 +95,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetPlayerCountAction(7))
@@ -110,7 +107,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
   "ControllerImpl with AddPlayerNameAction" should {
     "add first player name" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerNamesPhase)
+        .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -120,18 +117,18 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(AddPlayerNameAction("Alice"))
 
       controller.gameState.setupPlayerNames shouldBe List("Alice")
-      controller.gameState.gamePhase shouldBe TestGamePhases.askPlayerNamesPhase
+      controller.gameState.gamePhase shouldBe StubGamePhases.askPlayerNamesPhase
     }
 
     "add all player names and transition to AskDeckSize" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerNamesPhase)
+        .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice"))
         .build()
@@ -142,18 +139,18 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(AddPlayerNameAction("Bob"))
 
       controller.gameState.setupPlayerNames shouldBe List("Alice", "Bob")
-      controller.gameState.gamePhase shouldBe TestGamePhases.askDeckSizePhase
+      controller.gameState.gamePhase shouldBe StubGamePhases.askDeckSizePhase
     }
 
     "reject empty player name" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerNamesPhase)
+        .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -163,7 +160,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(AddPlayerNameAction(""))
@@ -173,7 +170,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "reject whitespace-only player name" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerNamesPhase)
+        .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -183,7 +180,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(AddPlayerNameAction("   "))
@@ -193,7 +190,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "trim player name" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayerNamesPhase)
+        .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
@@ -203,7 +200,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(AddPlayerNameAction("  Alice  "))
@@ -215,7 +212,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
   "ControllerImpl with SetDeckSizeAction" should {
     "accept valid deck size" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askDeckSizePhase)
+        .withGamePhase(StubGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .build()
@@ -226,7 +223,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetDeckSizeAction(36))
@@ -237,7 +234,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "accept minimum deck size equal to player count" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askDeckSizePhase)
+        .withGamePhase(StubGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(3))
         .withSetupPlayerNames(List("Alice", "Bob", "Charlie"))
         .build()
@@ -248,7 +245,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetDeckSizeAction(20))
@@ -258,7 +255,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "reject deck size less than player count" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askDeckSizePhase)
+        .withGamePhase(StubGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(3))
         .withSetupPlayerNames(List("Alice", "Bob", "Charlie"))
         .build()
@@ -269,7 +266,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetDeckSizeAction(2))
@@ -279,7 +276,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "reject deck size greater than 36" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askDeckSizePhase)
+        .withGamePhase(StubGamePhases.askDeckSizePhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .build()
@@ -290,7 +287,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(SetDeckSizeAction(50))
@@ -302,7 +299,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
   "ControllerImpl with PlayAgainAction" should {
     "restart game with same players" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayAgainPhase)
+        .withGamePhase(StubGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
@@ -314,7 +311,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(PlayAgainAction)
@@ -325,7 +322,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "reset undo/redo manager on restart" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayAgainPhase)
+        .withGamePhase(StubGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
@@ -340,7 +337,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(PlayAgainAction)
@@ -349,7 +346,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
     "handle ExitGameAction" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayAgainPhase)
+        .withGamePhase(StubGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
@@ -361,7 +358,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(ExitGameAction)
@@ -369,9 +366,9 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       controller.gameState.lastEvent shouldBe Some(GameEvent.ExitApplication)
     }
 
-    "reject invalid action in TestGamePhases.askPlayAgainPhase" in {
+    "reject invalid action in StubGamePhases.askPlayAgainPhase" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.askPlayAgainPhase)
+        .withGamePhase(StubGamePhases.askPlayAgainPhase)
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
@@ -383,7 +380,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(InvalidAction)
@@ -394,11 +391,11 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
   "ControllerImpl undo functionality" should {
     "return CannotUndo when nothing to undo" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-      val initialGameState = GameState(
+      val initialGameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = Map.empty,
@@ -406,7 +403,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -423,7 +420,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       val result = controller.undo()
@@ -435,11 +432,11 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
 
   "ControllerImpl redo functionality" should {
     "return CannotRedo when nothing to redo" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-      val initialGameState = GameState(
+      val initialGameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = Map.empty,
@@ -447,7 +444,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -464,7 +461,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       val result = controller.redo()
@@ -475,9 +472,9 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
   }
 
   "ControllerImpl with invalid actions in setup phase" should {
-    "reject invalid action in TestGamePhases.setupPhase" in {
+    "reject invalid action in StubGamePhases.setupPhase" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.setupPhase)
+        .withGamePhase(StubGamePhases.setupPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
@@ -486,11 +483,11 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       controller.processPlayerAction(
-        PlayCardAction(Card(Suit.Hearts, Rank.Six))
+        PlayCardAction(TestHelper.Card(Suit.Hearts, Rank.Six))
       )
 
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -500,7 +497,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
   "ControllerImpl getStatusString" should {
     "return current game phase as string" in {
       val initialGameState = createBuilder()
-        .withGamePhase(TestGamePhases.attackPhase)
+        .withGamePhase(StubGamePhases.attackPhase)
         .build()
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
@@ -509,7 +506,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        de.htwg.DurakApp.testutil.TestGamePhasesInstance
+        new StubGamePhasesImpl()
       )
 
       val status = controller.getStatusString()

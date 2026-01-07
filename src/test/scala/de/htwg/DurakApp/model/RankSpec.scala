@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.model
 
-import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil._
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers

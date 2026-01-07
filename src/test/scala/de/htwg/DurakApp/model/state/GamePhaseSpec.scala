@@ -1,6 +1,6 @@
 package de.htwg.DurakApp.model.state
 
-import de.htwg.DurakApp.testutil.TestHelpers._
+import de.htwg.DurakApp.testutil._
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -18,13 +18,13 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
     }
 
     "have correct Attack event with card" in {
-      val card = Card(Suit.Clubs, Rank.Ace)
+      val card = TestHelper.Card(Suit.Clubs, Rank.Ace)
       val attackEvent = GameEvent.Attack(card)
       attackEvent.card shouldBe card
     }
 
     "have correct Defend event with card" in {
-      val card = Card(Suit.Diamonds, Rank.King)
+      val card = TestHelper.Card(Suit.Diamonds, Rank.King)
       val defendEvent = GameEvent.Defend(card)
       defendEvent.defenseCard shouldBe card
     }
@@ -50,8 +50,8 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
     }
 
     "have correct GameOver event with winner and optional loser" in {
-      val winner = Player("Winner")
-      val loser = Player("Loser")
+      val winner = TestHelper.Player("Winner")
+      val loser = TestHelper.Player("Loser")
 
       val gameOverWithLoser = GameEvent.GameOver(winner, Some(loser))
       gameOverWithLoser.winner shouldBe winner
@@ -68,12 +68,12 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
       override def handle(gameState: GameState): GameState = gameState
     }
 
-    val initialGameState = GameState(
-      players = List(Player("P1", List.empty)),
+    val initialGameState = TestHelper.GameState(
+      players = List(TestHelper.Player("P1", List.empty)),
       deck = List.empty,
       table = Map.empty,
       discardPile = List.empty,
-      trumpCard = Card(Suit.Hearts, Rank.Six),
+      trumpCard = TestHelper.Card(Suit.Hearts, Rank.Six),
       attackerIndex = 0,
       defenderIndex = 0,
       gamePhase = testGamePhase,
@@ -86,7 +86,7 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
       currentAttackerIndex = None,
       lastAttackerIndex = None
     )
-    val testCard = Card(Suit.Spades, Rank.Seven)
+    val testCard = TestHelper.Card(Suit.Spades, Rank.Seven)
 
     "return InvalidMove for default playCard" in {
       val resultState = testGamePhase.playCard(testCard, 0, initialGameState)

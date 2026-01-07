@@ -1,17 +1,10 @@
 package de.htwg.DurakApp.controller
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, GameState, Suit, Rank}
 import de.htwg.DurakApp.model.state._
-import de.htwg.DurakApp.testutil.{
-  TestHelper,
-  StubGameSetup,
-  StubUndoRedoManager,
-  SpyController
-}
+import de.htwg.DurakApp.testutil._
 import de.htwg.DurakApp.util.Observer
 import com.google.inject.Guice
 
@@ -61,16 +54,12 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
     "support observer pattern" in {
       val controller = injector.getInstance(classOf[Controller])
-      var updateCalled = false
-
-      val observer = new Observer {
-        def update: Unit = updateCalled = true
-      }
+      val observer = new SpyObserver()
 
       controller.add(observer)
       controller.processPlayerAction(SetPlayerCountAction(2))
 
-      updateCalled shouldBe true
+      observer.wasCalled shouldBe true
 
       controller.remove(observer)
     }
@@ -80,11 +69,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
     "track processed actions with spy" in {
       val initialState = TestHelper.createTestGameState()
-      val spy = new SpyController(
-        initialState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
-      )
+      val spy = new SpyController(initialState, new StubUndoRedoManager())
 
       spy.processPlayerAction(PassAction)
       spy.processPlayerAction(TakeCardsAction)
@@ -98,29 +83,25 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       val initialState = TestHelper.createTestGameState()
       val spy = new SpyController(
         initialState,
-        new StubUndoRedoManager(),
-        new StubGameSetup()
+        new StubUndoRedoManager()
       )
 
-      var notificationCount = 0
-      val observer = new Observer {
-        def update: Unit = notificationCount += 1
-      }
+      val observer = new SpyObserver()
 
       spy.add(observer)
       spy.processPlayerAction(PassAction)
       spy.processPlayerAction(TakeCardsAction)
 
-      notificationCount shouldBe 2
+      observer.updateCount shouldBe 2
     }
 
     "handle undo with stub undo manager" in {
       val state1 = TestHelper.createTestGameState(
-        players = List(Player("P1")),
+        players = List(TestHelper.Player("P1")),
         lastEvent = Some(GameEvent.Pass)
       )
       val state2 = TestHelper.createTestGameState(
-        players = List(Player("P2")),
+        players = List(TestHelper.Player("P2")),
         lastEvent = Some(GameEvent.Take)
       )
 
@@ -134,10 +115,10 @@ class ControllerSpec extends AnyWordSpec with Matchers {
 
     "handle redo with stub undo manager" in {
       val state1 = TestHelper.createTestGameState(
-        players = List(Player("P1"))
+        players = List(TestHelper.Player("P1"))
       )
       val state2 = TestHelper.createTestGameState(
-        players = List(Player("P2"))
+        players = List(TestHelper.Player("P2"))
       )
 
       val undoMgr = new StubUndoRedoManager()
@@ -150,7 +131,11 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     }
 
     "setup game with valid parameters using stub" in {
-      val setup = new StubGameSetup()
+      val setup = new StubGameSetup(
+        TestHelper.cardFactory,
+        TestHelper.playerFactory,
+        TestHelper.gameStateFactory
+      )
       val result = setup.setupGame(List("Alice", "Bob"), 36)
 
       result shouldBe defined
@@ -160,14 +145,22 @@ class ControllerSpec extends AnyWordSpec with Matchers {
     }
 
     "reject invalid player count in stub setup" in {
-      val setup = new StubGameSetup()
+      val setup = new StubGameSetup(
+        TestHelper.cardFactory,
+        TestHelper.playerFactory,
+        TestHelper.gameStateFactory
+      )
 
       setup.setupGame(List("Alice"), 36) shouldBe None
       setup.setupGame(List("A", "B", "C", "D", "E", "F", "G"), 36) shouldBe None
     }
 
     "reject invalid deck size in stub setup" in {
-      val setup = new StubGameSetup()
+      val setup = new StubGameSetup(
+        TestHelper.cardFactory,
+        TestHelper.playerFactory,
+        TestHelper.gameStateFactory
+      )
 
       setup.setupGame(List("Alice", "Bob"), 1) shouldBe None
       setup.setupGame(List("Alice", "Bob"), 37) shouldBe None

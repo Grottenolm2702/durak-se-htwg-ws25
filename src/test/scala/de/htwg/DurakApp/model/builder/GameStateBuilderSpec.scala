@@ -2,16 +2,11 @@ package de.htwg.DurakApp.model.builder
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
-import de.htwg.DurakApp.testutil.TestFactories
-import com.google.inject.Guice
+import de.htwg.DurakApp.testutil._
 
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
-  // Use DI instead of direct instantiation
-  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
-  private val builderFactory: GameStateBuilderFactory =
-    injector.getInstance(classOf[GameStateBuilderFactory])
+  private val builderFactory = TestHelper.gameStateBuilderFactory
 
   "GameStateBuilder" should {
     "build a default game state" in {
@@ -19,7 +14,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
 
       gameState.players shouldBe empty
       gameState.deck shouldBe empty
-      gameState.gamePhase shouldBe TestGamePhases.setupPhase
+      gameState.gamePhase shouldBe StubGamePhases.setupPhase
     }
   }
 }

@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.model.state.impl
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil._
+import de.htwg.DurakApp.testutil.*
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -15,11 +15,11 @@ class AskPlayAgainPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "handle returns same state" in {
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List.empty)
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = Map.empty,

@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.controller.command.impl
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil._
+import de.htwg.DurakApp.testutil.*
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -12,12 +12,12 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
 
   "A TakeCardsCommand" should {
     "execute takeCards for defender" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      val table = Map(Card(Suit.Hearts, Rank.Eight) -> None)
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(TestHelper.Card(Suit.Hearts, Rank.Eight) -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -25,7 +25,7 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -43,13 +43,13 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
     }
 
     "use defenderIndex from game state" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = Player("Charlie", List(Card(Suit.Spades, Rank.Nine)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
-      val table = Map(Card(Suit.Hearts, Rank.Eight) -> None)
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Nine)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val table = Map(TestHelper.Card(Suit.Hearts, Rank.Eight) -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2, player3),
         deck = List.empty,
         table = table,
@@ -57,7 +57,7 @@ class TakeCardsCommandSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 2,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,

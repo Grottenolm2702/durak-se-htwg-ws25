@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.model.state.impl
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil._
+import de.htwg.DurakApp.testutil.*
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -16,11 +16,11 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "handle game over with winner and loser" in {
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(Card(Suit.Hearts, Rank.Six)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = Map.empty,
@@ -50,11 +50,11 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "handle game over when all players have no cards" in {
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List.empty)
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = Map.empty,
@@ -83,12 +83,12 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "identify correct winner when multiple players" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List.empty)
-      val player3 = Player("Charlie", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List.empty)
+      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2, player3),
         deck = List.empty,
         table = Map.empty,

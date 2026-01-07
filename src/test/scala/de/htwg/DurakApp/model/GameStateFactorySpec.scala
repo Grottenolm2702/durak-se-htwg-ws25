@@ -2,20 +2,14 @@ package de.htwg.DurakApp.model
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.testutil.{TestGamePhases, TestGamePhasesInstance}
-import com.google.inject.Guice
+import de.htwg.DurakApp.testutil.{TestHelper, StubGamePhases}
 
 class GameStateFactorySpec extends AnyWordSpec with Matchers {
 
-  // Use DI instead of direct instantiation
-  private val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
-
   "GameStateFactory" should {
-    val cardFactory: CardFactory = injector.getInstance(classOf[CardFactory])
-    val playerFactory: PlayerFactory =
-      injector.getInstance(classOf[PlayerFactory])
-    val gameStateFactory: GameStateFactory =
-      injector.getInstance(classOf[GameStateFactory])
+    val cardFactory = TestHelper.cardFactory
+    val playerFactory = TestHelper.playerFactory
+    val gameStateFactory = TestHelper.gameStateFactory
 
     "create a game state with all fields" in {
       val player1 = playerFactory("Alice")
@@ -31,7 +25,7 @@ class GameStateFactorySpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,

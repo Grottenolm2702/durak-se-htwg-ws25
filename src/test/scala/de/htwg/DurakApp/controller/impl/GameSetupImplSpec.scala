@@ -2,17 +2,12 @@ package de.htwg.DurakApp.controller.impl
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.testutil.{TestFactories, TestGamePhasesInstance}
+import com.google.inject.Guice
 
 class GameSetupImplSpec extends AnyWordSpec with Matchers {
 
-  val gameSetup = new GameSetupImpl(
-    TestFactories.gameStateFactory,
-    TestFactories.playerFactory,
-    TestFactories.cardFactory,
-    TestGamePhasesInstance,
-    TestFactories.gameStateBuilderFactory
-  )
+  val injector = Guice.createInjector(new de.htwg.DurakApp.DurakModule)
+  val gameSetup = injector.getInstance(classOf[de.htwg.DurakApp.controller.GameSetup])
 
   "A GameSetupImpl" should {
     "setup game with valid parameters" in {

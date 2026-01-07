@@ -1,7 +1,7 @@
 package de.htwg.DurakApp.model.state.impl
 
-import de.htwg.DurakApp.testutil.TestHelpers._
-import de.htwg.DurakApp.testutil.TestGamePhases
+import de.htwg.DurakApp.testutil._
+import de.htwg.DurakApp.testutil.*
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -16,11 +16,11 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "handle returns same state" in {
-      val player1 = Player("Alice", List(Card(Suit.Hearts, Rank.Six)))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = Map.empty,
@@ -28,7 +28,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -44,14 +44,14 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "defend successfully with higher same suit card" in {
-      val attackCard = Card(Suit.Hearts, Rank.Six)
-      val defenseCard = Card(Suit.Hearts, Rank.Seven)
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(defenseCard))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(defenseCard))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -59,7 +59,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -77,14 +77,14 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "defend successfully with trump against non-trump" in {
-      val attackCard = Card(Suit.Hearts, Rank.Ace)
-      val defenseCard = Card(Suit.Clubs, Rank.Six, isTrump = true)
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(defenseCard))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Ace)
+      val defenseCard = TestHelper.Card(Suit.Clubs, Rank.Six, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(defenseCard))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -92,7 +92,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -109,14 +109,14 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "return NotYourTurn when attacker tries to play" in {
-      val attackCard = Card(Suit.Hearts, Rank.Six)
-      val defenseCard = Card(Suit.Hearts, Rank.Seven)
-      val player1 = Player("Alice", List(defenseCard))
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
+      val player1 = TestHelper.Player("Alice", List(defenseCard))
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -124,7 +124,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -140,14 +140,14 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidMove when card not in hand" in {
-      val attackCard = Card(Suit.Hearts, Rank.Six)
-      val defenseCard = Card(Suit.Hearts, Rank.Seven)
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -155,7 +155,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -171,15 +171,15 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidMove when all attacks defended" in {
-      val attackCard = Card(Suit.Hearts, Rank.Six)
-      val defenseCard = Card(Suit.Hearts, Rank.Seven)
-      val anotherCard = Card(Suit.Hearts, Rank.Eight)
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(anotherCard))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
+      val anotherCard = TestHelper.Card(Suit.Hearts, Rank.Eight)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(anotherCard))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> Some(defenseCard))
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -187,7 +187,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -203,14 +203,14 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidMove when defense card too weak" in {
-      val attackCard = Card(Suit.Hearts, Rank.Seven)
-      val defenseCard = Card(Suit.Hearts, Rank.Six)
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(defenseCard))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
+      val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(defenseCard))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -218,7 +218,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -234,14 +234,14 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "take cards successfully" in {
-      val attackCard = Card(Suit.Hearts, Rank.Six)
-      val defenseCard = Card(Suit.Hearts, Rank.Seven)
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Nine)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Nine)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> Some(defenseCard))
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -249,7 +249,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
@@ -268,13 +268,13 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "return NotYourTurn when attacker tries to take cards" in {
-      val attackCard = Card(Suit.Hearts, Rank.Six)
-      val player1 = Player("Alice", List.empty)
-      val player2 = Player("Bob", List(Card(Suit.Diamonds, Rank.Seven)))
-      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
-      val gameState = GameState(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -282,7 +282,7 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
         trumpCard = trumpCard,
         attackerIndex = 0,
         defenderIndex = 1,
-        gamePhase = TestGamePhases.setupPhase,
+        gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
         passedPlayers = Set.empty,
         roundWinner = None,
