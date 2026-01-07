@@ -20,10 +20,18 @@ class GameSetupImplSpec extends AnyWordSpec with Matchers {
     RoundPhaseImpl,
     EndPhaseImpl
   )
-  val gameStateFactory =
-    new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
   val gameStateBuilderFactory =
-    new GameStateBuilderFactoryImpl(gameStateFactory, cardFactory, gamePhases)
+    new de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl(
+      cardFactory,
+      gamePhases
+    )
+  val gameStateFactory =
+    new GameStateFactoryImpl(
+      gamePhases,
+      cardFactory,
+      playerFactory,
+      gameStateBuilderFactory
+    )
   val gameSetup = new GameSetupImpl(
     gameStateFactory,
     playerFactory,

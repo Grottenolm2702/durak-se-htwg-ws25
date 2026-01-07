@@ -617,6 +617,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
+      val gameStateBuilder = de.htwg.DurakApp.model.builder.impl
+        .GameStateBuilder(cardFactory, gamePhases)
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
       val gameState = new GameStateImpl(
@@ -638,7 +640,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = Some(1),
         gamePhases = gamePhases,
         cardFactory = cardFactory,
-        playerFactory = playerFactory
+        playerFactory = playerFactory,
+        gameStateBuilder = gameStateBuilder
       )
       val builder = gameState.toBuilder
       val rebuilt = builder.build()
@@ -662,6 +665,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
+      val gameStateBuilder = de.htwg.DurakApp.model.builder.impl
+        .GameStateBuilder(cardFactory, gamePhases)
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val card2 = cardFactory(Suit.Diamonds, Rank.King, isTrump = false)
       val player = playerFactory("Alice", List(card))
@@ -685,7 +690,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None,
         gamePhases = gamePhases,
         cardFactory = cardFactory,
-        playerFactory = playerFactory
+        playerFactory = playerFactory,
+        gameStateBuilder = gameStateBuilder
       )
       val modified = gameState.toBuilder
         .withPlayers(List(player, player2))
@@ -700,6 +706,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
+      val gameStateBuilder = de.htwg.DurakApp.model.builder.impl
+        .GameStateBuilder(cardFactory, gamePhases)
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
       val gameState = new GameStateImpl(
@@ -721,7 +729,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None,
         gamePhases = gamePhases,
         cardFactory = cardFactory,
-        playerFactory = playerFactory
+        playerFactory = playerFactory,
+        gameStateBuilder = gameStateBuilder
       )
       val copied = gameState.copy(
         attackerIndex = 1,
@@ -738,6 +747,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
+      val gameStateBuilder = de.htwg.DurakApp.model.builder.impl
+        .GameStateBuilder(cardFactory, gamePhases)
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
       val gameState1 = new GameStateImpl(
@@ -759,7 +770,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None,
         gamePhases = gamePhases,
         cardFactory = cardFactory,
-        playerFactory = playerFactory
+        playerFactory = playerFactory,
+        gameStateBuilder = gameStateBuilder
       )
       val gameState2 = new GameStateImpl(
         players = List(player),
@@ -780,7 +792,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None,
         gamePhases = gamePhases,
         cardFactory = cardFactory,
-        playerFactory = playerFactory
+        playerFactory = playerFactory,
+        gameStateBuilder = gameStateBuilder
       )
       gameState1 shouldBe gameState2
       gameState1.hashCode() shouldBe gameState2.hashCode()
@@ -789,6 +802,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
+      val gameStateBuilder = de.htwg.DurakApp.model.builder.impl
+        .GameStateBuilder(cardFactory, gamePhases)
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
       val gameState = new GameStateImpl(
@@ -810,7 +825,8 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None,
         gamePhases = gamePhases,
         cardFactory = cardFactory,
-        playerFactory = playerFactory
+        playerFactory = playerFactory,
+        gameStateBuilder = gameStateBuilder
       )
       gameState should not be "not a GameStateImpl"
       gameState should not be 42

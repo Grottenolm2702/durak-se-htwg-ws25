@@ -65,6 +65,7 @@ private class StubGameState(
     )
     builderFactory
       .create()
+      .withGameStateFactory(gameStateFactory)
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)

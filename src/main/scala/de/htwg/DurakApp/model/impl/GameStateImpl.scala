@@ -32,7 +32,8 @@ private[model] class GameStateImpl(
     val lastAttackerIndex: Option[Int],
     gamePhases: GamePhases,
     cardFactory: CardFactory,
-    playerFactory: PlayerFactory
+    playerFactory: PlayerFactory,
+    gameStateBuilder: GameStateBuilder
 ) extends GameState {
 
   def copy(
@@ -71,7 +72,8 @@ private[model] class GameStateImpl(
     lastAttackerIndex,
     gamePhases,
     cardFactory,
-    playerFactory
+    playerFactory,
+    gameStateBuilder
   )
 
   def toBuilder: GameStateBuilder = {
@@ -113,12 +115,13 @@ private[model] class GameStateImpl(
         lastAttackerIndex,
         gamePhases,
         cardFactory,
-        playerFactory
+        playerFactory,
+        gameStateBuilder
       )
     }
 
-    de.htwg.DurakApp.model.builder.impl
-      .GameStateBuilder(inlineGameStateFactory, cardFactory, gamePhases)
+    gameStateBuilder
+      .withGameStateFactory(inlineGameStateFactory)
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)

@@ -15,12 +15,11 @@ import com.google.inject.Inject
 
 object GameStateBuilder {
   def apply(
-      gameStateFactory: GameStateFactory,
       cardFactory: CardFactory,
       gamePhases: GamePhases
   ): GameStateBuilder =
     new GameStateBuilderImpl(
-      gameStateFactory = gameStateFactory,
+      gameStateFactory = null,
       cardFactory = cardFactory,
       gamePhases = gamePhases
     )
@@ -127,6 +126,11 @@ private[model] case class GameStateBuilderImpl(
       index: Option[Int]
   ): GameStateBuilder =
     copy(lastAttackerIndex = index)
+
+  def withGameStateFactory(
+      factory: GameStateFactory
+  ): GameStateBuilder =
+    copy(gameStateFactory = factory)
 
   def build(): GameState = {
     val defaultTrumpCard =

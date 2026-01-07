@@ -6,7 +6,10 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
   private val builderFactory = TestHelper.gameStateBuilderFactory
   "GameStateBuilder" should {
     "build a default game state" in {
-      val gameState = builderFactory.create().build()
+      val gameState = builderFactory
+        .create()
+        .withGameStateFactory(TestHelper.gameStateFactory)
+        .build()
       gameState.players shouldBe empty
       gameState.deck shouldBe empty
       gameState.gamePhase shouldBe StubGamePhases.setupPhase

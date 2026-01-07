@@ -85,10 +85,12 @@ class DurakModule extends AbstractModule with ScalaModule:
   @Provides
   def provideGameState(
       gameStateBuilderFactory: GameStateBuilderFactory,
+      gameStateFactory: GameStateFactory,
       @Named("SetupPhase") setupPhase: GamePhase
   ): GameState =
     gameStateBuilderFactory
       .create()
+      .withGameStateFactory(gameStateFactory)
       .withGamePhase(setupPhase)
       .build()
 

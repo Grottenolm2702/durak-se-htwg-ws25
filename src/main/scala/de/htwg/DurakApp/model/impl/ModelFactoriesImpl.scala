@@ -1,6 +1,7 @@
 package de.htwg.DurakApp.model.impl
 
 import de.htwg.DurakApp.model._
+import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
 import com.google.inject.Inject
 
@@ -19,7 +20,8 @@ class PlayerFactoryImpl extends PlayerFactory:
 class GameStateFactoryImpl @Inject() (
     gamePhases: GamePhases,
     cardFactory: CardFactory,
-    playerFactory: PlayerFactory
+    playerFactory: PlayerFactory,
+    gameStateBuilderFactory: GameStateBuilderFactory
 ) extends GameStateFactory:
   def apply(
       players: List[Player],
@@ -58,5 +60,6 @@ class GameStateFactoryImpl @Inject() (
       lastAttackerIndex,
       gamePhases,
       cardFactory,
-      playerFactory
+      playerFactory,
+      gameStateBuilderFactory.create()
     )

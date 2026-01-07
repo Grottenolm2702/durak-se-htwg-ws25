@@ -55,6 +55,7 @@ class GameSetupImpl @Inject() (
 
     val initialGameState = gameStateBuilderFactory
       .create()
+      .withGameStateFactory(gameStateFactory)
       .withPlayers(playersWithEmptyHands)
       .withDeck(shuffledDeck)
       .withTable(Map.empty)

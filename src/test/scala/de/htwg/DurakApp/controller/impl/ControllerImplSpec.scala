@@ -24,7 +24,9 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     new StubUndoRedoManagerFactory()
   val commandFactory: CommandFactory = new StubCommandFactory()
   val stubGamePhases = new StubGamePhasesImpl()
-  def createBuilder() = gameStateBuilderFactory.create()
+  def createBuilder() = gameStateBuilderFactory
+    .create()
+    .withGameStateFactory(gameStateFactory)
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {
       val initialGameState = createBuilder()

@@ -22,8 +22,18 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
     RoundPhaseImpl,
     EndPhaseImpl
   )
+  val gameStateBuilderFactory =
+    new de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl(
+      cardFactory,
+      gamePhases
+    )
   val gameStateFactory =
-    new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
+    new GameStateFactoryImpl(
+      gamePhases,
+      cardFactory,
+      playerFactory,
+      gameStateBuilderFactory
+    )
   "A PassCommand" should {
     "execute pass in attack phase with currentAttackerIndex" in {
       val card1 = cardFactory(Suit.Hearts, Rank.Six)

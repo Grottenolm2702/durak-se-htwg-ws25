@@ -22,8 +22,18 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     RoundPhaseImpl,
     EndPhaseImpl
   )
+  val gameStateBuilderFactory =
+    new de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl(
+      cardFactory,
+      gamePhases
+    )
   val gameStateFactory =
-    new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
+    new GameStateFactoryImpl(
+      gamePhases,
+      cardFactory,
+      playerFactory,
+      gameStateBuilderFactory
+    )
   "A PlayCardCommand" should {
     val player1Card1 = cardFactory(Suit.Clubs, Rank.Six)
     val player1Card2 = cardFactory(Suit.Clubs, Rank.Seven)

@@ -10,11 +10,13 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
-  def createBuilder() = GameStateBuilder(
-    new StubGameStateFactory(),
-    new StubCardFactory(),
-    new StubGamePhasesImpl()
-  )
+  def createBuilder() = {
+    val stubGameStateFactory = new StubGameStateFactory()
+    GameStateBuilder(
+      new StubCardFactory(),
+      new StubGamePhasesImpl()
+    ).withGameStateFactory(stubGameStateFactory)
+  }
   "A GameStateBuilder" should {
     "create a default GameState correctly" in {
       val defaultGameState = createBuilder().build()

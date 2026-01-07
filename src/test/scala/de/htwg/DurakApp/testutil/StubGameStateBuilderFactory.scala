@@ -11,7 +11,6 @@ class StubGameStateBuilderFactory(
 ) extends GameStateBuilderFactory:
   def create(): GameStateBuilder =
     GameStateBuilderObject(
-      gameStateFactory,
       cardFactory,
       new StubGamePhasesImpl()
     )
