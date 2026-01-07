@@ -19,7 +19,6 @@ object GameStateBuilder {
       gamePhases: GamePhases
   ): GameStateBuilder =
     new GameStateBuilderImpl(
-      gameStateFactory = null,
       cardFactory = cardFactory,
       gamePhases = gamePhases
     )
@@ -42,7 +41,7 @@ private[model] case class GameStateBuilderImpl(
     setupDeckSize: Option[Int] = None,
     currentAttackerIndex: Option[Int] = None,
     lastAttackerIndex: Option[Int] = None,
-    gameStateFactory: GameStateFactory,
+    gameStateFactory: Option[GameStateFactory] = None,
     cardFactory: CardFactory,
     gamePhases: GamePhases
 ) extends GameStateBuilder {
@@ -130,14 +129,18 @@ private[model] case class GameStateBuilderImpl(
   def withGameStateFactory(
       factory: GameStateFactory
   ): GameStateBuilder =
-    copy(gameStateFactory = factory)
+    copy(gameStateFactory = Some(factory))
 
   def build(): GameState = {
     val defaultTrumpCard =
       trumpCard.getOrElse(cardFactory(Suit.Hearts, Rank.Six))
     val defaultGamePhase = gamePhase.getOrElse(gamePhases.setupPhase)
 
-    gameStateFactory(
+    gameStateFactory.getOrElse(
+      throw new IllegalStateException(
+        "GameStateFactory must be set before building"
+      )
+    )(
       players = players,
       deck = deck,
       table = table,
