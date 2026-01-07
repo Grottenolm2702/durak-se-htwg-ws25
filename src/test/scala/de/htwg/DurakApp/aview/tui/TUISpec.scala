@@ -822,11 +822,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       class UndoTestController
           extends SpyController(initialState, new StubUndoRedoManager()) {
-        var processPlayerActionCallCount = 0
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): de.htwg.DurakApp.model.GameState = {
-          processPlayerActionCallCount += 1
+          processedActions = processedActions :+ action
           currentState =
             currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
@@ -841,7 +840,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      controller.processPlayerActionCallCount shouldBe 1
+      controller.processedActions.size shouldBe 1
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
@@ -852,11 +851,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       class RedoTestController
           extends SpyController(initialState, new StubUndoRedoManager()) {
-        var processPlayerActionCallCount = 0
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): de.htwg.DurakApp.model.GameState = {
-          processPlayerActionCallCount += 1
+          processedActions = processedActions :+ action
           currentState =
             currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
@@ -871,7 +869,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      controller.processPlayerActionCallCount shouldBe 1
+      controller.processedActions.size shouldBe 1
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
@@ -882,11 +880,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       )
       class RecursiveTestController
           extends SpyController(initialState, new StubUndoRedoManager()) {
-        var callCount = 0
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): de.htwg.DurakApp.model.GameState = {
-          callCount += 1
+          processedActions = processedActions :+ action
           currentState =
             currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
@@ -901,7 +898,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      controller.callCount should be >= 2
+      controller.processedActions.size should be >= 2
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
@@ -910,11 +907,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       val initialState = TestHelper.createTestGameState()
       class ContinueTestController
           extends SpyController(initialState, new StubUndoRedoManager()) {
-        var loopIterations = 0
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): de.htwg.DurakApp.model.GameState = {
-          loopIterations += 1
+          processedActions = processedActions :+ action
           currentState =
             currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
@@ -930,7 +926,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      controller.loopIterations shouldBe 2
+      controller.processedActions.size shouldBe 2
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
