@@ -238,5 +238,480 @@ class TUISpec extends AnyWordSpec with Matchers {
 
       statusString.should(include("Spiel"))
     }
+
+    "render card correctly" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val rendered = tui.renderCard(card)
+      rendered should have length 5
+      rendered.head should startWith("+")
+    }
+
+    "render hand with indices" in {
+      val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val card2 = TestHelper.Card(Suit.Spades, Rank.King)
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val rendered = tui.renderHandWithIndices(List(card1, card2))
+      rendered should not be empty
+      rendered should include("0")
+      rendered should include("1")
+    }
+
+    "render empty hand" in {
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val rendered = tui.renderHandWithIndices(List.empty)
+      rendered shouldBe "Leere Hand"
+    }
+
+    "combine card lines correctly" in {
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val line1 = List("a", "b")
+      val line2 = List("c", "d")
+      val combined = tui.combineCardLines(List(line1, line2))
+      combined shouldBe "a c\nb d"
+    }
+
+    "combine empty card lines" in {
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val combined = tui.combineCardLines(List.empty)
+      combined shouldBe ""
+    }
+
+    "clear screen returns escape sequence" in {
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      tui.clearScreen() shouldBe "\u001b[2J\u001b[H"
+    }
+
+    "render game state for non-setup phase" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      // Test update for attack phase
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "handle defense phase in update" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.defensePhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "handle draw phase in update" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.drawPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "handle round phase in description" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.roundPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val desc = tui.description(gameState)
+      desc should not be empty
+    }
+
+    "handle end phase in description" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.endPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val desc = tui.description(gameState)
+      desc should not be empty
+    }
+
+    "render table with cards" in {
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard = TestHelper.Card(Suit.Spades, Rank.Seven)
+      val table = Map(attackCard -> Some(defenseCard))
+      
+      val gameState = TestHelper.createTestGameState(
+        table = table,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "render table with undefended cards" in {
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val table = Map(attackCard -> None)
+      
+      val gameState = TestHelper.createTestGameState(
+        table = table,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "handle all card suits in cardColor" in {
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      
+      noException shouldBe thrownBy {
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Ace))
+        tui.renderCard(TestHelper.Card(Suit.Diamonds, Rank.Ace))
+        tui.renderCard(TestHelper.Card(Suit.Clubs, Rank.Ace))
+        tui.renderCard(TestHelper.Card(Suit.Spades, Rank.Ace))
+      }
+    }
+
+    "handle all card ranks" in {
+      val tui = new TUI(
+        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        TestGamePhases,
+        nullOutputStream
+      )
+      
+      noException shouldBe thrownBy {
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Six))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Seven))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Eight))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Nine))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Ten))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Jack))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Queen))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.King))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Ace))
+      }
+    }
+
+    "render table with empty attack and defense" in {
+      val gameState = TestHelper.createTestGameState(
+        table = Map.empty,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val rendered = tui.renderTable(gameState)
+      rendered should include("Angriff")
+      rendered should include("Verteidigung")
+      rendered should include("Leer")
+    }
+
+    "render screen with full game state" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        deck = List(card),
+        discardPile = List(card),
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val rendered = tui.renderScreen(gameState, "Test Status")
+      rendered should include("Trumpf")
+      rendered should include("Deck")
+      rendered should include("Ablagestapel")
+      rendered should include("Alice")
+      rendered should include("Bob")
+      rendered should include("Test Status")
+    }
+
+    "build status string for InvalidMove" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.InvalidMove)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Ungültiger Zug")
+    }
+
+    "build status string for NotYourTurn" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.NotYourTurn)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("nicht am Zug")
+    }
+
+    "build status string for Pass" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.Pass)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Passen")
+    }
+
+    "build status string for Take" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.Take)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Karten aufgenommen")
+    }
+
+    "build status string for Draw" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.Draw)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Karten werden gezogen")
+    }
+
+    "build status string for RoundEnd cleared" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.RoundEnd(cleared = true))
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Tisch geleert")
+    }
+
+    "build status string for RoundEnd not cleared" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.RoundEnd(cleared = false))
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Karten aufgenommen")
+    }
+
+    "build status string for GameOver with loser" in {
+      val winner = TestHelper.Player("Winner", List.empty)
+      val loser = TestHelper.Player("Loser", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameOver(winner, Some(loser)))
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Durak")
+      status should include("Loser")
+    }
+
+    "build status string for GameOver without loser" in {
+      val winner = TestHelper.Player("Winner", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameOver(winner, None))
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Spiel beendet")
+    }
+
+    "build status string for GameOver with Quit winner" in {
+      val winner = TestHelper.Player("Quit", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameOver(winner, None))
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Spiel beendet")
+    }
+
+    "build status string for CannotUndo" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.CannotUndo)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Nichts zum Rückgängigmachen")
+    }
+
+    "build status string for CannotRedo" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.CannotRedo)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Nichts zum Wiederherstellen")
+    }
+
+    "build status string for SetupError" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.SetupError),
+        gamePhase = TestGamePhases.setupPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Setup-Fehler")
+    }
+
+    "build status string for GameSetupComplete" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameSetupComplete)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Setup abgeschlossen")
+    }
+
+    "build status string for AskPlayAgain" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskPlayAgain)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("neue Runde")
+    }
+
+    "build status string for ExitApplication" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.ExitApplication)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should include("Anwendung wird beendet")
+    }
+
+    "build status string for AskPlayerCount" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskPlayerCount)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
+
+    "build status string for AskPlayerNames" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskPlayerNames)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
+
+    "build status string for AskDeckSize" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskDeckSize)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
+
+    "build status string with no event in non-setup phase" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = None,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status should not be empty
+    }
+
+    "build status string with no event in setup phase" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = None,
+        gamePhase = TestGamePhases.setupPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
   }
 }
