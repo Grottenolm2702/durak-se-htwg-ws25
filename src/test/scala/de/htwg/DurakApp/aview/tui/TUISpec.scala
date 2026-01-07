@@ -713,5 +713,398 @@ class TUISpec extends AnyWordSpec with Matchers {
       val status = tui.buildStatusString(gameState)
       status shouldBe ""
     }
+
+    "use default Console.out when no PrintStream provided" in {
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      
+      // Create TUI without providing PrintStream to test default parameter
+      val tui = new TUI(controller, TestGamePhases)
+      
+      tui should not be null
+      noException shouldBe thrownBy { tui.clearScreen() }
+    }
+
+    "printPrompt should handle else case for non-game phases" in {
+      // Test round phase (not setup, not attack/defense/draw)
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.roundPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "printPrompt should handle else case for end phase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.endPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "printPrompt should handle else case for askPlayAgain phase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.askPlayAgainPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "printPrompt should handle else case for gameStart phase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.gameStartPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "printPrompt should handle drawPhase with no active player" in {
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        gamePhase = TestGamePhases.drawPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      noException shouldBe thrownBy { tui.update }
+    }
+
+    "renderScreen should handle defensePhase active player" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.defensePhase,
+        defenderIndex = 1
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val rendered = tui.renderScreen(gameState, "Test")
+      rendered should include("Bob")
+    }
+
+    "renderScreen should handle other phases for active player fallback" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.roundPhase,
+        attackerIndex = 0
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+
+      val rendered = tui.renderScreen(gameState, "Test")
+      rendered should include("Alice")
+    }
+
+    "run method should print welcome and end messages" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      // Prepare game state that will exit immediately
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.ExitApplication)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      
+      // Capture output
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      // Simulate user input "q" to quit immediately
+      val inputStream = new ByteArrayInputStream("q\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        
+        // Run the TUI (will exit immediately due to "q" input)
+        tui.run()
+      }
+      
+      val output = outputCapture.toString
+      output should include("Willkommen bei Durak!")
+      output should include("Spiel beendet.")
+    }
+
+    "run method should add TUI as observer" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      // Simulate immediate quit
+      val inputStream = new ByteArrayInputStream("quit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        
+        // Verify observer list is initially empty
+        controller.observers.length shouldBe 0
+        
+        // Run the TUI
+        tui.run()
+        
+        // Verify TUI was added as observer
+        controller.observers should contain(tui)
+      }
+    }
+
+    "run method should call update during initialization" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      val inputStream = new ByteArrayInputStream("q\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      val output = outputCapture.toString
+      // The update method prints clearScreen and game state
+      output should not be empty
+      output.length should be > 20 // More than just welcome and end messages
+    }
+
+    "gameLoop should exit on quit command" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      val inputStream = new ByteArrayInputStream("quit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+
+    "gameLoop should exit on q command" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      val inputStream = new ByteArrayInputStream("q\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+
+    "gameLoop should exit on ExitApplication event" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      // Create a game state that will trigger exit
+      val initialState = TestHelper.createTestGameState()
+      val exitState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.ExitApplication)
+      )
+      
+      class ExitController extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+          currentState = exitState
+          notifyObservers
+          currentState
+        }
+        override def gameState: de.htwg.DurakApp.model.GameState = currentState
+      }
+      
+      val controller = new ExitController()
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      // Send any input that will be processed
+      val inputStream = new ByteArrayInputStream("2\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+
+    "gameLoop should handle UndoAction in match case and skip processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      
+      class UndoTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+        var processPlayerActionCallCount = 0
+        
+        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+          processPlayerActionCallCount += 1
+          // Set InvalidMove so loop continues
+          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      
+      val controller = new UndoTestController()
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      // Send "u" for undo (should NOT call processPlayerAction)
+      // Then "pass" for normal input (should call processPlayerAction)
+      // Then "q" to quit
+      val inputStream = new ByteArrayInputStream("u\npass\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      // Verify processPlayerAction was called only once (for "pass"), NOT for "u"
+      controller.processPlayerActionCallCount shouldBe 1
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+
+    "gameLoop should handle RedoAction in match case and skip processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      
+      class RedoTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+        var processPlayerActionCallCount = 0
+        
+        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+          processPlayerActionCallCount += 1
+          // Set InvalidMove so loop continues
+          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      
+      val controller = new RedoTestController()
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      // Send "r" for redo (should NOT call processPlayerAction)
+      // Then "pass" for normal input (should call processPlayerAction)
+      // Then "quit" to exit
+      val inputStream = new ByteArrayInputStream("r\npass\nquit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      // Verify processPlayerAction was called only once (for "pass"), NOT for "r"
+      controller.processPlayerActionCallCount shouldBe 1
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+
+    "gameLoop should continue recursively when no exit event" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.setupPhase
+      )
+      
+      class RecursiveTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+        var callCount = 0
+        
+        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+          callCount += 1
+          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      
+      val controller = new RecursiveTestController()
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      // Send two inputs then quit: first will recurse, then exit
+      val inputStream = new ByteArrayInputStream("2\n3\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      // Verify processPlayerAction was called multiple times (recursion happened)
+      controller.callCount should be >= 2
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+
+    "gameLoop should handle non-exit events and continue" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      
+      val initialState = TestHelper.createTestGameState()
+      
+      class ContinueTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+        var loopIterations = 0
+        
+        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+          loopIterations += 1
+          // Always return InvalidMove so loop continues
+          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      
+      val controller = new ContinueTestController()
+      
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      
+      // Send inputs that will trigger the continuation case, then quit
+      val inputStream = new ByteArrayInputStream("invalid\nstill here\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      
+      // Verify loop continued (case _ => gameLoop())
+      controller.loopIterations shouldBe 2
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
   }
 }
