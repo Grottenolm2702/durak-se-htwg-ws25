@@ -55,8 +55,12 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
 
   "GameStateFactory" should {
     "create game state with all parameters" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(TestHelper.Card(Suit.Hearts, Rank.Six) -> None)
 
@@ -71,7 +75,8 @@ class ModelFactoriesSpec extends AnyWordSpec with Matchers {
         gamePhase = StubGamePhases.setupPhase,
         passedPlayers = Set.empty,
         roundWinner = None,
-        lastEvent = Some(state.GameEvent.Attack(TestHelper.Card(Suit.Hearts, Rank.Six))),
+        lastEvent =
+          Some(state.GameEvent.Attack(TestHelper.Card(Suit.Hearts, Rank.Six))),
         setupPlayerCount = Some(2),
         setupPlayerNames = List("Alice", "Bob"),
         setupDeckSize = Some(36),

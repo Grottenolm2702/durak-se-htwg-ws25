@@ -1,7 +1,11 @@
 package de.htwg.DurakApp.model.builder.impl
 
 import de.htwg.DurakApp.testutil._
-import de.htwg.DurakApp.testutil.{TestHelper, StubGamePhases, StubGamePhasesImpl}
+import de.htwg.DurakApp.testutil.{
+  TestHelper,
+  StubGamePhases,
+  StubGamePhasesImpl
+}
 import de.htwg.DurakApp.testutil.*
 
 import org.scalatest.wordspec.AnyWordSpec
@@ -64,11 +68,21 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
     }
 
     "create a complex GameState with multiple custom parameters" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Clubs, Rank.Seven)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Eight)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List(TestHelper.Card(Suit.Clubs, Rank.Seven))
+      )
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Eight))
+      )
       val deck = List(TestHelper.Card(Suit.Hearts, Rank.Nine))
       val table =
-        Map(TestHelper.Card(Suit.Spades, Rank.Ten) -> Some(TestHelper.Card(Suit.Spades, Rank.Jack)))
+        Map(
+          TestHelper.Card(Suit.Spades, Rank.Ten) -> Some(
+            TestHelper.Card(Suit.Spades, Rank.Jack)
+          )
+        )
       val discardPile = List(TestHelper.Card(Suit.Clubs, Rank.Queen))
       val trump = TestHelper.Card(Suit.Diamonds, Rank.King)
 

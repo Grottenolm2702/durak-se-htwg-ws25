@@ -10,7 +10,7 @@ class GameSetupImplSpec extends AnyWordSpec with Matchers {
 
   val cardFactory = new CardFactoryImpl
   val playerFactory = new PlayerFactoryImpl
-  
+
   val gamePhases = new GamePhasesImpl(
     SetupPhaseImpl,
     AskPlayerCountPhaseImpl,
@@ -24,10 +24,12 @@ class GameSetupImplSpec extends AnyWordSpec with Matchers {
     RoundPhaseImpl,
     EndPhaseImpl
   )
-  
-  val gameStateFactory = new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
-  val gameStateBuilderFactory = new GameStateBuilderFactoryImpl(gameStateFactory, cardFactory, gamePhases)
-  
+
+  val gameStateFactory =
+    new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
+  val gameStateBuilderFactory =
+    new GameStateBuilderFactoryImpl(gameStateFactory, cardFactory, gamePhases)
+
   val gameSetup = new GameSetupImpl(
     gameStateFactory,
     playerFactory,

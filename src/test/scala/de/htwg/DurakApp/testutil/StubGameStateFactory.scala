@@ -22,7 +22,7 @@ private class StubGameState(
     val currentAttackerIndex: Option[Int],
     val lastAttackerIndex: Option[Int]
 ) extends GameState:
-  
+
   def copy(
       players: List[Player] = this.players,
       deck: List[Card] = this.deck,
@@ -42,11 +42,24 @@ private class StubGameState(
       lastAttackerIndex: Option[Int] = this.lastAttackerIndex
   ): GameState =
     new StubGameState(
-      players, deck, table, discardPile, trumpCard, attackerIndex, defenderIndex,
-      gamePhase, lastEvent, passedPlayers, roundWinner, setupPlayerCount,
-      setupPlayerNames, setupDeckSize, currentAttackerIndex, lastAttackerIndex
+      players,
+      deck,
+      table,
+      discardPile,
+      trumpCard,
+      attackerIndex,
+      defenderIndex,
+      gamePhase,
+      lastEvent,
+      passedPlayers,
+      roundWinner,
+      setupPlayerCount,
+      setupPlayerNames,
+      setupDeckSize,
+      currentAttackerIndex,
+      lastAttackerIndex
     )
-  
+
   def toBuilder: GameStateBuilder =
     val gameStateFactory = new StubGameStateFactory()
     val builderFactory = new StubGameStateBuilderFactory(
@@ -54,7 +67,8 @@ private class StubGameState(
       new StubPlayerFactory(),
       gameStateFactory
     )
-    builderFactory.create()
+    builderFactory
+      .create()
       .withPlayers(players)
       .withDeck(deck)
       .withTable(table)
@@ -94,9 +108,22 @@ private class StubGameState(
 
   override def hashCode(): Int =
     val state = Seq(
-      players, deck, table, discardPile, trumpCard, attackerIndex, defenderIndex,
-      gamePhase, lastEvent, passedPlayers, roundWinner, setupPlayerCount,
-      setupPlayerNames, setupDeckSize, currentAttackerIndex, lastAttackerIndex
+      players,
+      deck,
+      table,
+      discardPile,
+      trumpCard,
+      attackerIndex,
+      defenderIndex,
+      gamePhase,
+      lastEvent,
+      passedPlayers,
+      roundWinner,
+      setupPlayerCount,
+      setupPlayerNames,
+      setupDeckSize,
+      currentAttackerIndex,
+      lastAttackerIndex
     )
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
 
@@ -120,7 +147,20 @@ class StubGameStateFactory extends GameStateFactory:
       lastAttackerIndex: Option[Int]
   ): GameState =
     new StubGameState(
-      players, deck, table, discardPile, trumpCard, attackerIndex, defenderIndex,
-      gamePhase, lastEvent, passedPlayers, roundWinner, setupPlayerCount,
-      setupPlayerNames, setupDeckSize, currentAttackerIndex, lastAttackerIndex
+      players,
+      deck,
+      table,
+      discardPile,
+      trumpCard,
+      attackerIndex,
+      defenderIndex,
+      gamePhase,
+      lastEvent,
+      passedPlayers,
+      roundWinner,
+      setupPlayerCount,
+      setupPlayerNames,
+      setupDeckSize,
+      currentAttackerIndex,
+      lastAttackerIndex
     )

@@ -16,8 +16,12 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "set currentAttackerIndex when empty" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -44,8 +48,12 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "not modify currentAttackerIndex when already set" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -74,7 +82,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "play card successfully when valid" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -105,7 +116,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return InvalidMove when playerIndex out of bounds" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -134,7 +148,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return NotYourTurn when defender tries to play" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -163,8 +180,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return NotYourTurn when wrong attacker plays" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -194,7 +217,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val wrongCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -224,7 +250,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val wrongCard = TestHelper.Card(Suit.Hearts, Rank.Nine)
       val player1 = TestHelper.Player("Alice", List(card, wrongCard))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(TestHelper.Card(Suit.Hearts, Rank.Six) -> None)
 
@@ -254,8 +283,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "pass successfully and move to next attacker" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -284,8 +319,12 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidMove when passing with empty table" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -314,7 +353,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return InvalidMove when passing with invalid player index (negative)" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -344,7 +386,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return InvalidMove when passing with invalid player index (too large)" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -374,7 +419,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return NotYourTurn when defender tries to pass" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -404,8 +452,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return NotYourTurn when wrong attacker tries to pass" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -435,8 +489,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "transition to DrawPhase when all attackers pass" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -469,8 +529,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "pass with fallback to main attacker when no other attackers available" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -502,8 +568,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "pass with main attacker when current attacker is not main attacker and main not passed" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -537,7 +609,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
       val defenseCard1 = TestHelper.Card(Suit.Clubs, Rank.Seven)
       val attackCard2 = TestHelper.Card(Suit.Diamonds, Rank.Seven)
       val player1 = TestHelper.Player("Alice", List(attackCard2))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard1 -> Some(defenseCard1))
 
@@ -568,14 +643,17 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return InvalidMove when table has 6 cards already" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(
-        TestHelper.Card(Suit.Diamonds, Rank.Seven),
-        TestHelper.Card(Suit.Diamonds, Rank.Eight),
-        TestHelper.Card(Suit.Diamonds, Rank.Nine),
-        TestHelper.Card(Suit.Diamonds, Rank.Ten),
-        TestHelper.Card(Suit.Diamonds, Rank.Jack),
-        TestHelper.Card(Suit.Diamonds, Rank.Queen)
-      ))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(
+          TestHelper.Card(Suit.Diamonds, Rank.Seven),
+          TestHelper.Card(Suit.Diamonds, Rank.Eight),
+          TestHelper.Card(Suit.Diamonds, Rank.Nine),
+          TestHelper.Card(Suit.Diamonds, Rank.Ten),
+          TestHelper.Card(Suit.Diamonds, Rank.Jack),
+          TestHelper.Card(Suit.Diamonds, Rank.Queen)
+        )
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(
         TestHelper.Card(Suit.Hearts, Rank.Six) -> None,
@@ -612,10 +690,13 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return InvalidMove when undefended attacks equal defender's hand size" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(
-        TestHelper.Card(Suit.Diamonds, Rank.Seven),
-        TestHelper.Card(Suit.Diamonds, Rank.Eight)
-      ))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(
+          TestHelper.Card(Suit.Diamonds, Rank.Seven),
+          TestHelper.Card(Suit.Diamonds, Rank.Eight)
+        )
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(
         TestHelper.Card(Suit.Hearts, Rank.Six) -> None,
@@ -648,11 +729,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "allow playing card when undefended attacks less than defender's hand size" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(
-        TestHelper.Card(Suit.Diamonds, Rank.Seven),
-        TestHelper.Card(Suit.Diamonds, Rank.Eight),
-        TestHelper.Card(Suit.Diamonds, Rank.Nine)
-      ))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(
+          TestHelper.Card(Suit.Diamonds, Rank.Seven),
+          TestHelper.Card(Suit.Diamonds, Rank.Eight),
+          TestHelper.Card(Suit.Diamonds, Rank.Nine)
+        )
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(
         TestHelper.Card(Suit.Hearts, Rank.Six) -> None,
@@ -686,13 +770,18 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "count undefended attacks correctly with mixed table state" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(
-        TestHelper.Card(Suit.Diamonds, Rank.Seven),
-        TestHelper.Card(Suit.Diamonds, Rank.Eight)
-      ))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(
+          TestHelper.Card(Suit.Diamonds, Rank.Seven),
+          TestHelper.Card(Suit.Diamonds, Rank.Eight)
+        )
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(
-        TestHelper.Card(Suit.Hearts, Rank.Six) -> Some(TestHelper.Card(Suit.Diamonds, Rank.Ten)),
+        TestHelper.Card(Suit.Hearts, Rank.Six) -> Some(
+          TestHelper.Card(Suit.Diamonds, Rank.Ten)
+        ),
         TestHelper.Card(Suit.Spades, Rank.Six) -> None
       )
 
@@ -723,7 +812,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "return InvalidMove when playerIndex negative in playCard" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -752,7 +844,10 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "use attackerIndex when currentAttackerIndex is None in playCard" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -782,8 +877,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "use attackerIndex when currentAttackerIndex is None in pass" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 
@@ -815,8 +916,14 @@ class AttackPhaseImplSpec extends AnyWordSpec with Matchers {
     "use attackerIndex in getNextAttacker when currentAttackerIndex is None" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
 

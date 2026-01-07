@@ -82,7 +82,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "implement equals correctly" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -128,7 +128,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player1 = TestHelper.Player("Alice", List(card))
       val player2 = TestHelper.Player("Bob", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player1),
         deck = List(),
@@ -173,7 +173,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "implement equals correctly for non-GameState objects" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -199,7 +199,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "implement hashCode correctly" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -246,7 +246,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val card2 = TestHelper.Card(Suit.Diamonds, Rank.King)
       val player = TestHelper.Player("Alice", List(card))
       val player2 = TestHelper.Player("Bob", List(card2))
-      
+
       val gameState = TestHelper.GameState(
         players = List(player),
         deck = List(card),
@@ -281,7 +281,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val card2 = TestHelper.Card(Suit.Diamonds, Rank.King)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(card),
@@ -310,7 +310,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val card2 = TestHelper.Card(Suit.Diamonds, Rank.King)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -338,7 +338,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different discardPile" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -367,7 +367,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val card2 = TestHelper.Card(Suit.Diamonds, Rank.King)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -395,7 +395,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different attackerIndex" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -423,7 +423,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different defenderIndex" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -451,7 +451,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different gamePhase" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -479,7 +479,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different lastEvent" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -507,7 +507,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different passedPlayers" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -535,7 +535,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different roundWinner" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -563,7 +563,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different setupPlayerCount" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -591,7 +591,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different setupPlayerNames" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -619,7 +619,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different setupDeckSize" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -647,7 +647,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different currentAttackerIndex" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -675,7 +675,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
     "handle equals with different lastAttackerIndex" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val player = TestHelper.Player("Alice", List(card))
-      
+
       val gameState1 = TestHelper.GameState(
         players = List(player),
         deck = List(),
@@ -704,10 +704,10 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
-      
+
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
-      
+
       val gameState = new GameStateImpl(
         players = List(player),
         deck = List(card),
@@ -754,12 +754,12 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
-      
+
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val card2 = cardFactory(Suit.Diamonds, Rank.King, isTrump = false)
       val player = playerFactory("Alice", List(card))
       val player2 = playerFactory("Bob", List(card2))
-      
+
       val gameState = new GameStateImpl(
         players = List(player),
         deck = List(),
@@ -797,10 +797,10 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
-      
+
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
-      
+
       val gameState = new GameStateImpl(
         players = List(player),
         deck = List(),
@@ -840,10 +840,10 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
-      
+
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
-      
+
       val gameState1 = new GameStateImpl(
         players = List(player),
         deck = List(),
@@ -896,10 +896,10 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
       val cardFactory = new StubCardFactory()
       val playerFactory = new StubPlayerFactory()
       val gamePhases = new StubGamePhasesImpl()
-      
+
       val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
       val player = playerFactory("Alice", List(card))
-      
+
       val gameState = new GameStateImpl(
         players = List(player),
         deck = List(),

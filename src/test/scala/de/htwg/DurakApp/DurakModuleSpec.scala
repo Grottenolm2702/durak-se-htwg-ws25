@@ -39,7 +39,8 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
     }
 
     "provide GameStateBuilderFactory" in {
-      val builderFactory = injector.getInstance(classOf[GameStateBuilderFactory])
+      val builderFactory =
+        injector.getInstance(classOf[GameStateBuilderFactory])
       builderFactory should not be null
     }
 
@@ -66,37 +67,44 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
       setupPhase should not be null
 
       val askPlayerCountPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("AskPlayerCountPhase"))
+        com.google.inject.Key
+          .get(classOf[GamePhase], Names.named("AskPlayerCountPhase"))
       )
       askPlayerCountPhase should not be null
 
       val askPlayerNamesPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("AskPlayerNamesPhase"))
+        com.google.inject.Key
+          .get(classOf[GamePhase], Names.named("AskPlayerNamesPhase"))
       )
       askPlayerNamesPhase should not be null
 
       val askDeckSizePhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("AskDeckSizePhase"))
+        com.google.inject.Key
+          .get(classOf[GamePhase], Names.named("AskDeckSizePhase"))
       )
       askDeckSizePhase should not be null
 
       val askPlayAgainPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("AskPlayAgainPhase"))
+        com.google.inject.Key
+          .get(classOf[GamePhase], Names.named("AskPlayAgainPhase"))
       )
       askPlayAgainPhase should not be null
 
       val gameStartPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("GameStartPhase"))
+        com.google.inject.Key
+          .get(classOf[GamePhase], Names.named("GameStartPhase"))
       )
       gameStartPhase should not be null
 
       val attackPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("AttackPhase"))
+        com.google.inject.Key
+          .get(classOf[GamePhase], Names.named("AttackPhase"))
       )
       attackPhase should not be null
 
       val defensePhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("DefensePhase"))
+        com.google.inject.Key
+          .get(classOf[GamePhase], Names.named("DefensePhase"))
       )
       defensePhase should not be null
 
@@ -127,7 +135,8 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
     }
 
     "provide UndoRedoManagerFactory" in {
-      val undoRedoManagerFactory = injector.getInstance(classOf[UndoRedoManagerFactory])
+      val undoRedoManagerFactory =
+        injector.getInstance(classOf[UndoRedoManagerFactory])
       undoRedoManagerFactory should not be null
     }
 
@@ -141,10 +150,10 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
     "provide Controller as Singleton" in {
       val controller1 = injector.getInstance(classOf[Controller])
       val controller2 = injector.getInstance(classOf[Controller])
-      
+
       controller1 should not be null
       controller2 should not be null
-      controller1 shouldBe controller2  // Same instance (Singleton)
+      controller1 shouldBe controller2 // Same instance (Singleton)
     }
 
     "provide GameState" in {
@@ -163,8 +172,11 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
 
     "create functional CardFactory" in {
       val cardFactory = injector.getInstance(classOf[CardFactory])
-      val card = cardFactory(de.htwg.DurakApp.model.Suit.Hearts, de.htwg.DurakApp.model.Rank.Ace)
-      
+      val card = cardFactory(
+        de.htwg.DurakApp.model.Suit.Hearts,
+        de.htwg.DurakApp.model.Rank.Ace
+      )
+
       card should not be null
       card.suit shouldBe de.htwg.DurakApp.model.Suit.Hearts
       card.rank shouldBe de.htwg.DurakApp.model.Rank.Ace
@@ -173,7 +185,7 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
     "create functional PlayerFactory" in {
       val playerFactory = injector.getInstance(classOf[PlayerFactory])
       val player = playerFactory("TestPlayer", List.empty)
-      
+
       player should not be null
       player.name shouldBe "TestPlayer"
       player.hand shouldBe empty
@@ -182,7 +194,7 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
     "create functional GameSetup" in {
       val gameSetup = injector.getInstance(classOf[GameSetup])
       val result = gameSetup.setupGame(List("Alice", "Bob"), 36)
-      
+
       result shouldBe defined
       result.get.players should have size 2
       result.get.players.map(_.name) should contain allOf ("Alice", "Bob")
@@ -190,7 +202,7 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
 
     "ensure all GamePhases are different instances" in {
       val gamePhases = injector.getInstance(classOf[GamePhases])
-      
+
       val allPhases = List(
         gamePhases.setupPhase,
         gamePhases.askPlayerCountPhase,
@@ -204,7 +216,7 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
         gamePhases.roundPhase,
         gamePhases.endPhase
       )
-      
+
       // All phases should have different toString values
       allPhases.map(_.toString).distinct should have size 11
     }

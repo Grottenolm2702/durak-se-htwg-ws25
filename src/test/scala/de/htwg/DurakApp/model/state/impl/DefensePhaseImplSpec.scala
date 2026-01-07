@@ -16,8 +16,12 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "handle returns same state" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -112,7 +116,10 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
       val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
       val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
       val player1 = TestHelper.Player("Alice", List(defenseCard))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
@@ -143,7 +150,10 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
       val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
       val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
       val player1 = TestHelper.Player("Alice", List.empty)
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 
@@ -237,7 +247,10 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
       val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
       val defenseCard = TestHelper.Card(Suit.Hearts, Rank.Seven)
       val player1 = TestHelper.Player("Alice", List.empty)
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Nine)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Nine))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> Some(defenseCard))
 
@@ -270,7 +283,10 @@ class DefensePhaseImplSpec extends AnyWordSpec with Matchers {
     "return NotYourTurn when attacker tries to take cards" in {
       val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List.empty)
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(attackCard -> None)
 

@@ -10,8 +10,10 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
 
   private val commandFactory: CommandFactory = new StubCommandFactory()
 
-  val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-  val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+  val player1 =
+    TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+  val player2 =
+    TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
   val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
   val gameState = TestHelper.GameState(
@@ -52,7 +54,10 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
     }
 
     "clear redo stack when saving" in {
-      val manager = UndoRedoManagerImpl(List.empty, List((commandFactory.phaseChange(), gameState)))
+      val manager = UndoRedoManagerImpl(
+        List.empty,
+        List((commandFactory.phaseChange(), gameState))
+      )
       val command = commandFactory.phaseChange()
 
       val updated = manager.save(command, gameState)
@@ -111,7 +116,7 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
       val m1 = UndoRedoManagerImpl(List.empty, List.empty)
       val m2 = m1.save(command1, state1)
       val m3 = m2.save(command2, state2)
-      
+
       m3.undoStack should have size 2
       m3.redoStack shouldBe empty
 

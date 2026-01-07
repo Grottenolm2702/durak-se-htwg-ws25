@@ -7,13 +7,21 @@ object TestHelper:
   val cardFactory = new StubCardFactory()
   val playerFactory = new StubPlayerFactory()
   val gameStateFactory = new StubGameStateFactory()
-  val gameStateBuilderFactory = new StubGameStateBuilderFactory(cardFactory, playerFactory, gameStateFactory)
+  val gameStateBuilderFactory = new StubGameStateBuilderFactory(
+    cardFactory,
+    playerFactory,
+    gameStateFactory
+  )
   val gamePhases = StubGamePhases
 
   def Card(suit: Suit, rank: Rank, isTrump: Boolean = false): Card =
     cardFactory(suit, rank, isTrump)
 
-  def Player(name: String, hand: List[Card] = List.empty, isDone: Boolean = false): Player =
+  def Player(
+      name: String,
+      hand: List[Card] = List.empty,
+      isDone: Boolean = false
+  ): Player =
     playerFactory(name, hand, isDone)
 
   def GameState(

@@ -81,7 +81,11 @@ class CardSpec extends AnyWordSpec with Matchers {
     }
 
     "copy with all parameters changed" in {
-      val copied = originalCard.copy(suit = Suit.Diamonds, rank = Rank.Queen, isTrump = false)
+      val copied = originalCard.copy(
+        suit = Suit.Diamonds,
+        rank = Rank.Queen,
+        isTrump = false
+      )
       copied.suit shouldBe Suit.Diamonds
       copied.rank shouldBe Rank.Queen
       copied.isTrump shouldBe false
@@ -100,7 +104,7 @@ class CardSpec extends AnyWordSpec with Matchers {
       val copied1: Card = card.copy(suit = Suit.Diamonds)
       val copied2: Card = card.copy(rank = Rank.Jack)
       val copied3: Card = card.copy(isTrump = false)
-      
+
       copied1.suit shouldBe Suit.Diamonds
       copied2.rank shouldBe Rank.Jack
       copied3.isTrump shouldBe false

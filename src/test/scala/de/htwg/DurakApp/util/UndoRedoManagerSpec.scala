@@ -13,8 +13,10 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
   private val factory: UndoRedoManagerFactory = new StubUndoRedoManagerFactory()
   private val commandFactory: CommandFactory = new StubCommandFactory()
 
-  val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-  val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+  val player1 =
+    TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+  val player2 =
+    TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
   val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
   val gameState = TestHelper.GameState(
@@ -146,17 +148,17 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
       val command1 = commandFactory.phaseChange()
       val command2 = commandFactory.phaseChange()
       val command3 = commandFactory.phaseChange()
-      
+
       val m1 = manager.save(command1, gameState)
       val m2 = m1.save(command2, gameState)
       val m3 = m2.save(command3, gameState)
-      
+
       m3.undoStack.size shouldBe 3
-      
+
       val (m4, _) = m3.undo(gameState).get
       val (m5, _) = m4.undo(gameState).get
       val (m6, _) = m5.undo(gameState).get
-      
+
       m6.undoStack shouldBe empty
       m6.redoStack.size shouldBe 3
     }
@@ -165,17 +167,17 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
       val manager = factory.create()
       val command1 = commandFactory.phaseChange()
       val command2 = commandFactory.phaseChange()
-      
+
       val m1 = manager.save(command1, gameState)
       val m2 = m1.save(command2, gameState)
       val (m3, _) = m2.undo(gameState).get
       val (m4, _) = m3.undo(gameState).get
-      
+
       m4.redoStack.size shouldBe 2
-      
+
       val (m5, _) = m4.redo(gameState).get
       val (m6, _) = m5.redo(gameState).get
-      
+
       m6.undoStack.size shouldBe 2
       m6.redoStack shouldBe empty
     }

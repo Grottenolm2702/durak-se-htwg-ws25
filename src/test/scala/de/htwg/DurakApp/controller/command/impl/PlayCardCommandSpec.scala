@@ -12,7 +12,7 @@ import de.htwg.DurakApp.model.impl._
 class PlayCardCommandSpec extends AnyWordSpec with Matchers {
   val cardFactory = new CardFactoryImpl
   val playerFactory = new PlayerFactoryImpl
-  
+
   val gamePhases = new GamePhasesImpl(
     SetupPhaseImpl,
     AskPlayerCountPhaseImpl,
@@ -26,9 +26,10 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     RoundPhaseImpl,
     EndPhaseImpl
   )
-  
-  val gameStateFactory = new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
-  
+
+  val gameStateFactory =
+    new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
+
   "A PlayCardCommand" should {
     val player1Card1 = cardFactory(Suit.Clubs, Rank.Six)
     val player1Card2 = cardFactory(Suit.Clubs, Rank.Seven)
@@ -118,7 +119,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       val gameState = initialGameStateAttack.copy(
         currentAttackerIndex = None
       )
-      
+
       val command = PlayCardCommand(player1Card1, gamePhases)
       val resultState = command.execute(gameState)
 
@@ -130,7 +131,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     "use currentAttackerIndex when it is defined in attack phase" in {
       val player3Card = cardFactory(Suit.Diamonds, Rank.Ten)
       val player3 = playerFactory("P3", List(player3Card))
-      
+
       val gameState = gameStateFactory(
         players = List(player1ForAttack, player2ForAttack, player3),
         deck = List.empty,
@@ -149,7 +150,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = Some(2),
         lastAttackerIndex = None
       )
-      
+
       val command = PlayCardCommand(player3Card, gamePhases)
       val resultState = command.execute(gameState)
 
@@ -161,7 +162,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       val gameState = initialGameStateDefense.copy(
         currentAttackerIndex = Some(0)
       )
-      
+
       val command = PlayCardCommand(defendingCard, gamePhases)
       val resultState = command.execute(gameState)
 
@@ -172,7 +173,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
     "explicitly use gameState.attackerIndex when currentAttackerIndex is None" in {
       val player1 = playerFactory("P1", List(player1Card1))
       val player2 = playerFactory("P2", List(player2Card))
-      
+
       val gameState = gameStateFactory(
         players = List(player1, player2),
         deck = List.empty,
@@ -191,13 +192,13 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       gameState.currentAttackerIndex shouldBe None
       gameState.attackerIndex shouldBe 0
-      
+
       val command = PlayCardCommand(player1Card1, gamePhases)
       val resultState = command.execute(gameState)
-      
+
       resultState.players(0).hand should not contain player1Card1
     }
   }

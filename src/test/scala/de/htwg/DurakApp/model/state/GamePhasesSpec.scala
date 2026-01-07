@@ -18,7 +18,9 @@ class GamePhasesSpec extends AnyWordSpec with Matchers {
     }
 
     "identify ask player names phase correctly" in {
-      gamePhases.isAskPlayerNamesPhase(gamePhases.askPlayerNamesPhase) shouldBe true
+      gamePhases.isAskPlayerNamesPhase(
+        gamePhases.askPlayerNamesPhase
+      ) shouldBe true
       gamePhases.isAskPlayerNamesPhase(gamePhases.setupPhase) shouldBe false
       gamePhases.isAskPlayerNamesPhase(gamePhases.attackPhase) shouldBe false
     }

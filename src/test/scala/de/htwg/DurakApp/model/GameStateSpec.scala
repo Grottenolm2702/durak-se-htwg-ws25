@@ -443,7 +443,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       val newTable = Map.empty[Card, Option[Card]]
       val newDiscard = List(card1)
       val newTrump = TestHelper.Card(Suit.Spades, Rank.Ten, isTrump = true)
-      
+
       val copied = originalState.copy(
         players = newPlayers,
         deck = newDeck,
@@ -462,7 +462,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         currentAttackerIndex = None,
         lastAttackerIndex = None
       )
-      
+
       copied.players shouldBe newPlayers
       copied.deck shouldBe newDeck
       copied.table shouldBe newTable

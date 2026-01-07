@@ -33,7 +33,8 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
       val initialGameState = RealPhaseTestHelper.createGameStateWithRealPhases(
         players = initialPlayers,
         deck = initialDeck,
-        trumpCard = RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Six, isTrump = false),
+        trumpCard = RealPhaseTestHelper
+          .cardFactory(Suit.Clubs, Rank.Six, isTrump = false),
         defenderIndex = 0,
         gamePhase = SetupPhaseImpl
       )

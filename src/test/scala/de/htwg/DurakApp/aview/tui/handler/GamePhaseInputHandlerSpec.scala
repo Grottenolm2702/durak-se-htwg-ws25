@@ -1,7 +1,11 @@
 package de.htwg.DurakApp.aview.tui.handler
 
 import de.htwg.DurakApp.testutil._
-import de.htwg.DurakApp.testutil.{TestHelper, StubGamePhases, StubGamePhasesImpl}
+import de.htwg.DurakApp.testutil.{
+  TestHelper,
+  StubGamePhases,
+  StubGamePhasesImpl
+}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -285,8 +289,12 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
     }
 
     "delegate to next handler in other phases" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
 
       val gameState = TestHelper.GameState(
         players = List(player1, player2),

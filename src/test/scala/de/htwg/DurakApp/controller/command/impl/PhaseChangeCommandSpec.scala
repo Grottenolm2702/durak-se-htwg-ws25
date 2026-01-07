@@ -11,8 +11,12 @@ class PhaseChangeCommandSpec extends AnyWordSpec with Matchers {
 
   "A PhaseChangeCommand" should {
     "execute and return same game state" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -41,8 +45,12 @@ class PhaseChangeCommandSpec extends AnyWordSpec with Matchers {
     }
 
     "undo and return previous game state" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val previousGameState = TestHelper.GameState(

@@ -10,17 +10,17 @@ class StubCommandFactory extends CommandFactory:
       val card: Card = cardValue
       def execute(state: GameState): GameState = state
       def undo(state: GameState): GameState = state
-  
+
   def pass(): PassCommand =
     new PassCommand:
       def execute(state: GameState): GameState = state
       def undo(state: GameState): GameState = state
-  
+
   def takeCards(): TakeCardsCommand =
     new TakeCardsCommand:
       def execute(state: GameState): GameState = state
       def undo(state: GameState): GameState = state
-  
+
   def phaseChange(): PhaseChangeCommand =
     new PhaseChangeCommand:
       def execute(state: GameState): GameState = state

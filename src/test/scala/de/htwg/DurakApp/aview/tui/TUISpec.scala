@@ -57,7 +57,8 @@ class TUISpec extends AnyWordSpec with Matchers {
       val game = TestHelper.createTestGameState(
         players = List(attacker, defender),
         gamePhase = TestGamePhases.setupPhase,
-        lastEvent = Some(GameEvent.Attack(TestHelper.Card(Suit.Spades, Rank.Six)))
+        lastEvent =
+          Some(GameEvent.Attack(TestHelper.Card(Suit.Spades, Rank.Six)))
       )
 
       val controller =
@@ -181,8 +182,12 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "build status string contains important information" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val gameState = TestHelper.createTestGameState(
         players = List(player1, player2),
         gamePhase = TestGamePhases.attackPhase
@@ -200,12 +205,17 @@ class TUISpec extends AnyWordSpec with Matchers {
     }
 
     "build status string for TestGamePhases.defensePhase" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val gameState = TestHelper.createTestGameState(
         players = List(player1, player2),
         gamePhase = TestGamePhases.setupPhase,
-        lastEvent = Some(GameEvent.Defend(TestHelper.Card(Suit.Hearts, Rank.Seven)))
+        lastEvent =
+          Some(GameEvent.Defend(TestHelper.Card(Suit.Hearts, Rank.Seven)))
       )
       val controller = new SpyController(
         gameState,
@@ -221,7 +231,8 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "build status string for GameOver event contains end message" in {
       val player1 = TestHelper.Player("Alice", List.empty)
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 =
+        TestHelper.Player("Bob", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
       val gameState = TestHelper.createTestGameState(
         players = List(player1, player2),
         gamePhase = TestGamePhases.setupPhase,
@@ -241,7 +252,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     "render card correctly" in {
       val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
@@ -254,7 +268,10 @@ class TUISpec extends AnyWordSpec with Matchers {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val card2 = TestHelper.Card(Suit.Spades, Rank.King)
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
@@ -266,7 +283,10 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "render empty hand" in {
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
@@ -276,7 +296,10 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "combine card lines correctly" in {
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
@@ -288,7 +311,10 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "combine empty card lines" in {
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
@@ -298,7 +324,10 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "clear screen returns escape sequence" in {
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
@@ -377,7 +406,7 @@ class TUISpec extends AnyWordSpec with Matchers {
       val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
       val defenseCard = TestHelper.Card(Suit.Spades, Rank.Seven)
       val table = Map(attackCard -> Some(defenseCard))
-      
+
       val gameState = TestHelper.createTestGameState(
         table = table,
         gamePhase = TestGamePhases.attackPhase
@@ -391,7 +420,7 @@ class TUISpec extends AnyWordSpec with Matchers {
     "render table with undefended cards" in {
       val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
       val table = Map(attackCard -> None)
-      
+
       val gameState = TestHelper.createTestGameState(
         table = table,
         gamePhase = TestGamePhases.attackPhase
@@ -404,11 +433,14 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "handle all card suits in cardColor" in {
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
-      
+
       noException shouldBe thrownBy {
         tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Ace))
         tui.renderCard(TestHelper.Card(Suit.Diamonds, Rank.Ace))
@@ -419,11 +451,14 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "handle all card ranks" in {
       val tui = new TUI(
-        new SpyController(TestHelper.createTestGameState(), new StubUndoRedoManager()),
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
         TestGamePhases,
         nullOutputStream
       )
-      
+
       noException shouldBe thrownBy {
         tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Six))
         tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Seven))
@@ -716,10 +751,10 @@ class TUISpec extends AnyWordSpec with Matchers {
     "use default Console.out when no PrintStream provided" in {
       val gameState = TestHelper.createTestGameState()
       val controller = new SpyController(gameState, new StubUndoRedoManager())
-      
+
       // Create TUI without providing PrintStream to test default parameter
       val tui = new TUI(controller, TestGamePhases)
-      
+
       tui should not be null
       noException shouldBe thrownBy { tui.clearScreen() }
     }
@@ -814,26 +849,26 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "run method should print welcome and end messages" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       // Prepare game state that will exit immediately
       val gameState = TestHelper.createTestGameState(
         lastEvent = Some(GameEvent.ExitApplication)
       )
       val controller = new SpyController(gameState, new StubUndoRedoManager())
-      
+
       // Capture output
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       // Simulate user input "q" to quit immediately
       val inputStream = new ByteArrayInputStream("q\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
-        
+
         // Run the TUI (will exit immediately due to "q" input)
         tui.run()
       }
-      
+
       val output = outputCapture.toString
       output should include("Willkommen bei Durak!")
       output should include("Spiel beendet.")
@@ -841,24 +876,24 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "run method should add TUI as observer" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val gameState = TestHelper.createTestGameState()
       val controller = new SpyController(gameState, new StubUndoRedoManager())
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       // Simulate immediate quit
       val inputStream = new ByteArrayInputStream("quit\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
-        
+
         // Verify observer list is initially empty
         controller.observers.length shouldBe 0
-        
+
         // Run the TUI
         tui.run()
-        
+
         // Verify TUI was added as observer
         controller.observers should contain(tui)
       }
@@ -866,19 +901,19 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "run method should call update during initialization" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val gameState = TestHelper.createTestGameState()
       val controller = new SpyController(gameState, new StubUndoRedoManager())
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       val inputStream = new ByteArrayInputStream("q\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       val output = outputCapture.toString
       // The update method prints clearScreen and game state
       output should not be empty
@@ -887,100 +922,107 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "gameLoop should exit on quit command" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val gameState = TestHelper.createTestGameState()
       val controller = new SpyController(gameState, new StubUndoRedoManager())
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       val inputStream = new ByteArrayInputStream("quit\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
 
     "gameLoop should exit on q command" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val gameState = TestHelper.createTestGameState()
       val controller = new SpyController(gameState, new StubUndoRedoManager())
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       val inputStream = new ByteArrayInputStream("q\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
 
     "gameLoop should exit on ExitApplication event" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       // Create a game state that will trigger exit
       val initialState = TestHelper.createTestGameState()
       val exitState = TestHelper.createTestGameState(
         lastEvent = Some(GameEvent.ExitApplication)
       )
-      
-      class ExitController extends SpyController(initialState, new StubUndoRedoManager()) {
-        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+
+      class ExitController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
           currentState = exitState
           notifyObservers
           currentState
         }
         override def gameState: de.htwg.DurakApp.model.GameState = currentState
       }
-      
+
       val controller = new ExitController()
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       // Send any input that will be processed
       val inputStream = new ByteArrayInputStream("2\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
 
     "gameLoop should handle UndoAction in match case and skip processPlayerAction" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val initialState = TestHelper.createTestGameState(
         gamePhase = TestGamePhases.attackPhase
       )
-      
-      class UndoTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+
+      class UndoTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
         var processPlayerActionCallCount = 0
-        
-        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
           processPlayerActionCallCount += 1
           // Set InvalidMove so loop continues
-          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
           currentState
         }
       }
-      
+
       val controller = new UndoTestController()
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       // Send "u" for undo (should NOT call processPlayerAction)
       // Then "pass" for normal input (should call processPlayerAction)
       // Then "q" to quit
@@ -989,7 +1031,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       // Verify processPlayerAction was called only once (for "pass"), NOT for "u"
       controller.processPlayerActionCallCount shouldBe 1
       val output = outputCapture.toString
@@ -998,28 +1040,32 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "gameLoop should handle RedoAction in match case and skip processPlayerAction" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val initialState = TestHelper.createTestGameState(
         gamePhase = TestGamePhases.attackPhase
       )
-      
-      class RedoTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+
+      class RedoTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
         var processPlayerActionCallCount = 0
-        
-        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
           processPlayerActionCallCount += 1
           // Set InvalidMove so loop continues
-          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
           currentState
         }
       }
-      
+
       val controller = new RedoTestController()
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       // Send "r" for redo (should NOT call processPlayerAction)
       // Then "pass" for normal input (should call processPlayerAction)
       // Then "quit" to exit
@@ -1028,7 +1074,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       // Verify processPlayerAction was called only once (for "pass"), NOT for "r"
       controller.processPlayerActionCallCount shouldBe 1
       val output = outputCapture.toString
@@ -1037,34 +1083,38 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "gameLoop should continue recursively when no exit event" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val initialState = TestHelper.createTestGameState(
         gamePhase = TestGamePhases.setupPhase
       )
-      
-      class RecursiveTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+
+      class RecursiveTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
         var callCount = 0
-        
-        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
           callCount += 1
-          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
           currentState
         }
       }
-      
+
       val controller = new RecursiveTestController()
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       // Send two inputs then quit: first will recurse, then exit
       val inputStream = new ByteArrayInputStream("2\n3\nq\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       // Verify processPlayerAction was called multiple times (recursion happened)
       controller.callCount should be >= 2
       val output = outputCapture.toString
@@ -1073,33 +1123,38 @@ class TUISpec extends AnyWordSpec with Matchers {
 
     "gameLoop should handle non-exit events and continue" in {
       import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
-      
+
       val initialState = TestHelper.createTestGameState()
-      
-      class ContinueTestController extends SpyController(initialState, new StubUndoRedoManager()) {
+
+      class ContinueTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
         var loopIterations = 0
-        
-        override def processPlayerAction(action: de.htwg.DurakApp.controller.PlayerAction): de.htwg.DurakApp.model.GameState = {
+
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
           loopIterations += 1
           // Always return InvalidMove so loop continues
-          currentState = currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
           notifyObservers
           currentState
         }
       }
-      
+
       val controller = new ContinueTestController()
-      
+
       val outputCapture = new ByteArrayOutputStream()
       val printStream = new PrintStream(outputCapture)
-      
+
       // Send inputs that will trigger the continuation case, then quit
-      val inputStream = new ByteArrayInputStream("invalid\nstill here\nq\n".getBytes)
+      val inputStream =
+        new ByteArrayInputStream("invalid\nstill here\nq\n".getBytes)
       Console.withIn(inputStream) {
         val tui = new TUI(controller, TestGamePhases, printStream)
         tui.run()
       }
-      
+
       // Verify loop continued (case _ => gameLoop())
       controller.loopIterations shouldBe 2
       val output = outputCapture.toString

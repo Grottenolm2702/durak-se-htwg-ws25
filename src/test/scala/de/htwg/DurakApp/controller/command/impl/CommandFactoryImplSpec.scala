@@ -290,7 +290,8 @@ class CommandFactoryImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
 
-      val result = factory.createCommand(AddPlayerNameAction("Alice"), gameState)
+      val result =
+        factory.createCommand(AddPlayerNameAction("Alice"), gameState)
 
       result.isLeft shouldBe true
     }

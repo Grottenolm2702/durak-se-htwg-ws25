@@ -101,7 +101,8 @@ class PlayerSpec extends AnyWordSpec with Matchers {
 
     "copy with all parameters changed" in {
       val newHand = List(card1, card2)
-      val copied = originalPlayer.copy(name = "Eve", hand = newHand, isDone = false)
+      val copied =
+        originalPlayer.copy(name = "Eve", hand = newHand, isDone = false)
       copied.name shouldBe "Eve"
       copied.hand shouldBe newHand
       copied.isDone shouldBe false

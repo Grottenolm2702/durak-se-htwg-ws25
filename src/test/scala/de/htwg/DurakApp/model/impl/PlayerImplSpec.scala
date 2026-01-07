@@ -9,7 +9,8 @@ import de.htwg.DurakApp.model.{Player, Card, Suit, Rank}
 class PlayerImplSpec extends AnyWordSpec with Matchers {
   "PlayerImpl" should {
     "be created through Player factory" in {
-      val player = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Ace)))
+      val player =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Ace)))
 
       player.name shouldBe "Alice"
       player.hand should have size 1
@@ -59,7 +60,8 @@ class PlayerImplSpec extends AnyWordSpec with Matchers {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Ace)
       val card2 = TestHelper.Card(Suit.Diamonds, Rank.Queen)
       val player = TestHelper.Player("Alice", List(card1), isDone = false)
-      val copied = player.copy(name = "Charlie", hand = List(card2), isDone = true)
+      val copied =
+        player.copy(name = "Charlie", hand = List(card2), isDone = true)
 
       copied.name shouldBe "Charlie"
       copied.hand shouldBe List(card2)

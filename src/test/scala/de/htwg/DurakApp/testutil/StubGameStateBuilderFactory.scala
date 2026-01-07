@@ -1,6 +1,9 @@
 package de.htwg.DurakApp.testutil
 
-import de.htwg.DurakApp.model.builder.{GameStateBuilder, GameStateBuilderFactory}
+import de.htwg.DurakApp.model.builder.{
+  GameStateBuilder,
+  GameStateBuilderFactory
+}
 import de.htwg.DurakApp.model.builder.impl.GameStateBuilder as GameStateBuilderObject
 
 class StubGameStateBuilderFactory(
@@ -9,4 +12,8 @@ class StubGameStateBuilderFactory(
     gameStateFactory: de.htwg.DurakApp.model.GameStateFactory
 ) extends GameStateBuilderFactory:
   def create(): GameStateBuilder =
-    GameStateBuilderObject(gameStateFactory, cardFactory, new StubGamePhasesImpl())
+    GameStateBuilderObject(
+      gameStateFactory,
+      cardFactory,
+      new StubGamePhasesImpl()
+    )

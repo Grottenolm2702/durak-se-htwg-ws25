@@ -17,7 +17,8 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
 
     "handle game over with winner and loser" in {
       val player1 = TestHelper.Player("Alice", List.empty)
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 =
+        TestHelper.Player("Bob", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -83,9 +84,13 @@ class EndPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "identify correct winner when multiple players" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
       val player2 = TestHelper.Player("Bob", List.empty)
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(

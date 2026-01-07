@@ -5,20 +5,25 @@ import de.htwg.DurakApp.model.{GameState, Card}
 
 class StubGamePhase(val phaseName: String) extends GamePhase:
   def handle(gameState: GameState): GameState = gameState
-  
-  override def playCard(card: Card, playerIdx: Int, gameState: GameState): GameState =
+
+  override def playCard(
+      card: Card,
+      playerIdx: Int,
+      gameState: GameState
+  ): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-  
+
   override def pass(playerIdx: Int, gameState: GameState): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-  
+
   override def takeCards(playerIdx: Int, gameState: GameState): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
-  
+
   override def toString: String = phaseName
 
-class StubGamePhaseWithTransition(phaseName: String, nextPhase: => GamePhase) extends StubGamePhase(phaseName):
-  override def handle(gameState: GameState): GameState = 
+class StubGamePhaseWithTransition(phaseName: String, nextPhase: => GamePhase)
+    extends StubGamePhase(phaseName):
+  override def handle(gameState: GameState): GameState =
     gameState.copy(gamePhase = nextPhase, lastEvent = Some(GameEvent.Draw))
 
 object StubGamePhases:

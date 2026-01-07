@@ -13,7 +13,7 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
 
   val cardFactory = new CardFactoryImpl
   val playerFactory = new PlayerFactoryImpl
-  
+
   val gamePhases = new GamePhasesImpl(
     SetupPhaseImpl,
     AskPlayerCountPhaseImpl,
@@ -27,8 +27,9 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
     RoundPhaseImpl,
     EndPhaseImpl
   )
-  
-  val gameStateFactory = new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
+
+  val gameStateFactory =
+    new GameStateFactoryImpl(gamePhases, cardFactory, playerFactory)
 
   "A PassCommand" should {
     "execute pass in attack phase with currentAttackerIndex" in {

@@ -17,8 +17,10 @@ class RedoHandlerSpec extends AnyWordSpec with Matchers {
 
   val controller = createController()
 
-  val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-  val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+  val player1 =
+    TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+  val player2 =
+    TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
   val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
   val gameState = TestHelper.GameState(
@@ -80,7 +82,7 @@ class RedoHandlerSpec extends AnyWordSpec with Matchers {
     "use default None for next parameter when not provided" in {
       val handler = RedoHandler(controller)
       handler.next shouldBe None
-      
+
       val result = handler.handleRequest("unknown", gameState)
       result shouldBe InvalidAction
     }
@@ -88,7 +90,7 @@ class RedoHandlerSpec extends AnyWordSpec with Matchers {
     "fallback to InvalidAction when next is None" in {
       val handler = new RedoHandler(controller)
       val result = handler.handleRequest("something", gameState)
-      
+
       result shouldBe InvalidAction
     }
   }

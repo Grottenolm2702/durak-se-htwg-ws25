@@ -1,7 +1,11 @@
 package de.htwg.DurakApp.aview.tui.handler
 
 import de.htwg.DurakApp.testutil._
-import de.htwg.DurakApp.testutil.{TestHelper, StubGamePhases, StubGamePhasesImpl}
+import de.htwg.DurakApp.testutil.{
+  TestHelper,
+  StubGamePhases,
+  StubGamePhasesImpl
+}
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
@@ -16,7 +20,10 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val card2 = TestHelper.Card(Suit.Hearts, Rank.Seven)
       val player1 = TestHelper.Player("Alice", List(card1, card2))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Eight)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Eight))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -47,7 +54,10 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     "handle play command with valid index in StubGamePhases.defensePhase" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val card2 = TestHelper.Card(Suit.Hearts, Rank.Seven)
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Diamonds, Rank.Eight)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Eight))
+      )
       val player2 = TestHelper.Player("Bob", List(card1, card2))
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
@@ -77,8 +87,12 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidAction for invalid card index" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -107,8 +121,12 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidAction for non-numeric index" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -137,8 +155,12 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     }
 
     "delegate to next handler for non-play command" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -170,7 +192,10 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     "handle uppercase PLAY command" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -201,7 +226,10 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     "use attackerIndex when currentAttackerIndex is None in attack phase" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val player1 = TestHelper.Player("Alice", List(card1))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -230,8 +258,12 @@ class PlayCardHandlerSpec extends AnyWordSpec with Matchers {
     }
 
     "handle negative index gracefully" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(

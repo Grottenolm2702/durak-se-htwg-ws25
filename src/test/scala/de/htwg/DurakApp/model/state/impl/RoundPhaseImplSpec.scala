@@ -18,8 +18,14 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
     "clear table when round won" in {
       val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
       val card2 = TestHelper.Card(Suit.Hearts, Rank.Seven)
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Eight)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Nine)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List(TestHelper.Card(Suit.Hearts, Rank.Eight))
+      )
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Nine))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> Some(card2))
 
@@ -52,8 +58,14 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "not clear table when round lost" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Eight)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Nine)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List(TestHelper.Card(Suit.Hearts, Rank.Eight))
+      )
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Nine))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -81,7 +93,10 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "transition to end phase when game over" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Eight)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List(TestHelper.Card(Suit.Hearts, Rank.Eight))
+      )
       val player2 = TestHelper.Player("Bob", List.empty)
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
@@ -109,8 +124,14 @@ class RoundPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "continue game when multiple players have cards" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Eight)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Nine)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List(TestHelper.Card(Suit.Hearts, Rank.Eight))
+      )
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Nine))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(

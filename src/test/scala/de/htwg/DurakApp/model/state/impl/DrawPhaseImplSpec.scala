@@ -16,8 +16,12 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "draw cards for attacker first" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val deck = List.fill(10)(TestHelper.Card(Suit.Spades, Rank.Eight))
 
@@ -48,8 +52,12 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "set correct next attacker and defender when round won" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -77,8 +85,12 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "set correct next attacker and defender when round lost" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -106,8 +118,14 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "not draw more cards than needed to reach 6" in {
-      val player1 = TestHelper.Player("Alice", List.fill(4)(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List.fill(5)(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List.fill(4)(TestHelper.Card(Suit.Hearts, Rank.Six))
+      )
+      val player2 = TestHelper.Player(
+        "Bob",
+        List.fill(5)(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val deck = List.fill(10)(TestHelper.Card(Suit.Spades, Rank.Eight))
 
@@ -137,8 +155,12 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "handle empty deck" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
 
       val gameState = TestHelper.GameState(
@@ -166,9 +188,16 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "draw for other attackers before defender" in {
-      val player1 = TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List(TestHelper.Card(Suit.Spades, Rank.Nine)))
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List(TestHelper.Card(Suit.Spades, Rank.Nine))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val deck = List.fill(15)(TestHelper.Card(Suit.Hearts, Rank.Ten))
 
@@ -198,8 +227,14 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "not draw cards when player already has 6 or more cards" in {
-      val player1 = TestHelper.Player("Alice", List.fill(6)(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List.fill(7)(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List.fill(6)(TestHelper.Card(Suit.Hearts, Rank.Six))
+      )
+      val player2 = TestHelper.Player(
+        "Bob",
+        List.fill(7)(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val deck = List.fill(10)(TestHelper.Card(Suit.Spades, Rank.Eight))
 
@@ -229,9 +264,18 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
     }
 
     "handle mixed scenario with some players needing cards and others not" in {
-      val player1 = TestHelper.Player("Alice", List.fill(2)(TestHelper.Card(Suit.Hearts, Rank.Six)))
-      val player2 = TestHelper.Player("Bob", List.fill(6)(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
-      val player3 = TestHelper.Player("Charlie", List.fill(3)(TestHelper.Card(Suit.Spades, Rank.Nine)))
+      val player1 = TestHelper.Player(
+        "Alice",
+        List.fill(2)(TestHelper.Card(Suit.Hearts, Rank.Six))
+      )
+      val player2 = TestHelper.Player(
+        "Bob",
+        List.fill(6)(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val player3 = TestHelper.Player(
+        "Charlie",
+        List.fill(3)(TestHelper.Card(Suit.Spades, Rank.Nine))
+      )
       val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val deck = List.fill(10)(TestHelper.Card(Suit.Hearts, Rank.Ten))
 
