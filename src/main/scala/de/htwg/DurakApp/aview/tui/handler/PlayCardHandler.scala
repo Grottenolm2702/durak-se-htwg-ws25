@@ -7,7 +7,7 @@ import de.htwg.DurakApp.model.state.GamePhases
 import scala.util.{Failure, Success, Try}
 
 class PlayCardHandler(
-    override val next: Option[InputHandler] = None,
+    override val next: Option[InputHandler],
     gamePhases: GamePhases
 ) extends InputHandler {
   override def handleRequest(
