@@ -140,5 +140,44 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
       m5.undoStack.size shouldBe 1
       m5.redoStack.size shouldBe 1
     }
+
+    "handle multiple undo operations in sequence" in {
+      val manager = factory.create()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
+      val command3 = commandFactory.phaseChange()
+      
+      val m1 = manager.save(command1, gameState)
+      val m2 = m1.save(command2, gameState)
+      val m3 = m2.save(command3, gameState)
+      
+      m3.undoStack.size shouldBe 3
+      
+      val (m4, _) = m3.undo(gameState).get
+      val (m5, _) = m4.undo(gameState).get
+      val (m6, _) = m5.undo(gameState).get
+      
+      m6.undoStack shouldBe empty
+      m6.redoStack.size shouldBe 3
+    }
+
+    "handle multiple redo operations in sequence" in {
+      val manager = factory.create()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
+      
+      val m1 = manager.save(command1, gameState)
+      val m2 = m1.save(command2, gameState)
+      val (m3, _) = m2.undo(gameState).get
+      val (m4, _) = m3.undo(gameState).get
+      
+      m4.redoStack.size shouldBe 2
+      
+      val (m5, _) = m4.redo(gameState).get
+      val (m6, _) = m5.redo(gameState).get
+      
+      m6.undoStack.size shouldBe 2
+      m6.redoStack shouldBe empty
+    }
   }
 }
