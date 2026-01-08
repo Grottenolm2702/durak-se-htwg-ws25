@@ -22,6 +22,7 @@ import scalafx.scene.layout.*
 import scalafx.scene.effect.GaussianBlur
 import scalafx.stage.Stage
 import scalafx.Includes.*
+import scalafx.event.ActionEvent
 import scalafx.collections.ObservableBuffer
 import scala.util.{Try, Success, Failure}
 
@@ -70,7 +71,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     )
   }
   private val playCardButton = new Button("Play Card") {
-    onAction = () => {
+    onAction = (e: ActionEvent) => {
       selectedCard.value.foreach { card =>
         controller.processPlayerAction(PlayCardAction(card))
         selectedCard.value = None
@@ -79,13 +80,13 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     prefWidth = 120
   }
   private val passButton = new Button("Pass") {
-    onAction = () => {
+    onAction = (e: ActionEvent) => {
       controller.processPlayerAction(PassAction)
     }
     prefWidth = 120
   }
   private val takeCardsButton = new Button("Take Cards") {
-    onAction = () => {
+    onAction = (e: ActionEvent) => {
       controller.processPlayerAction(TakeCardsAction)
     }
     prefWidth = 120
@@ -100,7 +101,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     promptText = "Number of players (2-6)"
   }
   private val submitPlayerCountButton = new Button("Set Player Count") {
-    onAction = () => {
+    onAction = (e: ActionEvent) => {
       Try(playerCountInput.text.value.trim.toInt) match {
         case Success(count) =>
           controller.processPlayerAction(SetPlayerCountAction(count))
@@ -113,7 +114,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     promptText = "Player Name"
   }
   private val submitPlayerNameButton = new Button("Add Player") {
-    onAction = () => {
+    onAction = (e: ActionEvent) => {
       controller.processPlayerAction(
         AddPlayerNameAction(playerNameInput.text.value)
       )
@@ -127,7 +128,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     editable = true
   }
   private val submitDeckSizeButton = new Button("Set Deck Size") {
-    onAction = () => {
+    onAction = (e: ActionEvent) => {
       Try(deckSizeChoiceBox.getEditor.getText.toInt) match {
         case Success(size) =>
           controller.processPlayerAction(SetDeckSizeAction(size))
@@ -183,10 +184,12 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
         alignment = Pos.Center
         children = Seq(
           new Button("Play Again") {
-            onAction = () => controller.processPlayerAction(PlayAgainAction)
+            onAction = (e: ActionEvent) =>
+              controller.processPlayerAction(PlayAgainAction)
           },
           new Button("Exit Game") {
-            onAction = () => controller.processPlayerAction(ExitGameAction)
+            onAction =
+              (e: ActionEvent) => controller.processPlayerAction(ExitGameAction)
           }
         )
       }
@@ -431,7 +434,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
             "-fx-border-color: transparent; -fx-border-width: 3; -fx-background-color: transparent; -fx-padding: 0;",
         selectedCard
       )
-      onAction = () => {
+      onAction = (e: ActionEvent) => {
         selectedCard.value = Some(card)
       }
     }
