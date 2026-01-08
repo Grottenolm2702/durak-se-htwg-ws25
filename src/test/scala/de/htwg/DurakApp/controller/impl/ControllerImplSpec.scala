@@ -32,6 +32,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       val initialGameState = createBuilder()
         .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -49,6 +50,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       val initialGameState = createBuilder()
         .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -66,6 +68,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       val initialGameState = createBuilder()
         .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -82,6 +85,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       val initialGameState = createBuilder()
         .withGamePhase(StubGamePhases.askPlayerCountPhase)
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -101,6 +105,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -120,6 +125,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice"))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -138,6 +144,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -155,6 +162,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -172,6 +180,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withGamePhase(StubGamePhases.askPlayerNamesPhase)
         .withSetupPlayerCount(Some(2))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -190,6 +199,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -210,6 +220,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -229,6 +240,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerCount(Some(3))
         .withSetupPlayerNames(List("Alice", "Bob", "Charlie"))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -247,6 +259,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerCount(Some(3))
         .withSetupPlayerNames(List("Alice", "Bob", "Charlie"))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -265,6 +278,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -289,6 +303,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerCount(Some(2))
         .withSetupPlayerNames(List("Alice", "Bob"))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -310,6 +325,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -330,6 +346,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val testCommand = commandFactory.phaseChange()
       val managerWithHistory =
@@ -351,6 +368,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -370,6 +388,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -395,6 +414,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         .withSetupPlayerNames(List("Alice", "Bob"))
         .withSetupDeckSize(Some(36))
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -583,6 +603,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       val initialGameState = createBuilder()
         .withGamePhase(StubGamePhases.setupPhase)
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,
@@ -603,6 +624,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       val initialGameState = createBuilder()
         .withGamePhase(StubGamePhases.attackPhase)
         .build()
+        .get
       val undoRedoManager = undoRedoManagerFactory.create()
       val controller = ControllerImpl(
         initialGameState,

@@ -93,6 +93,18 @@ class CardSpec extends AnyWordSpec with Matchers {
   }
   "CardFactory" should {
     val cardFactory = TestHelper.cardFactory
+    "create a card with suit and rank" in {
+      val card = cardFactory(Suit.Hearts, Rank.Six)
+      card.suit shouldBe Suit.Hearts
+      card.rank shouldBe Rank.Six
+      card.isTrump shouldBe false
+    }
+    "create a trump card" in {
+      val card = cardFactory(Suit.Diamonds, Rank.Ace, isTrump = true)
+      card.suit shouldBe Suit.Diamonds
+      card.rank shouldBe Rank.Ace
+      card.isTrump shouldBe true
+    }
     "use default isTrump=false when not specified" in {
       val card = cardFactory(Suit.Hearts, Rank.Ace)
       card.isTrump shouldBe false

@@ -15,3 +15,14 @@ trait Player:
       hand: List[Card] = this.hand,
       isDone: Boolean = this.isDone
   ): Player
+
+/** Factory trait for creating Player instances.
+  *
+  * Inject this factory via Guice to create Player instances.
+  */
+trait PlayerFactory:
+  def apply(
+      name: String,
+      hand: List[Card] = List(),
+      isDone: Boolean = false
+  ): Player

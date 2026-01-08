@@ -10,6 +10,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
         .create()
         .withGameStateFactory(TestHelper.gameStateFactory)
         .build()
+        .get
       gameState.players shouldBe empty
       gameState.deck shouldBe empty
       gameState.gamePhase shouldBe StubGamePhases.setupPhase

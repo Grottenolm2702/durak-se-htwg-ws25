@@ -15,3 +15,10 @@ trait Card:
       rank: Rank = this.rank,
       isTrump: Boolean = this.isTrump
   ): Card
+
+/** Factory trait for creating Card instances.
+  *
+  * Inject this factory via Guice to create Card instances.
+  */
+trait CardFactory:
+  def apply(suit: Suit, rank: Rank, isTrump: Boolean = false): Card

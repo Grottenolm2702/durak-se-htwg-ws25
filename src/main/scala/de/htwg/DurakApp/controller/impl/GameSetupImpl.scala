@@ -53,7 +53,7 @@ class GameSetupImpl @Inject() (
     val playersWithEmptyHands =
       playerNames.map(name => playerFactory(name, List.empty))
 
-    val initialGameState = gameStateBuilderFactory
+    gameStateBuilderFactory
       .create()
       .withGameStateFactory(gameStateFactory)
       .withPlayers(playersWithEmptyHands)
@@ -68,7 +68,9 @@ class GameSetupImpl @Inject() (
       .withPassedPlayers(Set.empty)
       .withRoundWinner(None)
       .build()
-
-    Some(initialGameState.gamePhase.handle(initialGameState))
+      .toOption
+      .map(initialGameState =>
+        initialGameState.gamePhase.handle(initialGameState)
+      )
   }
 }

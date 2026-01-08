@@ -129,3 +129,27 @@ trait GameState:
       currentAttackerIndex: Option[Int] = this.currentAttackerIndex,
       lastAttackerIndex: Option[Int] = this.lastAttackerIndex
   ): GameState
+
+/** Factory trait for creating GameState instances.
+  *
+  * Inject this factory via Guice to create GameState instances.
+  */
+trait GameStateFactory:
+  def apply(
+      players: List[Player],
+      deck: List[Card],
+      table: Map[Card, Option[Card]],
+      discardPile: List[Card],
+      trumpCard: Card,
+      attackerIndex: Int,
+      defenderIndex: Int,
+      gamePhase: GamePhase,
+      lastEvent: Option[GameEvent],
+      passedPlayers: Set[Int],
+      roundWinner: Option[Int],
+      setupPlayerCount: Option[Int],
+      setupPlayerNames: List[String],
+      setupDeckSize: Option[Int],
+      currentAttackerIndex: Option[Int],
+      lastAttackerIndex: Option[Int]
+  ): GameState

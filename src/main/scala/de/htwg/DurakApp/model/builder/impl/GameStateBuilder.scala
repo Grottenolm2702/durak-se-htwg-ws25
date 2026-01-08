@@ -12,6 +12,7 @@ import de.htwg.DurakApp.model.{
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
 import com.google.inject.Inject
+import scala.util.{Try, Success, Failure}
 
 object GameStateBuilder {
   def apply(
@@ -131,32 +132,39 @@ private[model] case class GameStateBuilderImpl(
   ): GameStateBuilder =
     copy(gameStateFactory = Some(factory))
 
-  def build(): GameState = {
-    val defaultTrumpCard =
-      trumpCard.getOrElse(cardFactory(Suit.Hearts, Rank.Six))
-    val defaultGamePhase = gamePhase.getOrElse(gamePhases.setupPhase)
+  def build(): Try[GameState] = {
+    gameStateFactory match {
+      case None =>
+        Failure(
+          new IllegalStateException(
+            "GameStateFactory must be set before building"
+          )
+        )
+      case Some(factory) =>
+        Try {
+          val defaultTrumpCard =
+            trumpCard.getOrElse(cardFactory(Suit.Hearts, Rank.Six))
+          val defaultGamePhase = gamePhase.getOrElse(gamePhases.setupPhase)
 
-    gameStateFactory.getOrElse(
-      throw new IllegalStateException(
-        "GameStateFactory must be set before building"
-      )
-    )(
-      players = players,
-      deck = deck,
-      table = table,
-      discardPile = discardPile,
-      trumpCard = defaultTrumpCard,
-      attackerIndex = attackerIndex,
-      defenderIndex = defenderIndex,
-      gamePhase = defaultGamePhase,
-      lastEvent = lastEvent,
-      passedPlayers = passedPlayers,
-      roundWinner = roundWinner,
-      setupPlayerCount = setupPlayerCount,
-      setupPlayerNames = setupPlayerNames,
-      setupDeckSize = setupDeckSize,
-      currentAttackerIndex = currentAttackerIndex,
-      lastAttackerIndex = lastAttackerIndex
-    )
+          factory(
+            players = players,
+            deck = deck,
+            table = table,
+            discardPile = discardPile,
+            trumpCard = defaultTrumpCard,
+            attackerIndex = attackerIndex,
+            defenderIndex = defenderIndex,
+            gamePhase = defaultGamePhase,
+            lastEvent = lastEvent,
+            passedPlayers = passedPlayers,
+            roundWinner = roundWinner,
+            setupPlayerCount = setupPlayerCount,
+            setupPlayerNames = setupPlayerNames,
+            setupDeckSize = setupDeckSize,
+            currentAttackerIndex = currentAttackerIndex,
+            lastAttackerIndex = lastAttackerIndex
+          )
+        }
+    }
   }
 }

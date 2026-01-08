@@ -93,6 +93,7 @@ class DurakModule extends AbstractModule with ScalaModule:
       .withGameStateFactory(gameStateFactory)
       .withGamePhase(setupPhase)
       .build()
+      .get
 
   @Provides
   def providePrintStream(): PrintStream = Console.out

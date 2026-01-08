@@ -19,7 +19,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
   }
   "A GameStateBuilder" should {
     "create a default GameState correctly" in {
-      val defaultGameState = createBuilder().build()
+      val defaultGameState = createBuilder().build().get
       defaultGameState.players shouldBe empty
       defaultGameState.deck shouldBe empty
       defaultGameState.table shouldBe empty
@@ -38,6 +38,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       val customGameState = createBuilder()
         .withPlayers(List(player1, player2))
         .build()
+        .get
       customGameState.players should contain theSameElementsAs List(
         player1,
         player2
@@ -48,12 +49,14 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       val customGameState = createBuilder()
         .withTrumpCard(customTrump)
         .build()
+        .get
       customGameState.trumpCard shouldBe customTrump
     }
     "create a GameState with custom game phase" in {
       val customGameState = createBuilder()
         .withGamePhase(StubGamePhases.attackPhase)
         .build()
+        .get
       customGameState.gamePhase shouldBe StubGamePhases.attackPhase
     }
     "create a complex GameState with multiple custom parameters" in {
@@ -84,6 +87,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
         .withDefenderIndex(1)
         .withGamePhase(StubGamePhases.defensePhase)
         .build()
+        .get
       complexGameState.players should contain theSameElementsAs List(
         player1,
         player2
@@ -100,8 +104,18 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       val initialBuilder = createBuilder()
       val builderWithPlayers =
         initialBuilder.withPlayers(List(TestHelper.Player("Test", List.empty)))
-      initialBuilder.build().players shouldBe empty
-      builderWithPlayers.build().players should not be empty
+      initialBuilder.build().get.players shouldBe empty
+      builderWithPlayers.build().get.players should not be empty
+    }
+    "return Failure when GameStateFactory is not set" in {
+      val builder = GameStateBuilder(
+        new StubCardFactory(),
+        new StubGamePhasesImpl()
+      )
+      val result = builder.build()
+      result.isFailure shouldBe true
+      result.failed.get shouldBe a[IllegalStateException]
+      result.failed.get.getMessage shouldBe "GameStateFactory must be set before building"
     }
   }
 }

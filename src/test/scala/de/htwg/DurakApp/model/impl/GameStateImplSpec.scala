@@ -53,7 +53,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = Some(1)
       )
       val builder = gameState.toBuilder
-      val rebuilt = builder.build()
+      val rebuilt = builder.build().get
       rebuilt.players shouldBe gameState.players
       rebuilt.deck shouldBe gameState.deck
       rebuilt.table shouldBe gameState.table
@@ -644,7 +644,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         gameStateBuilder = gameStateBuilder
       )
       val builder = gameState.toBuilder
-      val rebuilt = builder.build()
+      val rebuilt = builder.build().get
       rebuilt.players shouldBe gameState.players
       rebuilt.deck shouldBe gameState.deck
       rebuilt.table shouldBe gameState.table
@@ -698,6 +698,7 @@ class GameStateImplSpec extends AnyWordSpec with Matchers {
         .withDeck(List(card2))
         .withAttackerIndex(1)
         .build()
+        .get
       modified.players should have size 2
       modified.deck shouldBe List(card2)
       modified.attackerIndex shouldBe 1
