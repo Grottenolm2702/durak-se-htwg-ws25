@@ -1,17 +1,17 @@
 package de.htwg.DurakApp.model.state
 
 trait GamePhases {
-  def setupPhase: GamePhase
-  def askPlayerCountPhase: GamePhase
-  def askPlayerNamesPhase: GamePhase
-  def askDeckSizePhase: GamePhase
-  def askPlayAgainPhase: GamePhase
-  def gameStartPhase: GamePhase
-  def attackPhase: GamePhase
-  def defensePhase: GamePhase
-  def drawPhase: GamePhase
-  def roundPhase: GamePhase
-  def endPhase: GamePhase
+  def setupPhase: SetupPhase
+  def askPlayerCountPhase: AskPlayerCountPhase
+  def askPlayerNamesPhase: AskPlayerNamesPhase
+  def askDeckSizePhase: AskDeckSizePhase
+  def askPlayAgainPhase: AskPlayAgainPhase
+  def gameStartPhase: GameStartPhase
+  def attackPhase: AttackPhase
+  def defensePhase: DefensePhase
+  def drawPhase: DrawPhase
+  def roundPhase: RoundPhase
+  def endPhase: EndPhase
 
   def isSetupPhase(phase: GamePhase): Boolean =
     phase == setupPhase || phase == askPlayerCountPhase

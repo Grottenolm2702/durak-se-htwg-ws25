@@ -1,5 +1,5 @@
 package de.htwg.DurakApp.testutil
-import de.htwg.DurakApp.model.state.{GamePhase, GamePhases, GameEvent}
+import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.model.{GameState, Card}
 class StubGamePhase(val phaseName: String) extends GamePhase:
   def handle(gameState: GameState): GameState = gameState
@@ -19,17 +19,27 @@ class StubGamePhaseWithTransition(phaseName: String, nextPhase: => GamePhase)
   override def handle(gameState: GameState): GameState =
     gameState.copy(gamePhase = nextPhase, lastEvent = Some(GameEvent.Draw))
 object StubGamePhases:
-  val setupPhase: GamePhase = new StubGamePhase("SetupPhase")
-  val askPlayerCountPhase: GamePhase = new StubGamePhase("AskPlayerCountPhase")
-  val askPlayerNamesPhase: GamePhase = new StubGamePhase("AskPlayerNamesPhase")
-  val askDeckSizePhase: GamePhase = new StubGamePhase("AskDeckSizePhase")
-  val askPlayAgainPhase: GamePhase = new StubGamePhase("AskPlayAgainPhase")
-  val gameStartPhase: GamePhase = new StubGamePhase("GameStartPhase")
-  val attackPhase: GamePhase = new StubGamePhase("AttackPhase")
-  val defensePhase: GamePhase = new StubGamePhase("DefensePhase")
-  val drawPhase: GamePhase = new StubGamePhase("DrawPhase")
-  val roundPhase: GamePhase = new StubGamePhase("RoundPhase")
-  val endPhase: GamePhase = new StubGamePhase("EndPhase")
+  val setupPhase: SetupPhase = new StubGamePhase("SetupPhase") with SetupPhase
+  val askPlayerCountPhase: AskPlayerCountPhase = new StubGamePhase(
+    "AskPlayerCountPhase"
+  ) with AskPlayerCountPhase
+  val askPlayerNamesPhase: AskPlayerNamesPhase = new StubGamePhase(
+    "AskPlayerNamesPhase"
+  ) with AskPlayerNamesPhase
+  val askDeckSizePhase: AskDeckSizePhase = new StubGamePhase("AskDeckSizePhase")
+    with AskDeckSizePhase
+  val askPlayAgainPhase: AskPlayAgainPhase = new StubGamePhase(
+    "AskPlayAgainPhase"
+  ) with AskPlayAgainPhase
+  val gameStartPhase: GameStartPhase = new StubGamePhase("GameStartPhase")
+    with GameStartPhase
+  val attackPhase: AttackPhase = new StubGamePhase("AttackPhase")
+    with AttackPhase
+  val defensePhase: DefensePhase = new StubGamePhase("DefensePhase")
+    with DefensePhase
+  val drawPhase: DrawPhase = new StubGamePhase("DrawPhase") with DrawPhase
+  val roundPhase: RoundPhase = new StubGamePhase("RoundPhase") with RoundPhase
+  val endPhase: EndPhase = new StubGamePhase("EndPhase") with EndPhase
 class StubGamePhasesImpl extends GamePhases:
   def setupPhase = StubGamePhases.setupPhase
   def askPlayerCountPhase = StubGamePhases.askPlayerCountPhase

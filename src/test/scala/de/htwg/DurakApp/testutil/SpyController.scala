@@ -36,7 +36,9 @@ class SpyController(
         currentState = currentState.copy(lastEvent = Some(GameEvent.CannotRedo))
         notifyObservers
         Some(currentState)
-  def getStatusString(): String = currentState.gamePhase.getClass.getSimpleName
+  def getStatusString(): String =
+    val className = currentState.gamePhase.getClass.getSimpleName
+    if (className.isEmpty) currentState.gamePhase.toString else className
   def add(observer: Observer): Unit =
     observers = observers :+ observer
   def remove(observer: Observer): Unit =

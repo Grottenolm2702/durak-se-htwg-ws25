@@ -1,12 +1,12 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.model.{Card, GameState, Player, Suit}
-import de.htwg.DurakApp.model.state.GamePhase
+import de.htwg.DurakApp.model.state.{GamePhase, SetupPhase}
 import de.htwg.DurakApp.model.builder.GameStateBuilder
 
 import scala.util.Random
 
-case object SetupPhaseImpl extends GamePhase {
+case object SetupPhaseImpl extends SetupPhase {
   override def toString: String = "SetupPhase"
 
   override def handle(gameState: GameState): GameState = {

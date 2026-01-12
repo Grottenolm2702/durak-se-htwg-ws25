@@ -14,3 +14,15 @@ trait GamePhase {
   def takeCards(playerIdx: Int, gameState: GameState): GameState =
     gameState.copy(lastEvent = Some(GameEvent.InvalidMove))
 }
+
+trait SetupPhase extends GamePhase
+trait AskPlayerCountPhase extends GamePhase
+trait AskPlayerNamesPhase extends GamePhase
+trait AskDeckSizePhase extends GamePhase
+trait AskPlayAgainPhase extends GamePhase
+trait GameStartPhase extends GamePhase
+trait AttackPhase extends GamePhase
+trait DefensePhase extends GamePhase
+trait DrawPhase extends GamePhase
+trait RoundPhase extends GamePhase
+trait EndPhase extends GamePhase

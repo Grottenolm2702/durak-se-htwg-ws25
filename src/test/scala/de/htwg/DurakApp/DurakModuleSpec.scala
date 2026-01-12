@@ -7,7 +7,7 @@ import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.controller.command.CommandFactory
 import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
-import de.htwg.DurakApp.model.state.{GamePhase, GamePhases}
+import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.{UndoRedoManager, UndoRedoManagerFactory}
 import java.io.PrintStream
 class DurakModuleSpec extends AnyWordSpec with Matchers {
@@ -33,57 +33,30 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
       gamePhases.roundPhase should not be null
       gamePhases.endPhase should not be null
     }
-    "provide all named GamePhase instances" in {
-      val setupPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("SetupPhase"))
-      )
+    "provide all typed GamePhase instances" in {
+      val setupPhase = injector.getInstance(classOf[SetupPhase])
       setupPhase should not be null
-      val askPlayerCountPhase = injector.getInstance(
-        com.google.inject.Key
-          .get(classOf[GamePhase], Names.named("AskPlayerCountPhase"))
-      )
+      val askPlayerCountPhase =
+        injector.getInstance(classOf[AskPlayerCountPhase])
       askPlayerCountPhase should not be null
-      val askPlayerNamesPhase = injector.getInstance(
-        com.google.inject.Key
-          .get(classOf[GamePhase], Names.named("AskPlayerNamesPhase"))
-      )
+      val askPlayerNamesPhase =
+        injector.getInstance(classOf[AskPlayerNamesPhase])
       askPlayerNamesPhase should not be null
-      val askDeckSizePhase = injector.getInstance(
-        com.google.inject.Key
-          .get(classOf[GamePhase], Names.named("AskDeckSizePhase"))
-      )
+      val askDeckSizePhase = injector.getInstance(classOf[AskDeckSizePhase])
       askDeckSizePhase should not be null
-      val askPlayAgainPhase = injector.getInstance(
-        com.google.inject.Key
-          .get(classOf[GamePhase], Names.named("AskPlayAgainPhase"))
-      )
+      val askPlayAgainPhase = injector.getInstance(classOf[AskPlayAgainPhase])
       askPlayAgainPhase should not be null
-      val gameStartPhase = injector.getInstance(
-        com.google.inject.Key
-          .get(classOf[GamePhase], Names.named("GameStartPhase"))
-      )
+      val gameStartPhase = injector.getInstance(classOf[GameStartPhase])
       gameStartPhase should not be null
-      val attackPhase = injector.getInstance(
-        com.google.inject.Key
-          .get(classOf[GamePhase], Names.named("AttackPhase"))
-      )
+      val attackPhase = injector.getInstance(classOf[AttackPhase])
       attackPhase should not be null
-      val defensePhase = injector.getInstance(
-        com.google.inject.Key
-          .get(classOf[GamePhase], Names.named("DefensePhase"))
-      )
+      val defensePhase = injector.getInstance(classOf[DefensePhase])
       defensePhase should not be null
-      val drawPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("DrawPhase"))
-      )
+      val drawPhase = injector.getInstance(classOf[DrawPhase])
       drawPhase should not be null
-      val roundPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("RoundPhase"))
-      )
+      val roundPhase = injector.getInstance(classOf[RoundPhase])
       roundPhase should not be null
-      val endPhase = injector.getInstance(
-        com.google.inject.Key.get(classOf[GamePhase], Names.named("EndPhase"))
-      )
+      val endPhase = injector.getInstance(classOf[EndPhase])
       endPhase should not be null
     }
     "provide CommandFactory" in {

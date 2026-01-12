@@ -1,9 +1,9 @@
 package de.htwg.DurakApp.model.state.impl
 
 import de.htwg.DurakApp.model.{Card, GameState, Player}
-import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
+import de.htwg.DurakApp.model.state.{DrawPhase, GameEvent}
 
-case object DrawPhaseImpl extends GamePhase {
+case object DrawPhaseImpl extends DrawPhase {
   override def toString: String = "DrawPhase"
 
   override def handle(gameState: GameState): GameState = {
