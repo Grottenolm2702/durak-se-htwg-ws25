@@ -15,7 +15,7 @@ case class PlayCardCommand(card: Card, gamePhases: GamePhases)
       if (gamePhases.isDefensePhase(gameState.gamePhase)) {
         gameState.defenderIndex
       } else {
-        gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
+        gameState.currentAttackerIndex.getOrElse(gameState.mainAttackerIndex)
       }
 
     val activePlayer = gameState.players(activePlayerIndex)

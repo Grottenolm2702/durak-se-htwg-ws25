@@ -18,7 +18,7 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
     table = Map.empty,
     discardPile = List.empty,
     trumpCard = trumpCard,
-    attackerIndex = 0,
+    mainAttackerIndex = 0,
     defenderIndex = 1,
     gamePhase = StubGamePhases.setupPhase,
     lastEvent = None,
@@ -76,11 +76,11 @@ class GameCommandSpec extends AnyWordSpec with Matchers {
       val command = new GameCommand {
         override def execute(gameState: GameState): GameState = gameState
       }
-      val currentState = gameState.copy(attackerIndex = 1)
+      val currentState = gameState.copy(mainAttackerIndex = 1)
       val previousState = gameState
       val result = command.undo(currentState, previousState)
       result shouldBe previousState
-      result.attackerIndex shouldBe 0
+      result.mainAttackerIndex shouldBe 0
     }
   }
 }

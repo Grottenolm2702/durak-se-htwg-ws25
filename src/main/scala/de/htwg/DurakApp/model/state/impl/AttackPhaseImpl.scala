@@ -8,7 +8,7 @@ case object AttackPhaseImpl extends AttackPhase {
 
   override def handle(gameState: GameState): GameState = {
     if (gameState.currentAttackerIndex.isEmpty) {
-      gameState.copy(currentAttackerIndex = Some(gameState.attackerIndex))
+      gameState.copy(currentAttackerIndex = Some(gameState.mainAttackerIndex))
     } else {
       gameState
     }
@@ -16,9 +16,9 @@ case object AttackPhaseImpl extends AttackPhase {
 
   private def getNextAttacker(gameState: GameState): Option[Int] = {
     val currentAttackerIndex =
-      gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
+      gameState.currentAttackerIndex.getOrElse(gameState.mainAttackerIndex)
     val totalPlayers = gameState.players.size
-    val mainAttackerIndex = gameState.attackerIndex
+    val mainAttackerIndex = gameState.mainAttackerIndex
 
     val nextAvailableAttacker = (1 until totalPlayers)
       .map { offsetFromCurrent =>
@@ -56,7 +56,7 @@ case object AttackPhaseImpl extends AttackPhase {
     }
 
     val expectedAttackerIndex =
-      gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
+      gameState.currentAttackerIndex.getOrElse(gameState.mainAttackerIndex)
     if (playerIndex != expectedAttackerIndex) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }
@@ -108,7 +108,7 @@ case object AttackPhaseImpl extends AttackPhase {
     }
 
     val expectedAttackerIndex =
-      gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
+      gameState.currentAttackerIndex.getOrElse(gameState.mainAttackerIndex)
     if (playerIndex != expectedAttackerIndex) {
       return gameState.copy(lastEvent = Some(GameEvent.NotYourTurn))
     }

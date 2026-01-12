@@ -24,7 +24,7 @@ class PlayCardHandler(
                 gameState.players(gameState.defenderIndex)
               } else {
                 val idx = gameState.currentAttackerIndex.getOrElse(
-                  gameState.attackerIndex
+                  gameState.mainAttackerIndex
                 )
                 gameState.players(idx)
               }

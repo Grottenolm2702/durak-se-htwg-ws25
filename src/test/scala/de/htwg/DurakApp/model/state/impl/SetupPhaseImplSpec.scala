@@ -39,11 +39,11 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
       resultState.gamePhase shouldBe AttackPhaseImpl
-      resultState.attackerIndex should (be >= 0)
-      resultState.attackerIndex should (be < resultState.players.size)
+      resultState.mainAttackerIndex should (be >= 0)
+      resultState.mainAttackerIndex should (be < resultState.players.size)
       resultState.defenderIndex should (be >= 0)
       resultState.defenderIndex should (be < resultState.players.size)
-      resultState.defenderIndex shouldNot (equal(resultState.attackerIndex))
+      resultState.defenderIndex shouldNot (equal(resultState.mainAttackerIndex))
       resultState.lastEvent shouldBe Some(GameEvent.RoundEnd(cleared = false))
     }
     "handle setup with a small deck where no cards are left after dealing" in {
@@ -77,11 +77,11 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
       resultState.deck.length shouldBe 0
       resultState.trumpCard.isTrump shouldBe true
       resultState.gamePhase shouldBe AttackPhaseImpl
-      resultState.attackerIndex should (be >= 0)
-      resultState.attackerIndex should (be < resultState.players.size)
+      resultState.mainAttackerIndex should (be >= 0)
+      resultState.mainAttackerIndex should (be < resultState.players.size)
       resultState.defenderIndex should (be >= 0)
       resultState.defenderIndex should (be < resultState.players.size)
-      resultState.defenderIndex shouldNot (equal(resultState.attackerIndex))
+      resultState.defenderIndex shouldNot (equal(resultState.mainAttackerIndex))
     }
     "have a string representation" in {
       SetupPhaseImpl.toString should not be empty

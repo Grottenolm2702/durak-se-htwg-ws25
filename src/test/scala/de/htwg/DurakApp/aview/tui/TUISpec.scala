@@ -706,7 +706,7 @@ class TUISpec extends AnyWordSpec with Matchers {
         players = List(player1, player2),
         trumpCard = card,
         gamePhase = TestGamePhases.roundPhase,
-        attackerIndex = 0
+        mainAttackerIndex = 0
       )
       val controller = new SpyController(gameState, new StubUndoRedoManager())
       val tui = new TUI(controller, TestGamePhases, nullOutputStream)

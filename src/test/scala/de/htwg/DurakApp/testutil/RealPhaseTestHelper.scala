@@ -16,7 +16,7 @@ object RealPhaseTestHelper:
         de.htwg.DurakApp.model.Rank.Six,
         isTrump = true
       ),
-      attackerIndex: Int = 0,
+      mainAttackerIndex: Int = 0,
       defenderIndex: Int = 1,
       gamePhase: GamePhase = SetupPhaseImpl,
       lastEvent: Option[GameEvent] = None,
@@ -30,19 +30,19 @@ object RealPhaseTestHelper:
   ): GameState =
     de.htwg.DurakApp.model.GameState(
       players,
+      mainAttackerIndex,
+      defenderIndex,
+      currentAttackerIndex,
+      lastAttackerIndex,
+      passedPlayers,
+      roundWinner,
       deck,
       table,
       discardPile,
       trumpCard,
-      attackerIndex,
-      defenderIndex,
       gamePhase,
       lastEvent,
-      passedPlayers,
-      roundWinner,
       setupPlayerCount,
       setupPlayerNames,
-      setupDeckSize,
-      currentAttackerIndex,
-      lastAttackerIndex
+      setupDeckSize
     )

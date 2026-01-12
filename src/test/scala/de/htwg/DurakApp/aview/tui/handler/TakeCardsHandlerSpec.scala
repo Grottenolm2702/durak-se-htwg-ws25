@@ -17,7 +17,7 @@ class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
     table = Map(TestHelper.Card(Suit.Hearts, Rank.Six) -> None),
     discardPile = List.empty,
     trumpCard = trumpCard,
-    attackerIndex = 0,
+    mainAttackerIndex = 0,
     defenderIndex = 1,
     gamePhase = StubGamePhases.setupPhase,
     lastEvent = None,

@@ -10,21 +10,21 @@ import de.htwg.DurakApp.model.builder.GameStateBuilder
   */
 case class GameState(
     players: List[Player],
+    mainAttackerIndex: Int,
+    defenderIndex: Int,
+    currentAttackerIndex: Option[Int],
+    lastAttackerIndex: Option[Int],
+    passedPlayers: Set[Int],
+    roundWinner: Option[Int],
     deck: List[Card],
     table: Map[Card, Option[Card]],
     discardPile: List[Card],
     trumpCard: Card,
-    attackerIndex: Int,
-    defenderIndex: Int,
     gamePhase: GamePhase,
     lastEvent: Option[GameEvent],
-    passedPlayers: Set[Int],
-    roundWinner: Option[Int],
     setupPlayerCount: Option[Int],
     setupPlayerNames: List[String],
-    setupDeckSize: Option[Int],
-    currentAttackerIndex: Option[Int],
-    lastAttackerIndex: Option[Int]
+    setupDeckSize: Option[Int]
 ):
   /** Converts this game state to a builder for further modifications.
     * @return
@@ -33,18 +33,18 @@ case class GameState(
   def toBuilder(builder: GameStateBuilder): GameStateBuilder =
     builder
       .withPlayers(players)
+      .withMainAttackerIndex(mainAttackerIndex)
+      .withDefenderIndex(defenderIndex)
+      .withCurrentAttackerIndex(currentAttackerIndex)
+      .withLastAttackerIndex(lastAttackerIndex)
+      .withPassedPlayers(passedPlayers)
+      .withRoundWinner(roundWinner)
       .withDeck(deck)
       .withTable(table)
       .withDiscardPile(discardPile)
       .withTrumpCard(trumpCard)
-      .withAttackerIndex(attackerIndex)
-      .withDefenderIndex(defenderIndex)
       .withGamePhase(gamePhase)
       .withLastEvent(lastEvent)
-      .withPassedPlayers(passedPlayers)
-      .withRoundWinner(roundWinner)
       .withSetupPlayerCount(setupPlayerCount)
       .withSetupPlayerNames(setupPlayerNames)
       .withSetupDeckSize(setupDeckSize)
-      .withCurrentAttackerIndex(currentAttackerIndex)
-      .withLastAttackerIndex(lastAttackerIndex)

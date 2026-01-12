@@ -18,7 +18,7 @@ object TestHelper:
       table: Map[Card, Option[Card]],
       discardPile: List[Card],
       trumpCard: Card,
-      attackerIndex: Int,
+      mainAttackerIndex: Int,
       defenderIndex: Int,
       gamePhase: GamePhase,
       lastEvent: Option[GameEvent],
@@ -32,21 +32,21 @@ object TestHelper:
   ): GameState =
     de.htwg.DurakApp.model.GameState(
       players,
+      mainAttackerIndex,
+      defenderIndex,
+      currentAttackerIndex,
+      lastAttackerIndex,
+      passedPlayers,
+      roundWinner,
       deck,
       table,
       discardPile,
       trumpCard,
-      attackerIndex,
-      defenderIndex,
       gamePhase,
       lastEvent,
-      passedPlayers,
-      roundWinner,
       setupPlayerCount,
       setupPlayerNames,
-      setupDeckSize,
-      currentAttackerIndex,
-      lastAttackerIndex
+      setupDeckSize
     )
   def createTestGameState(
       players: List[Player] = List(Player("P1"), Player("P2")),
@@ -54,7 +54,7 @@ object TestHelper:
       table: Map[Card, Option[Card]] = Map.empty,
       discardPile: List[Card] = List.empty,
       trumpCard: Card = Card(Suit.Hearts, Rank.Six, isTrump = true),
-      attackerIndex: Int = 0,
+      mainAttackerIndex: Int = 0,
       defenderIndex: Int = 1,
       gamePhase: GamePhase = StubGamePhases.setupPhase,
       lastEvent: Option[GameEvent] = None,
@@ -68,19 +68,19 @@ object TestHelper:
   ): GameState =
     de.htwg.DurakApp.model.GameState(
       players,
+      mainAttackerIndex,
+      defenderIndex,
+      currentAttackerIndex,
+      lastAttackerIndex,
+      passedPlayers,
+      roundWinner,
       deck,
       table,
       discardPile,
       trumpCard,
-      attackerIndex,
-      defenderIndex,
       gamePhase,
       lastEvent,
-      passedPlayers,
-      roundWinner,
       setupPlayerCount,
       setupPlayerNames,
-      setupDeckSize,
-      currentAttackerIndex,
-      lastAttackerIndex
+      setupDeckSize
     )

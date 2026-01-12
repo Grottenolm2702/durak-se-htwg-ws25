@@ -49,7 +49,7 @@ class GameSetupImpl @Inject() (
       .withTable(Map.empty)
       .withDiscardPile(List.empty)
       .withTrumpCard(shuffledDeck.head)
-      .withAttackerIndex(0)
+      .withMainAttackerIndex(0)
       .withDefenderIndex(0)
       .withGamePhase(gamePhases.setupPhase)
       .withLastEvent(None)

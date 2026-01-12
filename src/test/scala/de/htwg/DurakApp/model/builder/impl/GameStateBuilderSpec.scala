@@ -21,7 +21,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       defaultGameState.table shouldBe empty
       defaultGameState.discardPile shouldBe empty
       defaultGameState.trumpCard shouldBe TestHelper.Card(Suit.Hearts, Rank.Six)
-      defaultGameState.attackerIndex shouldBe 0
+      defaultGameState.mainAttackerIndex shouldBe 0
       defaultGameState.defenderIndex shouldBe 1
       defaultGameState.gamePhase shouldBe StubGamePhases.setupPhase
       defaultGameState.lastEvent shouldBe None
@@ -79,7 +79,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
         .withTable(table)
         .withDiscardPile(discardPile)
         .withTrumpCard(trump)
-        .withAttackerIndex(0)
+        .withMainAttackerIndex(0)
         .withDefenderIndex(1)
         .withGamePhase(StubGamePhases.defensePhase)
         .build()
@@ -92,7 +92,7 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       complexGameState.table shouldBe table
       complexGameState.discardPile shouldBe discardPile
       complexGameState.trumpCard shouldBe trump
-      complexGameState.attackerIndex shouldBe 0
+      complexGameState.mainAttackerIndex shouldBe 0
       complexGameState.defenderIndex shouldBe 1
       complexGameState.gamePhase shouldBe StubGamePhases.defensePhase
     }

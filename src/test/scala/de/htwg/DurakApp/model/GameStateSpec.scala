@@ -23,7 +23,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -48,7 +48,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -74,7 +74,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -103,7 +103,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -125,7 +125,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = Some(GameEvent.Pass),
@@ -147,7 +147,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -169,7 +169,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -191,7 +191,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         passedPlayers = Set.empty,
@@ -213,7 +213,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -235,7 +235,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         passedPlayers = Set.empty,
@@ -257,7 +257,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         passedPlayers = Set.empty,
@@ -284,7 +284,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       table = Map(card2 -> None),
       discardPile = List.empty,
       trumpCard = trumpCard,
-      attackerIndex = 0,
+      mainAttackerIndex = 0,
       defenderIndex = 1,
       gamePhase = StubGamePhases.attackPhase,
       lastEvent = Some(GameEvent.Pass),
@@ -328,14 +328,14 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       copied.players shouldBe originalState.players
     }
     "copy with only attackerIndex changed" in {
-      val copied = originalState.copy(attackerIndex = 1)
-      copied.attackerIndex shouldBe 1
+      val copied = originalState.copy(mainAttackerIndex = 1)
+      copied.mainAttackerIndex shouldBe 1
       copied.defenderIndex shouldBe originalState.defenderIndex
     }
     "copy with only defenderIndex changed" in {
       val copied = originalState.copy(defenderIndex = 0)
       copied.defenderIndex shouldBe 0
-      copied.attackerIndex shouldBe originalState.attackerIndex
+      copied.mainAttackerIndex shouldBe originalState.mainAttackerIndex
     }
     "copy with only gamePhase changed" in {
       val copied = originalState.copy(gamePhase = StubGamePhases.defensePhase)
@@ -388,12 +388,12 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       val copied = originalState.copy(
         players = newPlayers,
         deck = newDeck,
-        attackerIndex = 1,
+        mainAttackerIndex = 1,
         defenderIndex = 0
       )
       copied.players shouldBe newPlayers
       copied.deck shouldBe newDeck
-      copied.attackerIndex shouldBe 1
+      copied.mainAttackerIndex shouldBe 1
       copied.defenderIndex shouldBe 0
       copied.table shouldBe originalState.table
     }
@@ -409,7 +409,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = newTable,
         discardPile = newDiscard,
         trumpCard = newTrump,
-        attackerIndex = 1,
+        mainAttackerIndex = 1,
         defenderIndex = 0,
         gamePhase = StubGamePhases.drawPhase,
         lastEvent = None,
@@ -426,7 +426,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       copied.table shouldBe newTable
       copied.discardPile shouldBe newDiscard
       copied.trumpCard shouldBe newTrump
-      copied.attackerIndex shouldBe 1
+      copied.mainAttackerIndex shouldBe 1
       copied.defenderIndex shouldBe 0
       copied.gamePhase shouldBe StubGamePhases.drawPhase
       copied.lastEvent shouldBe None
@@ -445,7 +445,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       copied.table shouldBe originalState.table
       copied.discardPile shouldBe originalState.discardPile
       copied.trumpCard shouldBe originalState.trumpCard
-      copied.attackerIndex shouldBe originalState.attackerIndex
+      copied.mainAttackerIndex shouldBe originalState.mainAttackerIndex
       copied.defenderIndex shouldBe originalState.defenderIndex
       copied.gamePhase shouldBe originalState.gamePhase
       copied.lastEvent shouldBe originalState.lastEvent
@@ -474,7 +474,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = table,
         discardPile = discardPile,
         trumpCard = trumpCard,
-        attackerIndex = 1,
+        mainAttackerIndex = 1,
         defenderIndex = 2,
         gamePhase = StubGamePhases.attackPhase,
         lastEvent = Some(GameEvent.Pass),
@@ -495,7 +495,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       rebuiltState.table shouldBe originalState.table
       rebuiltState.discardPile shouldBe originalState.discardPile
       rebuiltState.trumpCard shouldBe originalState.trumpCard
-      rebuiltState.attackerIndex shouldBe originalState.attackerIndex
+      rebuiltState.mainAttackerIndex shouldBe originalState.mainAttackerIndex
       rebuiltState.defenderIndex shouldBe originalState.defenderIndex
       rebuiltState.gamePhase shouldBe originalState.gamePhase
       rebuiltState.lastEvent shouldBe originalState.lastEvent
@@ -557,7 +557,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = StubGamePhases.setupPhase,
         lastEvent = None,
@@ -570,7 +570,7 @@ class GameStateSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       gameState.players shouldBe players
-      gameState.attackerIndex shouldBe 0
+      gameState.mainAttackerIndex shouldBe 0
       gameState.defenderIndex shouldBe 1
       gameState.trumpCard shouldBe trumpCard
     }

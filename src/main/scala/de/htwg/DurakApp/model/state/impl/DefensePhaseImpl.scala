@@ -53,7 +53,7 @@ case object DefensePhaseImpl extends DefensePhase {
 
     val nextAttackerIndex = if (allAttacksDefended) {
       val previousAttackerIndex =
-        gameState.lastAttackerIndex.getOrElse(gameState.attackerIndex)
+        gameState.lastAttackerIndex.getOrElse(gameState.mainAttackerIndex)
       getNextAttacker(gameState, previousAttackerIndex)
     } else None
 
@@ -71,7 +71,7 @@ case object DefensePhaseImpl extends DefensePhase {
       currentAttackerIndex: Int
   ): Option[Int] = {
     val totalPlayers = gameState.players.size
-    val mainAttackerIndex = gameState.attackerIndex
+    val mainAttackerIndex = gameState.mainAttackerIndex
     val defenderIndex = gameState.defenderIndex
 
     val nextAvailablePlayer = (1 until totalPlayers)

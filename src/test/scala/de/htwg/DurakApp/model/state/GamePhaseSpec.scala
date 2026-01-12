@@ -57,7 +57,7 @@ class GamePhaseSpec extends AnyWordSpec with Matchers {
       table = Map.empty,
       discardPile = List.empty,
       trumpCard = TestHelper.Card(Suit.Hearts, Rank.Six),
-      attackerIndex = 0,
+      mainAttackerIndex = 0,
       defenderIndex = 0,
       gamePhase = testGamePhase,
       lastEvent = None,

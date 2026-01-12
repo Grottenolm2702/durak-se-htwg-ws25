@@ -19,7 +19,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
     table = Map.empty,
     discardPile = List.empty,
     trumpCard = trumpCard,
-    attackerIndex = 0,
+    mainAttackerIndex = 0,
     defenderIndex = 1,
     gamePhase = StubGamePhases.setupPhase,
     lastEvent = None,
@@ -49,7 +49,8 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
       val command1 = commandFactory.phaseChange()
       val command2 = commandFactory.phaseChange()
       val manager1 = manager.save(command1, gameState)
-      val manager2 = manager1.save(command2, gameState.copy(attackerIndex = 1))
+      val manager2 =
+        manager1.save(command2, gameState.copy(mainAttackerIndex = 1))
       val (manager3, _) = manager2.undo(gameState).get
       val manager4 = manager3.save(command1, gameState)
       manager4.redoStack shouldBe empty
@@ -59,7 +60,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
       val manager = factory.create()
       val command = commandFactory.phaseChange()
       val oldState = gameState
-      val newState = gameState.copy(attackerIndex = 1)
+      val newState = gameState.copy(mainAttackerIndex = 1)
       val savedManager = manager.save(command, oldState)
       val undoResult = savedManager.undo(newState)
       undoResult shouldBe defined
@@ -76,7 +77,7 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
       val manager = factory.create()
       val command = commandFactory.phaseChange()
       val oldState = gameState
-      val newState = gameState.copy(attackerIndex = 1)
+      val newState = gameState.copy(mainAttackerIndex = 1)
       val savedManager = manager.save(command, oldState)
       val (undoneManager, _) = savedManager.undo(newState).get
       val redoResult = undoneManager.redo(oldState)
@@ -95,8 +96,8 @@ class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
       val command1 = commandFactory.phaseChange()
       val command2 = commandFactory.phaseChange()
       val state1 = gameState
-      val state2 = gameState.copy(attackerIndex = 1)
-      val state3 = gameState.copy(attackerIndex = 2)
+      val state2 = gameState.copy(mainAttackerIndex = 1)
+      val state3 = gameState.copy(mainAttackerIndex = 2)
       val m1 = manager.save(command1, state1)
       val m2 = m1.save(command2, state2)
       m2.undoStack.size shouldBe 2

@@ -17,7 +17,7 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
     table = Map.empty,
     discardPile = List.empty,
     trumpCard = trumpCard,
-    attackerIndex = 0,
+    mainAttackerIndex = 0,
     defenderIndex = 1,
     gamePhase = StubGamePhases.setupPhase,
     lastEvent = None,
@@ -54,7 +54,7 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
     "undo command successfully" in {
       val command = commandFactory.phaseChange()
       val manager = UndoRedoManagerImpl(List((command, gameState)), List.empty)
-      val currentState = gameState.copy(attackerIndex = 1)
+      val currentState = gameState.copy(mainAttackerIndex = 1)
       val result = manager.undo(currentState)
       result shouldBe defined
       val (updatedManager, _) = result.get
@@ -84,8 +84,8 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
       val command1 = commandFactory.phaseChange()
       val command2 = commandFactory.phaseChange()
       val state1 = gameState
-      val state2 = gameState.copy(attackerIndex = 1)
-      val state3 = gameState.copy(attackerIndex = 2)
+      val state2 = gameState.copy(mainAttackerIndex = 1)
+      val state3 = gameState.copy(mainAttackerIndex = 2)
       val m1 = UndoRedoManagerImpl(List.empty, List.empty)
       val m2 = m1.save(command1, state1)
       val m3 = m2.save(command2, state2)
@@ -101,7 +101,7 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
     "preserve state correctly through undo" in {
       val command = commandFactory.phaseChange()
       val oldState = gameState
-      val newState = gameState.copy(attackerIndex = 1)
+      val newState = gameState.copy(mainAttackerIndex = 1)
       val manager = UndoRedoManagerImpl(List((command, oldState)), List.empty)
       val (_, restoredState) = manager.undo(newState).get
       restoredState shouldBe oldState

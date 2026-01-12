@@ -331,7 +331,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
 
   private def activePlayerIndex(gameState: GameState): Option[Int] =
     if (gamePhases.isAttackPhase(gameState.gamePhase)) {
-      Some(gameState.attackerIndex)
+      Some(gameState.mainAttackerIndex)
     } else if (gamePhases.isDefensePhase(gameState.gamePhase)) {
       Some(gameState.defenderIndex)
     } else {

@@ -13,21 +13,21 @@ object GameStateBuilder {
 
 private[model] case class GameStateBuilderImpl(
     players: List[Player] = List.empty,
+    mainAttackerIndex: Int = 0,
+    defenderIndex: Int = 1,
+    currentAttackerIndex: Option[Int] = None,
+    lastAttackerIndex: Option[Int] = None,
+    passedPlayers: Set[Int] = Set.empty,
+    roundWinner: Option[Int] = None,
     deck: List[Card] = List.empty,
     table: Map[Card, Option[Card]] = Map.empty,
     discardPile: List[Card] = List.empty,
     trumpCard: Option[Card] = None,
-    attackerIndex: Int = 0,
-    defenderIndex: Int = 1,
     gamePhase: Option[GamePhase] = None,
     lastEvent: Option[GameEvent] = None,
-    passedPlayers: Set[Int] = Set.empty,
-    roundWinner: Option[Int] = None,
     setupPlayerCount: Option[Int] = None,
     setupPlayerNames: List[String] = List.empty,
     setupDeckSize: Option[Int] = None,
-    currentAttackerIndex: Option[Int] = None,
-    lastAttackerIndex: Option[Int] = None,
     gamePhases: GamePhases
 ) extends GameStateBuilder {
 
@@ -46,8 +46,8 @@ private[model] case class GameStateBuilderImpl(
   def withTrumpCard(newTrumpCard: Card): GameStateBuilder =
     copy(trumpCard = Some(newTrumpCard))
 
-  def withAttackerIndex(newAttackerIndex: Int): GameStateBuilder =
-    copy(attackerIndex = newAttackerIndex)
+  def withMainAttackerIndex(newAttackerIndex: Int): GameStateBuilder =
+    copy(mainAttackerIndex = newAttackerIndex)
 
   def withDefenderIndex(newDefenderIndex: Int): GameStateBuilder =
     copy(defenderIndex = newDefenderIndex)
@@ -86,21 +86,21 @@ private[model] case class GameStateBuilderImpl(
 
       GameState(
         players = players,
+        mainAttackerIndex = mainAttackerIndex,
+        defenderIndex = defenderIndex,
+        currentAttackerIndex = currentAttackerIndex,
+        lastAttackerIndex = lastAttackerIndex,
+        passedPlayers = passedPlayers,
+        roundWinner = roundWinner,
         deck = deck,
         table = table,
         discardPile = discardPile,
         trumpCard = defaultTrumpCard,
-        attackerIndex = attackerIndex,
-        defenderIndex = defenderIndex,
         gamePhase = defaultGamePhase,
         lastEvent = lastEvent,
-        passedPlayers = passedPlayers,
-        roundWinner = roundWinner,
         setupPlayerCount = setupPlayerCount,
         setupPlayerNames = setupPlayerNames,
-        setupDeckSize = setupDeckSize,
-        currentAttackerIndex = currentAttackerIndex,
-        lastAttackerIndex = lastAttackerIndex
+        setupDeckSize = setupDeckSize
       )
     }
   }

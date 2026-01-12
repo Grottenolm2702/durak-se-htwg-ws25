@@ -17,7 +17,7 @@ class InvalidInputHandlerSpec extends AnyWordSpec with Matchers {
     table = Map.empty,
     discardPile = List.empty,
     trumpCard = trumpCard,
-    attackerIndex = 0,
+    mainAttackerIndex = 0,
     defenderIndex = 1,
     gamePhase = StubGamePhases.setupPhase,
     lastEvent = None,

@@ -25,7 +25,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,
@@ -57,7 +57,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,
@@ -70,7 +70,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       val result = DrawPhaseImpl.handle(gameState)
-      result.attackerIndex shouldBe 1
+      result.mainAttackerIndex shouldBe 1
       result.defenderIndex shouldBe 0
     }
     "set correct next attacker and defender when round lost" in {
@@ -87,7 +87,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,
@@ -100,7 +100,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       val result = DrawPhaseImpl.handle(gameState)
-      result.attackerIndex shouldBe 0
+      result.mainAttackerIndex shouldBe 0
       result.defenderIndex shouldBe 1
     }
     "not draw more cards than needed to reach 6" in {
@@ -120,7 +120,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,
@@ -151,7 +151,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,
@@ -186,7 +186,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,
@@ -220,7 +220,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,
@@ -258,7 +258,7 @@ class DrawPhaseImplSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = trumpCard,
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = DrawPhaseImpl,
         lastEvent = None,

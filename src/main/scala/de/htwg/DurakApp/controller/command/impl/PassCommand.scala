@@ -14,7 +14,7 @@ private[command] case class PassCommand(gamePhases: GamePhases)
       if (gamePhases.isDefensePhase(gameState.gamePhase)) {
         gameState.defenderIndex
       } else {
-        gameState.currentAttackerIndex.getOrElse(gameState.attackerIndex)
+        gameState.currentAttackerIndex.getOrElse(gameState.mainAttackerIndex)
       }
     gameState.gamePhase.pass(activePlayerIndex, gameState)
   }

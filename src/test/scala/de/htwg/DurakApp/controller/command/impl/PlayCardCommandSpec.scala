@@ -36,7 +36,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       table = Map.empty,
       discardPile = List.empty,
       trumpCard = Card(Suit.Hearts, Rank.Ace, true),
-      attackerIndex = 0,
+      mainAttackerIndex = 0,
       defenderIndex = 1,
       gamePhase = gamePhases.attackPhase,
       lastEvent = None,
@@ -58,7 +58,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       table = Map(attackCardOnTable -> None),
       discardPile = List.empty,
       trumpCard = Card(Suit.Clubs, Rank.Ace, true),
-      attackerIndex = 0,
+      mainAttackerIndex = 0,
       defenderIndex = 1,
       gamePhase = gamePhases.defensePhase,
       lastEvent = None,
@@ -119,7 +119,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = Card(Suit.Hearts, Rank.Ace, true),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = gamePhases.attackPhase,
         lastEvent = None,
@@ -145,7 +145,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       resultState.players(1).hand should not contain defendingCard
       resultState.table(attackCardOnTable) should contain(defendingCard)
     }
-    "explicitly use gameState.attackerIndex when currentAttackerIndex is None" in {
+    "explicitly use gameState.mainAttackerIndex when currentAttackerIndex is None" in {
       val player1 = Player("P1", List(player1Card1))
       val player2 = Player("P2", List(player2Card))
       val gameState = TestHelper.GameState(
@@ -154,7 +154,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
         table = Map.empty,
         discardPile = List.empty,
         trumpCard = Card(Suit.Hearts, Rank.Ace, true),
-        attackerIndex = 0,
+        mainAttackerIndex = 0,
         defenderIndex = 1,
         gamePhase = gamePhases.attackPhase,
         lastEvent = None,
@@ -167,7 +167,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
         lastAttackerIndex = None
       )
       gameState.currentAttackerIndex shouldBe None
-      gameState.attackerIndex shouldBe 0
+      gameState.mainAttackerIndex shouldBe 0
       val command = PlayCardCommand(player1Card1, gamePhases)
       val resultState = command.execute(gameState)
       resultState.players(0).hand should not contain player1Card1

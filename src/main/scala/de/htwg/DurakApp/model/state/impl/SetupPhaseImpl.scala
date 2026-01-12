@@ -35,7 +35,7 @@ case object SetupPhaseImpl extends SetupPhase {
       table = Map.empty,
       discardPile = List.empty,
       trumpCard = trumpCard,
-      attackerIndex = attackerIndex,
+      mainAttackerIndex = attackerIndex,
       defenderIndex = defenderIndex,
       gamePhase = RoundPhaseImpl,
       lastEvent = None,

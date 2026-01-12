@@ -7,7 +7,7 @@ case object DrawPhaseImpl extends DrawPhase {
   override def toString: String = "DrawPhase"
 
   override def handle(gameState: GameState): GameState = {
-    val mainAttackerIndex = gameState.attackerIndex
+    val mainAttackerIndex = gameState.mainAttackerIndex
     val otherAttackersIndices = gameState.players.indices.filter(playerIndex =>
       playerIndex != mainAttackerIndex &&
         playerIndex != gameState.defenderIndex &&
@@ -60,7 +60,7 @@ case object DrawPhaseImpl extends DrawPhase {
     val updatedGameState = gameState.copy(
       players = playersWithDrawnCards,
       deck = remainingDeck,
-      attackerIndex = nextAttackerIndex,
+      mainAttackerIndex = nextAttackerIndex,
       defenderIndex = nextDefenderIndex,
       gamePhase = RoundPhaseImpl,
       lastEvent = Some(GameEvent.Draw)

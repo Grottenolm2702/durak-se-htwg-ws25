@@ -108,7 +108,7 @@ class TUI @Inject() (
     ) {
       val activePlayer =
         if (game.gamePhase == gamePhases.attackPhase) {
-          val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
+          val idx = game.currentAttackerIndex.getOrElse(game.mainAttackerIndex)
           Some(game.players(idx))
         } else if (game.gamePhase == gamePhases.defensePhase) {
           Some(game.players(game.defenderIndex))
@@ -229,12 +229,12 @@ class TUI @Inject() (
 
     val activePlayer =
       if (game.gamePhase == gamePhases.attackPhase) {
-        val idx = game.currentAttackerIndex.getOrElse(game.attackerIndex)
+        val idx = game.currentAttackerIndex.getOrElse(game.mainAttackerIndex)
         game.players(idx)
       } else if (game.gamePhase == gamePhases.defensePhase) {
         game.players(game.defenderIndex)
       } else {
-        game.players(game.attackerIndex)
+        game.players(game.mainAttackerIndex)
       }
 
     val playersStr = game.players
