@@ -5,10 +5,8 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
 import de.htwg.DurakApp.model.state._
 import de.htwg.DurakApp.model.state.impl._
-import de.htwg.DurakApp.model.impl._
+
 class PlayCardCommandSpec extends AnyWordSpec with Matchers {
-  val cardFactory = new CardFactoryImpl
-  val playerFactory = new PlayerFactoryImpl
   val gamePhases = new GamePhasesImpl(
     SetupPhaseImpl,
     AskPlayerCountPhaseImpl,
@@ -24,28 +22,20 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
   )
   val gameStateBuilderFactory =
     new de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl(
-      cardFactory,
       gamePhases
     )
-  val gameStateFactory =
-    new GameStateFactoryImpl(
-      gamePhases,
-      cardFactory,
-      playerFactory,
-      gameStateBuilderFactory
-    )
   "A PlayCardCommand" should {
-    val player1Card1 = cardFactory(Suit.Clubs, Rank.Six)
-    val player1Card2 = cardFactory(Suit.Clubs, Rank.Seven)
-    val player2Card = cardFactory(Suit.Hearts, Rank.Ace)
-    val player1ForAttack = playerFactory("P1", List(player1Card1, player1Card2))
-    val player2ForAttack = playerFactory("P2", List(player2Card))
-    val initialGameStateAttack = gameStateFactory(
+    val player1Card1 = Card(Suit.Clubs, Rank.Six)
+    val player1Card2 = Card(Suit.Clubs, Rank.Seven)
+    val player2Card = Card(Suit.Hearts, Rank.Ace)
+    val player1ForAttack = Player("P1", List(player1Card1, player1Card2))
+    val player2ForAttack = Player("P2", List(player2Card))
+    val initialGameStateAttack = TestHelper.GameState(
       players = List(player1ForAttack, player2ForAttack),
       deck = List.empty,
       table = Map.empty,
       discardPile = List.empty,
-      trumpCard = cardFactory(Suit.Hearts, Rank.Ace, true),
+      trumpCard = Card(Suit.Hearts, Rank.Ace, true),
       attackerIndex = 0,
       defenderIndex = 1,
       gamePhase = gamePhases.attackPhase,
@@ -58,16 +48,16 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       currentAttackerIndex = Some(0),
       lastAttackerIndex = None
     )
-    val attackCardOnTable = cardFactory(Suit.Spades, Rank.Eight)
-    val defendingCard = cardFactory(Suit.Spades, Rank.Nine)
-    val player1ForDefense = playerFactory("P1", List.empty)
-    val player2ForDefense = playerFactory("P2", List(defendingCard))
-    val initialGameStateDefense = gameStateFactory(
+    val attackCardOnTable = Card(Suit.Spades, Rank.Eight)
+    val defendingCard = Card(Suit.Spades, Rank.Nine)
+    val player1ForDefense = Player("P1", List.empty)
+    val player2ForDefense = Player("P2", List(defendingCard))
+    val initialGameStateDefense = TestHelper.GameState(
       players = List(player1ForDefense, player2ForDefense),
       deck = List.empty,
       table = Map(attackCardOnTable -> None),
       discardPile = List.empty,
-      trumpCard = cardFactory(Suit.Clubs, Rank.Ace, true),
+      trumpCard = Card(Suit.Clubs, Rank.Ace, true),
       attackerIndex = 0,
       defenderIndex = 1,
       gamePhase = gamePhases.defensePhase,
@@ -102,7 +92,7 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       resultState.lastEvent.get shouldBe a[GameEvent.Defend]
     }
     "return InvalidMove when player plays a card not in hand" in {
-      val wrongCard = cardFactory(Suit.Hearts, Rank.King)
+      val wrongCard = Card(Suit.Hearts, Rank.King)
       val command = PlayCardCommand(wrongCard, gamePhases)
       val resultState = command.execute(initialGameStateAttack)
       resultState.lastEvent.get shouldBe GameEvent.InvalidMove
@@ -121,14 +111,14 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       resultState.gamePhase shouldBe gamePhases.defensePhase
     }
     "use currentAttackerIndex when it is defined in attack phase" in {
-      val player3Card = cardFactory(Suit.Diamonds, Rank.Ten)
-      val player3 = playerFactory("P3", List(player3Card))
-      val gameState = gameStateFactory(
+      val player3Card = Card(Suit.Diamonds, Rank.Ten)
+      val player3 = Player("P3", List(player3Card))
+      val gameState = TestHelper.GameState(
         players = List(player1ForAttack, player2ForAttack, player3),
         deck = List.empty,
         table = Map.empty,
         discardPile = List.empty,
-        trumpCard = cardFactory(Suit.Hearts, Rank.Ace, true),
+        trumpCard = Card(Suit.Hearts, Rank.Ace, true),
         attackerIndex = 0,
         defenderIndex = 1,
         gamePhase = gamePhases.attackPhase,
@@ -156,14 +146,14 @@ class PlayCardCommandSpec extends AnyWordSpec with Matchers {
       resultState.table(attackCardOnTable) should contain(defendingCard)
     }
     "explicitly use gameState.attackerIndex when currentAttackerIndex is None" in {
-      val player1 = playerFactory("P1", List(player1Card1))
-      val player2 = playerFactory("P2", List(player2Card))
-      val gameState = gameStateFactory(
+      val player1 = Player("P1", List(player1Card1))
+      val player2 = Player("P2", List(player2Card))
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = Map.empty,
         discardPile = List.empty,
-        trumpCard = cardFactory(Suit.Hearts, Rank.Ace, true),
+        trumpCard = Card(Suit.Hearts, Rank.Ace, true),
         attackerIndex = 0,
         defenderIndex = 1,
         gamePhase = gamePhases.attackPhase,

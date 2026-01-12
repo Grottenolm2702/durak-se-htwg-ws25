@@ -9,27 +9,27 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
   "SetupPhaseImpl" should {
     "handle initial game setup correctly" in {
       val playerNames = List("Alice", "Bob")
-      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
+      val initialPlayers = playerNames.map(de.htwg.DurakApp.model.Player(_))
       val initialDeck = List(
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Six),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Seven),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Eight),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Nine),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Ten),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Jack),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Queen),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.King),
-        RealPhaseTestHelper.cardFactory(Suit.Clubs, Rank.Ace),
-        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Six),
-        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Seven),
-        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Eight),
-        RealPhaseTestHelper.cardFactory(Suit.Diamonds, Rank.Nine)
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Six),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Seven),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Eight),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Nine),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Ten),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Jack),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Queen),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.King),
+        de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Ace),
+        de.htwg.DurakApp.model.Card(Suit.Diamonds, Rank.Six),
+        de.htwg.DurakApp.model.Card(Suit.Diamonds, Rank.Seven),
+        de.htwg.DurakApp.model.Card(Suit.Diamonds, Rank.Eight),
+        de.htwg.DurakApp.model.Card(Suit.Diamonds, Rank.Nine)
       )
       val initialGameState = RealPhaseTestHelper.createGameStateWithRealPhases(
         players = initialPlayers,
         deck = initialDeck,
-        trumpCard = RealPhaseTestHelper
-          .cardFactory(Suit.Clubs, Rank.Six, isTrump = false),
+        trumpCard =
+          de.htwg.DurakApp.model.Card(Suit.Clubs, Rank.Six, isTrump = false),
         defenderIndex = 0,
         gamePhase = SetupPhaseImpl
       )
@@ -48,7 +48,7 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
     }
     "handle setup with a small deck where no cards are left after dealing" in {
       val playerNames = List("Alice", "Bob")
-      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
+      val initialPlayers = playerNames.map(de.htwg.DurakApp.model.Player(_))
       val initialDeck = List(
         TestHelper.Card(Suit.Clubs, Rank.Six),
         TestHelper.Card(Suit.Clubs, Rank.Seven),
@@ -88,7 +88,7 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
     }
     "handle deck where handSize is 0 due to more players than cards" in {
       val playerNames = List("P1", "P2", "P3", "P4", "P5", "P6")
-      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
+      val initialPlayers = playerNames.map(de.htwg.DurakApp.model.Player(_))
       val initialDeck = List(
         TestHelper.Card(Suit.Clubs, Rank.Six),
         TestHelper.Card(Suit.Clubs, Rank.Seven),
@@ -108,7 +108,7 @@ class SetupPhaseImplSpec extends AnyWordSpec with Matchers {
     }
     "handle deck with exactly 1 card per player" in {
       val playerNames = List("Alice", "Bob")
-      val initialPlayers = playerNames.map(RealPhaseTestHelper.playerFactory(_))
+      val initialPlayers = playerNames.map(de.htwg.DurakApp.model.Player(_))
       val initialDeck = List(
         TestHelper.Card(Suit.Clubs, Rank.Six),
         TestHelper.Card(Suit.Diamonds, Rank.Seven),

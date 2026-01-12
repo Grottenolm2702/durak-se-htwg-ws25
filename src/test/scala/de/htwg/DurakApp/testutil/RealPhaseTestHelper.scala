@@ -3,14 +3,15 @@ import de.htwg.DurakApp.model.{GameState, Card, Player}
 import de.htwg.DurakApp.model.state.{GamePhase, GameEvent}
 import de.htwg.DurakApp.model.state.impl.*
 object RealPhaseTestHelper:
-  val cardFactory = new StubCardFactory()
-  val playerFactory = new StubPlayerFactory()
   def createGameStateWithRealPhases(
-      players: List[Player] = List(playerFactory("P1"), playerFactory("P2")),
+      players: List[Player] = List(
+        de.htwg.DurakApp.model.Player("P1"),
+        de.htwg.DurakApp.model.Player("P2")
+      ),
       deck: List[Card] = List.empty,
       table: Map[Card, Option[Card]] = Map.empty,
       discardPile: List[Card] = List.empty,
-      trumpCard: Card = cardFactory(
+      trumpCard: Card = de.htwg.DurakApp.model.Card(
         de.htwg.DurakApp.model.Suit.Hearts,
         de.htwg.DurakApp.model.Rank.Six,
         isTrump = true
@@ -27,7 +28,7 @@ object RealPhaseTestHelper:
       currentAttackerIndex: Option[Int] = None,
       lastAttackerIndex: Option[Int] = None
   ): GameState =
-    new StubGameState(
+    de.htwg.DurakApp.model.GameState(
       players,
       deck,
       table,

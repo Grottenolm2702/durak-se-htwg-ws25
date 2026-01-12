@@ -100,11 +100,7 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       result.get._2 shouldBe state2
     }
     "setup game with valid parameters using stub" in {
-      val setup = new StubGameSetup(
-        TestHelper.cardFactory,
-        TestHelper.playerFactory,
-        TestHelper.gameStateFactory
-      )
+      val setup = new StubGameSetup()
       val result = setup.setupGame(List("Alice", "Bob"), 36)
       result shouldBe defined
       result.get.players should have size 2
@@ -112,20 +108,12 @@ class ControllerSpec extends AnyWordSpec with Matchers {
       result.get.players(1).name shouldBe "Bob"
     }
     "reject invalid player count in stub setup" in {
-      val setup = new StubGameSetup(
-        TestHelper.cardFactory,
-        TestHelper.playerFactory,
-        TestHelper.gameStateFactory
-      )
+      val setup = new StubGameSetup()
       setup.setupGame(List("Alice"), 36) shouldBe None
       setup.setupGame(List("A", "B", "C", "D", "E", "F", "G"), 36) shouldBe None
     }
     "reject invalid deck size in stub setup" in {
-      val setup = new StubGameSetup(
-        TestHelper.cardFactory,
-        TestHelper.playerFactory,
-        TestHelper.gameStateFactory
-      )
+      val setup = new StubGameSetup()
       setup.setupGame(List("Alice", "Bob"), 1) shouldBe None
       setup.setupGame(List("Alice", "Bob"), 37) shouldBe None
     }

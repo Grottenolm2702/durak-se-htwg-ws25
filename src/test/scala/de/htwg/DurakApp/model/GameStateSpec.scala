@@ -458,16 +458,100 @@ class GameStateSpec extends AnyWordSpec with Matchers {
       copied.lastAttackerIndex shouldBe originalState.lastAttackerIndex
     }
   }
-  "GameStateFactory" should {
-    val cardFactory = TestHelper.cardFactory
-    val playerFactory = TestHelper.playerFactory
-    val gameStateFactory = TestHelper.gameStateFactory
+  "GameState toBuilder" should {
+    "convert a GameState to a builder with all fields preserved" in {
+      val players = List(TestHelper.Player("Alice"), TestHelper.Player("Bob"))
+      val deck = List(TestHelper.Card(Suit.Hearts, Rank.Six))
+      val card1 = TestHelper.Card(Suit.Clubs, Rank.Seven)
+      val card2 = TestHelper.Card(Suit.Diamonds, Rank.Eight)
+      val table = Map(card1 -> Some(card2))
+      val discardPile = List(TestHelper.Card(Suit.Spades, Rank.Nine))
+      val trumpCard = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+
+      val originalState = TestHelper.GameState(
+        players = players,
+        deck = deck,
+        table = table,
+        discardPile = discardPile,
+        trumpCard = trumpCard,
+        attackerIndex = 1,
+        defenderIndex = 2,
+        gamePhase = StubGamePhases.attackPhase,
+        lastEvent = Some(GameEvent.Pass),
+        passedPlayers = Set(0, 1),
+        roundWinner = Some(1),
+        setupPlayerCount = Some(3),
+        setupPlayerNames = List("Alice", "Bob", "Charlie"),
+        setupDeckSize = Some(36),
+        currentAttackerIndex = Some(2),
+        lastAttackerIndex = Some(0)
+      )
+
+      val builder = TestHelper.gameStateBuilderFactory.create()
+      val rebuiltState = originalState.toBuilder(builder).build().get
+
+      rebuiltState.players shouldBe originalState.players
+      rebuiltState.deck shouldBe originalState.deck
+      rebuiltState.table shouldBe originalState.table
+      rebuiltState.discardPile shouldBe originalState.discardPile
+      rebuiltState.trumpCard shouldBe originalState.trumpCard
+      rebuiltState.attackerIndex shouldBe originalState.attackerIndex
+      rebuiltState.defenderIndex shouldBe originalState.defenderIndex
+      rebuiltState.gamePhase shouldBe originalState.gamePhase
+      rebuiltState.lastEvent shouldBe originalState.lastEvent
+      rebuiltState.passedPlayers shouldBe originalState.passedPlayers
+      rebuiltState.roundWinner shouldBe originalState.roundWinner
+      rebuiltState.setupPlayerCount shouldBe originalState.setupPlayerCount
+      rebuiltState.setupPlayerNames shouldBe originalState.setupPlayerNames
+      rebuiltState.setupDeckSize shouldBe originalState.setupDeckSize
+      rebuiltState.currentAttackerIndex shouldBe originalState.currentAttackerIndex
+      rebuiltState.lastAttackerIndex shouldBe originalState.lastAttackerIndex
+    }
+
+    "allow modifications after toBuilder" in {
+      val originalState = TestHelper.createTestGameState(
+        players = List(TestHelper.Player("Alice"), TestHelper.Player("Bob")),
+        currentAttackerIndex = Some(0),
+        lastAttackerIndex = Some(1)
+      )
+
+      val builder = TestHelper.gameStateBuilderFactory.create()
+      val modifiedState = originalState
+        .toBuilder(builder)
+        .withCurrentAttackerIndex(Some(1))
+        .withLastAttackerIndex(Some(0))
+        .build()
+        .get
+
+      modifiedState.currentAttackerIndex shouldBe Some(1)
+      modifiedState.lastAttackerIndex shouldBe Some(0)
+      modifiedState.players shouldBe originalState.players
+    }
+
+    "preserve None values for optional fields" in {
+      val originalState = TestHelper.createTestGameState(
+        currentAttackerIndex = None,
+        lastAttackerIndex = None,
+        roundWinner = None,
+        lastEvent = None
+      )
+
+      val builder = TestHelper.gameStateBuilderFactory.create()
+      val rebuiltState = originalState.toBuilder(builder).build().get
+
+      rebuiltState.currentAttackerIndex shouldBe None
+      rebuiltState.lastAttackerIndex shouldBe None
+      rebuiltState.roundWinner shouldBe None
+      rebuiltState.lastEvent shouldBe None
+    }
+  }
+  "GameState constructor" should {
     "create a game state with all fields" in {
-      val player1 = playerFactory("Alice")
-      val player2 = playerFactory("Bob")
+      val player1 = Player("Alice")
+      val player2 = Player("Bob")
       val players = List(player1, player2)
-      val trumpCard = cardFactory(Suit.Hearts, Rank.Six, isTrump = true)
-      val gameState = gameStateFactory(
+      val trumpCard = Card(Suit.Hearts, Rank.Six, isTrump = true)
+      val gameState = GameState(
         players = players,
         deck = List.empty,
         table = Map.empty,

@@ -5,12 +5,7 @@ import com.google.inject.Guice
 import com.google.inject.name.Names
 import de.htwg.DurakApp.controller.{Controller, GameSetup}
 import de.htwg.DurakApp.controller.command.CommandFactory
-import de.htwg.DurakApp.model.{
-  GameState,
-  CardFactory,
-  PlayerFactory,
-  GameStateFactory
-}
+import de.htwg.DurakApp.model.GameState
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 import de.htwg.DurakApp.model.state.{GamePhase, GamePhases}
 import de.htwg.DurakApp.util.{UndoRedoManager, UndoRedoManagerFactory}
@@ -18,18 +13,6 @@ import java.io.PrintStream
 class DurakModuleSpec extends AnyWordSpec with Matchers {
   "A DurakModule" should {
     val injector = Guice.createInjector(new DurakModule)
-    "provide CardFactory" in {
-      val cardFactory = injector.getInstance(classOf[CardFactory])
-      cardFactory should not be null
-    }
-    "provide PlayerFactory" in {
-      val playerFactory = injector.getInstance(classOf[PlayerFactory])
-      playerFactory should not be null
-    }
-    "provide GameStateFactory" in {
-      val gameStateFactory = injector.getInstance(classOf[GameStateFactory])
-      gameStateFactory should not be null
-    }
     "provide GameStateBuilderFactory" in {
       val builderFactory =
         injector.getInstance(classOf[GameStateBuilderFactory])
@@ -140,23 +123,6 @@ class DurakModuleSpec extends AnyWordSpec with Matchers {
       val printStream = injector.getInstance(classOf[PrintStream])
       printStream should not be null
       printStream shouldBe Console.out
-    }
-    "create functional CardFactory" in {
-      val cardFactory = injector.getInstance(classOf[CardFactory])
-      val card = cardFactory(
-        de.htwg.DurakApp.model.Suit.Hearts,
-        de.htwg.DurakApp.model.Rank.Ace
-      )
-      card should not be null
-      card.suit shouldBe de.htwg.DurakApp.model.Suit.Hearts
-      card.rank shouldBe de.htwg.DurakApp.model.Rank.Ace
-    }
-    "create functional PlayerFactory" in {
-      val playerFactory = injector.getInstance(classOf[PlayerFactory])
-      val player = playerFactory("TestPlayer", List.empty)
-      player should not be null
-      player.name shouldBe "TestPlayer"
-      player.hand shouldBe empty
     }
     "create functional GameSetup" in {
       val gameSetup = injector.getInstance(classOf[GameSetup])

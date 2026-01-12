@@ -1,12 +1,9 @@
 package de.htwg.DurakApp.controller.impl
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model.impl._
 import de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl
 import de.htwg.DurakApp.model.state.impl._
 class GameSetupImplSpec extends AnyWordSpec with Matchers {
-  val cardFactory = new CardFactoryImpl
-  val playerFactory = new PlayerFactoryImpl
   val gamePhases = new GamePhasesImpl(
     SetupPhaseImpl,
     AskPlayerCountPhaseImpl,
@@ -22,20 +19,9 @@ class GameSetupImplSpec extends AnyWordSpec with Matchers {
   )
   val gameStateBuilderFactory =
     new de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl(
-      cardFactory,
       gamePhases
     )
-  val gameStateFactory =
-    new GameStateFactoryImpl(
-      gamePhases,
-      cardFactory,
-      playerFactory,
-      gameStateBuilderFactory
-    )
   val gameSetup = new GameSetupImpl(
-    gameStateFactory,
-    playerFactory,
-    cardFactory,
     gamePhases,
     gameStateBuilderFactory
   )

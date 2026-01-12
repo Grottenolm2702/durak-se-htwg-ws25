@@ -11,11 +11,7 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Player, Suit, Rank}
 class GameStateBuilderSpec extends AnyWordSpec with Matchers {
   def createBuilder() = {
-    val stubGameStateFactory = new StubGameStateFactory()
-    GameStateBuilder(
-      new StubCardFactory(),
-      new StubGamePhasesImpl()
-    ).withGameStateFactory(stubGameStateFactory)
+    GameStateBuilder(new StubGamePhasesImpl())
   }
   "A GameStateBuilder" should {
     "create a default GameState correctly" in {
@@ -107,15 +103,65 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
       initialBuilder.build().get.players shouldBe empty
       builderWithPlayers.build().get.players should not be empty
     }
-    "return Failure when GameStateFactory is not set" in {
-      val builder = GameStateBuilder(
-        new StubCardFactory(),
-        new StubGamePhasesImpl()
-      )
-      val result = builder.build()
-      result.isFailure shouldBe true
-      result.failed.get shouldBe a[IllegalStateException]
-      result.failed.get.getMessage shouldBe "GameStateFactory must be set before building"
+    "set currentAttackerIndex correctly" in {
+      val builder = createBuilder()
+      val gameState = builder
+        .withCurrentAttackerIndex(Some(2))
+        .build()
+        .get
+      gameState.currentAttackerIndex shouldBe Some(2)
+    }
+    "set currentAttackerIndex to None" in {
+      val builder = createBuilder()
+      val gameState = builder
+        .withCurrentAttackerIndex(Some(1))
+        .withCurrentAttackerIndex(None)
+        .build()
+        .get
+      gameState.currentAttackerIndex shouldBe None
+    }
+    "set lastAttackerIndex correctly" in {
+      val builder = createBuilder()
+      val gameState = builder
+        .withLastAttackerIndex(Some(3))
+        .build()
+        .get
+      gameState.lastAttackerIndex shouldBe Some(3)
+    }
+    "set lastAttackerIndex to None" in {
+      val builder = createBuilder()
+      val gameState = builder
+        .withLastAttackerIndex(Some(2))
+        .withLastAttackerIndex(None)
+        .build()
+        .get
+      gameState.lastAttackerIndex shouldBe None
+    }
+    "set both currentAttackerIndex and lastAttackerIndex" in {
+      val builder = createBuilder()
+      val gameState = builder
+        .withCurrentAttackerIndex(Some(1))
+        .withLastAttackerIndex(Some(0))
+        .build()
+        .get
+      gameState.currentAttackerIndex shouldBe Some(1)
+      gameState.lastAttackerIndex shouldBe Some(0)
+    }
+    "maintain builder immutability with currentAttackerIndex" in {
+      val builder1 = createBuilder()
+      val builder2 = builder1.withCurrentAttackerIndex(Some(5))
+      val builder3 = builder1.withCurrentAttackerIndex(Some(10))
+
+      builder2.build().get.currentAttackerIndex shouldBe Some(5)
+      builder3.build().get.currentAttackerIndex shouldBe Some(10)
+    }
+    "maintain builder immutability with lastAttackerIndex" in {
+      val builder1 = createBuilder()
+      val builder2 = builder1.withLastAttackerIndex(Some(7))
+      val builder3 = builder1.withLastAttackerIndex(Some(14))
+
+      builder2.build().get.lastAttackerIndex shouldBe Some(7)
+      builder3.build().get.lastAttackerIndex shouldBe Some(14)
     }
   }
 }

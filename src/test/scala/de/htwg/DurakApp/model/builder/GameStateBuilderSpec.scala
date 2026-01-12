@@ -8,7 +8,6 @@ class GameStateBuilderSpec extends AnyWordSpec with Matchers {
     "build a default game state" in {
       val gameState = builderFactory
         .create()
-        .withGameStateFactory(TestHelper.gameStateFactory)
         .build()
         .get
       gameState.players shouldBe empty

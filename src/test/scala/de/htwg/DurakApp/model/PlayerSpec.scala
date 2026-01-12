@@ -99,80 +99,64 @@ class PlayerSpec extends AnyWordSpec with Matchers {
       copied.isDone shouldBe originalPlayer.isDone
     }
   }
-  "PlayerFactory" should {
-    val cardFactory = TestHelper.cardFactory
-    val playerFactory = TestHelper.playerFactory
+  "Player constructor" should {
     "create a player with name and empty hand" in {
-      val player = playerFactory("Alice")
+      val player = Player("Alice")
       player.name shouldBe "Alice"
       player.hand shouldBe List.empty
       player.isDone shouldBe false
     }
     "create a player with name and hand" in {
-      val hand = List(cardFactory(Suit.Hearts, Rank.Six))
-      val player = playerFactory("Bob", hand)
+      val hand = List(Card(Suit.Hearts, Rank.Six))
+      val player = Player("Bob", hand)
       player.name shouldBe "Bob"
       player.hand shouldBe hand
       player.isDone shouldBe false
     }
     "create a player with isDone status" in {
-      val player = playerFactory("Charlie", List.empty, isDone = true)
+      val player = Player("Charlie", List.empty, isDone = true)
       player.name shouldBe "Charlie"
       player.isDone shouldBe true
     }
-    "use PlayerFactoryImpl directly with default parameters" in {
-      val factory = new de.htwg.DurakApp.model.impl.PlayerFactoryImpl()
-      val player = factory("Alice")
+    "use default parameters" in {
+      val player = Player("Alice")
       player.name shouldBe "Alice"
       player.hand shouldBe List.empty
       player.isDone shouldBe false
     }
-    "use PlayerFactoryImpl directly with all parameters" in {
-      val factory = new de.htwg.DurakApp.model.impl.PlayerFactoryImpl()
-      val card = de.htwg.DurakApp.model.impl
-        .CardImpl(Suit.Hearts, Rank.Ace, isTrump = false)
-      val player = factory("Bob", List(card), isDone = true)
+    "use all parameters" in {
+      val card = Card(Suit.Hearts, Rank.Ace, isTrump = false)
+      val player = Player("Bob", List(card), isDone = true)
       player.name shouldBe "Bob"
       player.hand shouldBe List(card)
       player.isDone shouldBe true
     }
-    "test trait default parameters through PlayerFactory interface" in {
-      val factory: PlayerFactory =
-        new de.htwg.DurakApp.model.impl.PlayerFactoryImpl()
-      val player1 = factory("Test1")
-      player1.hand shouldBe List.empty
-      player1.isDone shouldBe false
-      val card = de.htwg.DurakApp.model.impl
-        .CardImpl(Suit.Clubs, Rank.King, isTrump = false)
-      val player2 = factory("Test2", List(card))
-      player2.isDone shouldBe false
-    }
     "use default hand=List.empty when not specified" in {
-      val player = playerFactory("Alice")
+      val player = Player("Alice")
       player.hand shouldBe List.empty
     }
     "use default isDone=false when not specified" in {
-      val player = playerFactory("Bob")
+      val player = Player("Bob")
       player.isDone shouldBe false
     }
     "use default hand and isDone when only name specified" in {
-      val player = playerFactory("Charlie")
+      val player = Player("Charlie")
       player.name shouldBe "Charlie"
       player.hand shouldBe List.empty
       player.isDone shouldBe false
     }
     "respect explicit hand parameter" in {
       val hand = List(TestHelper.Card(Suit.Hearts, Rank.Ace))
-      val player = playerFactory("David", hand)
+      val player = Player("David", hand)
       player.hand shouldBe hand
     }
     "respect explicit isDone parameter" in {
-      val player = playerFactory("Eve", List.empty, isDone = true)
+      val player = Player("Eve", List.empty, isDone = true)
       player.isDone shouldBe true
     }
     "respect all explicit parameters" in {
       val hand = List(TestHelper.Card(Suit.Clubs, Rank.King))
-      val player = playerFactory("Frank", hand, isDone = true)
+      val player = Player("Frank", hand, isDone = true)
       player.name shouldBe "Frank"
       player.hand shouldBe hand
       player.isDone shouldBe true

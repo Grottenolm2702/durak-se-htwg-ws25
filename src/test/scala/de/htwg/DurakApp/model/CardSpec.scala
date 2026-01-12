@@ -91,30 +91,29 @@ class CardSpec extends AnyWordSpec with Matchers {
       copied3.isTrump shouldBe false
     }
   }
-  "CardFactory" should {
-    val cardFactory = TestHelper.cardFactory
+  "Card constructor" should {
     "create a card with suit and rank" in {
-      val card = cardFactory(Suit.Hearts, Rank.Six)
+      val card = Card(Suit.Hearts, Rank.Six)
       card.suit shouldBe Suit.Hearts
       card.rank shouldBe Rank.Six
       card.isTrump shouldBe false
     }
     "create a trump card" in {
-      val card = cardFactory(Suit.Diamonds, Rank.Ace, isTrump = true)
+      val card = Card(Suit.Diamonds, Rank.Ace, isTrump = true)
       card.suit shouldBe Suit.Diamonds
       card.rank shouldBe Rank.Ace
       card.isTrump shouldBe true
     }
     "use default isTrump=false when not specified" in {
-      val card = cardFactory(Suit.Hearts, Rank.Ace)
+      val card = Card(Suit.Hearts, Rank.Ace)
       card.isTrump shouldBe false
     }
     "respect explicit isTrump=true" in {
-      val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = true)
+      val card = Card(Suit.Hearts, Rank.Ace, isTrump = true)
       card.isTrump shouldBe true
     }
     "respect explicit isTrump=false" in {
-      val card = cardFactory(Suit.Hearts, Rank.Ace, isTrump = false)
+      val card = Card(Suit.Hearts, Rank.Ace, isTrump = false)
       card.isTrump shouldBe false
     }
   }

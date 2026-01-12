@@ -5,10 +5,8 @@ import org.scalatest.matchers.should.Matchers
 import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
 import de.htwg.DurakApp.model.state.{GameEvent}
 import de.htwg.DurakApp.model.state.impl._
-import de.htwg.DurakApp.model.impl._
+
 class PassCommandSpec extends AnyWordSpec with Matchers {
-  val cardFactory = new CardFactoryImpl
-  val playerFactory = new PlayerFactoryImpl
   val gamePhases = new GamePhasesImpl(
     SetupPhaseImpl,
     AskPlayerCountPhaseImpl,
@@ -24,25 +22,17 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
   )
   val gameStateBuilderFactory =
     new de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl(
-      cardFactory,
       gamePhases
-    )
-  val gameStateFactory =
-    new GameStateFactoryImpl(
-      gamePhases,
-      cardFactory,
-      playerFactory,
-      gameStateBuilderFactory
     )
   "A PassCommand" should {
     "execute pass in attack phase with currentAttackerIndex" in {
-      val card1 = cardFactory(Suit.Hearts, Rank.Six)
-      val card2 = cardFactory(Suit.Diamonds, Rank.Seven)
-      val player1 = playerFactory("Alice", List(card1))
-      val player2 = playerFactory("Bob", List(card2))
-      val trumpCard = cardFactory(Suit.Clubs, Rank.Ace, isTrump = true)
+      val card1 = Card(Suit.Hearts, Rank.Six)
+      val card2 = Card(Suit.Diamonds, Rank.Seven)
+      val player1 = Player("Alice", List(card1))
+      val player2 = Player("Bob", List(card2))
+      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
-      val gameState = gameStateFactory(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -65,14 +55,14 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
       result.lastEvent should not be None
     }
     "execute pass in defense phase using defenderIndex" in {
-      val card1 = cardFactory(Suit.Hearts, Rank.Six)
-      val card2 = cardFactory(Suit.Diamonds, Rank.Seven)
-      val player1 = playerFactory("Alice", List.empty)
-      val player2 = playerFactory("Bob", List(card2))
-      val trumpCard = cardFactory(Suit.Clubs, Rank.Ace, isTrump = true)
-      val attackCard = cardFactory(Suit.Hearts, Rank.Six)
+      val card1 = Card(Suit.Hearts, Rank.Six)
+      val card2 = Card(Suit.Diamonds, Rank.Seven)
+      val player1 = Player("Alice", List.empty)
+      val player2 = Player("Bob", List(card2))
+      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val attackCard = Card(Suit.Hearts, Rank.Six)
       val table = Map(attackCard -> None)
-      val gameState = gameStateFactory(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,
@@ -95,13 +85,13 @@ class PassCommandSpec extends AnyWordSpec with Matchers {
       result.lastEvent should not be None
     }
     "use default currentAttackerIndex when None" in {
-      val card1 = cardFactory(Suit.Hearts, Rank.Six)
-      val card2 = cardFactory(Suit.Diamonds, Rank.Seven)
-      val player1 = playerFactory("Alice", List(card1))
-      val player2 = playerFactory("Bob", List(card2))
-      val trumpCard = cardFactory(Suit.Clubs, Rank.Ace, isTrump = true)
+      val card1 = Card(Suit.Hearts, Rank.Six)
+      val card2 = Card(Suit.Diamonds, Rank.Seven)
+      val player1 = Player("Alice", List(card1))
+      val player2 = Player("Bob", List(card2))
+      val trumpCard = Card(Suit.Clubs, Rank.Ace, isTrump = true)
       val table = Map(card1 -> None)
-      val gameState = gameStateFactory(
+      val gameState = TestHelper.GameState(
         players = List(player1, player2),
         deck = List.empty,
         table = table,

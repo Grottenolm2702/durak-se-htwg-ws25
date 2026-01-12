@@ -9,24 +9,15 @@ import de.htwg.DurakApp.controller.command.{CommandFactory, PlayCardCommand}
 import de.htwg.DurakApp.util.UndoRedoManagerFactory
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 class ControllerImplSpec extends AnyWordSpec with Matchers {
-  val cardFactory = new StubCardFactory()
-  val playerFactory = new StubPlayerFactory()
-  val gameStateFactory = new StubGameStateFactory()
   val gameStateBuilderFactory: GameStateBuilderFactory =
-    new StubGameStateBuilderFactory(
-      cardFactory,
-      playerFactory,
-      gameStateFactory
-    )
+    new StubGameStateBuilderFactory()
   val gameSetup: GameSetup =
-    new StubGameSetup(cardFactory, playerFactory, gameStateFactory)
+    new StubGameSetup()
   val undoRedoManagerFactory: UndoRedoManagerFactory =
     new StubUndoRedoManagerFactory()
   val commandFactory: CommandFactory = new StubCommandFactory()
   val stubGamePhases = new StubGamePhasesImpl()
-  def createBuilder() = gameStateBuilderFactory
-    .create()
-    .withGameStateFactory(gameStateFactory)
+  def createBuilder() = gameStateBuilderFactory.create()
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {
       val initialGameState = createBuilder()

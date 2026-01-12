@@ -1,15 +1,7 @@
 package de.htwg.DurakApp.controller.impl
 
 import de.htwg.DurakApp.controller.GameSetup
-import de.htwg.DurakApp.model.{
-  Card,
-  CardFactory,
-  PlayerFactory,
-  GameState,
-  GameStateFactory,
-  Rank,
-  Suit
-}
+import de.htwg.DurakApp.model.{Card, Player, GameState, Rank, Suit}
 import de.htwg.DurakApp.model.builder.GameStateBuilderFactory
 import de.htwg.DurakApp.model.state.GamePhases
 import com.google.inject.Inject
@@ -17,9 +9,6 @@ import com.google.inject.Inject
 import scala.util.Random
 
 class GameSetupImpl @Inject() (
-    gameStateFactory: GameStateFactory,
-    playerFactory: PlayerFactory,
-    cardFactory: CardFactory,
     gamePhases: GamePhases,
     gameStateBuilderFactory: GameStateBuilderFactory
 ) extends GameSetup {
@@ -31,7 +20,7 @@ class GameSetupImpl @Inject() (
     val fullStandardDeck = for {
       suit <- suits
       rank <- standardRanks
-    } yield cardFactory(suit, rank)
+    } yield Card(suit, rank)
 
     val effectiveDeckSize = requestedDeckSize.min(fullStandardDeck.length)
 
@@ -51,11 +40,10 @@ class GameSetupImpl @Inject() (
     }
 
     val playersWithEmptyHands =
-      playerNames.map(name => playerFactory(name, List.empty))
+      playerNames.map(name => Player(name, List.empty))
 
     gameStateBuilderFactory
       .create()
-      .withGameStateFactory(gameStateFactory)
       .withPlayers(playersWithEmptyHands)
       .withDeck(shuffledDeck)
       .withTable(Map.empty)
