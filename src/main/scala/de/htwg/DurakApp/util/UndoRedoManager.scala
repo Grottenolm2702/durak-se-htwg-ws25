@@ -23,3 +23,7 @@ trait UndoRedoManager:
   */
 trait UndoRedoManagerFactory:
   def create(): UndoRedoManager
+  def create(
+      undoStack: List[(GameCommand, GameState)],
+      redoStack: List[(GameCommand, GameState)]
+  ): UndoRedoManager

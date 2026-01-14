@@ -288,16 +288,21 @@ class ControllerImpl @Inject() (
   def loadGame(): GameState = {
     fileIO.load() match {
       case scala.util.Success(loadedState) =>
-        var newManager = undoRedoManagerFactory.create()
-
-        loadedState.undoStack.foreach { state =>
-          newManager = newManager.save(
-            commandFactory.phaseChange(),
-            state
-          )
+        // Restore undoStack
+        val undoStackWithCommands = loadedState.undoStack.map { state =>
+          (commandFactory.phaseChange(), state)
         }
+        
+        // Restore redoStack
+        val redoStackWithCommands = loadedState.redoStack.map { state =>
+          (commandFactory.phaseChange(), state)
+        }
+        
+        undoRedoManager = undoRedoManagerFactory.create(
+          undoStack = undoStackWithCommands.reverse,
+          redoStack = redoStackWithCommands
+        )
 
-        undoRedoManager = newManager
         _gameState = loadedState.copy(
           lastEvent = Some(GameEvent.GameLoaded),
           undoStack = List.empty,

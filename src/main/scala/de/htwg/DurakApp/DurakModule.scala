@@ -19,7 +19,7 @@ import de.htwg.DurakApp.util.{
   UndoRedoManagerFactory,
   FileIOInterface
 }
-import de.htwg.DurakApp.util.impl.FileIOXml
+import de.htwg.DurakApp.util.impl.{FileIOXml, FileIOJson}
 
 class DurakModule extends AbstractModule with ScalaModule:
   override def configure(): Unit =
@@ -49,7 +49,8 @@ class DurakModule extends AbstractModule with ScalaModule:
   @Provides
   @Singleton
   def provideFileIO(gamePhases: GamePhases): FileIOInterface =
-    new FileIOXml("gamestate.xml", gamePhases)
+    new FileIOJson("gamestate.json", gamePhases)
+    // new FileIOXml("gamestate.xml", gamePhases)
 
   @Provides
   @Singleton
