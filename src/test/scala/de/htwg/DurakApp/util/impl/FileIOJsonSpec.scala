@@ -152,7 +152,11 @@ class FileIOJsonSpec extends AnyWordSpec with Matchers:
         GameEvent.GameSetupComplete,
         GameEvent.SetupError,
         GameEvent.AskPlayAgain,
-        GameEvent.ExitApplication
+        GameEvent.ExitApplication,
+        GameEvent.GameSaved,
+        GameEvent.GameLoaded,
+        GameEvent.SaveError,
+        GameEvent.LoadError
       )
 
       events.foreach { event =>
@@ -238,6 +242,189 @@ class FileIOJsonSpec extends AnyWordSpec with Matchers:
 
       val handledState = loadedState.gamePhase.handle(loadedState)
       handledState shouldBe loadedState
+    }
+
+    "test GameState with passedPlayers" in {
+      val stateWithPassed = testGameState.copy(passedPlayers = Set(0, 1))
+      fileIO.save(stateWithPassed)
+      val loadedState = fileIO.load().get
+
+      loadedState.passedPlayers shouldBe Set(0, 1)
+    }
+
+    "test GameState with discardPile" in {
+      val stateWithDiscard =
+        testGameState.copy(discardPile = List(card1, card2, card1))
+      fileIO.save(stateWithDiscard)
+      val loadedState = fileIO.load().get
+
+      loadedState.discardPile.size shouldBe 3
+    }
+
+    "test all Suit types" in {
+      val suits = List(Suit.Hearts, Suit.Diamonds, Suit.Clubs, Suit.Spades)
+      suits.foreach { suit =>
+        val card = Card(suit, Rank.Ace, isTrump = false)
+        val state = testGameState.copy(trumpCard = card)
+        fileIO.save(state)
+        val loadedState = fileIO.load().get
+        loadedState.trumpCard.suit shouldBe suit
+      }
+    }
+
+    "test all Rank types" in {
+      val ranks = List(
+        Rank.Six,
+        Rank.Seven,
+        Rank.Eight,
+        Rank.Nine,
+        Rank.Ten,
+        Rank.Jack,
+        Rank.Queen,
+        Rank.King,
+        Rank.Ace
+      )
+      ranks.foreach { rank =>
+        val card = Card(Suit.Hearts, rank, isTrump = false)
+        val state = testGameState.copy(trumpCard = card)
+        fileIO.save(state)
+        val loadedState = fileIO.load().get
+        loadedState.trumpCard.rank shouldBe rank
+      }
+    }
+
+    "test roundWinner field" in {
+      val stateWithWinner = testGameState.copy(roundWinner = Some(1))
+      fileIO.save(stateWithWinner)
+      val loadedState = fileIO.load().get
+      loadedState.roundWinner shouldBe Some(1)
+    }
+
+    "test lastAttackerIndex field" in {
+      val stateWithLastAttacker =
+        testGameState.copy(lastAttackerIndex = Some(1))
+      fileIO.save(stateWithLastAttacker)
+      val loadedState = fileIO.load().get
+      loadedState.lastAttackerIndex shouldBe Some(1)
+    }
+
+    "test undoStack serialization" in {
+      val state1 = testGameState.copy(mainAttackerIndex = 0)
+      val state2 = testGameState.copy(mainAttackerIndex = 1)
+      val stateWithUndo = testGameState.copy(undoStack = List(state1, state2))
+
+      fileIO.save(stateWithUndo)
+      val loadedState = fileIO.load().get
+
+      loadedState.undoStack.size shouldBe 2
+      loadedState.undoStack(0).mainAttackerIndex shouldBe 0
+      loadedState.undoStack(1).mainAttackerIndex shouldBe 1
+    }
+
+    "test redoStack serialization" in {
+      val state1 = testGameState.copy(defenderIndex = 0)
+      val state2 = testGameState.copy(defenderIndex = 1)
+      val stateWithRedo = testGameState.copy(redoStack = List(state1, state2))
+
+      fileIO.save(stateWithRedo)
+      val loadedState = fileIO.load().get
+
+      loadedState.redoStack.size shouldBe 2
+      loadedState.redoStack(0).defenderIndex shouldBe 0
+      loadedState.redoStack(1).defenderIndex shouldBe 1
+    }
+
+    "test empty undoStack and redoStack" in {
+      val stateWithEmpty =
+        testGameState.copy(undoStack = List.empty, redoStack = List.empty)
+
+      fileIO.save(stateWithEmpty)
+      val loadedState = fileIO.load().get
+
+      loadedState.undoStack shouldBe empty
+      loadedState.redoStack shouldBe empty
+    }
+
+    "test all GamePhase types" in {
+      val phases = List(
+        ("SetupPhase", stubGamePhases.setupPhase),
+        ("AskPlayerCountPhase", stubGamePhases.askPlayerCountPhase),
+        ("AskPlayerNamesPhase", stubGamePhases.askPlayerNamesPhase),
+        ("AskDeckSizePhase", stubGamePhases.askDeckSizePhase),
+        ("GameStartPhase", stubGamePhases.gameStartPhase),
+        ("AttackPhase", stubGamePhases.attackPhase),
+        ("DefensePhase", stubGamePhases.defensePhase),
+        ("DrawPhase", stubGamePhases.drawPhase),
+        ("RoundPhase", stubGamePhases.roundPhase),
+        ("EndPhase", stubGamePhases.endPhase),
+        ("AskPlayAgainPhase", stubGamePhases.askPlayAgainPhase)
+      )
+
+      phases.foreach { case (phaseName, phase) =>
+        val stateWithPhase = testGameState.copy(gamePhase = phase)
+        fileIO.save(stateWithPhase)
+        val loadedState = fileIO.load().get
+        loadedState.gamePhase should not be null
+      }
+    }
+
+    "test GamePhase with 'Impl' suffix variants" in {
+      import play.api.libs.json.*
+
+      val phaseVariants = List(
+        "SetupPhaseImpl",
+        "AskPlayerCountPhaseImpl",
+        "AskPlayerNamesPhaseImpl",
+        "AskDeckSizePhaseImpl",
+        "GameStartPhaseImpl",
+        "AttackPhaseImpl",
+        "DefensePhaseImpl",
+        "DrawPhaseImpl",
+        "RoundPhaseImpl",
+        "EndPhaseImpl",
+        "AskPlayAgainPhaseImpl"
+      )
+
+      phaseVariants.foreach { phaseImpl =>
+        fileIO.save(testGameState)
+
+        val source = scala.io.Source.fromFile(testFilePath)
+        val content =
+          try source.mkString
+          finally source.close()
+
+        val json = Json.parse(content).as[JsObject]
+        val modifiedJson = json + ("gamePhase" -> JsString(phaseImpl))
+
+        val pw = new PrintWriter(new File(testFilePath))
+        pw.write(Json.prettyPrint(modifiedJson))
+        pw.close()
+
+        val loadedState = fileIO.load().get
+        loadedState.gamePhase should not be null
+      }
+    }
+
+    "test loading JSON without undoStack and redoStack fields" in {
+      import play.api.libs.json.*
+
+      fileIO.save(testGameState)
+
+      val source = scala.io.Source.fromFile(testFilePath)
+      val content =
+        try source.mkString
+        finally source.close()
+
+      val json = Json.parse(content).as[JsObject]
+      val jsonWithoutStacks = json - "undoStack" - "redoStack"
+
+      val pw = new PrintWriter(new File(testFilePath))
+      pw.write(Json.prettyPrint(jsonWithoutStacks))
+      pw.close()
+
+      val loadedState = fileIO.load().get
+      loadedState.undoStack shouldBe empty
+      loadedState.redoStack shouldBe empty
     }
 
     "cleanup test file" in {

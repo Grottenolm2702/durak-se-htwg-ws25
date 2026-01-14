@@ -152,7 +152,11 @@ class FileIOXmlSpec extends AnyWordSpec with Matchers:
         GameEvent.GameSetupComplete,
         GameEvent.SetupError,
         GameEvent.AskPlayAgain,
-        GameEvent.ExitApplication
+        GameEvent.ExitApplication,
+        GameEvent.GameSaved,
+        GameEvent.GameLoaded,
+        GameEvent.SaveError,
+        GameEvent.LoadError
       )
 
       events.foreach { event =>
@@ -218,6 +222,133 @@ class FileIOXmlSpec extends AnyWordSpec with Matchers:
 
       val handledState = loadedState.gamePhase.handle(loadedState)
       handledState shouldBe loadedState
+    }
+
+    "handle all GamePhase types" in {
+      import java.io.{File, PrintWriter}
+      import scala.xml.XML
+
+      val phaseTestCases = List(
+        "SetupPhase",
+        "SetupPhaseImpl",
+        "AskPlayerCountPhase",
+        "AskPlayerCountPhaseImpl",
+        "AskPlayerNamesPhase",
+        "AskPlayerNamesPhaseImpl",
+        "AskDeckSizePhase",
+        "AskDeckSizePhaseImpl",
+        "GameStartPhase",
+        "GameStartPhaseImpl",
+        "AttackPhase",
+        "AttackPhaseImpl",
+        "DefensePhase",
+        "DefensePhaseImpl",
+        "DrawPhase",
+        "DrawPhaseImpl",
+        "RoundPhase",
+        "RoundPhaseImpl",
+        "EndPhase",
+        "EndPhaseImpl",
+        "AskPlayAgainPhase",
+        "AskPlayAgainPhaseImpl"
+      )
+
+      phaseTestCases.foreach { phaseName =>
+        val filename = s"test_phase_$phaseName.xml"
+        val testFileIO = new FileIOXml(filename, stubGamePhases)
+
+        // Create minimal XML with the phase name
+        val xmlContent = s"""<?xml version="1.0" encoding="UTF-8"?>
+<gameState>
+  <players>
+    <player><name>Alice</name><hand></hand><isDone>false</isDone></player>
+  </players>
+  <mainAttackerIndex>0</mainAttackerIndex>
+  <defenderIndex>0</defenderIndex>
+  <currentAttackerIndex></currentAttackerIndex>
+  <lastAttackerIndex></lastAttackerIndex>
+  <passedPlayers></passedPlayers>
+  <roundWinner></roundWinner>
+  <deck></deck>
+  <table></table>
+  <discardPile></discardPile>
+  <trumpCard><card><suit>Hearts</suit><rank>Ace</rank><isTrump>true</isTrump></card></trumpCard>
+  <gamePhase>$phaseName</gamePhase>
+  <lastEvent><none/></lastEvent>
+  <setupPlayerCount></setupPlayerCount>
+  <setupPlayerNames></setupPlayerNames>
+  <setupDeckSize></setupDeckSize>
+  <undoStack></undoStack>
+  <redoStack></redoStack>
+</gameState>"""
+
+        val writer = new PrintWriter(filename)
+        writer.write(xmlContent)
+        writer.close()
+
+        // Now load and verify
+        val loadedState = testFileIO.load().get
+        loadedState.gamePhase should not be null
+
+        // Cleanup
+        new File(filename).delete()
+      }
+    }
+
+    "handle GameState with undo and redo stacks" in {
+      val nestedGameState1 = testGameState.copy(
+        mainAttackerIndex = 1,
+        undoStack = List.empty,
+        redoStack = List.empty
+      )
+      val nestedGameState2 = testGameState.copy(
+        defenderIndex = 0,
+        undoStack = List.empty,
+        redoStack = List.empty
+      )
+
+      val gameStateWithStacks = testGameState.copy(
+        undoStack = List(nestedGameState1, nestedGameState2),
+        redoStack = List(nestedGameState2, nestedGameState1)
+      )
+
+      fileIO.save(gameStateWithStacks)
+      val loadedState = fileIO.load().get
+
+      loadedState.undoStack.size shouldBe 2
+      loadedState.undoStack(0).mainAttackerIndex shouldBe 1
+      loadedState.undoStack(1).defenderIndex shouldBe 0
+
+      loadedState.redoStack.size shouldBe 2
+      loadedState.redoStack(0).defenderIndex shouldBe 0
+      loadedState.redoStack(1).mainAttackerIndex shouldBe 1
+    }
+
+    "handle nested undo/redo stacks recursively" in {
+      val deepNestedState = testGameState.copy(
+        mainAttackerIndex = 2,
+        undoStack = List.empty,
+        redoStack = List.empty
+      )
+
+      val midNestedState = testGameState.copy(
+        mainAttackerIndex = 1,
+        undoStack = List(deepNestedState),
+        redoStack = List.empty
+      )
+
+      val topGameState = testGameState.copy(
+        mainAttackerIndex = 0,
+        undoStack = List(midNestedState),
+        redoStack = List.empty
+      )
+
+      fileIO.save(topGameState)
+      val loadedState = fileIO.load().get
+
+      loadedState.undoStack.size shouldBe 1
+      loadedState.undoStack(0).undoStack.size shouldBe 1
+      loadedState.undoStack(0).undoStack(0).mainAttackerIndex shouldBe 2
     }
 
     "return Failure when loading non-existent file" in {

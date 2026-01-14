@@ -11,6 +11,17 @@ class FileIOHandlerSpec extends AnyWordSpec with Matchers {
   def createBuilder() = gameStateBuilderFactory.create()
 
   "FileIOHandler" should {
+    "use None as default parameter when not specified" in {
+      val handler = new FileIOHandler()
+      val gameState = createBuilder().build().get
+
+      val action = handler.handleRequest("save", gameState)
+      action shouldBe SaveGameAction
+
+      val unknownAction = handler.handleRequest("unknown", gameState)
+      unknownAction shouldBe InvalidAction
+    }
+
     "handle 'save' command" in {
       val handler = new FileIOHandler(None)
       val gameState = createBuilder().build().get

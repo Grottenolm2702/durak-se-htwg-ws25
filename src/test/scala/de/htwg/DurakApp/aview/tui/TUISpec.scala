@@ -968,5 +968,67 @@ class TUISpec extends AnyWordSpec with Matchers {
       val output = outputCapture.toString
       output should include("Spiel beendet.")
     }
+    "gameLoop should handle SaveGameAction and call processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      class SaveTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.GameSaved))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new SaveTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("save\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions should contain(
+        de.htwg.DurakApp.controller.SaveGameAction
+      )
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should handle LoadGameAction and call processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      class LoadTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.GameLoaded))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new LoadTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("load\nquit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions should contain(
+        de.htwg.DurakApp.controller.LoadGameAction
+      )
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
   }
 }

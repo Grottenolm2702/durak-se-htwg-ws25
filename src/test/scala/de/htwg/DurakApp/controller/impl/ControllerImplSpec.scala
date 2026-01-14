@@ -879,4 +879,69 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       result.lastEvent shouldBe Some(GameEvent.Draw)
     }
   }
+
+  "ControllerImpl with loadGame" should {
+    "load game state with undo stack" in {
+      val card1 = Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = Player("Alice", List(card1), isDone = false)
+
+      val state1 = createBuilder()
+        .withPlayers(List(player1))
+        .withGamePhase(StubGamePhases.attackPhase)
+        .build()
+        .get
+
+      val state2 = state1.copy(mainAttackerIndex = 1)
+
+      val loadedState = state1.copy(
+        undoStack = List(state1, state2),
+        redoStack = List.empty
+      )
+
+      val fileIOWithStack = new StubFileIO() {
+        override def load(): scala.util.Try[GameState] =
+          scala.util.Success(loadedState)
+      }
+
+      val initialGameState = createBuilder()
+        .withGamePhase(StubGamePhases.attackPhase)
+        .build()
+        .get
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases,
+        fileIOWithStack
+      )
+
+      val result = controller.loadGame()
+      result.lastEvent shouldBe Some(GameEvent.GameLoaded)
+      result.undoStack shouldBe empty
+      result.redoStack shouldBe empty
+    }
+
+    "load game state without undo stack" in {
+      val initialGameState = createBuilder()
+        .withGamePhase(StubGamePhases.attackPhase)
+        .build()
+        .get
+      val undoRedoManager = undoRedoManagerFactory.create()
+      val controller = ControllerImpl(
+        initialGameState,
+        undoRedoManager,
+        commandFactory,
+        gameSetup,
+        undoRedoManagerFactory,
+        stubGamePhases,
+        stubFileIO
+      )
+
+      val result = controller.loadGame()
+      result.lastEvent shouldBe Some(GameEvent.GameLoaded)
+    }
+  }
 }

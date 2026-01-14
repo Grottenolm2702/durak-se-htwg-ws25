@@ -376,5 +376,57 @@ class ControllerFileIOSpec extends AnyWordSpec with Matchers {
 
       result.lastEvent shouldBe Some(GameEvent.LoadError)
     }
+
+    "restore redo stack after load" in {
+      val trumpCard = Card(Suit.Hearts, Rank.Six, isTrump = true)
+      val player1 = Player("Alice", List.empty, isDone = false)
+      val player2 = Player("Bob", List.empty, isDone = false)
+      
+      val gameState1 = createBuilder()
+        .withPlayers(List(player1, player2))
+        .withTrumpCard(trumpCard)
+        .withMainAttackerIndex(0)
+        .withGamePhase(StubGamePhases.attackPhase)
+        .build()
+        .get
+      
+      val gameState2 = gameState1.copy(mainAttackerIndex = 1)
+      val gameState3 = gameState1.copy(mainAttackerIndex = 2)
+      
+      val stateWithStacks = gameState1.copy(
+        undoStack = List(gameState2),
+        redoStack = List(gameState3)
+      )
+      
+      val mockFileIO = new MockFileIO()
+      mockFileIO.loadResult = Success(stateWithStacks)
+      
+      // Use real UndoRedoManagerFactory to test the actual behavior
+      import de.htwg.DurakApp.util.impl.UndoRedoManagerFactoryImpl
+      val realFactory = new UndoRedoManagerFactoryImpl()
+      
+      val controller = new ControllerImpl(
+        gameState1,
+        undoRedoManager = realFactory.create(),
+        commandFactory,
+        gameSetup,
+        realFactory,
+        stubGamePhases,
+        mockFileIO
+      )
+      
+      val loadedState = controller.loadGame()
+      
+      // Verify state was loaded
+      loadedState.lastEvent shouldBe Some(GameEvent.GameLoaded)
+      
+      // Perform undo - should work because undoStack was restored
+      val undoResult = controller.undo()
+      undoResult shouldBe defined
+      
+      // Perform redo - should now work (this was broken before the fix)
+      val redoResult = controller.redo()
+      redoResult shouldBe defined
+    }
   }
 }
