@@ -14,7 +14,12 @@ import de.htwg.DurakApp.model.builder.impl.GameStateBuilderFactoryImpl
 import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.model.state.impl.*
 
-import de.htwg.DurakApp.util.{UndoRedoManager, UndoRedoManagerFactory}
+import de.htwg.DurakApp.util.{
+  UndoRedoManager,
+  UndoRedoManagerFactory,
+  FileIOInterface
+}
+import de.htwg.DurakApp.util.impl.FileIOXml
 
 class DurakModule extends AbstractModule with ScalaModule:
   override def configure(): Unit =
@@ -40,6 +45,8 @@ class DurakModule extends AbstractModule with ScalaModule:
     bind[UndoRedoManagerFactory].to[util.impl.UndoRedoManagerFactoryImpl]
 
     bind[Controller].to[controller.impl.ControllerImpl].in(classOf[Singleton])
+
+    bind[FileIOInterface].toInstance(new FileIOXml("gamestate.xml"))
 
   @Provides
   @Singleton

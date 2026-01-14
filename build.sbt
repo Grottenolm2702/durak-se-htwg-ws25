@@ -12,5 +12,7 @@ lazy val root = project
     libraryDependencies += "org.scalafx" %% "scalafx" % "23.0.1-R34",
     libraryDependencies += "com.google.inject" % "guice" % "7.0.0",
     libraryDependencies += "net.codingwell" %% "scala-guice" % "7.0.0",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.3.0",
+    libraryDependencies += "org.playframework" %% "play-json" % "3.0.4",
     coverageExcludedFiles := ".*Main|.*gui.*"
   )
