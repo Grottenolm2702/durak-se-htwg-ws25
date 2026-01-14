@@ -6,7 +6,8 @@ import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
 import de.htwg.DurakApp.util.{
   Observable,
   UndoRedoManager,
-  UndoRedoManagerFactory
+  UndoRedoManagerFactory,
+  FileIOInterface
 }
 import de.htwg.DurakApp.controller.command.{GameCommand, CommandFactory}
 import de.htwg.DurakApp.controller.{
@@ -19,7 +20,9 @@ import de.htwg.DurakApp.controller.{
   AddPlayerNameAction,
   SetDeckSizeAction,
   PlayAgainAction,
-  ExitGameAction
+  ExitGameAction,
+  SaveGameAction,
+  LoadGameAction
 }
 import scala.util.Random
 import com.google.inject.Inject
@@ -30,13 +33,20 @@ class ControllerImpl @Inject() (
     commandFactory: CommandFactory,
     gameSetup: GameSetup,
     undoRedoManagerFactory: UndoRedoManagerFactory,
-    gamePhases: GamePhases
+    gamePhases: GamePhases,
+    fileIO: FileIOInterface
 ) extends Observable
     with Controller {
 
   def gameState: GameState = _gameState
 
   def processPlayerAction(action: PlayerAction): GameState = {
+    action match {
+      case SaveGameAction => return saveGame()
+      case LoadGameAction => return loadGame()
+      case _              =>
+    }
+
     if (isSetupPhase) {
       processSetupAction(action)
     } else if (_gameState.gamePhase == gamePhases.askPlayAgainPhase) {
@@ -252,5 +262,53 @@ class ControllerImpl @Inject() (
 
   def getStatusString(): String = {
     _gameState.gamePhase.toString
+  }
+
+  def saveGame(): GameState = {
+    val undoStates = undoRedoManager.undoStack.map(_._2)
+    val redoStates = undoRedoManager.redoStack.map(_._2)
+
+    val stateToSave = _gameState.copy(
+      undoStack = undoStates,
+      redoStack = redoStates
+    )
+
+    fileIO.save(stateToSave) match {
+      case scala.util.Success(_) =>
+        _gameState = _gameState.copy(lastEvent = Some(GameEvent.GameSaved))
+        notifyObservers
+        _gameState
+      case scala.util.Failure(_) =>
+        _gameState = _gameState.copy(lastEvent = Some(GameEvent.SaveError))
+        notifyObservers
+        _gameState
+    }
+  }
+
+  def loadGame(): GameState = {
+    fileIO.load() match {
+      case scala.util.Success(loadedState) =>
+        var newManager = undoRedoManagerFactory.create()
+
+        loadedState.undoStack.foreach { state =>
+          newManager = newManager.save(
+            commandFactory.phaseChange(),
+            state
+          )
+        }
+
+        undoRedoManager = newManager
+        _gameState = loadedState.copy(
+          lastEvent = Some(GameEvent.GameLoaded),
+          undoStack = List.empty,
+          redoStack = List.empty
+        )
+        notifyObservers
+        _gameState
+      case scala.util.Failure(_) =>
+        _gameState = _gameState.copy(lastEvent = Some(GameEvent.LoadError))
+        notifyObservers
+        _gameState
+    }
   }
 }

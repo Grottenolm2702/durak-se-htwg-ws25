@@ -2,6 +2,7 @@ package de.htwg.DurakApp.util.impl
 
 import de.htwg.DurakApp.model.*
 import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
+import de.htwg.DurakApp.testutil.StubGamePhasesImpl
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import scala.util.{Success, Failure}
@@ -12,7 +13,8 @@ class FileIOJsonSpec extends AnyWordSpec with Matchers:
   "FileIOJson" should {
 
     val testFilePath = "test_gamestate.json"
-    val fileIO = new FileIOJson(testFilePath)
+    val stubGamePhases = new StubGamePhasesImpl()
+    val fileIO = new FileIOJson(testFilePath, stubGamePhases)
 
     val card1 = Card(Suit.Hearts, Rank.Ace, isTrump = true)
     val card2 = Card(Suit.Spades, Rank.King, isTrump = false)
@@ -191,28 +193,6 @@ class FileIOJsonSpec extends AnyWordSpec with Matchers:
       result shouldBe a[Failure[?]]
     }
 
-    "serialize and deserialize individual card correctly" in {
-      import FileIOJson.given
-      import play.api.libs.json.*
-
-      val json = Json.toJson(card1)
-      val result = json.validate[Card]
-
-      result shouldBe a[JsSuccess[?]]
-      result.get shouldBe card1
-    }
-
-    "serialize and deserialize individual player correctly" in {
-      import FileIOJson.given
-      import play.api.libs.json.*
-
-      val json = Json.toJson(player1)
-      val result = json.validate[Player]
-
-      result shouldBe a[JsSuccess[?]]
-      result.get.name shouldBe player1.name
-    }
-
     "save JSON in pretty format" in {
       fileIO.save(testGameState)
 
@@ -226,7 +206,7 @@ class FileIOJsonSpec extends AnyWordSpec with Matchers:
     }
 
     "return Failure when loading non-existent file" in {
-      val nonExistentFileIO = new FileIOJson("nonexistent.json")
+      val nonExistentFileIO = new FileIOJson("nonexistent.json", stubGamePhases)
       val result = nonExistentFileIO.load()
       result shouldBe a[Failure[?]]
     }

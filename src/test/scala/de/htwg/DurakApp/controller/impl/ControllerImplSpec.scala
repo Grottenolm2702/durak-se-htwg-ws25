@@ -17,6 +17,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
     new StubUndoRedoManagerFactory()
   val commandFactory: CommandFactory = new StubCommandFactory()
   val stubGamePhases = new StubGamePhasesImpl()
+  val stubFileIO = new StubFileIO()
   def createBuilder() = gameStateBuilderFactory.create()
   "ControllerImpl with SetPlayerCountAction" should {
     "accept valid player count of 2" in {
@@ -31,7 +32,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetPlayerCountAction(2))
       controller.gameState.setupPlayerCount shouldBe Some(2)
@@ -49,7 +51,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetPlayerCountAction(6))
       controller.gameState.setupPlayerCount shouldBe Some(6)
@@ -67,7 +70,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetPlayerCountAction(1))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -84,7 +88,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetPlayerCountAction(7))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -104,7 +109,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(AddPlayerNameAction("Alice"))
       controller.gameState.setupPlayerNames shouldBe List("Alice")
@@ -124,7 +130,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(AddPlayerNameAction("Bob"))
       controller.gameState.setupPlayerNames shouldBe List("Alice", "Bob")
@@ -143,7 +150,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(AddPlayerNameAction(""))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -161,7 +169,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(AddPlayerNameAction("   "))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -179,7 +188,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(AddPlayerNameAction("  Alice  "))
       controller.gameState.setupPlayerNames shouldBe List("Alice")
@@ -198,7 +208,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(AddPlayerNameAction("Charlie"))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -219,7 +230,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetDeckSizeAction(36))
       controller.gameState.setupDeckSize shouldBe Some(36)
@@ -239,7 +251,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetDeckSizeAction(20))
       controller.gameState.setupDeckSize shouldBe Some(20)
@@ -258,7 +271,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetDeckSizeAction(2))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -277,7 +291,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetDeckSizeAction(50))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -302,7 +317,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         failingGameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(SetDeckSizeAction(20))
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -324,7 +340,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(PlayAgainAction)
       controller.gameState.setupPlayerNames shouldBe List("Alice", "Bob")
@@ -348,7 +365,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(PlayAgainAction)
     }
@@ -367,7 +385,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(ExitGameAction)
       controller.gameState.lastEvent shouldBe Some(GameEvent.ExitApplication)
@@ -387,7 +406,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(InvalidAction)
       controller.gameState.lastEvent shouldBe Some(GameEvent.InvalidMove)
@@ -413,7 +433,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         failingGameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(PlayAgainAction)
       controller.gameState.lastEvent shouldBe Some(GameEvent.SetupError)
@@ -453,7 +474,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.undo()
       result shouldBe None
@@ -496,7 +518,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.undo()
       result shouldBe defined
@@ -537,7 +560,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.redo()
       result shouldBe None
@@ -582,7 +606,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.redo()
       result shouldBe defined
@@ -602,7 +627,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       controller.processPlayerAction(
         PlayCardAction(TestHelper.Card(Suit.Hearts, Rank.Six))
@@ -623,7 +649,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val status = controller.getStatusString()
       status shouldBe "AttackPhase"
@@ -659,7 +686,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.processPlayerAction(PlayCardAction(card))
       result.gamePhase shouldBe StubGamePhases.attackPhase
@@ -693,7 +721,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.processPlayerAction(PassAction)
       result.gamePhase shouldBe StubGamePhases.attackPhase
@@ -727,7 +756,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.processPlayerAction(TakeCardsAction)
       result.gamePhase shouldBe StubGamePhases.defensePhase
@@ -760,7 +790,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.processPlayerAction(InvalidAction)
       result.lastEvent shouldBe Some(GameEvent.InvalidMove)
@@ -793,7 +824,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactory,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.processPlayerAction(SetPlayerCountAction(2))
       result.lastEvent shouldBe Some(GameEvent.InvalidMove)
@@ -839,7 +871,8 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
         commandFactoryWithTransition,
         gameSetup,
         undoRedoManagerFactory,
-        stubGamePhases
+        stubGamePhases,
+        stubFileIO
       )
       val result = controller.processPlayerAction(PlayCardAction(card))
       result.gamePhase shouldBe StubGamePhases.attackPhase

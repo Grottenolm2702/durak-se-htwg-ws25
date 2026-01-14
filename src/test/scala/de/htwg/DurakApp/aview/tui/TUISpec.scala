@@ -343,6 +343,44 @@ class TUISpec extends AnyWordSpec with Matchers {
       val desc = tui.description(gameState)
       desc should not be empty
     }
+    "build status string for GameSaved event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameSaved)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("gespeichert")
+    }
+    "build status string for GameLoaded event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameLoaded)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("geladen")
+    }
+    "build status string for SaveError event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.SaveError)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("Fehler")
+      statusString should include("Speichern")
+    }
+    "build status string for LoadError event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.LoadError)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("Fehler")
+      statusString should include("Laden")
+    }
     "render table with cards" in {
       val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
       val defenseCard = TestHelper.Card(Suit.Spades, Rank.Seven)

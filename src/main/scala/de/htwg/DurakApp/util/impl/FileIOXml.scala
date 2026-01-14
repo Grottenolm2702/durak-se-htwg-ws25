@@ -1,14 +1,15 @@
 package de.htwg.DurakApp.util.impl
 
 import de.htwg.DurakApp.model.*
-import de.htwg.DurakApp.model.state.{GameEvent, GamePhase}
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhase, GamePhases}
 import de.htwg.DurakApp.util.FileIOInterface
 import scala.util.{Try, Success, Failure}
 import scala.xml.{Node, Elem, PrettyPrinter}
 import java.io.{File, PrintWriter}
 import com.google.inject.Inject
 
-class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
+class FileIOXml @Inject() (filePath: String, gamePhases: GamePhases)
+    extends FileIOInterface:
 
   override def save(gameState: GameState): Try[Unit] = Try {
     val xml = gameStateToXml(gameState)
@@ -46,6 +47,8 @@ class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
     }
     val discardPileXml = gs.discardPile.map(cardToXml)
     val setupPlayerNamesXml = gs.setupPlayerNames.map(nameToXml)
+    val undoStackXml = gs.undoStack.map(gameStateToXml)
+    val redoStackXml = gs.redoStack.map(gameStateToXml)
 
     <gameState>
       <players>
@@ -78,6 +81,12 @@ class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
         {setupPlayerNamesXml}
       </setupPlayerNames>
       <setupDeckSize>{optionToXml(gs.setupDeckSize)}</setupDeckSize>
+      <undoStack>
+        {undoStackXml}
+      </undoStack>
+      <redoStack>
+        {redoStackXml}
+      </redoStack>
     </gameState>
 
   private def playerToXml(player: Player): Elem =
@@ -123,6 +132,10 @@ class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
     case GameEvent.SetupError        => <event>SetupError</event>
     case GameEvent.AskPlayAgain      => <event>AskPlayAgain</event>
     case GameEvent.ExitApplication   => <event>ExitApplication</event>
+    case GameEvent.GameSaved         => <event>GameSaved</event>
+    case GameEvent.GameLoaded        => <event>GameLoaded</event>
+    case GameEvent.SaveError         => <event>SaveError</event>
+    case GameEvent.LoadError         => <event>LoadError</event>
 
   private def gamePhaseToString(phase: GamePhase): String =
     phase.getClass.getSimpleName.replace("Impl", "").replace("$", "")
@@ -172,6 +185,11 @@ class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
     val setupPlayerNames = setupPlayerNamesNodes.map(nodeText).toList
     val setupDeckSize = xmlToOptionInt((node \ "setupDeckSize").text)
 
+    val undoStackNodes = (node \ "undoStack" \ "gameState")
+    val undoStack = undoStackNodes.map(xmlToGameState).toList
+    val redoStackNodes = (node \ "redoStack" \ "gameState")
+    val redoStack = redoStackNodes.map(xmlToGameState).toList
+
     GameState(
       players,
       mainAttackerIndex,
@@ -188,7 +206,9 @@ class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
       lastEvent,
       setupPlayerCount,
       setupPlayerNames,
-      setupDeckSize
+      setupDeckSize,
+      undoStack,
+      redoStack
     )
 
   private def xmlToPlayer(node: Node): Player =
@@ -234,6 +254,10 @@ class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
         case "SetupError"        => GameEvent.SetupError
         case "AskPlayAgain"      => GameEvent.AskPlayAgain
         case "ExitApplication"   => GameEvent.ExitApplication
+        case "GameSaved"         => GameEvent.GameSaved
+        case "GameLoaded"        => GameEvent.GameLoaded
+        case "SaveError"         => GameEvent.SaveError
+        case "LoadError"         => GameEvent.LoadError
     else
       eventType match
         case "Attack"   => GameEvent.Attack(xmlToCard((node \ "card").head))
@@ -249,6 +273,20 @@ class FileIOXml @Inject() (filePath: String) extends FileIOInterface:
     else Some(xmlToPlayer((node \ "some" \ "player").head))
 
   private def stringToGamePhase(phaseName: String): GamePhase =
-    new GamePhase {
-      override def handle(gameState: GameState): GameState = gameState
-    }
+    phaseName match
+      case "SetupPhase" | "SetupPhaseImpl" => gamePhases.setupPhase
+      case "AskPlayerCountPhase" | "AskPlayerCountPhaseImpl" =>
+        gamePhases.askPlayerCountPhase
+      case "AskPlayerNamesPhase" | "AskPlayerNamesPhaseImpl" =>
+        gamePhases.askPlayerNamesPhase
+      case "AskDeckSizePhase" | "AskDeckSizePhaseImpl" =>
+        gamePhases.askDeckSizePhase
+      case "GameStartPhase" | "GameStartPhaseImpl" => gamePhases.gameStartPhase
+      case "AttackPhase" | "AttackPhaseImpl"       => gamePhases.attackPhase
+      case "DefensePhase" | "DefensePhaseImpl"     => gamePhases.defensePhase
+      case "DrawPhase" | "DrawPhaseImpl"           => gamePhases.drawPhase
+      case "RoundPhase" | "RoundPhaseImpl"         => gamePhases.roundPhase
+      case "EndPhase" | "EndPhaseImpl"             => gamePhases.endPhase
+      case "AskPlayAgainPhase" | "AskPlayAgainPhaseImpl" =>
+        gamePhases.askPlayAgainPhase
+      case _ => gamePhases.setupPhase

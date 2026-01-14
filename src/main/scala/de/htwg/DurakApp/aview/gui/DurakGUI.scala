@@ -91,11 +91,45 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     }
     prefWidth = 120
   }
+  private val saveButton = new Button("Save Game") {
+    onAction = (e: ActionEvent) => {
+      controller.processPlayerAction(SaveGameAction)
+    }
+    prefWidth = 120
+  }
+  private val loadButton = new Button("Load Game") {
+    onAction = (e: ActionEvent) => {
+      controller.processPlayerAction(LoadGameAction)
+    }
+    prefWidth = 120
+  }
+  private val undoButton = new Button("Undo") {
+    onAction = (e: ActionEvent) => {
+      controller.undo()
+    }
+    prefWidth = 120
+  }
+  private val redoButton = new Button("Redo") {
+    onAction = (e: ActionEvent) => {
+      controller.redo()
+    }
+    prefWidth = 120
+  }
   private val actionButtons = new VBox {
     alignment = Pos.Center
     spacing = 10
     padding = Insets(10)
-    children = Seq(playCardButton, passButton, takeCardsButton)
+    children = Seq(
+      playCardButton,
+      passButton,
+      takeCardsButton,
+      new Separator(),
+      undoButton,
+      redoButton,
+      new Separator(),
+      saveButton,
+      loadButton
+    )
   }
   private val playerCountInput = new TextField {
     promptText = "Number of players (2-6)"
@@ -151,6 +185,8 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
       submitPlayerNameButton,
       deckSizeChoiceBox,
       submitDeckSizeButton,
+      new Separator(),
+      loadButton,
       setupStatusLabel
     )
   }
@@ -264,6 +300,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     submitPlayerNameButton.visible = false
     deckSizeChoiceBox.visible = false
     submitDeckSizeButton.visible = false
+    loadButton.visible = true
     val p = gameState.gamePhase
     if (p == gamePhases.setupPhase || p == gamePhases.askPlayerCountPhase) {
       playerCountInput.visible = true
@@ -272,7 +309,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
         gameState.setupPlayerCount.map(_.toString).getOrElse("")
       setupStatusLabel.text =
         if (setupError) description(gameState)
-        else "Enter number of players (2-6):"
+        else "Enter number of players (2-6) or click Load:"
     } else if (p == gamePhases.askPlayerNamesPhase) {
       val expectedCount = gameState.setupPlayerCount.getOrElse(0)
       val currentNames = gameState.setupPlayerNames.size
@@ -280,7 +317,8 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
       submitPlayerNameButton.visible = true
       setupStatusLabel.text =
         if (setupError) description(gameState)
-        else s"Enter name for player ${currentNames + 1} of $expectedCount:"
+        else
+          s"Enter name for player ${currentNames + 1} of $expectedCount or click Load:"
     } else if (p == gamePhases.askDeckSizePhase) {
       val minSize = gameState.setupPlayerNames.size
       deckSizeChoiceBox.items = ObservableBuffer.from((minSize to 36))
@@ -291,7 +329,7 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
       deckSizeChoiceBox.value = defaultSize
       setupStatusLabel.text =
         if (setupError) description(gameState)
-        else s"Select deck size ($minSize-36):"
+        else s"Select deck size ($minSize-36) or click Load:"
     } else if (p == gamePhases.gameStartPhase) {
       setupStatusLabel.text = "Initializing game..."
     }
@@ -327,6 +365,10 @@ class DurakGUI @Inject() (controller: Controller, val gamePhases: GamePhases)
     playCardButton.visible = playVisible
     passButton.visible = passVisible
     takeCardsButton.visible = takeVisible
+    undoButton.visible = !gamePhases.isAnySetupPhase(gameState.gamePhase)
+    redoButton.visible = !gamePhases.isAnySetupPhase(gameState.gamePhase)
+    saveButton.visible = !gamePhases.isAnySetupPhase(gameState.gamePhase)
+    loadButton.visible = true
   }
 
   private def activePlayerIndex(gameState: GameState): Option[Int] =

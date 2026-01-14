@@ -88,3 +88,17 @@ trait Controller:
     * Called internally after state changes to update all views.
     */
   def notifyObservers: Unit
+
+  /** Saves the current game state to file.
+    *
+    * @return
+    *   The current game state with save result event
+    */
+  def saveGame(): GameState
+
+  /** Loads a game state from file.
+    *
+    * @return
+    *   The loaded game state or current state with error event
+    */
+  def loadGame(): GameState

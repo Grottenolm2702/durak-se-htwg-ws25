@@ -24,7 +24,9 @@ case class GameState(
     lastEvent: Option[GameEvent],
     setupPlayerCount: Option[Int],
     setupPlayerNames: List[String],
-    setupDeckSize: Option[Int]
+    setupDeckSize: Option[Int],
+    undoStack: List[GameState] = List.empty,
+    redoStack: List[GameState] = List.empty
 ):
   /** Converts this game state to a builder for further modifications.
     * @return

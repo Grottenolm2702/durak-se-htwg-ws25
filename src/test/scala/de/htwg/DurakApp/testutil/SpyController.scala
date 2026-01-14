@@ -45,3 +45,13 @@ class SpyController(
     observers = observers.filterNot(_ == observer)
   def notifyObservers: Unit =
     observers.foreach(_.update)
+
+  def saveGame(): GameState =
+    currentState = currentState.copy(lastEvent = Some(GameEvent.GameSaved))
+    notifyObservers
+    currentState
+
+  def loadGame(): GameState =
+    currentState = currentState.copy(lastEvent = Some(GameEvent.GameLoaded))
+    notifyObservers
+    currentState

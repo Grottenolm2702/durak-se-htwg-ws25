@@ -22,4 +22,8 @@ object GameEvent {
   case object SetupError extends GameEvent
   case object AskPlayAgain extends GameEvent
   case object ExitApplication extends GameEvent
+  case object GameSaved extends GameEvent
+  case object GameLoaded extends GameEvent
+  case object SaveError extends GameEvent
+  case object LoadError extends GameEvent
 }

@@ -46,7 +46,10 @@ class DurakModule extends AbstractModule with ScalaModule:
 
     bind[Controller].to[controller.impl.ControllerImpl].in(classOf[Singleton])
 
-    bind[FileIOInterface].toInstance(new FileIOXml("gamestate.xml"))
+  @Provides
+  @Singleton
+  def provideFileIO(gamePhases: GamePhases): FileIOInterface =
+    new FileIOXml("gamestate.xml", gamePhases)
 
   @Provides
   @Singleton

@@ -284,5 +284,105 @@ class GamePhaseInputHandlerSpec extends AnyWordSpec with Matchers {
       val result = handler.handleRequest("test", gameState)
       result shouldBe InvalidAction
     }
+    "pass through 'l' command to next handler in setup phase" in {
+      val gameState = TestHelper.GameState(
+        players = List.empty,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        mainAttackerIndex = 0,
+        defenderIndex = 0,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      val fileIOHandler = new FileIOHandler(None)
+      val handler =
+        new GamePhaseInputHandler(Some(fileIOHandler), new StubGamePhasesImpl())
+      val result = handler.handleRequest("l", gameState)
+      result shouldBe LoadGameAction
+    }
+    "pass through 'load' command to next handler in setup phase" in {
+      val gameState = TestHelper.GameState(
+        players = List.empty,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        mainAttackerIndex = 0,
+        defenderIndex = 0,
+        gamePhase = StubGamePhases.setupPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      val fileIOHandler = new FileIOHandler(None)
+      val handler =
+        new GamePhaseInputHandler(Some(fileIOHandler), new StubGamePhasesImpl())
+      val result = handler.handleRequest("load", gameState)
+      result shouldBe LoadGameAction
+    }
+    "pass through 'L' command (uppercase) to next handler in askPlayerNamesPhase" in {
+      val gameState = TestHelper.GameState(
+        players = List.empty,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        mainAttackerIndex = 0,
+        defenderIndex = 0,
+        gamePhase = StubGamePhases.askPlayerNamesPhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = Some(2),
+        setupPlayerNames = List("Alice"),
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      val fileIOHandler = new FileIOHandler(None)
+      val handler =
+        new GamePhaseInputHandler(Some(fileIOHandler), new StubGamePhasesImpl())
+      val result = handler.handleRequest("L", gameState)
+      result shouldBe LoadGameAction
+    }
+    "pass through 'LOAD' command (uppercase) to next handler in askDeckSizePhase" in {
+      val gameState = TestHelper.GameState(
+        players = List.empty,
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        mainAttackerIndex = 0,
+        defenderIndex = 0,
+        gamePhase = StubGamePhases.askDeckSizePhase,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = Some(2),
+        setupPlayerNames = List("Alice", "Bob"),
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      val fileIOHandler = new FileIOHandler(None)
+      val handler =
+        new GamePhaseInputHandler(Some(fileIOHandler), new StubGamePhasesImpl())
+      val result = handler.handleRequest("LOAD", gameState)
+      result shouldBe LoadGameAction
+    }
   }
 }

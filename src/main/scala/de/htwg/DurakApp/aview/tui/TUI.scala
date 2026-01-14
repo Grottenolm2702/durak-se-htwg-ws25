@@ -28,7 +28,8 @@ class TUI @Inject() (
     val take = new TakeCardsHandler(Some(invalid))
     val pass = new PassHandler(Some(take))
     val play = new PlayCardHandler(Some(pass), gamePhases)
-    val redo = new RedoHandler(controller, Some(play))
+    val fileIO = new FileIOHandler(Some(play))
+    val redo = new RedoHandler(controller, Some(fileIO))
     val undo = new UndoHandler(controller, Some(redo))
     val gamePhaseHandler = new GamePhaseInputHandler(Some(undo), gamePhases)
     gamePhaseHandler
@@ -50,7 +51,9 @@ class TUI @Inject() (
     val action = inputHandler.handleRequest(input, controller.gameState)
     action match {
       case UndoAction | RedoAction =>
-      case _                       => controller.processPlayerAction(action)
+      case SaveGameAction => controller.processPlayerAction(SaveGameAction)
+      case LoadGameAction => controller.processPlayerAction(LoadGameAction)
+      case _              => controller.processPlayerAction(action)
     }
     controller.gameState.lastEvent match {
       case Some(GameEvent.ExitApplication) => ()
@@ -75,12 +78,12 @@ class TUI @Inject() (
     if (
       game.gamePhase == gamePhases.setupPhase || game.gamePhase == gamePhases.askPlayerCountPhase
     ) {
-      "Spieleranzahl eingeben (2-6):"
+      "Spieleranzahl eingeben (2-6) oder 'l' zum Laden:"
     } else if (game.gamePhase == gamePhases.askPlayerNamesPhase) {
-      s"Spielername ${game.setupPlayerNames.length + 1}:"
+      s"Spielername ${game.setupPlayerNames.length + 1} oder 'l' zum Laden:"
     } else if (game.gamePhase == gamePhases.askDeckSizePhase) {
       val minSize = game.setupPlayerNames.size
-      s"Deckgröße eingeben ($minSize-36):"
+      s"Deckgröße eingeben ($minSize-36) oder 'l' zum Laden:"
     } else if (game.gamePhase == gamePhases.askPlayAgainPhase) {
       "Möchten Sie eine neue Runde spielen? (yes/no):"
     } else {
@@ -117,9 +120,9 @@ class TUI @Inject() (
         }
       val moves =
         if (game.gamePhase == gamePhases.attackPhase) {
-          "('play index', 'pass', 'u', 'r')"
+          "('play index', 'pass', 'u', 'r', 's', 'l')"
         } else if (game.gamePhase == gamePhases.defensePhase) {
-          "('play index', 'take', 'u', 'r')"
+          "('play index', 'take', 'u', 'r', 's', 'l')"
         } else {
           ""
         }
@@ -288,6 +291,10 @@ $statusLine
           s"${GREEN}Möchten Sie eine neue Runde spielen? (yes/no)$RESET"
         case GameEvent.ExitApplication =>
           s"${GREEN}Anwendung wird beendet...$RESET"
+        case GameEvent.GameSaved  => s"${GREEN}Spiel gespeichert!$RESET"
+        case GameEvent.GameLoaded => s"${GREEN}Spiel geladen!$RESET"
+        case GameEvent.SaveError  => s"${RED}Fehler beim Speichern!$RESET"
+        case GameEvent.LoadError  => s"${RED}Fehler beim Laden!$RESET"
         case GameEvent.AskPlayerCount | GameEvent.AskPlayerNames |
             GameEvent.AskDeckSize =>
           ""

@@ -8,11 +8,13 @@ import scala.util.{Success, Failure}
 import java.io.File
 
 class FileIOXmlSpec extends AnyWordSpec with Matchers:
+  import de.htwg.DurakApp.testutil.StubGamePhasesImpl
 
   "FileIOXml" should {
 
     val testFilePath = "test_gamestate.xml"
-    val fileIO = new FileIOXml(testFilePath)
+    val stubGamePhases = new StubGamePhasesImpl()
+    val fileIO = new FileIOXml(testFilePath, stubGamePhases)
 
     val card1 = Card(Suit.Hearts, Rank.Ace, isTrump = true)
     val card2 = Card(Suit.Spades, Rank.King, isTrump = false)
@@ -219,7 +221,8 @@ class FileIOXmlSpec extends AnyWordSpec with Matchers:
     }
 
     "return Failure when loading non-existent file" in {
-      val nonExistentFileIO = new FileIOXml("nonexistent.xml")
+      val nonExistentFileIO =
+        new FileIOXml("nonexistent.xml", new StubGamePhasesImpl())
       val result = nonExistentFileIO.load()
       result shouldBe a[Failure[?]]
     }

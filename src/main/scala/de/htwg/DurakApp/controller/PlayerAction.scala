@@ -66,3 +66,11 @@ case object PlayAgainAction extends PlayerAction
 
 /** Action to exit the application after the current game ends. */
 case object ExitGameAction extends PlayerAction
+
+// File I/O Actions
+
+/** Action to save the current game state to file. */
+case object SaveGameAction extends PlayerAction
+
+/** Action to load a game state from file. */
+case object LoadGameAction extends PlayerAction

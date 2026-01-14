@@ -59,4 +59,40 @@ class PlayerActionSpec extends AnyWordSpec with Matchers {
       UndoAction should not be RedoAction
     }
   }
+  "PlayerAction SaveGameAction" should {
+    "be a singleton object" in {
+      val action1: PlayerAction = SaveGameAction
+      val action2: PlayerAction = SaveGameAction
+      action1 shouldBe SaveGameAction
+      action2 shouldBe SaveGameAction
+      action1 shouldBe action2
+    }
+    "be a distinct PlayerAction type" in {
+      SaveGameAction shouldBe a[PlayerAction]
+      SaveGameAction should not be PassAction
+      SaveGameAction should not be TakeCardsAction
+      SaveGameAction should not be UndoAction
+    }
+  }
+  "PlayerAction LoadGameAction" should {
+    "be a singleton object" in {
+      val action1: PlayerAction = LoadGameAction
+      val action2: PlayerAction = LoadGameAction
+      action1 shouldBe LoadGameAction
+      action2 shouldBe LoadGameAction
+      action1 shouldBe action2
+    }
+    "be a distinct PlayerAction type" in {
+      LoadGameAction shouldBe a[PlayerAction]
+      LoadGameAction should not be PassAction
+      LoadGameAction should not be SaveGameAction
+      LoadGameAction should not be RedoAction
+    }
+  }
+  "PlayerAction SaveGameAction and LoadGameAction" should {
+    "be different singleton objects" in {
+      SaveGameAction should not be LoadGameAction
+      LoadGameAction should not be SaveGameAction
+    }
+  }
 }

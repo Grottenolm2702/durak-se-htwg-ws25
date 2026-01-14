@@ -20,6 +20,13 @@ class GamePhaseInputHandler(
     gamePhases: GamePhases
 ) extends InputHandler {
   override def handleRequest(input: String, game: GameState): PlayerAction = {
+    val trimmedInput = input.trim.toLowerCase
+
+    // Allow load command in any phase including setup
+    if (trimmedInput == "l" || trimmedInput == "load") {
+      return super.handleRequest(input, game)
+    }
+
     if (
       game.gamePhase == gamePhases.setupPhase || game.gamePhase == gamePhases.askPlayerCountPhase
     ) {
