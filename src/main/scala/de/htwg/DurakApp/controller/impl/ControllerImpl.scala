@@ -266,7 +266,7 @@ class ControllerImpl @Inject() (
 
   def saveGame(): GameState = {
     val undoStates = undoRedoManager.undoStack.map(_._2)
-    val redoStates = undoRedoManager.redoStack.map(_._2)
+    val redoStates = undoRedoManager.redoStack.map(_._3)
 
     val stateToSave = _gameState.copy(
       undoStack = undoStates,
@@ -292,12 +292,12 @@ class ControllerImpl @Inject() (
         val undoStackWithCommands = loadedState.undoStack.map { state =>
           (commandFactory.phaseChange(), state)
         }
-        
+
         // Restore redoStack
         val redoStackWithCommands = loadedState.redoStack.map { state =>
           (commandFactory.phaseChange(), state)
         }
-        
+
         undoRedoManager = undoRedoManagerFactory.create(
           undoStack = undoStackWithCommands.reverse,
           redoStack = redoStackWithCommands

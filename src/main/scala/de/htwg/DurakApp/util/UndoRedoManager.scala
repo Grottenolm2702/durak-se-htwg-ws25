@@ -11,7 +11,7 @@ import de.htwg.DurakApp.model.GameState
   */
 trait UndoRedoManager:
   def undoStack: List[(GameCommand, GameState)]
-  def redoStack: List[(GameCommand, GameState)]
+  def redoStack: List[(GameCommand, GameState, GameState)]
   def save(command: GameCommand, oldState: GameState): UndoRedoManager
   def undo(currentGameState: GameState): Option[(UndoRedoManager, GameState)]
   def redo(currentGameState: GameState): Option[(UndoRedoManager, GameState)]

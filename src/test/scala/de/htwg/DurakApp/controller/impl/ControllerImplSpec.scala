@@ -598,7 +598,7 @@ class ControllerImplSpec extends AnyWordSpec with Matchers {
       val testCommand = commandFactory.phaseChange()
       val managerWithRedo = new StubUndoRedoManager(
         undoStack = List.empty,
-        redoStack = List((testCommand, nextGameState))
+        redoStack = List((testCommand, currentGameState, nextGameState))
       )
       val controller = ControllerImpl(
         currentGameState,

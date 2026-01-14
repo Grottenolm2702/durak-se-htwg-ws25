@@ -6,7 +6,7 @@ import de.htwg.DurakApp.model.GameState
 
 private[util] case class UndoRedoManagerImpl(
     undoStack: List[(GameCommand, GameState)],
-    redoStack: List[(GameCommand, GameState)]
+    redoStack: List[(GameCommand, GameState, GameState)]
 ) extends UndoRedoManager {
 
   def save(
@@ -24,7 +24,7 @@ private[util] case class UndoRedoManagerImpl(
         val undoneState = command.undo(currentGameState, previousState)
         val newManager = this.copy(
           undoStack = tailOfUndoStack,
-          redoStack = (command, previousState) :: redoStack
+          redoStack = (command, previousState, currentGameState) :: redoStack
         )
         Some((newManager, undoneState))
       case Nil => None
@@ -35,13 +35,16 @@ private[util] case class UndoRedoManagerImpl(
       currentGameState: GameState
   ): Option[(UndoRedoManager, GameState)] = {
     redoStack match {
-      case (command, stateBeforeRedoCommand) :: tailOfRedoStack =>
-        val redoneState = command.execute(currentGameState)
+      case (
+            command,
+            stateBeforeCommand,
+            stateAfterCommand
+          ) :: tailOfRedoStack =>
         val newManager = this.copy(
-          undoStack = (command, stateBeforeRedoCommand) :: undoStack,
+          undoStack = (command, stateBeforeCommand) :: undoStack,
           redoStack = tailOfRedoStack
         )
-        Some((newManager, redoneState))
+        Some((newManager, stateAfterCommand))
       case Nil => None
     }
   }

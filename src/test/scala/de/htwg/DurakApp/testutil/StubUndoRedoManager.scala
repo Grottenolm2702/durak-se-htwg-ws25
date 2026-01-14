@@ -4,7 +4,7 @@ import de.htwg.DurakApp.controller.command.GameCommand
 import de.htwg.DurakApp.model.GameState
 class StubUndoRedoManager(
     val undoStack: List[(GameCommand, GameState)] = List.empty,
-    val redoStack: List[(GameCommand, GameState)] = List.empty
+    val redoStack: List[(GameCommand, GameState, GameState)] = List.empty
 ) extends UndoRedoManager:
   private val dummyCommand: GameCommand = new GameCommand:
     def execute(state: GameState): GameState = state
@@ -19,16 +19,16 @@ class StubUndoRedoManager(
       case (_, prevState) :: tail =>
         val newManager = new StubUndoRedoManager(
           undoStack = tail,
-          redoStack = (dummyCommand, currentState) :: redoStack
+          redoStack = (dummyCommand, prevState, currentState) :: redoStack
         )
         Some((newManager, prevState))
       case Nil => None
   def redo(currentState: GameState): Option[(UndoRedoManager, GameState)] =
     redoStack match
-      case (_, nextState) :: tail =>
+      case (_, stateBeforeCommand, stateAfterCommand) :: tail =>
         val newManager = new StubUndoRedoManager(
-          undoStack = (dummyCommand, currentState) :: undoStack,
+          undoStack = (dummyCommand, stateBeforeCommand) :: undoStack,
           redoStack = tail
         )
-        Some((newManager, nextState))
+        Some((newManager, stateAfterCommand))
       case Nil => None

@@ -8,9 +8,12 @@ import com.google.inject.Inject
 class UndoRedoManagerFactoryImpl @Inject() () extends UndoRedoManagerFactory:
   def create(): UndoRedoManager =
     UndoRedoManagerImpl(Nil, Nil)
-  
+
   def create(
       undoStack: List[(GameCommand, GameState)],
       redoStack: List[(GameCommand, GameState)]
   ): UndoRedoManager =
-    UndoRedoManagerImpl(undoStack, redoStack)
+    UndoRedoManagerImpl(
+      undoStack,
+      redoStack.map { case (cmd, state) => (cmd, state, state) }
+    )

@@ -6,7 +6,7 @@ import de.htwg.DurakApp.model.GameState
 class StubUndoRedoManagerFactory extends UndoRedoManagerFactory:
   def create(): UndoRedoManager =
     new StubUndoRedoManager()
-  
+
   def create(
       undoStack: List[(GameCommand, GameState)],
       redoStack: List[(GameCommand, GameState)]

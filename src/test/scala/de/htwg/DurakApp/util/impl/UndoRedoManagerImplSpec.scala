@@ -43,9 +43,10 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
       updated.redoStack shouldBe empty
     }
     "clear redo stack when saving" in {
+      val gameState2 = gameState.copy(mainAttackerIndex = 1)
       val manager = UndoRedoManagerImpl(
         List.empty,
-        List((commandFactory.phaseChange(), gameState))
+        List((commandFactory.phaseChange(), gameState, gameState2))
       )
       val command = commandFactory.phaseChange()
       val updated = manager.save(command, gameState)
@@ -68,7 +69,9 @@ class UndoRedoManagerImplSpec extends AnyWordSpec with Matchers {
     }
     "redo command successfully" in {
       val command = commandFactory.phaseChange()
-      val manager = UndoRedoManagerImpl(List.empty, List((command, gameState)))
+      val gameState2 = gameState.copy(mainAttackerIndex = 1)
+      val manager =
+        UndoRedoManagerImpl(List.empty, List((command, gameState, gameState2)))
       val result = manager.redo(gameState)
       result shouldBe defined
       val (updatedManager, _) = result.get
