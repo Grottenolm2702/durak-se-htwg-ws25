@@ -257,7 +257,6 @@ class FileIOXmlSpec extends AnyWordSpec with Matchers:
         val filename = s"test_phase_$phaseName.xml"
         val testFileIO = new FileIOXml(filename, stubGamePhases)
 
-        // Create minimal XML with the phase name
         val xmlContent = s"""<?xml version="1.0" encoding="UTF-8"?>
 <gameState>
   <players>
@@ -286,11 +285,9 @@ class FileIOXmlSpec extends AnyWordSpec with Matchers:
         writer.write(xmlContent)
         writer.close()
 
-        // Now load and verify
         val loadedState = testFileIO.load().get
         loadedState.gamePhase should not be null
 
-        // Cleanup
         new File(filename).delete()
       }
     }

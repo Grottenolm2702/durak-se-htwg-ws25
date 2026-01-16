@@ -401,7 +401,6 @@ class ControllerFileIOSpec extends AnyWordSpec with Matchers {
       val mockFileIO = new MockFileIO()
       mockFileIO.loadResult = Success(stateWithStacks)
 
-      // Use real UndoRedoManagerFactory to test the actual behavior
       import de.htwg.DurakApp.util.impl.UndoRedoManagerFactoryImpl
       val realFactory = new UndoRedoManagerFactoryImpl()
 
@@ -417,14 +416,11 @@ class ControllerFileIOSpec extends AnyWordSpec with Matchers {
 
       val loadedState = controller.loadGame()
 
-      // Verify state was loaded
       loadedState.lastEvent shouldBe Some(GameEvent.GameLoaded)
 
-      // Perform undo - should work because undoStack was restored
       val undoResult = controller.undo()
       undoResult shouldBe defined
 
-      // Perform redo - should now work (this was broken before the fix)
       val redoResult = controller.redo()
       redoResult shouldBe defined
     }

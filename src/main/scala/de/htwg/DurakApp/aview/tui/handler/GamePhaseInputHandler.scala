@@ -22,7 +22,6 @@ class GamePhaseInputHandler(
   override def handleRequest(input: String, game: GameState): PlayerAction = {
     val trimmedInput = input.trim.toLowerCase
 
-    // Allow load command in any phase including setup
     if (trimmedInput == "l" || trimmedInput == "load") {
       return super.handleRequest(input, game)
     }

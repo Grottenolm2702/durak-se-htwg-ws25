@@ -288,12 +288,10 @@ class ControllerImpl @Inject() (
   def loadGame(): GameState = {
     fileIO.load() match {
       case scala.util.Success(loadedState) =>
-        // Restore undoStack
         val undoStackWithCommands = loadedState.undoStack.map { state =>
           (commandFactory.phaseChange(), state)
         }
 
-        // Restore redoStack
         val redoStackWithCommands = loadedState.redoStack.map { state =>
           (commandFactory.phaseChange(), state)
         }
