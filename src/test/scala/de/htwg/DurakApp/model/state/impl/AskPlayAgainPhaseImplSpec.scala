@@ -1,0 +1,38 @@
+package de.htwg.DurakApp.model.state.impl
+import de.htwg.DurakApp.testutil._
+import de.htwg.DurakApp.testutil.*
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.matchers.should.Matchers
+import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
+class AskPlayAgainPhaseImplSpec extends AnyWordSpec with Matchers {
+  "AskPlayAgainPhaseImpl" should {
+    "have correct string representation" in {
+      AskPlayAgainPhaseImpl.toString shouldBe "AskPlayAgainPhase"
+    }
+    "handle returns same state" in {
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+      val gameState = TestHelper.GameState(
+        players = List(player1, player2),
+        deck = List.empty,
+        table = Map.empty,
+        discardPile = List.empty,
+        trumpCard = trumpCard,
+        mainAttackerIndex = 0,
+        defenderIndex = 1,
+        gamePhase = AskPlayAgainPhaseImpl,
+        lastEvent = None,
+        passedPlayers = Set.empty,
+        roundWinner = None,
+        setupPlayerCount = None,
+        setupPlayerNames = List.empty,
+        setupDeckSize = None,
+        currentAttackerIndex = None,
+        lastAttackerIndex = None
+      )
+      val result = AskPlayAgainPhaseImpl.handle(gameState)
+      result shouldBe gameState
+    }
+  }
+}

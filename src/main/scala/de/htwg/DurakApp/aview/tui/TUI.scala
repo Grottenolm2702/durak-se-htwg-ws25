@@ -1,206 +1,211 @@
 package de.htwg.DurakApp.aview.tui
 
-import de.htwg.DurakApp.aview.tui.handler.{
-  InputHandler,
-  InvalidInputHandler,
-  PassHandler,
-  PlayCardHandler,
-  TakeCardsHandler,
-  UndoHandler,
-  RedoHandler
-}
-import de.htwg.DurakApp.controller.Controller
-import de.htwg.DurakApp.model.*
-import de.htwg.DurakApp.model.state.*
 import de.htwg.DurakApp.util.Observer
-import de.htwg.DurakApp.controller.{
-  PlayerAction,
-  PlayCardAction,
-  PassAction,
-  TakeCardsAction,
-  InvalidAction,
-  UndoAction,
-  RedoAction
-}
+
+import de.htwg.DurakApp.controller.Controller
+import de.htwg.DurakApp.controller.*
+
+import de.htwg.DurakApp.model.{Card, Player, GameState, Rank, Suit}
+import de.htwg.DurakApp.model.state.{GameEvent, GamePhases}
+
+import de.htwg.DurakApp.aview.tui.handler._
+
+import com.google.inject.Inject
 
 import scala.io.StdIn.readLine
-import scala.util.{Failure, Success, Try}
+import java.io.{PrintStream, OutputStream}
 
-class TUI(controller: Controller) extends Observer {
+class TUI @Inject() (
+    controller: Controller,
+    gamePhases: GamePhases,
+    outputStream: PrintStream = Console.out
+) extends Observer {
 
-  private val cardWidth = 7
+  import TUI._
 
-  val RED = "\u001b[31m"
-  val GREEN = "\u001b[32m"
-  val RESET = "\u001b[0m"
-
-  private val inputHandler: InputHandler = {
-    val invalid = new InvalidInputHandler()
+  val inputHandler: InputHandler = {
+    val invalid = new InvalidInputHandler(None)
     val take = new TakeCardsHandler(Some(invalid))
     val pass = new PassHandler(Some(take))
-    val play = new PlayCardHandler(Some(pass))
-    val redo = new RedoHandler(controller, Some(play))
+    val play = new PlayCardHandler(Some(pass), gamePhases)
+    val fileIO = new FileIOHandler(Some(play))
+    val redo = new RedoHandler(controller, Some(fileIO))
     val undo = new UndoHandler(controller, Some(redo))
-    undo
+    val gamePhaseHandler = new GamePhaseInputHandler(Some(undo), gamePhases)
+    gamePhaseHandler
   }
 
   def run(): Unit = {
-    println(clearScreen())
-    println("Willkommen bei Durak!")
+    controller.add(this)
+    outputStream.println(clearScreen())
+    outputStream.println("Willkommen bei Durak!")
     update
     gameLoop()
-    println("Spiel beendet.")
-  }
-
-  def parseTuiInput(input: String, game: GameState): PlayerAction = {
-    inputHandler.handleRequest(input, game)
+    outputStream.println("Spiel beendet.")
   }
 
   @scala.annotation.tailrec
   private def gameLoop(): Unit = {
-    printPrompt(controller.gameState)
     val input = readLine()
-    if (input == "q" || input == "quit") {
-      ()
-    } else {
-      val action = parseTuiInput(input, controller.gameState)
-      action match {
-        case UndoAction | RedoAction =>
-        case _                       => controller.processPlayerAction(action)
-      }
-
-      controller.gameState.lastEvent match {
-        case Some(GameEvent.GameOver(_, _)) =>
-        case _                              => gameLoop()
-      }
+    if (input == "q" || input == "quit") return
+    val action = inputHandler.handleRequest(input, controller.gameState)
+    action match {
+      case UndoAction | RedoAction =>
+      case SaveGameAction => controller.processPlayerAction(SaveGameAction)
+      case LoadGameAction => controller.processPlayerAction(LoadGameAction)
+      case _              => controller.processPlayerAction(action)
+    }
+    controller.gameState.lastEvent match {
+      case Some(GameEvent.ExitApplication) => ()
+      case _                               => gameLoop()
     }
   }
 
   override def update: Unit = {
-    println(clearScreen())
+    outputStream.println(clearScreen())
     val game = controller.gameState
-    val render = renderScreen(game, buildStatusString(game))
-    println(render)
-  }
-
-  def askForDeckSize(inputReader: () => String = readLine): Int = {
-    println("Anzahl Karten im Deck (z.B. 36 für Standard): ")
-    Try(inputReader().trim.toInt) match {
-      case Success(value) => value.max(2)
-      case Failure(e) =>
-        println(s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 36.")
-        36
-    }
-  }
-
-  def askForPlayerCount(inputReader: () => String = readLine): Int = {
-    println("Spieleranzahl?")
-    Try(inputReader().trim.toInt) match {
-      case Success(value) => value.max(2)
-      case Failure(e) =>
-        println(s"Ungültige Eingabe (${e.getMessage}). Verwende Standardwert 2.")
-        2
-    }
-  }
-
-  def askForPlayerNames(
-      count: Int,
-      inputReader: () => String = readLine
-  ): List[String] = {
-    (1 to count).map { i =>
-      println(s"Enter name of player $i: ")
-      inputReader().trim() match {
-        case "" => s"Player$i"
-        case n  => n
+    val render =
+      if (isSetupPhase(game.gamePhase)) {
+        buildStatusString(game)
+      } else {
+        renderScreen(game, buildStatusString(game))
       }
-    }.toList
+    outputStream.println(render)
+    printPrompt(game)
+  }
+
+  def description(game: GameState): String = {
+    if (
+      game.gamePhase == gamePhases.setupPhase || game.gamePhase == gamePhases.askPlayerCountPhase
+    ) {
+      "Spieleranzahl eingeben (2-6) oder 'l' zum Laden:"
+    } else if (game.gamePhase == gamePhases.askPlayerNamesPhase) {
+      s"Spielername ${game.setupPlayerNames.length + 1} oder 'l' zum Laden:"
+    } else if (game.gamePhase == gamePhases.askDeckSizePhase) {
+      val minSize = game.setupPlayerNames.size
+      s"Deckgröße eingeben ($minSize-36) oder 'l' zum Laden:"
+    } else if (game.gamePhase == gamePhases.askPlayAgainPhase) {
+      "Möchten Sie eine neue Runde spielen? (yes/no):"
+    } else {
+      game.gamePhase.toString
+    }
+  }
+
+  private def isSetupPhase(
+      phase: de.htwg.DurakApp.model.state.GamePhase
+  ): Boolean = {
+    phase == gamePhases.setupPhase ||
+    phase == gamePhases.askPlayerCountPhase ||
+    phase == gamePhases.askPlayerNamesPhase ||
+    phase == gamePhases.askDeckSizePhase
   }
 
   private def printPrompt(game: GameState): Unit = {
-    val activePlayer = game.gamePhase match {
-      case AttackPhase  => game.players(game.attackerIndex)
-      case DefensePhase => game.players(game.defenderIndex)
-      case _            => game.players(game.attackerIndex)
+    if (isSetupPhase(game.gamePhase)) {
+      outputStream.println(description(game))
+      outputStream.print("> ")
+    } else if (
+      game.gamePhase == gamePhases.attackPhase ||
+      game.gamePhase == gamePhases.defensePhase ||
+      game.gamePhase == gamePhases.drawPhase
+    ) {
+      val activePlayer =
+        if (game.gamePhase == gamePhases.attackPhase) {
+          val idx = game.currentAttackerIndex.getOrElse(game.mainAttackerIndex)
+          Some(game.players(idx))
+        } else if (game.gamePhase == gamePhases.defensePhase) {
+          Some(game.players(game.defenderIndex))
+        } else {
+          None
+        }
+      val moves =
+        if (game.gamePhase == gamePhases.attackPhase) {
+          "('play index', 'pass', 'u', 'r', 's', 'l')"
+        } else if (game.gamePhase == gamePhases.defensePhase) {
+          "('play index', 'take', 'u', 'r', 's', 'l')"
+        } else {
+          ""
+        }
+      activePlayer match {
+        case Some(player) =>
+          outputStream.println(s"$GREEN${player.name}$RESET, dein Zug $moves:")
+        case None =>
+          outputStream.println("Error: No active player. " + description(game))
+      }
+      outputStream.print("> ")
+    } else {
+      outputStream.println(description(game))
+      outputStream.print("> ")
     }
-    val moves = game.gamePhase match {
-      case AttackPhase  => "('play index', 'pass', 'u', 'r')"
-      case DefensePhase => "('play index', 'take', 'u', 'r')"
-      case _            => "('play index', 'pass', 'take', 'u', 'r')"
-    }
-    println(s"$GREEN${activePlayer.name}$RESET, dein Zug ${moves}:")
-    print("> ")
   }
 
   def clearScreen(): String = "\u001b[2J\u001b[H"
 
+  private def cardColor(suit: Suit): String = suit match {
+    case Suit.Hearts | Suit.Diamonds => RED
+    case Suit.Clubs | Suit.Spades    => GREEN
+  }
+  private def cardSymbol(suit: Suit): String = suit match {
+    case Suit.Hearts   => "\u2665"
+    case Suit.Diamonds => "\u2666"
+    case Suit.Clubs    => "\u2663"
+    case Suit.Spades   => "\u2660"
+  }
+  private def cardRankStr(rank: Rank): String = rank match {
+    case Rank.Six   => "6"
+    case Rank.Seven => "7"
+    case Rank.Eight => "8"
+    case Rank.Nine  => "9"
+    case Rank.Ten   => "10"
+    case Rank.Jack  => "J"
+    case Rank.Queen => "Q"
+    case Rank.King  => "K"
+    case Rank.Ace   => "A"
+  }
+
   def renderCard(card: Card): List[String] = {
     val w = cardWidth
     val inner = w - 2
-
-    val (colorStart, colorEnd) = card.suit match {
-      case Suit.Hearts | Suit.Diamonds => (RED, RESET)
-      case Suit.Clubs | Suit.Spades    => (GREEN, RESET)
-    }
-
-    val symbol = card.suit match
-      case Suit.Hearts   => "\u2665"
-      case Suit.Diamonds => "\u2666"
-      case Suit.Clubs    => "\u2663"
-      case Suit.Spades   => "\u2660"
-
-    val rankStr = card.rank.match
-      case Rank.Six   => "6"
-      case Rank.Seven => "7"
-      case Rank.Eight => "8"
-      case Rank.Nine  => "9"
-      case Rank.Ten   => "10"
-      case Rank.Jack  => "J"
-      case Rank.Queen => "Q"
-      case Rank.King  => "K"
-      case Rank.Ace   => "A"
-
-    val top = "+" + "-".repeat(inner) + "+"
+    val color = cardColor(card.suit)
+    val symbol = cardSymbol(card.suit)
+    val rankStr = cardRankStr(card.rank)
+    val top = "+" + "-" * inner + "+"
 
     val rankFieldWidth = math.min(2, inner)
-    val rankPadded =
-      if (rankStr.length >= rankFieldWidth) rankStr.take(rankFieldWidth)
-      else rankStr + " ".repeat(rankFieldWidth - rankStr.length)
+    val rankPadded = rankStr.padTo(rankFieldWidth, ' ').take(rankFieldWidth)
     val rankRemaining = inner - rankFieldWidth
-    val rankField =
-      "|" + colorStart + rankPadded + colorEnd + " ".repeat(rankRemaining) + "|"
+    val rankField = "|" + color + rankPadded + RESET + " " * rankRemaining + "|"
 
     val symbolLeft = (inner - 1) / 2
     val symbolRight = inner - 1 - symbolLeft
     val suitField =
-      "|" + " ".repeat(symbolLeft) + colorStart + symbol + colorEnd + " "
-        .repeat(symbolRight) + "|"
+      "|" + " " * symbolLeft + color + symbol + RESET + " " * symbolRight + "|"
 
-    val emptyLine = "|" + " ".repeat(inner) + "|"
+    val emptyLine = "|" + " " * inner + "|"
 
     List(top, rankField, suitField, emptyLine, top)
   }
 
-  private[aview] def combineCardLines(cards: List[List[String]]): String = {
+  private[aview] def combineCardLines(cards: List[List[String]]): String =
     if (cards.isEmpty) ""
     else cards.transpose.map(_.mkString(" ")).mkString("\n")
-  }
 
-  def renderHandWithIndices(hand: List[Card]): String = {
+  def renderHandWithIndices(hand: List[Card]): String =
     if (hand.isEmpty) "Leere Hand"
     else {
       val cardLines = hand.map(renderCard)
       val cardsBlock = combineCardLines(cardLines)
-      val indexCells = hand.indices.map { i =>
-        val s = i.toString
-        val total = cardWidth
-        val left = (total - s.length) / 2
-        val right = total - s.length - left
-        " " * left + s + " " * right
-      }
-      val indexLine = indexCells.mkString(" ")
+      val indexLine = hand.indices
+        .map { i =>
+          val s = i.toString
+          val total = cardWidth
+          val left = (total - s.length) / 2
+          val right = total - s.length - left
+          " " * left + s + " " * right
+        }
+        .mkString(" ")
       s"$cardsBlock\n$indexLine"
     }
-  }
 
   def renderTable(game: GameState): String = {
     val attackingCards = game.table.keys.toList
@@ -225,11 +230,15 @@ class TUI(controller: Controller) extends Observer {
 
     val table = renderTable(game)
 
-    val activePlayer = game.gamePhase match {
-      case AttackPhase  => game.players(game.attackerIndex)
-      case DefensePhase => game.players(game.defenderIndex)
-      case _            => game.players(game.attackerIndex)
-    }
+    val activePlayer =
+      if (game.gamePhase == gamePhases.attackPhase) {
+        val idx = game.currentAttackerIndex.getOrElse(game.mainAttackerIndex)
+        game.players(idx)
+      } else if (game.gamePhase == gamePhases.defensePhase) {
+        game.players(game.defenderIndex)
+      } else {
+        game.players(game.mainAttackerIndex)
+      }
 
     val playersStr = game.players
       .map { p =>
@@ -252,7 +261,7 @@ $statusLine
 """.trim
   }
 
-  def buildStatusString(game: GameState): String = {
+  def buildStatusString(game: GameState): String =
     game.lastEvent
       .map {
         case GameEvent.InvalidMove  => s"${RED}Ungültiger Zug!$RESET"
@@ -274,14 +283,34 @@ $statusLine
           s"Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!"
         case GameEvent.CannotUndo => s"${RED}Nichts zum Rückgängigmachen!$RESET"
         case GameEvent.CannotRedo => s"${RED}Nichts zum Wiederherstellen!$RESET"
+        case GameEvent.SetupError =>
+          s"${RED}Setup-Fehler: ${description(game)}$RESET"
+        case GameEvent.GameSetupComplete =>
+          s"${GREEN}Setup abgeschlossen! Starte Spiel...$RESET"
+        case GameEvent.AskPlayAgain =>
+          s"${GREEN}Möchten Sie eine neue Runde spielen? (yes/no)$RESET"
+        case GameEvent.ExitApplication =>
+          s"${GREEN}Anwendung wird beendet...$RESET"
+        case GameEvent.GameSaved  => s"${GREEN}Spiel gespeichert!$RESET"
+        case GameEvent.GameLoaded => s"${GREEN}Spiel geladen!$RESET"
+        case GameEvent.SaveError  => s"${RED}Fehler beim Speichern!$RESET"
+        case GameEvent.LoadError  => s"${RED}Fehler beim Laden!$RESET"
+        case GameEvent.AskPlayerCount | GameEvent.AskPlayerNames |
+            GameEvent.AskDeckSize =>
+          ""
       }
       .getOrElse(
-        game.gamePhase match {
-          case SetupPhase =>
-            if (game.players.isEmpty) "Willkommen bei Durak!"
-            else "Spieler werden eingerichtet."
-          case _ => game.gamePhase.toString
+        if (isSetupPhase(game.gamePhase)) {
+          ""
+        } else {
+          game.gamePhase.toString
         }
       )
-  }
+}
+
+object TUI {
+  val cardWidth = 7
+  val RED = "\u001b[31m"
+  val GREEN = "\u001b[32m"
+  val RESET = "\u001b[0m"
 }

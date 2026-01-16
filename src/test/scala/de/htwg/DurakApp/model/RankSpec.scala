@@ -1,10 +1,8 @@
 package de.htwg.DurakApp.model
-
+import de.htwg.DurakApp.testutil._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-
 class RankSpec extends AnyWordSpec with Matchers {
-
   "A Rank" should {
     "extend its value correctly" in {
       Rank.Six.value.shouldBe(6)

@@ -1,42 +1,55 @@
 package de.htwg.DurakApp.aview.tui.handler
-
+import de.htwg.DurakApp.testutil._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.model._
-import de.htwg.DurakApp.model.state._
-import de.htwg.DurakApp.controller._
-
+import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
+import de.htwg.DurakApp.testutil.*
+import de.htwg.DurakApp.controller.{TakeCardsAction, InvalidAction}
 class TakeCardsHandlerSpec extends AnyWordSpec with Matchers {
-
-  val gameState = GameState(
-    players = List.empty,
+  val player1 =
+    TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+  val player2 =
+    TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+  val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+  val gameState = TestHelper.GameState(
+    players = List(player1, player2),
     deck = List.empty,
-    table = Map.empty,
+    table = Map(TestHelper.Card(Suit.Hearts, Rank.Six) -> None),
     discardPile = List.empty,
-    trumpCard = Card(Suit.Clubs, Rank.Seven, isTrump = true),
-    attackerIndex = 0,
+    trumpCard = trumpCard,
+    mainAttackerIndex = 0,
     defenderIndex = 1,
-    gamePhase = AttackPhase,
+    gamePhase = StubGamePhases.setupPhase,
     lastEvent = None,
     passedPlayers = Set.empty,
-    roundWinner = None
+    roundWinner = None,
+    setupPlayerCount = None,
+    setupPlayerNames = List.empty,
+    setupDeckSize = None,
+    currentAttackerIndex = None,
+    lastAttackerIndex = None
   )
-
   "A TakeCardsHandler" should {
-    val invalidHandler = new InvalidInputHandler()
-    val takeHandler = new TakeCardsHandler(Some(invalidHandler))
-
-    "handle 'take' command" in {
-      takeHandler.handleRequest("take", gameState) should be(TakeCardsAction)
+    "handle take command" in {
+      val handler = TakeCardsHandler()
+      val result = handler.handleRequest("take", gameState)
+      result shouldBe TakeCardsAction
     }
-
-    "pass to next handler for non-take command" in {
-      takeHandler.handleRequest("foo", gameState) should be(InvalidAction)
+    "handle uppercase TAKE command" in {
+      val handler = TakeCardsHandler()
+      val result = handler.handleRequest("TAKE", gameState)
+      result shouldBe TakeCardsAction
     }
-
-    "return InvalidAction for unhandled command" in {
-      val takeHandlerOnly = new TakeCardsHandler()
-      takeHandlerOnly.handleRequest("foo", gameState) should be(InvalidAction)
+    "handle take with extra whitespace" in {
+      val handler = TakeCardsHandler()
+      val result = handler.handleRequest("  take  ", gameState)
+      result shouldBe TakeCardsAction
+    }
+    "delegate to next handler for non-take command" in {
+      val nextHandler = InvalidInputHandler()
+      val handler = TakeCardsHandler(Some(nextHandler))
+      val result = handler.handleRequest("pass", gameState)
+      result shouldBe InvalidAction
     }
   }
 }

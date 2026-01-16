@@ -3,7 +3,8 @@ package de.htwg.DurakApp.aview.tui.handler
 import de.htwg.DurakApp.controller.{
   TakeCardsAction,
   PlayerAction,
-  InvalidAction
+  InvalidAction,
+  Controller
 }
 import de.htwg.DurakApp.model.GameState
 

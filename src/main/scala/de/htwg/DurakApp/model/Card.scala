@@ -1,3 +1,8 @@
 package de.htwg.DurakApp.model
 
-case class Card(suit: Suit, rank: Rank, isTrump: Boolean = false)
+/** Case class representing a playing card in the Durak game. */
+case class Card(
+    suit: Suit,
+    rank: Rank,
+    isTrump: Boolean = false
+)

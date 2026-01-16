@@ -5,12 +5,14 @@ lazy val root = project
   .settings(
     name := "durak_ronny",
     version := "0.1.0-SNAPSHOT",
-
     scalaVersion := scala3Version,
-
     libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.14",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test",
     libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test,
-
-    coverageExcludedFiles := """.*Main"""
+    libraryDependencies += "org.scalafx" %% "scalafx" % "23.0.1-R34",
+    libraryDependencies += "com.google.inject" % "guice" % "7.0.0",
+    libraryDependencies += "net.codingwell" %% "scala-guice" % "7.0.0",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.3.0",
+    libraryDependencies += "org.playframework" %% "play-json" % "3.0.4",
+    coverageExcludedFiles := ".*Main|.*gui.*"
   )

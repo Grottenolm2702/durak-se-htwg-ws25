@@ -1,99 +1,104 @@
 package de.htwg.DurakApp.controller
 
 import de.htwg.DurakApp.model.GameState
-import de.htwg.DurakApp.model.state.GameEvent
-import de.htwg.DurakApp.util.{Observable, UndoRedoManager}
-import de.htwg.DurakApp.controller.command.{
-  GameCommand,
-  CommandFactory,
-  PhaseChangeCommand
-}
-import de.htwg.DurakApp.controller.{
-  PlayerAction,
-  PlayCardAction,
-  PassAction,
-  TakeCardsAction,
-  InvalidAction
-}
 
-class Controller(var gameState: GameState, var undoRedoManager: UndoRedoManager)
-    extends Observable {
+import de.htwg.DurakApp.util.{UndoRedoManager, Observer}
 
-  def processPlayerAction(action: PlayerAction): GameState = {
-    val oldGameStateBeforeAction = this.gameState
-    val result = CommandFactory.createCommand(action, oldGameStateBeforeAction)
+/** Controller trait for managing game flow and state transitions.
+  *
+  * The Controller is the central component that processes player actions,
+  * manages undo/redo operations, and notifies observers (views) of state
+  * changes. It implements the Observable pattern to allow multiple views to
+  * react to game state updates.
+  *
+  * The Controller follows the Command pattern for undo/redo functionality,
+  * allowing players to reverse and replay their actions.
+  */
+trait Controller:
 
-    result match {
-      case Left(event) =>
-        this.gameState = oldGameStateBeforeAction.copy(lastEvent = Some(event))
-        notifyObservers
+  /** Processes a player action and updates the game state.
+    *
+    * This method is the main entry point for all player interactions. It
+    * validates the action, executes it through the command pattern, handles
+    * phase transitions, and notifies all observers.
+    *
+    * @param action
+    *   The player action to process (e.g., PlayCardAction, PassAction)
+    * @return
+    *   The updated game state after processing the action
+    */
+  def processPlayerAction(action: PlayerAction): GameState
 
-      case Right(command) =>
-        val gameStateAfterCommand = command.execute(oldGameStateBeforeAction)
-        this.gameState = gameStateAfterCommand
-        undoRedoManager =
-          undoRedoManager.save(command, oldGameStateBeforeAction)
-        notifyObservers
+  /** Undoes the last action.
+    *
+    * Reverts the game state to the previous state before the last action. Uses
+    * the command pattern to restore state from the undo stack.
+    *
+    * @return
+    *   Some(GameState) if undo was successful, None if no actions to undo
+    */
+  def undo(): Option[GameState]
 
-        @scala.annotation.tailrec
-        def handlePhaseRecursively(
-            currentState: GameState,
-            currentUndoRedoManager: UndoRedoManager
-        ): GameState = {
-          val oldPhaseStateBeforeHandle = currentState
-          val nextState = currentState.gamePhase.handle(currentState)
+  /** Redoes the last undone action.
+    *
+    * Reapplies the most recently undone action. Only works if undo was called
+    * before and no new actions were performed since.
+    *
+    * @return
+    *   Some(GameState) if redo was successful, None if no actions to redo
+    */
+  def redo(): Option[GameState]
 
-          if (nextState != currentState) {
-            this.gameState = nextState
-            this.undoRedoManager = currentUndoRedoManager.save(
-              new PhaseChangeCommand(),
-              oldPhaseStateBeforeHandle
-            )
-            notifyObservers
-            handlePhaseRecursively(this.gameState, this.undoRedoManager)
-          } else {
-            currentState
-          }
-        }
+  /** Returns a string representation of the current game status.
+    *
+    * Typically returns the name of the current game phase for display purposes.
+    *
+    * @return
+    *   A status string describing the current game state
+    */
+  def getStatusString(): String
 
-        val finalStateFromPhaseHandling =
-          handlePhaseRecursively(this.gameState, this.undoRedoManager)
-        this.gameState = finalStateFromPhaseHandling
-    }
-    this.gameState
-  }
+  /** Returns the current game state.
+    *
+    * Provides read access to the current state of the game.
+    *
+    * @return
+    *   The current GameState
+    */
+  def gameState: GameState
 
-  def undo(): Option[GameState] = {
-    undoRedoManager.undo(this.gameState) match {
-      case Some((newManager, previousState)) =>
-        undoRedoManager = newManager
-        this.gameState = previousState
-        notifyObservers
-        Some(this.gameState)
-      case None =>
-        this.gameState =
-          this.gameState.copy(lastEvent = Some(GameEvent.CannotUndo))
-        notifyObservers
-        None
-    }
-  }
+  /** Adds an observer to be notified of state changes.
+    *
+    * Observers (typically views) are notified whenever the game state changes.
+    *
+    * @param observer
+    *   The observer to add
+    */
+  def add(observer: Observer): Unit
 
-  def redo(): Option[GameState] = {
-    undoRedoManager.redo(this.gameState) match {
-      case Some((newManager, nextState)) =>
-        undoRedoManager = newManager
-        this.gameState = nextState
-        notifyObservers
-        Some(this.gameState)
-      case None =>
-        this.gameState =
-          this.gameState.copy(lastEvent = Some(GameEvent.CannotRedo))
-        notifyObservers
-        None
-    }
-  }
+  /** Removes an observer from the notification list.
+    *
+    * @param observer
+    *   The observer to remove
+    */
+  def remove(observer: Observer): Unit
 
-  def getStatusString(): String = {
-    gameState.gamePhase.toString
-  }
-}
+  /** Notifies all registered observers of a state change.
+    *
+    * Called internally after state changes to update all views.
+    */
+  def notifyObservers: Unit
+
+  /** Saves the current game state to file.
+    *
+    * @return
+    *   The current game state with save result event
+    */
+  def saveGame(): GameState
+
+  /** Loads a game state from file.
+    *
+    * @return
+    *   The loaded game state or current state with error event
+    */
+  def loadGame(): GameState

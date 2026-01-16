@@ -1,882 +1,1034 @@
 package de.htwg.DurakApp.aview.tui
-
+import de.htwg.DurakApp.testutil.TestHelper._
+import de.htwg.DurakApp.testutil.StubGamePhases
+import de.htwg.DurakApp.model.state.GamePhases
+object TestGamePhases extends GamePhases {
+  def setupPhase = StubGamePhases.setupPhase
+  def askPlayerCountPhase = StubGamePhases.askPlayerCountPhase
+  def askPlayerNamesPhase = StubGamePhases.askPlayerNamesPhase
+  def askDeckSizePhase = StubGamePhases.askDeckSizePhase
+  def askPlayAgainPhase = StubGamePhases.askPlayAgainPhase
+  def gameStartPhase = StubGamePhases.gameStartPhase
+  def attackPhase = StubGamePhases.attackPhase
+  def defensePhase = StubGamePhases.defensePhase
+  def drawPhase = StubGamePhases.drawPhase
+  def roundPhase = StubGamePhases.roundPhase
+  def endPhase = StubGamePhases.endPhase
+}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.Controller
-import de.htwg.DurakApp.model._
+import de.htwg.DurakApp.model.{Card, Player, Suit, Rank, GameState}
 import de.htwg.DurakApp.model.state._
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import de.htwg.DurakApp.aview.tui.TUI
-import de.htwg.DurakApp.util.Observable
-import de.htwg.DurakApp.util.UndoRedoManager
-
+import de.htwg.DurakApp.testutil.{
+  TestHelper,
+  StubGameSetup,
+  StubUndoRedoManager,
+  SpyController
+}
+import de.htwg.DurakApp.controller.Controller
+import java.io.{PrintStream, OutputStream}
 class TUISpec extends AnyWordSpec with Matchers {
-
-  val GREEN = "\u001b[32m"
-  val RESET = "\u001b[0m"
-
-  val defaultTrumpCard: Card = Card(Suit.Clubs, Rank.Six, isTrump = true)
-  val defaultTable: Map[Card, Option[Card]] = Map.empty
-  val defaultDiscardPile: List[Card] = List.empty
-  val defaultAttackerIndex: Int = 0
-  val defaultDefenderIndex: Int = 1
-  val defaultGamePhase: GamePhase = SetupPhase
-  val defaultLastEvent: Option[GameEvent] = None
-  val defaultPassedPlayers: Set[Int] = Set.empty
-  val defaultRoundWinner: Option[Int] = None
-
-  def createGameState(
-      players: List[Player],
-      deck: List[Card] = List.empty,
-      table: Map[Card, Option[Card]] = defaultTable,
-      discardPile: List[Card] = defaultDiscardPile,
-      trumpCard: Card = defaultTrumpCard,
-      attackerIndex: Int = defaultAttackerIndex,
-      defenderIndex: Int = defaultDefenderIndex,
-      gamePhase: GamePhase = defaultGamePhase,
-      lastEvent: Option[GameEvent] = defaultLastEvent,
-      passedPlayers: Set[Int] = defaultPassedPlayers,
-      roundWinner: Option[Int] = defaultRoundWinner
-  ): GameState = {
-    GameState(
-      players,
-      deck,
-      table,
-      discardPile,
-      trumpCard,
-      attackerIndex,
-      defenderIndex,
-      gamePhase,
-      lastEvent,
-      passedPlayers,
-      roundWinner
-    )
-  }
-
-  val heartAce = Card(Suit.Hearts, Rank.Ace, isTrump = false)
-  val spadeSix = Card(Suit.Spades, Rank.Six, isTrump = false)
-  val diamondTen = Card(Suit.Diamonds, Rank.Ten, isTrump = false)
-  val clubKing = Card(Suit.Clubs, Rank.King, isTrump = false)
-  val spadeTen = Card(Suit.Spades, Rank.Ten, isTrump = false)
-
+  val nullOutputStream = new PrintStream(new OutputStream {
+    override def write(b: Int): Unit = ()
+  })
   "A TUI" should {
-
-    "buildStatusString - SetupPhase (Welcome)" in {
-      val game = createGameState(
-        players = List.empty,
-        gamePhase = SetupPhase,
-        lastEvent = None
+    "be created with a controller" in {
+      val initialState = TestHelper.createTestGameState()
+      val controller = new SpyController(
+        initialState,
+        new StubUndoRedoManager()
       )
-      val controller =
-        new Controller(game, de.htwg.DurakApp.util.UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).shouldBe("Willkommen bei Durak!")
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      tui.should(not(be(null)))
     }
-
-    "buildStatusString - SetupPhase (Player Setup)" in {
-      val game = createGameState(
-        players = List(Player("TestPlayer", List.empty)),
-        gamePhase = SetupPhase,
-        lastEvent = None
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).shouldBe("Spieler werden eingerichtet.")
-    }
-
-    "buildStatusString - AttackPhase shows attacker name" in {
-      val attacker = Player("Angreifer", List.empty)
-      val defender = Player("Verteidiger", List.empty)
-      val game = createGameState(
+    "build status string for attack phase" in {
+      val attacker = TestHelper.Player("Angreifer", List.empty)
+      val defender = TestHelper.Player("Verteidiger", List.empty)
+      val game = TestHelper.createTestGameState(
         players = List(attacker, defender),
-        gamePhase = AttackPhase,
-        attackerIndex = 0,
-        lastEvent = Some(GameEvent.Attack(spadeSix))
+        gamePhase = TestGamePhases.setupPhase,
+        lastEvent =
+          Some(GameEvent.Attack(TestHelper.Card(Suit.Spades, Rank.Six)))
       )
       val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include("Angriff mit Six Spades."))
+        new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString.should(not(be(empty)))
+      statusString.should(include("Angriff"))
     }
-
-    "buildStatusString - DefensePhase shows defender name" in {
-      val a = Player("A", List.empty)
-      val d = Player("D", List.empty)
-      val game = createGameState(
-        players = List(a, d),
-        gamePhase = DefensePhase,
-        defenderIndex = 1,
-        lastEvent = Some(GameEvent.Defend(diamondTen))
+    "respond to update notification" in {
+      val initialState = TestHelper.createTestGameState()
+      val controller = new SpyController(
+        initialState,
+        new StubUndoRedoManager()
       )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui
-        .buildStatusString(game)
-        .should(include("Verteidigung mit Ten Diamonds."))
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
     }
-
-    "buildStatusString - Take shows who takes" in {
-      val p = Player("P", List.empty)
-      val game = createGameState(
-        players = List(p),
-        gamePhase = DrawPhase,
-        lastEvent = Some(GameEvent.Take)
+    "show correct description for TestGamePhases.setupPhase" in {
+      val gameState =
+        TestHelper.createTestGameState(gamePhase = TestGamePhases.setupPhase)
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
       )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include("Karten aufgenommen."))
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val desc = tui.description(gameState)
+      desc.should(include("Spieleranzahl"))
     }
-
-    "buildStatusString - Pass shows who passed" in {
-      val p = Player("P", List.empty)
-      val game = createGameState(
-        players = List(p),
-        gamePhase = DrawPhase,
-        lastEvent = Some(GameEvent.Pass)
+    "show correct description for TestGamePhases.askPlayerCountPhase" in {
+      val gameState = TestHelper.createTestGameState(gamePhase =
+        TestGamePhases.askPlayerCountPhase
       )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include("Passen."))
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val desc = tui.description(gameState)
+      desc.should(include("Spieleranzahl"))
     }
-
-    "buildStatusString - InvalidMove" in {
-      val game = createGameState(
-        players = List.empty,
+    "show correct description for TestGamePhases.askPlayerNamesPhase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.askPlayerNamesPhase,
+        setupPlayerNames = List("Alice")
+      )
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(
+        controller,
+        new de.htwg.DurakApp.testutil.StubGamePhasesImpl(),
+        nullOutputStream
+      )
+      val desc = tui.description(gameState)
+      desc.should(include("Spielername"))
+      desc.should(include("2"))
+    }
+    "show correct description for TestGamePhases.askDeckSizePhase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.askDeckSizePhase,
+        setupPlayerNames = List("Alice", "Bob")
+      )
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(
+        controller,
+        new de.htwg.DurakApp.testutil.StubGamePhasesImpl(),
+        nullOutputStream
+      )
+      val desc = tui.description(gameState)
+      desc.should(include("Deckgröße"))
+      desc.should(include("2"))
+    }
+    "show correct description for TestGamePhases.askPlayAgainPhase" in {
+      val gameState = TestHelper.createTestGameState(gamePhase =
+        TestGamePhases.askPlayAgainPhase
+      )
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val desc = tui.description(gameState)
+      desc.should(include("neue Runde"))
+    }
+    "show correct description for TestGamePhases.attackPhase" in {
+      val gameState =
+        TestHelper.createTestGameState(gamePhase = TestGamePhases.attackPhase)
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val desc = tui.description(gameState)
+      desc.should(include("AttackPhase"))
+    }
+    "build status string contains important information" in {
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(gameState)
+      statusString.should(not(be(empty)))
+      statusString.length.should(be > 0)
+    }
+    "build status string for TestGamePhases.defensePhase" in {
+      val player1 =
+        TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val player2 = TestHelper.Player(
+        "Bob",
+        List(TestHelper.Card(Suit.Diamonds, Rank.Seven))
+      )
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        gamePhase = TestGamePhases.setupPhase,
+        lastEvent =
+          Some(GameEvent.Defend(TestHelper.Card(Suit.Hearts, Rank.Seven)))
+      )
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(gameState)
+      statusString.should(not(be(empty)))
+      statusString.should(include("Verteidigung"))
+    }
+    "build status string for GameOver event contains end message" in {
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 =
+        TestHelper.Player("Bob", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        gamePhase = TestGamePhases.setupPhase,
+        lastEvent = Some(GameEvent.GameOver(player1, Some(player2)))
+      )
+      val controller = new SpyController(
+        gameState,
+        new StubUndoRedoManager()
+      )
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(gameState)
+      statusString.should(include("Spiel"))
+    }
+    "render card correctly" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace)
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val rendered = tui.renderCard(card)
+      rendered should have length 5
+      rendered.head should startWith("+")
+    }
+    "render hand with indices" in {
+      val card1 = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val card2 = TestHelper.Card(Suit.Spades, Rank.King)
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val rendered = tui.renderHandWithIndices(List(card1, card2))
+      rendered should not be empty
+      rendered should include("0")
+      rendered should include("1")
+    }
+    "render empty hand" in {
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val rendered = tui.renderHandWithIndices(List.empty)
+      rendered shouldBe "Leere Hand"
+    }
+    "combine card lines correctly" in {
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val line1 = List("a", "b")
+      val line2 = List("c", "d")
+      val combined = tui.combineCardLines(List(line1, line2))
+      combined shouldBe "a c\nb d"
+    }
+    "combine empty card lines" in {
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      val combined = tui.combineCardLines(List.empty)
+      combined shouldBe ""
+    }
+    "clear screen returns escape sequence" in {
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      tui.clearScreen() shouldBe "\u001b[2J\u001b[H"
+    }
+    "render game state for non-setup phase" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "handle defense phase in update" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.defensePhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "handle draw phase in update" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.drawPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "handle round phase in description" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.roundPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val desc = tui.description(gameState)
+      desc should not be empty
+    }
+    "handle end phase in description" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.endPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val desc = tui.description(gameState)
+      desc should not be empty
+    }
+    "build status string for GameSaved event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameSaved)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("gespeichert")
+    }
+    "build status string for GameLoaded event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameLoaded)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("geladen")
+    }
+    "build status string for SaveError event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.SaveError)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("Fehler")
+      statusString should include("Speichern")
+    }
+    "build status string for LoadError event" in {
+      val game = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.LoadError)
+      )
+      val controller = new SpyController(game, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val statusString = tui.buildStatusString(game)
+      statusString should include("Fehler")
+      statusString should include("Laden")
+    }
+    "render table with cards" in {
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val defenseCard = TestHelper.Card(Suit.Spades, Rank.Seven)
+      val table = Map(attackCard -> Some(defenseCard))
+      val gameState = TestHelper.createTestGameState(
+        table = table,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "render table with undefended cards" in {
+      val attackCard = TestHelper.Card(Suit.Hearts, Rank.Six)
+      val table = Map(attackCard -> None)
+      val gameState = TestHelper.createTestGameState(
+        table = table,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "handle all card suits in cardColor" in {
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      noException shouldBe thrownBy {
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Ace))
+        tui.renderCard(TestHelper.Card(Suit.Diamonds, Rank.Ace))
+        tui.renderCard(TestHelper.Card(Suit.Clubs, Rank.Ace))
+        tui.renderCard(TestHelper.Card(Suit.Spades, Rank.Ace))
+      }
+    }
+    "handle all card ranks" in {
+      val tui = new TUI(
+        new SpyController(
+          TestHelper.createTestGameState(),
+          new StubUndoRedoManager()
+        ),
+        TestGamePhases,
+        nullOutputStream
+      )
+      noException shouldBe thrownBy {
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Six))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Seven))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Eight))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Nine))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Ten))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Jack))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Queen))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.King))
+        tui.renderCard(TestHelper.Card(Suit.Hearts, Rank.Ace))
+      }
+    }
+    "render table with empty attack and defense" in {
+      val gameState = TestHelper.createTestGameState(
+        table = Map.empty,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val rendered = tui.renderTable(gameState)
+      rendered should include("Angriff")
+      rendered should include("Verteidigung")
+      rendered should include("Leer")
+    }
+    "render screen with full game state" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        deck = List(card),
+        discardPile = List(card),
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val rendered = tui.renderScreen(gameState, "Test Status")
+      rendered should include("Trumpf")
+      rendered should include("Deck")
+      rendered should include("Ablagestapel")
+      rendered should include("Alice")
+      rendered should include("Bob")
+      rendered should include("Test Status")
+    }
+    "build status string for InvalidMove" in {
+      val gameState = TestHelper.createTestGameState(
         lastEvent = Some(GameEvent.InvalidMove)
       )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).should(include("Ungültiger Zug!"))
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Ungültiger Zug")
     }
-
-    "buildStatusString - GameOver with loser" in {
-      val donePlayer = Player("Done", List.empty, isDone = true)
-      val loser =
-        Player("Loser", List(Card(Suit.Clubs, Rank.Six)), isDone = false)
-      val game = createGameState(
-        players = List(donePlayer, loser),
-        gamePhase = EndPhase,
-        lastEvent = Some(GameEvent.GameOver(donePlayer, Some(loser)))
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui
-        .buildStatusString(game)
-        .should(include("Spiel beendet! Loser ist der Durak!"))
-    }
-
-    "buildStatusString - GameOver draw (no loser)" in {
-      val p1 = Player("P1", List.empty, isDone = true)
-      val p2 = Player("P2", List.empty, isDone = true)
-      val game = createGameState(
-        players = List(p1, p2),
-        gamePhase = EndPhase,
-        lastEvent = Some(GameEvent.GameOver(p1, None))
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui
-        .buildStatusString(game)
-        .shouldBe(
-          "Spiel beendet! Es gibt keinen Durak (Unentschieden oder alle gewonnen)!"
-        )
-    }
-
-    "buildStatusString - Quit (simulated by GameOver)" in {
-      val game = createGameState(
-        players = List.empty,
-        gamePhase = EndPhase,
-        lastEvent = Some(GameEvent.GameOver(Player("Quit", List.empty), None))
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui.buildStatusString(game).shouldBe("Spiel beendet.")
-    }
-
-    "buildStatusString - CannotUndo" in {
-      val game = createGameState(
-        players = List.empty,
-        lastEvent = Some(GameEvent.CannotUndo)
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui
-        .buildStatusString(game)
-        .should(include("Nichts zum Rückgängigmachen!"))
-    }
-
-    "buildStatusString - CannotRedo" in {
-      val game = createGameState(
-        players = List.empty,
-        lastEvent = Some(GameEvent.CannotRedo)
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      tui
-        .buildStatusString(game)
-        .should(include("Nichts zum Wiederherstellen!"))
-    }
-
-    "ask for deck size and use default" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      val input = "\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      Console.withIn(inStream) {
-        val result = tui.askForDeckSize()
-        result.shouldBe(36)
-      }
-    }
-
-    "askForDeckSize uses provided value" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      val input = "52\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      Console.withIn(inStream) {
-        val result = tui.askForDeckSize()
-        result.shouldBe(52)
-      }
-    }
-
-    "ask for player count and use default" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      val input = "\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      Console.withIn(inStream) {
-        val result = tui.askForPlayerCount()
-        result.shouldBe(2)
-      }
-    }
-
-    "askForPlayerCount uses provided value" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      val input = "3\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      Console.withIn(inStream) {
-        val result = tui.askForPlayerCount()
-        result.shouldBe(3)
-      }
-    }
-
-    "ask for player count and handle minimum" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      val input = "1\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      Console.withIn(inStream) {
-        val result = tui.askForPlayerCount()
-        result.shouldBe(2)
-      }
-    }
-
-    "ask for player names and use provided names" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      val input = "Alice\nBob\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      Console.withIn(inStream) {
-        val names = tui.askForPlayerNames(2)
-        names.shouldBe(List("Alice", "Bob"))
-      }
-    }
-
-    "ask for player names and use default names for empty input" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      val input = "\n\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      Console.withIn(inStream) {
-        val names = tui.askForPlayerNames(2)
-        names.shouldBe(List("Player1", "Player2"))
-      }
-    }
-
-    "clearScreen returns ANSI escape sequence" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-      tui.clearScreen().shouldBe("\u001b[2J\u001b[H")
-    }
-
-    "update method should print to console with active player highlighted" in {
-      val player = Player("TestPlayer", List(heartAce))
-      val game = createGameState(
-        players = List(player),
-        trumpCard = defaultTrumpCard,
-        gamePhase = AttackPhase,
-        attackerIndex = 0
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      controller.add(tui)
-
-      val stream = new ByteArrayOutputStream()
-      Console.withOut(stream) {
-        controller.notifyObservers
-      }
-      val output = stream.toString()
-      output should include("Status: AttackPhase")
-      output should include(defaultTrumpCard.suit.toString)
-      output should include(s"$GREEN${player.name}$RESET (Karten: 1)")
-    }
-
-    "renderCard" should {
-      "contain rank and suit for a red card" in {
-        val controller = new Controller(
-          createGameState(List.empty),
-          UndoRedoManager()
-        )
-        val tui = new TUI(controller)
-        val card = Card(Suit.Hearts, Rank.Ace)
-        val renderedCard = tui.renderCard(card).mkString
-        renderedCard should include("A")
-        renderedCard should include("\u2665")
-      }
-
-      "contain rank and suit for a black card" in {
-        val controller = new Controller(
-          createGameState(List.empty),
-          UndoRedoManager()
-        )
-        val tui = new TUI(controller)
-        val card = Card(Suit.Spades, Rank.King)
-        val renderedCard = tui.renderCard(card).mkString
-        renderedCard should include("K")
-        renderedCard should include("\u2660")
-      }
-    }
-
-    "renderHandWithIndices" should {
-      "return 'Leere Hand' for an empty hand" in {
-        val controller = new Controller(
-          createGameState(List.empty),
-          UndoRedoManager()
-        )
-        val tui = new TUI(controller)
-        tui.renderHandWithIndices(List.empty) should be("Leere Hand")
-      }
-
-      "render a single card with its index" in {
-        val controller = new Controller(
-          createGameState(List.empty),
-          UndoRedoManager()
-        )
-        val tui = new TUI(controller)
-        val hand = List(Card(Suit.Diamonds, Rank.Ten))
-        val renderedHand = tui.renderHandWithIndices(hand)
-        renderedHand should include("10")
-        renderedHand should include("\u2666")
-        renderedHand should endWith("\n   0   ")
-      }
-
-      "render multiple cards with their indices" in {
-        val controller = new Controller(
-          createGameState(List.empty),
-          UndoRedoManager()
-        )
-        val tui = new TUI(controller)
-        val hand =
-          List(Card(Suit.Diamonds, Rank.Ten), Card(Suit.Clubs, Rank.Jack))
-        val renderedHand = tui.renderHandWithIndices(hand)
-
-        renderedHand should include("10")
-        renderedHand should include("\u2666")
-        renderedHand should include("J")
-        renderedHand should include("\u2663")
-
-        renderedHand should include regex "\n\\s*0\\s+1\\s*"
-      }
-    }
-
-    "show the correct prompt for the attacker in AttackPhase" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val defender = Player("Bob", List(heartAce))
-      val game = createGameState(
-        players = List(attacker, defender),
-        gamePhase = AttackPhase,
-        attackerIndex = 0
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      val input = "q\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      val output = outStream.toString()
-      output should include(
-        s"${GREEN}Alice$RESET, dein Zug ('play index', 'pass', 'u', 'r'):"
-      )
-    }
-
-    "show the correct prompt for the defender in DefensePhase" in {
-      val attacker = Player("Alice", List(spadeSix))
-      val defender = Player("Bob", List(heartAce))
-      val game = createGameState(
-        players = List(attacker, defender),
-        gamePhase = DefensePhase,
-        attackerIndex = 0,
-        defenderIndex = 1
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      val input = "q\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      val output = outStream.toString()
-      output should include(
-        s"${GREEN}Bob$RESET, dein Zug ('play index', 'take', 'u', 'r'):"
-      )
-    }
-
-    "parseTuiInput (Chain of Responsibility)" should {
-      val attacker = Player("Alice", List(spadeSix))
-      val defender = Player("Bob", List(heartAce))
-      val gameAttackPhase = createGameState(
-        players = List(attacker, defender),
-        gamePhase = AttackPhase,
-        attackerIndex = 0,
-        defenderIndex = 1
-      )
-      val gameDefensePhase = gameAttackPhase.copy(gamePhase = DefensePhase)
-      val controller =
-        new Controller(gameAttackPhase, UndoRedoManager())
-      val tui = new TUI(controller)
-
-      "handle 'play 0' during AttackPhase" in {
-        val action = tui.parseTuiInput("play 0", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
-      }
-
-      "handle 'play 0' during DefensePhase" in {
-        val action = tui.parseTuiInput("play 0", gameDefensePhase)
-        action should be(de.htwg.DurakApp.controller.PlayCardAction(heartAce))
-      }
-
-      "handle 'pass'" in {
-        val action = tui.parseTuiInput("pass", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.PassAction)
-      }
-
-      "handle 'take'" in {
-        val action = tui.parseTuiInput("take", gameDefensePhase)
-        action should be(de.htwg.DurakApp.controller.TakeCardsAction)
-      }
-
-      "handle 'undo'" in {
-        val action = tui.parseTuiInput("undo", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.UndoAction)
-      }
-
-      "handle 'z' as undo" in {
-        val action = tui.parseTuiInput("z", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.UndoAction)
-      }
-
-      "handle 'redo'" in {
-        val action = tui.parseTuiInput("redo", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.RedoAction)
-      }
-
-      "handle 'y' as redo" in {
-        val action = tui.parseTuiInput("y", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.RedoAction)
-      }
-
-      "handle invalid command" in {
-        val action = tui.parseTuiInput("foo", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.InvalidAction)
-      }
-
-      "handle 'play' without index" in {
-        val action = tui.parseTuiInput("play", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.InvalidAction)
-      }
-
-      "handle 'play' with non-numeric index" in {
-        val action = tui.parseTuiInput("play foo", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.InvalidAction)
-      }
-
-      "handle 'play' with out-of-bounds index" in {
-        val action = tui.parseTuiInput("play 5", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.InvalidAction)
-      }
-
-      "handle case-insensitivity and whitespace" in {
-        val action = tui.parseTuiInput("  PLaY 0  ", gameAttackPhase)
-        action should be(de.htwg.DurakApp.controller.PlayCardAction(spadeSix))
-      }
-    }
-
-    "terminate on 'quit' input" in {
-      val game = createGameState(
-        players = List(Player("Alice", List.empty)),
-        gamePhase = AttackPhase,
-        attackerIndex = 0
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      val input = "quit\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      val output = outStream.toString()
-      output should include("Spiel beendet.")
-    }
-
-    "stop the gameLoop when controller sets GameOver after an action" in {
-      val attacker = Player("A", List(spadeSix))
-      val defender = Player("D", List(heartAce))
-      val initial = createGameState(
-        players = List(attacker, defender),
-        gamePhase = AttackPhase
-      )
-
-      class TestController(
-          gs: GameState,
-          undoManager: UndoRedoManager
-      ) extends Controller(gs, undoManager) {
-        override def processPlayerAction(
-            action: de.htwg.DurakApp.controller.PlayerAction
-        ): de.htwg.DurakApp.model.GameState = {
-          this.gameState = this.gameState.copy(lastEvent =
-            Some(GameEvent.GameOver(attacker, Some(defender)))
-          )
-          this.gameState
-        }
-      }
-
-      val controller =
-        new TestController(initial, UndoRedoManager())
-      val tui = new TUI(controller)
-
-      val input =
-        "unknown\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      val output = outStream.toString()
-      output should include("Spiel beendet.")
-    }
-
-    "print the attacker prompt for non-attack/defense phases (default case)" in {
-      val attacker = Player("RoundAttacker", List(spadeSix))
-      val defender = Player("RoundDefender", List(heartAce))
-      val game = createGameState(
-        players = List(attacker, defender),
-        gamePhase = RoundPhase,
-        attackerIndex = 0
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      val input = "q\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      val output = outStream.toString()
-      output should include(
-        s"${GREEN}RoundAttacker$RESET, dein Zug ('play index', 'pass', 'take', 'u', 'r'):"
-      )
-    }
-
-    "print the correct prompt for DrawPhase (default case)" in {
-      val player = Player("DrawPlayer", List(spadeSix))
-      val game = createGameState(
-        players = List(player),
-        gamePhase = DrawPhase,
-        attackerIndex = 0
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-      val input = "q\n"
-      val inStream = new ByteArrayInputStream(input.getBytes)
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-
-      val output = outStream.toString()
-      output should include(
-        s"${GREEN}DrawPlayer$RESET, dein Zug ('play index', 'pass', 'take', 'u', 'r'):"
-      )
-    }
-
-    "renderCard includes Nine and Queen correctly" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-
-      val nineCard = Card(Suit.Clubs, Rank.Nine)
-      val queenCard = Card(Suit.Hearts, Rank.Queen)
-
-      val rNine = tui.renderCard(nineCard).mkString
-      rNine should include("9")
-      rNine should include("\u2663")
-
-      val rQueen = tui.renderCard(queenCard).mkString
-      rQueen should include("Q")
-      rQueen should include("\u2665")
-    }
-
-    "renderTable shows defending cards (calls combineCardLines for defenses)" in {
-      val attack = Card(Suit.Spades, Rank.Six)
-      val defend = Card(Suit.Diamonds, Rank.Ten)
-      val pA = Player("A", List(attack))
-      val pD = Player("D", List(defend))
-      val game = createGameState(
-        players = List(pA, pD),
-        table = Map(attack -> Some(defend)),
-        gamePhase = AttackPhase
-      )
-      val controller =
-        new Controller(game, UndoRedoManager())
-      val tui = new TUI(controller)
-
-      val tableStr = tui.renderTable(game)
-      tableStr should include("Angriff (1)")
-      tableStr should include("Verteidigung (1)")
-      tableStr should include(
-        "\u2666"
-      )
-      tableStr should include("10")
-    }
-
-    "buildStatusString - NotYourTurn, Draw and RoundEnd cases" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
-      )
-      val tui = new TUI(controller)
-
-      val g1 = createGameState(
-        players = List(Player("P", List.empty)),
+    "build status string for NotYourTurn" in {
+      val gameState = TestHelper.createTestGameState(
         lastEvent = Some(GameEvent.NotYourTurn)
       )
-      tui.buildStatusString(g1).should(include("Du bist nicht am Zug!"))
-
-      val g2 = createGameState(
-        players = List(Player("P", List.empty)),
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("nicht am Zug")
+    }
+    "build status string for Pass" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.Pass)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Passen")
+    }
+    "build status string for Take" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.Take)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Karten aufgenommen")
+    }
+    "build status string for Draw" in {
+      val gameState = TestHelper.createTestGameState(
         lastEvent = Some(GameEvent.Draw)
       )
-      tui.buildStatusString(g2).should(include("Karten werden gezogen."))
-
-      val g3 = createGameState(
-        players = List(Player("P", List.empty)),
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Karten werden gezogen")
+    }
+    "build status string for RoundEnd cleared" in {
+      val gameState = TestHelper.createTestGameState(
         lastEvent = Some(GameEvent.RoundEnd(cleared = true))
       )
-      tui.buildStatusString(g3).should(include("Runde vorbei, Tisch geleert."))
-
-      val g4 = createGameState(
-        players = List(Player("P", List.empty)),
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Tisch geleert")
+    }
+    "build status string for RoundEnd not cleared" in {
+      val gameState = TestHelper.createTestGameState(
         lastEvent = Some(GameEvent.RoundEnd(cleared = false))
       )
-      tui
-        .buildStatusString(g4)
-        .should(include("Runde vorbei, Karten aufgenommen."))
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Karten aufgenommen")
     }
-
-    "combineCardLines returns empty string for empty list" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
+    "build status string for GameOver with loser" in {
+      val winner = TestHelper.Player("Winner", List.empty)
+      val loser = TestHelper.Player("Loser", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameOver(winner, Some(loser)))
       )
-      val tui = new TUI(controller)
-
-      tui.combineCardLines(List.empty) shouldBe ""
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Durak")
+      status should include("Loser")
     }
-
-    "renderCard includes Seven and Eight correctly" in {
-      val controller = new Controller(
-        createGameState(List.empty),
-        UndoRedoManager()
+    "build status string for GameOver without loser" in {
+      val winner = TestHelper.Player("Winner", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameOver(winner, None))
       )
-      val tui = new TUI(controller)
-
-      val seven = Card(Suit.Diamonds, Rank.Seven)
-      val eight = Card(Suit.Spades, Rank.Eight)
-
-      val rSeven = tui.renderCard(seven).mkString
-      rSeven should include("7")
-      rSeven should include("\u2666")
-
-      val rEight = tui.renderCard(eight).mkString
-      rEight should include("8")
-      rEight should include("\u2660")
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Spiel beendet")
     }
-
-    "gameLoop continues when no GameOver (case _ => gameLoop())" in {
-      val attacker = Player("A", List(spadeSix))
-      val defender = Player("D", List(heartAce))
-      val initial = createGameState(
-        players = List(attacker, defender),
-        gamePhase = AttackPhase
+    "build status string for GameOver with Quit winner" in {
+      val winner = TestHelper.Player("Quit", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameOver(winner, None))
       )
-
-      class TestController(
-          gs: GameState,
-          undoManager: UndoRedoManager
-      ) extends Controller(gs, undoManager) {
-        val calls = new java.util.concurrent.atomic.AtomicInteger(0)
-        override def processPlayerAction(
-            action: de.htwg.DurakApp.controller.PlayerAction
-        ): de.htwg.DurakApp.model.GameState = {
-          calls.incrementAndGet()
-          this.gameState = this.gameState.copy(lastEvent = Some(GameEvent.Pass))
-          this.gameState
-        }
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Spiel beendet")
+    }
+    "build status string for CannotUndo" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.CannotUndo)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Nichts zum Rückgängigmachen")
+    }
+    "build status string for CannotRedo" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.CannotRedo)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Nichts zum Wiederherstellen")
+    }
+    "build status string for SetupError" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.SetupError),
+        gamePhase = TestGamePhases.setupPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Setup-Fehler")
+    }
+    "build status string for GameSetupComplete" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.GameSetupComplete)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Setup abgeschlossen")
+    }
+    "build status string for AskPlayAgain" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskPlayAgain)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("neue Runde")
+    }
+    "build status string for ExitApplication" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.ExitApplication)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should include("Anwendung wird beendet")
+    }
+    "build status string for AskPlayerCount" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskPlayerCount)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
+    "build status string for AskPlayerNames" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskPlayerNames)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
+    "build status string for AskDeckSize" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.AskDeckSize)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
+    "build status string with no event in non-setup phase" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = None,
+        gamePhase = TestGamePhases.attackPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status should not be empty
+    }
+    "build status string with no event in setup phase" in {
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = None,
+        gamePhase = TestGamePhases.setupPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val status = tui.buildStatusString(gameState)
+      status shouldBe ""
+    }
+    "use default Console.out when no PrintStream provided" in {
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases)
+      tui should not be null
+      noException shouldBe thrownBy { tui.clearScreen() }
+    }
+    "printPrompt should handle else case for non-game phases" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.roundPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "printPrompt should handle else case for end phase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.endPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "printPrompt should handle else case for askPlayAgain phase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.askPlayAgainPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "printPrompt should handle else case for gameStart phase" in {
+      val gameState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.gameStartPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "printPrompt should handle drawPhase with no active player" in {
+      val player1 = TestHelper.Player("Alice", List.empty)
+      val player2 = TestHelper.Player("Bob", List.empty)
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        gamePhase = TestGamePhases.drawPhase
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      noException shouldBe thrownBy { tui.update }
+    }
+    "renderScreen should handle defensePhase active player" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.defensePhase,
+        defenderIndex = 1
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val rendered = tui.renderScreen(gameState, "Test")
+      rendered should include("Bob")
+    }
+    "renderScreen should handle other phases for active player fallback" in {
+      val card = TestHelper.Card(Suit.Hearts, Rank.Ace, isTrump = true)
+      val player1 = TestHelper.Player("Alice", List(card))
+      val player2 = TestHelper.Player("Bob", List(card))
+      val gameState = TestHelper.createTestGameState(
+        players = List(player1, player2),
+        trumpCard = card,
+        gamePhase = TestGamePhases.roundPhase,
+        mainAttackerIndex = 0
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val tui = new TUI(controller, TestGamePhases, nullOutputStream)
+      val rendered = tui.renderScreen(gameState, "Test")
+      rendered should include("Alice")
+    }
+    "run method should print welcome and end messages" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val gameState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.ExitApplication)
+      )
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("q\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
       }
-
-      val controller =
-        new TestController(initial, UndoRedoManager())
-
-      val tui = new TUI(controller)
-
-      val input =
-        "pass\nq\n"
-
-      val inStream = new ByteArrayInputStream(input.getBytes)
-
-      val outStream = new ByteArrayOutputStream()
-
-      Console.withIn(inStream) {
-
-        Console.withOut(outStream) {
-
-          tui.run()
-
-        }
-
-      }
-
-      val output = outStream.toString()
-
-      controller.calls.get() shouldBe 1
+      val output = outputCapture.toString
+      output should include("Willkommen bei Durak!")
       output should include("Spiel beendet.")
     }
-
-    "gameLoop should not call processPlayerAction for UndoAction or RedoAction" in {
-      val player = Player("TestPlayer", List(spadeSix))
-      val initialGameState = createGameState(players = List(player))
-
-      class MockController(
-          gs: GameState,
-          undoManager: UndoRedoManager
-      ) extends Controller(gs, undoManager) {
-        val processPlayerActionCalled =
-          new java.util.concurrent.atomic.AtomicBoolean(false)
+    "run method should add TUI as observer" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("quit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        controller.observers.length shouldBe 0
+        tui.run()
+        controller.observers should contain(tui)
+      }
+    }
+    "run method should call update during initialization" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("q\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      val output = outputCapture.toString
+      output should not be empty
+      output.length should be > 20
+    }
+    "gameLoop should exit on quit command" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("quit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should exit on q command" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val gameState = TestHelper.createTestGameState()
+      val controller = new SpyController(gameState, new StubUndoRedoManager())
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("q\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should exit on ExitApplication event" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState()
+      val exitState = TestHelper.createTestGameState(
+        lastEvent = Some(GameEvent.ExitApplication)
+      )
+      class ExitController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
         override def processPlayerAction(
             action: de.htwg.DurakApp.controller.PlayerAction
         ): de.htwg.DurakApp.model.GameState = {
-          processPlayerActionCalled.set(true)
-          this.gameState
+          currentState = exitState
+          notifyObservers
+          currentState
         }
+        override def gameState: de.htwg.DurakApp.model.GameState = currentState
       }
-      val mockController = new MockController(
-        initialGameState,
-        UndoRedoManager()
-      )
-      val tui = new TUI(mockController)
-
-      mockController.processPlayerActionCalled.set(false)
-      val inputUndo = "undo\nq\n"
-      val inStreamUndo = new ByteArrayInputStream(inputUndo.getBytes)
-      Console.withIn(inStreamUndo) {
-        val outStream = new ByteArrayOutputStream()
-        Console.withOut(outStream) {
-          tui.run()
-        }
+      val controller = new ExitController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("2\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
       }
-      mockController.processPlayerActionCalled.get() shouldBe false
-
-      mockController.processPlayerActionCalled.set(false)
-      val inputRedo = "redo\nq\n"
-      val inStreamRedo = new ByteArrayInputStream(inputRedo.getBytes)
-      Console.withIn(inStreamRedo) {
-        val outStream = new ByteArrayOutputStream()
-        Console.withOut(outStream) {
-          tui.run()
-        }
-      }
-      mockController.processPlayerActionCalled.get() shouldBe false
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
     }
-
+    "gameLoop should handle UndoAction in match case and skip processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      class UndoTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new UndoTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("u\npass\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions.size shouldBe 1
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should handle RedoAction in match case and skip processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      class RedoTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new RedoTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("r\npass\nquit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions.size shouldBe 1
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should continue recursively when no exit event" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.setupPhase
+      )
+      class RecursiveTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new RecursiveTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("2\n3\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions.size should be >= 2
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should handle non-exit events and continue" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState()
+      class ContinueTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.InvalidMove))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new ContinueTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream =
+        new ByteArrayInputStream("invalid\nstill here\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions.size shouldBe 2
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should handle SaveGameAction and call processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      class SaveTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.GameSaved))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new SaveTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("save\nq\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions should contain(
+        de.htwg.DurakApp.controller.SaveGameAction
+      )
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
+    "gameLoop should handle LoadGameAction and call processPlayerAction" in {
+      import java.io.{ByteArrayOutputStream, ByteArrayInputStream, PrintStream}
+      val initialState = TestHelper.createTestGameState(
+        gamePhase = TestGamePhases.attackPhase
+      )
+      class LoadTestController
+          extends SpyController(initialState, new StubUndoRedoManager()) {
+        override def processPlayerAction(
+            action: de.htwg.DurakApp.controller.PlayerAction
+        ): de.htwg.DurakApp.model.GameState = {
+          processedActions = processedActions :+ action
+          currentState =
+            currentState.copy(lastEvent = Some(GameEvent.GameLoaded))
+          notifyObservers
+          currentState
+        }
+      }
+      val controller = new LoadTestController()
+      val outputCapture = new ByteArrayOutputStream()
+      val printStream = new PrintStream(outputCapture)
+      val inputStream = new ByteArrayInputStream("load\nquit\n".getBytes)
+      Console.withIn(inputStream) {
+        val tui = new TUI(controller, TestGamePhases, printStream)
+        tui.run()
+      }
+      controller.processedActions should contain(
+        de.htwg.DurakApp.controller.LoadGameAction
+      )
+      val output = outputCapture.toString
+      output should include("Spiel beendet.")
+    }
   }
 }

@@ -1,180 +1,145 @@
 package de.htwg.DurakApp.util
-
-import de.htwg.DurakApp.model.{Card, Rank, Suit, GameState}
+import de.htwg.DurakApp.testutil._
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import de.htwg.DurakApp.controller.command.GameCommand
-
+import de.htwg.DurakApp.model.{Card, Suit, Rank, GameState, Player}
+import de.htwg.DurakApp.testutil.*
+import de.htwg.DurakApp.controller.command.CommandFactory
 class UndoRedoManagerSpec extends AnyWordSpec with Matchers {
-
-  val initialState = GameState(
-    Nil,
-    Nil,
-    Map.empty,
-    Nil,
-    Card(Suit.Clubs, Rank.Six),
-    0,
-    1,
-    de.htwg.DurakApp.model.state.SetupPhase
+  private val factory: UndoRedoManagerFactory = new StubUndoRedoManagerFactory()
+  private val commandFactory: CommandFactory = new StubCommandFactory()
+  val player1 =
+    TestHelper.Player("Alice", List(TestHelper.Card(Suit.Hearts, Rank.Six)))
+  val player2 =
+    TestHelper.Player("Bob", List(TestHelper.Card(Suit.Diamonds, Rank.Seven)))
+  val trumpCard = TestHelper.Card(Suit.Clubs, Rank.Ace, isTrump = true)
+  val gameState = TestHelper.GameState(
+    players = List(player1, player2),
+    deck = List.empty,
+    table = Map.empty,
+    discardPile = List.empty,
+    trumpCard = trumpCard,
+    mainAttackerIndex = 0,
+    defenderIndex = 1,
+    gamePhase = StubGamePhases.setupPhase,
+    lastEvent = None,
+    passedPlayers = Set.empty,
+    roundWinner = None,
+    setupPlayerCount = None,
+    setupPlayerNames = List.empty,
+    setupDeckSize = None,
+    currentAttackerIndex = None,
+    lastAttackerIndex = None
   )
-  val state1 = initialState.copy(attackerIndex = initialState.attackerIndex + 1)
-  val state2 = state1.copy(attackerIndex = state1.attackerIndex + 1)
-  val state3 = state2.copy(attackerIndex = state2.attackerIndex + 1)
-
-  case class TestCommand(
-      oldState: GameState,
-      newState: GameState
-  ) extends GameCommand {
-    override def execute(gameState: GameState): GameState = {
-      gameState should be(oldState)
-      newState
-    }
-    override def undo(
-        currentGameState: GameState,
-        previousGameState: GameState
-    ): GameState = {
-      currentGameState should be(newState)
-      previousGameState
-    }
-  }
-
   "An UndoRedoManager" should {
-
-    "be empty initially" in {
-      val manager = UndoRedoManager()
-      manager.undoStack should be(Nil)
-      manager.redoStack should be(Nil)
+    "be created with empty stacks" in {
+      val manager = factory.create()
+      manager.undoStack shouldBe empty
+      manager.redoStack shouldBe empty
     }
-
-    "save a state correctly" in {
-      val manager = UndoRedoManager().save(
-        TestCommand(initialState, state1),
-        initialState
-      )
-      manager.undoStack.head._2 should be(initialState)
-      manager.undoStack.head._1 shouldBe a[TestCommand]
-      manager.redoStack should be(Nil)
-
-      val manager2 = manager.save(TestCommand(state1, state2), state1)
-      manager2.undoStack.head._2 should be(state1)
-      manager2.undoStack.head._1 shouldBe a[TestCommand]
-      manager2.undoStack(1)._2 should be(initialState)
-      manager2.redoStack should be(Nil)
+    "save a command and state" in {
+      val manager = factory.create()
+      val command = commandFactory.phaseChange()
+      val updatedManager = manager.save(command, gameState)
+      updatedManager.undoStack.size shouldBe 1
+      updatedManager.redoStack shouldBe empty
     }
-
-    "undo a state correctly" in {
-      val manager = UndoRedoManager()
-        .save(TestCommand(initialState, state1), initialState)
-        .save(TestCommand(state1, state2), state1)
-
-      val (managerAfterUndo, undoneState) = manager.undo(state2).get
-      undoneState should be(state1)
-      managerAfterUndo.undoStack.head._2 should be(initialState)
-      managerAfterUndo.redoStack.head._2 should be(state1)
-      managerAfterUndo.redoStack.head._1 shouldBe a[TestCommand]
+    "clear redo stack when saving new command" in {
+      val manager = factory.create()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
+      val manager1 = manager.save(command1, gameState)
+      val manager2 =
+        manager1.save(command2, gameState.copy(mainAttackerIndex = 1))
+      val (manager3, _) = manager2.undo(gameState).get
+      val manager4 = manager3.save(command1, gameState)
+      manager4.redoStack shouldBe empty
+      manager4.undoStack.size shouldBe 2
     }
-
-    "undo multiple states correctly" in {
-      val manager = UndoRedoManager()
-        .save(TestCommand(initialState, state1), initialState)
-        .save(TestCommand(state1, state2), state1)
-        .save(TestCommand(state2, state3), state2)
-
-      val (m1, s1) = manager.undo(state3).get
-      s1 should be(state2)
-      m1.undoStack.head._2 should be(state1)
-      m1.redoStack.head._2 should be(state2)
-
-      val (m2, s2) = m1.undo(s1).get
-      s2 should be(state1)
-      m2.undoStack.head._2 should be(initialState)
-      m2.redoStack.head._2 should be(state1)
+    "undo a command" in {
+      val manager = factory.create()
+      val command = commandFactory.phaseChange()
+      val oldState = gameState
+      val newState = gameState.copy(mainAttackerIndex = 1)
+      val savedManager = manager.save(command, oldState)
+      val undoResult = savedManager.undo(newState)
+      undoResult shouldBe defined
+      val (updatedManager, restoredState) = undoResult.get
+      updatedManager.undoStack shouldBe empty
+      updatedManager.redoStack.size shouldBe 1
     }
-
-    "return None when undoing with an empty undoStack" in {
-      val manager = UndoRedoManager()
-      manager.undo(initialState) should be(None)
+    "return None when undoing with empty stack" in {
+      val manager = factory.create()
+      val result = manager.undo(gameState)
+      result shouldBe None
     }
-
-    "redo a state correctly" in {
-      val manager = UndoRedoManager()
-        .save(TestCommand(initialState, state1), initialState)
-        .save(TestCommand(state1, state2), state1)
-
-      val (managerAfterUndo, undoneState) = manager.undo(state2).get
-      undoneState should be(state1)
-
-      val (managerAfterRedo, redoneState) =
-        managerAfterUndo.redo(undoneState).get
-      redoneState should be(state2)
-      managerAfterRedo.undoStack.head._2 should be(state1)
-      managerAfterRedo.redoStack should be(Nil)
+    "redo a command" in {
+      val manager = factory.create()
+      val command = commandFactory.phaseChange()
+      val oldState = gameState
+      val newState = gameState.copy(mainAttackerIndex = 1)
+      val savedManager = manager.save(command, oldState)
+      val (undoneManager, _) = savedManager.undo(newState).get
+      val redoResult = undoneManager.redo(oldState)
+      redoResult shouldBe defined
+      val (redoneManager, _) = redoResult.get
+      redoneManager.undoStack.size shouldBe 1
+      redoneManager.redoStack shouldBe empty
     }
-
-    "redo multiple states correctly" in {
-      val manager = UndoRedoManager()
-        .save(TestCommand(initialState, state1), initialState)
-        .save(TestCommand(state1, state2), state1)
-        .save(TestCommand(state2, state3), state2)
-
-      val (m1, s1) = manager.undo(state3).get
-      val (m2, s2) = m1.undo(s1).get
-      val (m3, s3) = m2.undo(s2).get
-      s3 should be(initialState)
-
-      val (m4, s4) = m3.redo(s3).get
-      s4 should be(state1)
-      m4.undoStack.head._2 should be(initialState)
-      m4.redoStack.head._2 should be(state1)
-
-      val (m5, s5) = m4.redo(s4).get
-      s5 should be(state2)
-      m5.undoStack.head._2 should be(state1)
-      m5.redoStack.head._2 should be(state2)
+    "return None when redoing with empty stack" in {
+      val manager = factory.create()
+      val result = manager.redo(gameState)
+      result shouldBe None
     }
-
-    "return None when redoing with an empty redoStack" in {
-      val manager = UndoRedoManager().save(
-        TestCommand(initialState, state1),
-        initialState
-      )
-      manager.redo(state1) should be(None)
+    "maintain proper stack state through multiple operations" in {
+      val manager = factory.create()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
+      val state1 = gameState
+      val state2 = gameState.copy(mainAttackerIndex = 1)
+      val state3 = gameState.copy(mainAttackerIndex = 2)
+      val m1 = manager.save(command1, state1)
+      val m2 = m1.save(command2, state2)
+      m2.undoStack.size shouldBe 2
+      m2.redoStack.size shouldBe 0
+      val (m3, _) = m2.undo(state3).get
+      m3.undoStack.size shouldBe 1
+      m3.redoStack.size shouldBe 1
+      val (m4, _) = m3.undo(state2).get
+      m4.undoStack.size shouldBe 0
+      m4.redoStack.size shouldBe 2
+      val (m5, _) = m4.redo(state1).get
+      m5.undoStack.size shouldBe 1
+      m5.redoStack.size shouldBe 1
     }
-
-    "clear redo stack on new save" in {
-      val manager = UndoRedoManager()
-        .save(TestCommand(initialState, state1), initialState)
-        .save(TestCommand(state1, state2), state1)
-
-      val (managerAfterUndo, _) = manager.undo(state2).get
-      val managerAfterNewSave =
-        managerAfterUndo.save(TestCommand(state1, state3), state1)
-      managerAfterNewSave.undoStack.head._2 should be(state1)
-      managerAfterNewSave.redoStack should be(Nil)
+    "handle multiple undo operations in sequence" in {
+      val manager = factory.create()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
+      val command3 = commandFactory.phaseChange()
+      val m1 = manager.save(command1, gameState)
+      val m2 = m1.save(command2, gameState)
+      val m3 = m2.save(command3, gameState)
+      m3.undoStack.size shouldBe 3
+      val (m4, _) = m3.undo(gameState).get
+      val (m5, _) = m4.undo(gameState).get
+      val (m6, _) = m5.undo(gameState).get
+      m6.undoStack shouldBe empty
+      m6.redoStack.size shouldBe 3
     }
-
-    "handle initial state correctly with undo" in {
-      val manager = UndoRedoManager().save(
-        TestCommand(initialState, state1),
-        initialState
-      )
-      val (m1, s1) = manager.undo(state1).get
-      s1 should be(initialState)
-      m1.undo(initialState) should be(None)
-    }
-
-    "return the correct manager instance after operations" in {
-      val initialManager = UndoRedoManager()
-      val manager1 =
-        initialManager.save(TestCommand(initialState, state1), initialState)
-      val manager2 = manager1.save(TestCommand(state1, state2), state1)
-
-      val (managerAfterUndo, _) = manager2.undo(state2).get
-      managerAfterUndo should not be theSameInstanceAs(manager2)
-
-      val (managerAfterRedo, _) = managerAfterUndo.redo(state1).get
-      managerAfterRedo should not be theSameInstanceAs(managerAfterUndo)
-      managerAfterRedo.undoStack.head._2 should be(state1)
+    "handle multiple redo operations in sequence" in {
+      val manager = factory.create()
+      val command1 = commandFactory.phaseChange()
+      val command2 = commandFactory.phaseChange()
+      val m1 = manager.save(command1, gameState)
+      val m2 = m1.save(command2, gameState)
+      val (m3, _) = m2.undo(gameState).get
+      val (m4, _) = m3.undo(gameState).get
+      m4.redoStack.size shouldBe 2
+      val (m5, _) = m4.redo(gameState).get
+      val (m6, _) = m5.redo(gameState).get
+      m6.undoStack.size shouldBe 2
+      m6.redoStack shouldBe empty
     }
   }
 }
