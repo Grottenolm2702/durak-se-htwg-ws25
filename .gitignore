@@ -3,6 +3,7 @@
 
 hs_err_pid*
 
+*.pdf
 # === Scala / sbt ===
 target/
 project/target/
