@@ -13,11 +13,14 @@ import scalafx.application.Platform
 
   val tui = injector.getInstance(classOf[TUI])
 
-  Platform.startup(() => {
-
-    val gui = injector.getInstance(classOf[DurakGUI])
-    gui.start()
-  })
+  try {
+    Platform.startup(() => {
+      val gui = injector.getInstance(classOf[DurakGUI])
+      gui.start()
+    })
+  } catch {
+    case _: Exception => println("GUI not available, running in TUI-only mode")
+  }
 
   tui.run()
 }

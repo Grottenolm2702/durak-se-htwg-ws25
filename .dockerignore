@@ -1,0 +1,8 @@
+target/
+.bloop/
+.bsp/
+.metals/
+.vscode/
+.git/
+.github/
+*.pdf
