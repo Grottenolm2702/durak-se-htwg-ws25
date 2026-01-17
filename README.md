@@ -9,8 +9,14 @@ This project implements the popular Russian card game Durak. The game is designe
 
 ## Requirements
 
-- JDK 11 or higher
+- JDK 21 or higher (required for ScalaFX 23.x)
 - sbt 1.x
+- For GUI: JavaFX support (included in most JDK distributions)
+
+### Docker (Alternative)
+- Docker installed
+- For GUI: X11 server (Linux/macOS) or VcXsrv/Xming (Windows)
+- See [DOCKER_README.md](DOCKER_README.md) for Docker setup
 
 ## Installation
 
@@ -22,11 +28,22 @@ sbt compile
 
 ## Usage
 
-Run the game:
+### Native
+Run the game (starts both GUI and TUI):
 ```bash
 sbt run
 ```
 
+### Docker
+See [DOCKER_README.md](DOCKER_README.md) for detailed Docker instructions.
+
+Quick start:
+```bash
+./run-docker.sh -b  # First time: build image
+./run-docker.sh     # Start game (choose GUI or TUI)
+```
+
+### Testing
 Run tests:
 ```bash
 sbt test
