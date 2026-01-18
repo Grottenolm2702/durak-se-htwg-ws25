@@ -22,7 +22,7 @@ This project implements the popular Russian card game Durak. The game is designe
 
 ```bash
 git clone <repository-url>
-cd durak_ronny
+cd durak-se-htwg-ws25
 sbt compile
 ```
 
